@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trip Map — Athens + Bangalore (Jan 28 → Feb 7)</title>
+
+  <!-- Leaflet (CDN). Page opens locally; tiles load from the internet. -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+
+  <style>
+    :root { --bg: #0b1020; --panel: #121a33; --text: #e7ecff; --muted:#a9b4e0; }
+    html, body { height: 100%; margin: 0; background: var(--bg); color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+    #app { display: grid; grid-template-columns: 380px 1fr; height: 100%; }
+
+    /* LEFT SIDEBAR */
+    #sidebar {
+      background: linear-gradient(180deg, rgba(18,26,51,0.96), rgba(18,26,51,0.88));
+      border-right: 1px solid rgba(255,255,255,0.08);
+      padding: 16px 14px 18px;
+      overflow: auto;
+    }
+    h1 { font-size: 16px; margin: 0 0 8px; letter-spacing: 0.2px; }
+    .sub { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.35; }
+    .card { background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 14px; padding: 12px; margin: 10px 0; }
+    .row { display:flex; justify-content: space-between; gap: 10px; align-items: center; }
+    .pill { font-size: 11px; padding: 4px 8px; border-radius: 999px;
+      background: rgba(231,236,255,0.06); border: 1px solid rgba(231,236,255,0.14); color: var(--text); }
+    .label { font-size: 12px; color: var(--muted); }
+    .value { font-size: 12px; color: var(--text); font-weight: 650; }
+    ul { margin: 8px 0 0 18px; padding: 0; }
+    li { margin: 8px 0; font-size: 12px; line-height: 1.35; color: var(--text); }
+    .muted { color: var(--muted); }
+
+    .controls { display: grid; gap: 10px; }
+    .checkRow { display:flex; align-items: flex-start; gap: 10px; padding: 8px 10px;
+      border-radius: 12px; border: 1px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.03); }
+    .checkRow:hover { background: rgba(255,255,255,0.05); }
+    input[type="checkbox"] { margin-top: 2px; transform: scale(1.12); }
+    .checkText { display:flex; flex-direction: column; gap: 2px; }
+    .checkTitle { font-weight: 800; font-size: 12px; }
+    .checkHint { font-size: 11px; color: var(--muted); line-height: 1.35; }
+    .btnRow { display:flex; gap: 8px; margin-top: 10px; }
+    button {
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--text);
+      background: rgba(231,236,255,0.06);
+      border: 1px solid rgba(231,236,255,0.16);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    button:hover { background: rgba(231,236,255,0.10); }
+
+    .legend { display:flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .legendItem { display:flex; gap:10px; align-items:center; font-size: 12px; color: var(--muted); }
+    .legendSwatch { width: 34px; height: 12px; display:flex; align-items:center; }
+    .footer { font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.35; }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11px;
+      padding: 2px 6px; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;
+      background: rgba(255,255,255,0.04); color: var(--text); }
+
+    /* RIGHT PANEL (MAP + ITINERARY) */
+    #rightPane {
+      height: 100%;
+      display: grid;
+      grid-template-rows: 66% 34%;
+      min-width: 0;
+    }
+    #map { height: 100%; width: 100%; }
+    #itineraryPane {
+      position: relative;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(11,16,32,0.90), rgba(11,16,32,0.96));
+      overflow: hidden;
+      min-width: 0;
+    }
+    #itineraryHeader {
+      display:flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(18,26,51,0.40);
+    }
+    #itineraryHeader .title {
+      font-weight: 900;
+      letter-spacing: 0.2px;
+      font-size: 12px;
+    }
+    #itineraryHeader .hint {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    #itineraryGrid {
+      height: calc(100% - 52px);
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 12px;
+    }
+    .dayColumns {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 280px;
+      gap: 12px;
+      height: 100%;
+      align-items: start;
+    }
+    .dayCol {
+      height: 100%;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 14px;
+      padding: 10px;
+      overflow: hidden;
+      display:flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .dayTop {
+      display:flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .dayName { font-weight: 900; font-size: 12px; }
+    .dayMeta { font-size: 11px; color: var(--muted); }
+    .events {
+      overflow: auto;
+      padding-right: 6px; /* makes scrollbars less intrusive */
+    }
+    .eventRow {
+      display:flex;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      margin-bottom: 8px;
+      cursor: default;
+    }
+    .eventRow:hover { background: rgba(255,255,255,0.06); }
+    .badge {
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      margin-top: 3px;
+      flex: 0 0 auto;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.10);
+    }
+    .eventText { min-width: 0; }
+    .eventTitle { font-weight: 850; font-size: 12px; margin-bottom: 2px; }
+    .eventSub { font-size: 11px; color: var(--muted); line-height: 1.35; }
+    .eventTime { font-size: 11px; color: var(--text); opacity: 0.95; margin-top: 4px; }
+    .pillTiny { font-size: 10px; padding: 2px 7px; border-radius: 999px;
+      background: rgba(231,236,255,0.06); border: 1px solid rgba(231,236,255,0.14); color: var(--text); }
+
+    /* Itinerary tooltip */
+    #itTip {
+      position: absolute;
+      z-index: 9999;
+      max-width: 340px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 120ms ease, transform 120ms ease;
+      background: rgba(11,16,32,0.94);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #e7ecff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.40);
+      backdrop-filter: blur(8px);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    #itTip strong { font-weight: 900; }
+
+    /* Map tooltip readability */
+    .leaflet-tooltip.flightTip {
+      background: rgba(11,16,32,0.92);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #e7ecff;
+      border-radius: 12px;
+      padding: 8px 10px;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+      font-size: 12px;
+      line-height: 1.3;
+      backdrop-filter: blur(8px);
+    }
+    .leaflet-tooltip.flightTip::before { border-top-color: rgba(11,16,32,0.92); }
+  
+    /* RIGHT PANE LAYOUT (map + facts on top, itinerary below) */
+    #rightPane{
+      display:grid;
+      grid-template-rows: minmax(420px, 1fr) 380px;
+      gap: 12px;
+      padding: 12px;
+      overflow: hidden;
+    }
+    #topRow{
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap: 12px;
+      min-height: 0;
+    }
+    #map{
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      min-height: 0;
+    }
+    #factsPane{
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(20,30,58,0.95), rgba(16,24,48,0.92));
+      border: 1px solid rgba(120,140,200,0.18);
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      padding: 12px 12px 10px;
+      overflow: auto;
+      min-height: 0;
+    }
+    .factsHeader{
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items:flex-start;
+      margin-bottom: 10px;
+    }
+    .factsHeader .title{
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: .2px;
+    }
+    .factsHeader .hint{
+      font-size: 12px;
+      color: rgba(231,236,255,0.70);
+      margin-top: 2px;
+      line-height: 1.25;
+    }
+    .factsGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .factCard{
+      background: rgba(10,14,28,0.55);
+      border: 1px solid rgba(140,170,255,0.14);
+      border-radius: 14px;
+      padding: 10px;
+    }
+    .factTitle{
+      font-size: 12px;
+      color: rgba(231,236,255,0.70);
+      margin-bottom: 6px;
+    }
+    .factValue{
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: .2px;
+      margin-bottom: 2px;
+    }
+    .factSub{
+      font-size: 12px;
+      color: rgba(231,236,255,0.70);
+      line-height: 1.25;
+    }
+    .factsFoot{
+      margin-top: 10px;
+      font-size: 11px;
+      color: rgba(231,236,255,0.60);
+      line-height: 1.25;
+    }
+
+    /* City photo overlays */
+    .cityIcon{
+      width: 70px;
+      height: 54px;
+      border-radius: 12px;
+      background: rgba(10,14,28,0.55);
+      border: 1px solid rgba(140,170,255,0.22);
+      box-shadow: 0 8px 18px rgba(0,0,0,.35);
+      overflow: hidden;
+      backdrop-filter: blur(6px);
+    }
+    .cityIcon .photo{
+      width: 100%;
+      height: 36px;
+      background-size: cover;
+      background-position: center;
+      filter: saturate(1.05) contrast(1.02);
+    }
+    .cityIcon .label{
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .25px;
+      padding: 6px 7px;
+      color: rgba(231,236,255,0.92);
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      background: linear-gradient(180deg, rgba(6,8,14,0.0), rgba(6,8,14,0.35));
+    }
+    .cityIcon .label span:nth-child(2){
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(231,236,255,0.62);
+    }
+
+    /* Better tooltip readability */
+    .leaflet-tooltip.flightTip{
+      background: rgba(10,14,28,0.92);
+      border: 1px solid rgba(150,180,255,0.18);
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      color: rgba(231,236,255,0.95);
+      border-radius: 12px;
+      padding: 10px 10px;
+      font-size: 12px;
+    }
+    .leaflet-tooltip.flightTip:before{ border-top-color: rgba(10,14,28,0.92); }
+
+  </style>
+</head>
+
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <h1>Trip Map — Athens + Bangalore</h1>
+    <div class="sub">
+      Toggle one or more travel-days to show routes. Routes accumulate automatically as you check more boxes.
+      <br/><span class="muted">This file opens locally; map tiles load from the internet.</span>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div class="label">Travelers</div>
+        <div class="pill">Seth • Katrina • Paul • Sheri</div>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <div class="label">Key split</div>
+        <div class="value">Katrina+Sheri return via EWR • Seth+Paul continue to BLR</div>
+      </div>
+
+      <div class="btnRow">
+        <button id="selectAll">Select all</button>
+        <button id="selectNone">Clear</button>
+      </div>
+
+      <div class="controls" style="margin-top:10px;">
+        <label class="checkRow">
+          <input type="checkbox" class="dayCheck" data-day="0" checked />
+          <span class="checkText">
+            <span class="checkTitle">Wed Jan 28 — Positioning + EK210 to Athens</span>
+            <span class="checkHint">DCA→EWR (Katrina), CMH→EWR (Seth/Paul/Sheri), then EK210 EWR→ATH 23:45.</span>
+          </span>
+        </label>
+
+        <label class="checkRow">
+          <input type="checkbox" class="dayCheck" data-day="1" checked />
+          <span class="checkText">
+            <span class="checkTitle">Mon Feb 2 / Tue Feb 3 — Split return + BLR leg</span>
+            <span class="checkHint">EK209 ATH→EWR 17:10 (Katrina/Sheri) and ATH→DXB→BLR (Seth/Paul).</span>
+          </span>
+        </label>
+
+        <label class="checkRow">
+          <input type="checkbox" class="dayCheck" data-day="2" checked />
+          <span class="checkText">
+            <span class="checkTitle">Sat Feb 7 — Seth/Paul return to CMH</span>
+            <span class="checkHint">EK569 BLR→DXB 04:30, EK235 DXB→ORD 09:45, UA3650 ORD→CMH 19:39.</span>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div class="label">Flights shown</div>
+        <div class="pill" id="flightCount">0</div>
+      </div>
+      <ul id="flightList"></ul>
+      <div class="footer">
+        Tip: hover a route for a readable tooltip. Click a route for a pinned popup.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">Legend (color + line type)</div>
+      <div class="legend">
+        <div class="legendItem">
+          <span class="legendSwatch">
+            <svg width="34" height="12" viewBox="0 0 34 12">
+              <line x1="1" y1="6" x2="33" y2="6" stroke="#6aa6ff" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+          </span>
+          All 4
+        </div>
+        <div class="legendItem">
+          <span class="legendSwatch">
+            <svg width="34" height="12" viewBox="0 0 34 12">
+              <line x1="1" y1="6" x2="33" y2="6" stroke="#ffcc66" stroke-width="4" stroke-linecap="round" stroke-dasharray="7 5"/>
+            </svg>
+          </span>
+          Katrina + Sheri
+        </div>
+        <div class="legendItem">
+          <span class="legendSwatch">
+            <svg width="34" height="12" viewBox="0 0 34 12">
+              <line x1="1" y1="6" x2="33" y2="6" stroke="#7dff9e" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 5"/>
+            </svg>
+          </span>
+          Seth + Paul
+        </div>
+        <div class="legendItem">
+          <span class="legendSwatch">
+            <svg width="34" height="12" viewBox="0 0 34 12">
+              <line x1="1" y1="6" x2="33" y2="6" stroke="#ff6a8a" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 4 2 4"/>
+            </svg>
+          </span>
+          Hubs / connections
+        </div>
+      </div>
+      <div class="footer">
+        Use <span class="kbd">+</span>/<span class="kbd">-</span> to zoom. Pan/drag to explore.
+      </div>
+    </div>
+  </aside>
+
+  <main id="rightPane">
+    <section id="topRow">
+      <section id="map"></section>
+      <aside id="factsPane">
+        <div class="factsHeader">
+          <div>
+            <div class="title">Trip facts & figures</div>
+            <div class="hint">Auto-calculated from the flights + itinerary data below.</div>
+          </div>
+          <div class="pill" id="factsPill">Approx</div>
+        </div>
+
+        <div class="factsGrid" id="factsGrid"></div>
+        <div class="factsFoot" id="factsFoot"></div>
+      </aside>
+    </section>
+
+    <section id="itineraryPane">
+      <div id="itineraryHeader">
+        <div>
+          <div class="title">Daily itinerary (editable)</div>
+          <div class="hint">Hover an item for details. Edit the <span class="pillTiny">ITINERARY</span> array in the HTML to change times & activities.</div>
+        </div>
+        <div class="pill" id="itMetaPill">Athens focus</div>
+      </div>
+
+      <div id="itineraryGrid">
+        <div class="dayColumns" id="dayColumns"></div>
+      </div>
+
+      <div id="itTip"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+  // ============================================================
+  // EASY TO EDIT: itinerary + flights data lives in arrays below
+  // ============================================================
+
+  // --- Airport coordinates (approx) ---
+  const AIRPORTS = {
+    DCA: { name: "Washington Reagan (DCA)",  lat: 38.8512, lon: -77.0402 },
+    CMH: { name: "Columbus (CMH)",          lat: 39.9980, lon: -82.8919 },
+    EWR: { name: "Newark (EWR)",            lat: 40.6895, lon: -74.1745 },
+    ATH: { name: "Athens (ATH)",            lat: 37.9364, lon:  23.9445 },
+    DXB: { name: "Dubai (DXB)",             lat: 25.2532, lon:  55.3657 },
+    BLR: { name: "Bengaluru (BLR)",         lat: 13.1986, lon:  77.7066 },
+    ORD: { name: "Chicago O'Hare (ORD)",    lat: 41.9742, lon: -87.9073 }
+  };
+  // --- City photo overlays (map thumbnails) ---
+  // These use Wikimedia Commons "Special:FilePath" so you can swap filenames easily.
+  function commonsFileUrl(fileName, width=220){
+    return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileName)}?width=${width}`;
+  }
+
+  const CITY_OVERLAYS = [
+    { code:"DCA", title:"Washington, DC", short:"DCA", file:"Ronald Reagan Washington National Airport, Terminal BC.jpg", dx: +0.8, dy: +0.4 },
+    { code:"CMH", title:"Columbus",       short:"CMH", file:"ColumbusNightSkyline2.jpg", dx: -0.9, dy: +0.4 },
+    { code:"EWR", title:"Newark / NYC",   short:"EWR", file:"Newark, New Jersey at night.jpg", dx: +0.6, dy: +0.5 },
+    { code:"ATH", title:"Athens",         short:"ATH", file:"Agora of Athens 2.jpg", dx: +0.9, dy: +0.6 },
+    { code:"DXB", title:"Dubai",          short:"DXB", file:"Dubai Airport 16.08.2009 05-08-19.jpg", dx: +0.8, dy: +0.6 },
+    { code:"BLR", title:"Bangalore",      short:"BLR", file:"Bengaluru Airport International Departures.jpg", dx: -1.0, dy: +0.6 },
+    { code:"ORD", title:"Chicago",        short:"ORD", file:"2010-02-19 3000x2000 chicago skyline.jpg", dx: -0.9, dy: +0.6 }
+  ];
+
+  function addCityOverlays(){
+    cityLayer.clearLayers();
+    CITY_OVERLAYS.forEach(c => {
+      const a = AIRPORTS[c.code];
+      if(!a) return;
+      const iconHtml = `
+        <div class="cityIcon">
+          <div class="photo" style="background-image:url('${commonsFileUrl(c.file, 220)}')"></div>
+          <div class="label"><span>${c.short}</span><span>${c.title}</span></div>
+        </div>`;
+      const icon = L.divIcon({
+        html: iconHtml,
+        className: "",
+        iconSize: [70,54],
+        iconAnchor: [35,54]
+      });
+      L.marker([a.lat + (c.dy||0), a.lon + (c.dx||0)], { icon, interactive: true })
+        .addTo(cityLayer)
+        .bindTooltip(`${c.title} (${c.short})`, { sticky: true, className: "flightTip" });
+    });
+  }
+
+
+  // --- Major travel-day routes (checkbox-controlled, same as before) ---
+  const FLIGHTS = [
+    // Day 0
+    { day: 0, who: "All 4",   from: "DCA", to: "EWR", code: "POS-DCA-EWR", dep: "TBD", label: "Katrina: DCA→EWR (positioning)", style: { color:"#6aa6ff", dash:null }, offsetDeg: 0.00 },
+    { day: 0, who: "All 4",   from: "CMH", to: "EWR", code: "POS-CMH-EWR", dep: "TBD", label: "Seth+Paul+Sheri: CMH→EWR (positioning)", style: { color:"#6aa6ff", dash:null }, offsetDeg: 0.00 },
+    { day: 0, who: "All 4",   from: "EWR", to: "ATH", code: "EK210", dep: "23:45", label: "All 4: EK210 EWR→ATH 23:45", style: { color:"#6aa6ff", dash:null }, offsetDeg: +0.90 },
+
+    // Day 1
+    { day: 1, who: "Katrina+Sheri", from: "ATH", to: "EWR", code: "EK209", dep: "17:10", label: "Katrina+Sheri: EK209 ATH→EWR 17:10", style: { color:"#ffcc66", dash:"7 5" }, offsetDeg: -1.60 },
+    { day: 1, who: "Seth+Paul",     from: "ATH", to: "DXB", code: "EK210*", dep: "18:00", label: "Seth+Paul: ATH→DXB 18:00 (Emirates)", style: { color:"#7dff9e", dash:"2 5" }, offsetDeg: +0.30 },
+    { day: 1, who: "Seth+Paul",     from: "DXB", to: "BLR", code: "EK564", dep: "03:40", label: "Seth+Paul: EK564 DXB→BLR 03:40", style: { color:"#7dff9e", dash:"2 5" }, offsetDeg: -0.25 },
+
+    // Day 2
+    { day: 2, who: "Seth+Paul", from: "BLR", to: "DXB", code: "EK569", dep: "04:30", label: "Seth+Paul: EK569 BLR→DXB 04:30", style: { color:"#7dff9e", dash:"2 5" }, offsetDeg: +0.25 },
+    { day: 2, who: "Seth+Paul", from: "DXB", to: "ORD", code: "EK235", dep: "09:45", label: "Seth+Paul: EK235 DXB→ORD 09:45", style: { color:"#7dff9e", dash:"2 5" }, offsetDeg: +0.20 },
+    { day: 2, who: "Seth+Paul", from: "ORD", to: "CMH", code: "UA3650", dep: "19:39", label: "Seth+Paul: UA3650 ORD→CMH 19:39 (arr 22:13)", style: { color:"#7dff9e", dash:"2 5" }, offsetDeg: -0.15 }
+  ];
+
+  // --- Daily itinerary (bottom panel) ---
+  // Editing tips:
+  // - Add a new day column: push a new object into ITINERARY.
+  // - Add an item: add a new entry to that day's "items" list.
+  // - Colors map to the legend groups.
+  const GROUPS = {
+    all4:   { name: "All 4", color: "#6aa6ff" },
+    girls:  { name: "Katrina + Sheri", color: "#ffcc66" },
+    guys:   { name: "Seth + Paul", color: "#7dff9e" },
+    athens: { name: "Athens", color: "rgba(231,236,255,0.18)" },
+    blr:    { name: "Bangalore", color: "rgba(125,255,158,0.18)" }
+  };
+
+  const ITINERARY = [
+    {
+      dayKey: "Thu Jan 29",
+      location: "Athens (ATH)",
+      focus: "Arrival + first night",
+      items: [
+        {
+          time: "20:00",
+          title: "Dinner in Athens",
+          group: "all4",
+          detail: "Reservation target: 8:00 PM local. Keep it walkable from hotel (Plaka / Koukaki).",
+          where: "Athens city center",
+          notes: "Light first night. Jet lag friendly. Aim for a place that can take a later seating."
+        }
+      ]
+    },
+    {
+      dayKey: "Fri Jan 30",
+      location: "Athens",
+      focus: "Core sights + work block",
+      items: [
+        {
+          time: "09:00–12:00",
+          title: "Acropolis + viewpoints",
+          group: "girls",
+          detail: "Early morning walk: Acropolis area + scenic loop. Museum after if desired.",
+          where: "Acropolis / Plaka",
+          notes: "Comfortable shoes; marble can be slick."
+        },
+        {
+          time: "10:00–14:00",
+          title: "Work block (4 hours)",
+          group: "guys",
+          detail: "Seth + Paul: focused work session (Wi‑Fi, quiet cafe or hotel workspace).",
+          where: "Hotel lounge / coworking / cafe",
+          notes: "Protect this block; schedule meetings inside it only."
+        },
+        {
+          time: "12:30–14:00",
+          title: "Lunch + neighborhood wandering",
+          group: "girls",
+          detail: "Food crawl or simple sit‑down lunch; shopping in Plaka/Monastiraki.",
+          where: "Plaka / Monastiraki",
+          notes: "If you want: include a quick market stop."
+        },
+        {
+          time: "19:30",
+          title: "Group dinner (optional)",
+          group: "all4",
+          detail: "Meet up after work. Keep it flexible based on energy.",
+          where: "Koukaki / Plaka",
+          notes: "Could be a 'grab-and-go' night if everyone is tired."
+        }
+      ]
+    },
+    {
+      dayKey: "Sat Jan 31",
+      location: "Athens",
+      focus: "Museums + old town",
+      items: [
+        {
+          time: "10:00–12:00",
+          title: "Acropolis Museum",
+          group: "all4",
+          detail: "Indoor-friendly block. Great winter option.",
+          where: "Acropolis Museum",
+          notes: "Pair with nearby cafés."
+        },
+        {
+          time: "12:30–14:00",
+          title: "Lunch in Koukaki",
+          group: "all4",
+          detail: "Easy post-museum meal; relaxed neighborhood feel.",
+          where: "Koukaki",
+          notes: ""
+        },
+        {
+          time: "15:00–17:00",
+          title: "Monastiraki + Ancient Agora stroll",
+          group: "all4",
+          detail: "Markets + Temple of Hephaestus area.",
+          where: "Monastiraki / Agora",
+          notes: "Good photo time late afternoon."
+        }
+      ]
+    },
+    {
+      dayKey: "Sun Feb 1",
+      location: "Athens / Attica",
+      focus: "Day trip or big highlight",
+      items: [
+        {
+          time: "09:00–17:00",
+          title: "Cape Sounion (Temple of Poseidon) — or Delphi",
+          group: "all4",
+          detail: "Pick ONE: coast + sunset vibe (Sounion) or mountains + ancient site (Delphi).",
+          where: "Outside Athens",
+          notes: "If weather is rough, swap to National Archaeological Museum."
+        },
+        {
+          time: "19:30",
+          title: "Final Athens dinner",
+          group: "all4",
+          detail: "Wrap-up dinner night.",
+          where: "Athens center",
+          notes: "Good night for a nicer reservation."
+        }
+      ]
+    },
+    {
+      dayKey: "Mon Feb 2",
+      location: "Athens → Newark",
+      focus: "Katrina + Sheri travel day",
+      items: [
+        {
+          time: "17:10",
+          title: "EK209 ATH→EWR",
+          group: "girls",
+          detail: "Arrive Newark ~21:10 local. Overnight near EWR.",
+          where: "ATH airport → EWR",
+          notes: "Pick a hotel with reliable early shuttle."
+        }
+      ]
+    },
+    {
+      dayKey: "Tue Feb 3",
+      location: "Athens → DXB → Bangalore",
+      focus: "Seth + Paul travel day",
+      items: [
+        {
+          time: "18:00",
+          title: "ATH→DXB (Emirates)",
+          group: "guys",
+          detail: "Overnight connection in DXB (~3h 15m).",
+          where: "ATH airport",
+          notes: ""
+        },
+        {
+          time: "03:40",
+          title: "EK564 DXB→BLR",
+          group: "guys",
+          detail: "Arrive BLR 08:50 local.",
+          where: "DXB",
+          notes: "Keep water/snacks handy; late-night transit."
+        }
+      ]
+    },
+    {
+      dayKey: "Sat Feb 7",
+      location: "Bangalore → Dubai → Chicago → Columbus",
+      focus: "Seth + Paul return",
+      items: [
+        {
+          time: "04:30",
+          title: "EK569 BLR→DXB",
+          group: "guys",
+          detail: "Early departure.",
+          where: "BLR airport",
+          notes: ""
+        },
+        {
+          time: "09:45",
+          title: "EK235 DXB→ORD",
+          group: "guys",
+          detail: "US re-entry at ORD. Long-haul segment.",
+          where: "DXB",
+          notes: "Plan for immigration + baggage + TSA before domestic leg."
+        },
+        {
+          time: "19:39",
+          title: "UA3650 ORD→CMH",
+          group: "guys",
+          detail: "Arrive CMH 22:13.",
+          where: "ORD",
+          notes: "Layover is comfortable (~4h 44m)."
+        }
+      ]
+    }
+  ];
+
+  // ============================================================
+  // MAP (single world span; no repeated wrap)
+  // ============================================================
+  const map = L.map('map', { zoomControl: true, worldCopyJump: false }).setView([26, 10], 2);
+
+  const worldBounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
+  map.setMaxBounds(worldBounds);
+  map.on('drag', function() { map.panInsideBounds(worldBounds, { animate: false }); });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 7,
+    minZoom: 2,
+    noWrap: true,
+    bounds: worldBounds,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const routeLayer = L.layerGroup().addTo(map);
+  const markerLayer = L.layerGroup().addTo(map);
+  const cityLayer = L.layerGroup().addTo(map);
+  // Initial view: fit the whole trip in one globe-span (no repeats)
+  const allCodes = Array.from(new Set(FLIGHTS.flatMap(f => [f.from, f.to])));
+  const allLatLngs = allCodes.map(c => [AIRPORTS[c].lat, AIRPORTS[c].lon]);
+  const allBounds = L.latLngBounds(allLatLngs);
+  map.fitBounds(allBounds, { padding: [40, 40], maxZoom: 3 });
+
+  // City photo thumbnails
+  addCityOverlays();
+
+
+
+  function greatCirclePoints(a, b, n=90) {
+    const toRad = d => d * Math.PI / 180;
+    const toDeg = r => r * 180 / Math.PI;
+
+    const lat1 = toRad(a.lat), lon1 = toRad(a.lon);
+    const lat2 = toRad(b.lat), lon2 = toRad(b.lon);
+
+    const dLat = lat2 - lat1;
+    const dLon = lon2 - lon1;
+    const sinDLat = Math.sin(dLat/2), sinDLon = Math.sin(dLon/2);
+    const h = sinDLat*sinDLat + Math.cos(lat1)*Math.cos(lat2)*sinDLon*sinDLon;
+    const delta = 2 * Math.asin(Math.min(1, Math.sqrt(h)));
+
+    if (delta === 0) return [[a.lat, a.lon], [b.lat, b.lon]];
+
+    const pts = [];
+    for (let i=0; i<=n; i++) {
+      const f = i / n;
+      const A = Math.sin((1-f)*delta) / Math.sin(delta);
+      const B = Math.sin(f*delta) / Math.sin(delta);
+
+      const x = A*Math.cos(lat1)*Math.cos(lon1) + B*Math.cos(lat2)*Math.cos(lon2);
+      const y = A*Math.cos(lat1)*Math.sin(lon1) + B*Math.cos(lat2)*Math.sin(lon2);
+      const z = A*Math.sin(lat1) + B*Math.sin(lat2);
+
+      const lat = Math.atan2(z, Math.sqrt(x*x + y*y));
+      const lon = Math.atan2(y, x);
+      pts.push([toDeg(lat), toDeg(lon)]);
+    }
+    return pts;
+  }
+
+  function nudgePoints(points, from, to, offsetDeg) {
+    if (!offsetDeg || Math.abs(offsetDeg) < 1e-6) return points;
+    const A = AIRPORTS[from];
+    const B = AIRPORTS[to];
+    const dx = (B.lon - A.lon);
+    const dy = (B.lat - A.lat);
+
+    // Perpendicular vector in lat/lon space
+    let px = -dy;
+    let py =  dx;
+    const norm = Math.sqrt(px*px + py*py) || 1;
+    px /= norm; py /= norm;
+
+    const shiftLon = px * offsetDeg;
+    const shiftLat = py * offsetDeg;
+
+    return points.map(([lat, lon]) => [lat + shiftLat, lon + shiftLon]);
+  }
+
+  function airportMarker(code, opts={}) {
+    const a = AIRPORTS[code];
+    const isHub = opts.hub === true;
+    const color = isHub ? "#ff6a8a" : "#e7ecff";
+    const fill  = isHub ? "rgba(255,106,138,0.20)" : "rgba(231,236,255,0.12)";
+    return L.circleMarker([a.lat, a.lon], {
+      radius: isHub ? 7 : 6,
+      color, weight: 2,
+      fillColor: fill, fillOpacity: 1
+    }).bindTooltip(`${code} — ${a.name}`, {sticky:true});
+  }
+
+  function clearMap() {
+    routeLayer.clearLayers();
+    markerLayer.clearLayers();
+    // cityLayer stays persistent
+  }
+
+  function getSelectedDays() {
+    return Array.from(document.querySelectorAll('.dayCheck'))
+      .filter(cb => cb.checked)
+      .map(cb => parseInt(cb.dataset.day, 10));
+  }
+
+  
+  // --- Facts & figures (top-right pane) ---
+  function haversineMiles(lat1, lon1, lat2, lon2){
+    const R = 3958.7613; // Earth radius in miles
+    const toRad = d => d * Math.PI / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  function flightMiles(f){
+    const A = AIRPORTS[f.from], B = AIRPORTS[f.to];
+    if(!A || !B) return 0;
+    return haversineMiles(A.lat, A.lon, B.lat, B.lon);
+  }
+
+  function estimateAirHours(miles, segments){
+    // Rule-of-thumb: cruise avg ~520mph + ~0.6h overhead per segment
+    return (miles / 520) + (segments * 0.6);
+  }
+
+  const PEOPLE = [
+    { name:"Seth",   includeWho:["All 4","Seth+Paul"] },
+    { name:"Paul",   includeWho:["All 4","Seth+Paul"] },
+    { name:"Katrina",includeWho:["All 4","Katrina+Sheri"] },
+    { name:"Sheri",  includeWho:["All 4","Katrina+Sheri"] }
+  ];
+
+  function inferKind(title=""){
+    const t = title.toLowerCase();
+    if(t.includes("work")) return "work";
+    if(t.includes("flight") || t.includes("depart") || t.includes("airport")) return "travel";
+    if(t.includes("dinner") || t.includes("lunch") || t.includes("breakfast")) return "meal";
+    if(t.includes("hotel") || t.includes("check-in") || t.includes("sleep")) return "lodging";
+    return "thing";
+  }
+
+  function getItineraryCounts(){
+    let totalItems = 0, plannedThings = 0;
+    ITINERARY.forEach(day => {
+      day.items.forEach(it => {
+        totalItems++;
+        const kind = it.kind || inferKind(it.title);
+        if(kind === "thing" || kind === "meal") plannedThings++;
+      });
+    });
+    return { totalItems, plannedThings };
+  }
+
+  function renderFacts(shownFlights){
+    const grid = document.getElementById("factsGrid");
+    if(!grid) return;
+    grid.innerHTML = "";
+
+    const selectedLabel = (shownFlights.length === FLIGHTS.length) ? "All travel-days selected" : "Based on selected travel-days";
+    document.getElementById("factsPill").textContent = selectedLabel;
+
+    // Per-person distance / hours
+    PEOPLE.forEach(p => {
+      const segs = shownFlights.filter(f => p.includeWho.includes(f.who));
+      const miles = segs.reduce((s,f)=>s+flightMiles(f),0);
+      const hours = estimateAirHours(miles, segs.length);
+      const card = document.createElement("div");
+      card.className = "factCard";
+      card.innerHTML = `
+        <div class="factTitle">${p.name} — flights shown</div>
+        <div class="factValue">${Math.round(miles).toLocaleString()} mi</div>
+        <div class="factSub">~${hours.toFixed(1)} hrs (est) • ${segs.length} segments</div>
+      `;
+      grid.appendChild(card);
+    });
+
+    // Overall
+    const totalMiles = shownFlights.reduce((s,f)=>s+flightMiles(f),0);
+    const totalSegs = shownFlights.length;
+    const totalHours = estimateAirHours(totalMiles, totalSegs);
+
+    const { totalItems, plannedThings } = getItineraryCounts();
+
+    const overall = document.createElement("div");
+    overall.className = "factCard";
+    overall.innerHTML = `
+      <div class="factTitle">Overall (selected)</div>
+      <div class="factValue">${Math.round(totalMiles).toLocaleString()} mi</div>
+      <div class="factSub">~${totalHours.toFixed(1)} hrs (est) • ${totalSegs} segments • ${plannedThings} planned items (${totalItems} total)</div>
+    `;
+    grid.appendChild(overall);
+
+    const foot = document.createElement("div");
+    foot.className = "factsFoot";
+    foot.textContent = "Notes: distances are great‑circle estimates; air‑hours are a rule‑of‑thumb (cruise + overhead). Add exact block times later if you want a more precise roll‑up.";
+    grid.appendChild(foot);
+  }
+
+
+  function renderMap() {
+    clearMap();
+    const selectedDays = new Set(getSelectedDays());
+    const shownFlights = FLIGHTS.filter(f => selectedDays.has(f.day));
+
+    const airports = new Set();
+    // Update facts pane for currently shown legs
+    renderFacts(shownFlights);
+
+    shownFlights.forEach(f => { airports.add(f.from); airports.add(f.to); });
+
+    const hubs = new Set(["EWR","DXB","ORD"]);
+    airports.forEach(code => {
+      markerLayer.addLayer(airportMarker(code, { hub: hubs.has(code) && airports.has(code) }));
+    });
+
+    shownFlights.forEach(f => {
+      const A = AIRPORTS[f.from];
+      const B = AIRPORTS[f.to];
+
+      let pts = greatCirclePoints(A, B, 92);
+      pts = nudgePoints(pts, f.from, f.to, f.offsetDeg);
+
+      const casing = L.polyline(pts, {
+        color: "rgba(8,12,24,0.55)",
+        weight: 8.2,
+        opacity: 1,
+        lineCap: "round"
+      }).addTo(routeLayer);
+
+      const main = L.polyline(pts, {
+        color: f.style.color,
+        weight: 5.0,
+        opacity: 0.80,
+        dashArray: f.style.dash || null,
+        lineCap: "round"
+      }).addTo(routeLayer);
+
+      const tooltipHtml = `
+        <div style="font-weight:900; margin-bottom:4px;">${f.code} • ${f.from}→${f.to}</div>
+        <div><b>Who:</b> ${f.who}</div>
+        <div><b>Dep:</b> ${f.dep} <span style="opacity:0.8;">(local)</span></div>
+        <div style="margin-top:6px; opacity:0.92;">${f.label}</div>
+      `;
+
+      main.bindTooltip(tooltipHtml, { sticky: true, className: "flightTip" });
+      casing.bindTooltip(tooltipHtml, { sticky: true, className: "flightTip" });
+
+      const popupHtml = `
+        <div style="font-family: ui-sans-serif, system-ui; font-size: 13px;">
+          <div style="font-weight:900; margin-bottom:6px;">${f.label}</div>
+          <div style="opacity:0.95;">
+            <div><b>From:</b> ${f.from} — ${AIRPORTS[f.from].name}</div>
+            <div><b>To:</b> ${f.to} — ${AIRPORTS[f.to].name}</div>
+            <div><b>Flight:</b> ${f.code}</div>
+            <div><b>Departure:</b> ${f.dep} (local)</div>
+          </div>
+        </div>
+      `;
+      main.bindPopup(popupHtml);
+    });
+
+    // Sidebar list
+    const flightList = document.getElementById('flightList');
+    flightList.innerHTML = "";
+    const items = shownFlights.map(f => {
+      const pretty = `${f.code}: ${f.from}→${f.to} dep ${f.dep}`;
+      return `<li>${pretty}<div class="muted">${f.label}</div></li>`;
+    });
+    flightList.innerHTML = items.join("");
+    document.getElementById('flightCount').textContent = String(items.length);
+  }
+
+  // ============================================================
+  // ITINERARY RENDER
+  // ============================================================
+  const dayColumns = document.getElementById('dayColumns');
+  const itTip = document.getElementById('itTip');
+
+  function showTip(ev, html) {
+    itTip.innerHTML = html;
+    itTip.style.opacity = "1";
+    itTip.style.transform = "translateY(0px)";
+    const pane = document.getElementById('itineraryPane');
+    const rect = pane.getBoundingClientRect();
+
+    // Position tip near cursor, but keep within pane bounds
+    const pad = 12;
+    let x = ev.clientX - rect.left + 14;
+    let y = ev.clientY - rect.top + 14;
+
+    // tentative size
+    itTip.style.left = x + "px";
+    itTip.style.top  = y + "px";
+
+    const tipRect = itTip.getBoundingClientRect();
+    const maxX = rect.width - tipRect.width - pad;
+    const maxY = rect.height - tipRect.height - pad;
+
+    if (x > maxX) x = Math.max(pad, maxX);
+    if (y > maxY) y = Math.max(pad, maxY);
+
+    itTip.style.left = x + "px";
+    itTip.style.top  = y + "px";
+  }
+
+  function hideTip() {
+    itTip.style.opacity = "0";
+    itTip.style.transform = "translateY(6px)";
+  }
+
+  function renderItinerary() {
+    dayColumns.innerHTML = "";
+    ITINERARY.forEach(day => {
+      const col = document.createElement('div');
+      col.className = 'dayCol';
+
+      const top = document.createElement('div');
+      top.className = 'dayTop';
+      top.innerHTML = `
+        <div>
+          <div class="dayName">${day.dayKey}</div>
+          <div class="dayMeta">${day.location}</div>
+        </div>
+        <div class="pillTiny">${day.focus}</div>
+      `;
+      col.appendChild(top);
+
+      const events = document.createElement('div');
+      events.className = 'events';
+
+      day.items.forEach(item => {
+        const g = GROUPS[item.group] || GROUPS.athens;
+        const row = document.createElement('div');
+        row.className = 'eventRow';
+        row.innerHTML = `
+          <div class="badge" style="background:${g.color};"></div>
+          <div class="eventText">
+            <div class="eventTitle">${item.title}</div>
+            <div class="eventSub">${item.where || ""}</div>
+            <div class="eventTime">${item.time}</div>
+          </div>
+        `;
+
+        const tipHtml = `
+          <div><strong>${item.title}</strong></div>
+          <div style="margin-top:6px;"><b>When:</b> ${day.dayKey} • ${item.time}</div>
+          <div><b>Where:</b> ${item.where || day.location}</div>
+          <div><b>Who:</b> ${(GROUPS[item.group]?.name) || item.group}</div>
+          ${item.detail ? `<div style="margin-top:8px; opacity:0.96;">${item.detail}</div>` : ""}
+          ${item.notes ? `<div style="margin-top:8px; opacity:0.78;"><b>Notes:</b> ${item.notes}</div>` : ""}
+        `;
+
+        row.addEventListener('mousemove', (ev) => showTip(ev, tipHtml));
+        row.addEventListener('mouseenter', (ev) => showTip(ev, tipHtml));
+        row.addEventListener('mouseleave', hideTip);
+
+        events.appendChild(row);
+      });
+
+      col.appendChild(events);
+      dayColumns.appendChild(col);
+    });
+
+    // Update header pill loosely based on presence of BLR items
+    const hasBLR = ITINERARY.some(d => (d.location || "").toLowerCase().includes("bangalore"));
+    document.getElementById('itMetaPill').textContent = hasBLR ? "Athens + Bangalore" : "Athens focus";
+  }
+
+  // ============================================================
+  // WIRING (buttons + checks)
+  // ============================================================
+  document.getElementById('selectAll').addEventListener('click', () => {
+    document.querySelectorAll('.dayCheck').forEach(cb => cb.checked = true);
+    renderMap();
+  });
+  document.getElementById('selectNone').addEventListener('click', () => {
+    document.querySelectorAll('.dayCheck').forEach(cb => cb.checked = false);
+    renderMap();
+  });
+  document.querySelectorAll('.dayCheck').forEach(cb => cb.addEventListener('change', renderMap));
+
+  // Initial render
+  renderMap();
+  renderItinerary();
+</script>
+</body>
+</html>

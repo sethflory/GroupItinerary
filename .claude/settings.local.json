@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.theleela.com)",
+      "WebFetch(domain:www.tuktukathens.com)",
+      "WebFetch(domain:www.viator.com)",
+      "WebFetch(domain:www.getyourguide.com)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nUpdate How It Works modal with comprehensive prompt template\n\n- Added all event properties: endTime, airline, flightCode, miles, \n  feelsLike, mapsLink, venueLink, carousel\n- Added destination timezone field\n- Added homeTimezone and estimatedSteps fields\n- Expanded tips section with organized categories\n- Noted self-contained nature \\(no external dependencies except Google Fonts\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "WebFetch(domain:loungereview.com)"
+    ]
+  }
+}

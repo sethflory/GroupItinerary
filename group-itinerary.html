@@ -1,0 +1,1905 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Athens + Bangalore Trip</title>
+
+  <!-- Google Fonts: Roboto for M3 -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+
+  <!-- Leaflet (for map) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+
+  <!-- Material Web Components -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@material/web/": "https://esm.run/@material/web/"
+    }
+  }
+  </script>
+  <script type="module">
+    import '@material/web/all.js';
+  </script>
+
+  <style>
+    /* ========== M3 DARK THEME TOKENS ========== */
+    :root {
+      /* Primary */
+      --md-sys-color-primary: #a8c7fa;
+      --md-sys-color-on-primary: #062e6f;
+      --md-sys-color-primary-container: #284777;
+      --md-sys-color-on-primary-container: #d6e3ff;
+
+      /* Secondary */
+      --md-sys-color-secondary: #a8e6cf;
+      --md-sys-color-on-secondary: #003822;
+      --md-sys-color-secondary-container: #1b5e3f;
+      --md-sys-color-on-secondary-container: #c4f3dc;
+
+      /* Tertiary */
+      --md-sys-color-tertiary: #f9d77e;
+      --md-sys-color-on-tertiary: #3f2e00;
+      --md-sys-color-tertiary-container: #5c4500;
+      --md-sys-color-on-tertiary-container: #ffdf9e;
+
+      /* Error */
+      --md-sys-color-error: #ffb4ab;
+      --md-sys-color-on-error: #690005;
+      --md-sys-color-error-container: #93000a;
+      --md-sys-color-on-error-container: #ffdad6;
+
+      /* Surface (dark) */
+      --md-sys-color-surface: #121318;
+      --md-sys-color-surface-dim: #121318;
+      --md-sys-color-surface-bright: #38393f;
+      --md-sys-color-surface-container-lowest: #0d0e13;
+      --md-sys-color-surface-container-low: #1a1b21;
+      --md-sys-color-surface-container: #1e1f25;
+      --md-sys-color-surface-container-high: #282a2f;
+      --md-sys-color-surface-container-highest: #33343a;
+      --md-sys-color-on-surface: #e3e2e9;
+      --md-sys-color-on-surface-variant: #c4c6cf;
+      --md-sys-color-outline: #8e9099;
+      --md-sys-color-outline-variant: #44464e;
+
+      /* Inverse */
+      --md-sys-color-inverse-surface: #e3e2e9;
+      --md-sys-color-inverse-on-surface: #303136;
+      --md-sys-color-inverse-primary: #3b5f90;
+
+      /* Trip-specific colors */
+      --color-everyone: #a8c7fa;
+      --color-girls: #f9d77e;
+      --color-guys: #a8e6cf;
+      --color-hub: #ff8a9a;
+
+      color-scheme: dark;
+
+      /* M3 Typography */
+      --md-sys-typescale-headline-large-font: 'Roboto', sans-serif;
+      --md-sys-typescale-headline-large-weight: 400;
+      --md-sys-typescale-headline-large-size: 32px;
+
+      --md-sys-typescale-title-large-font: 'Roboto', sans-serif;
+      --md-sys-typescale-title-large-weight: 500;
+      --md-sys-typescale-title-large-size: 22px;
+
+      --md-sys-typescale-title-medium-font: 'Roboto', sans-serif;
+      --md-sys-typescale-title-medium-weight: 500;
+      --md-sys-typescale-title-medium-size: 16px;
+
+      --md-sys-typescale-body-large-font: 'Roboto', sans-serif;
+      --md-sys-typescale-body-large-weight: 400;
+      --md-sys-typescale-body-large-size: 16px;
+
+      --md-sys-typescale-body-medium-font: 'Roboto', sans-serif;
+      --md-sys-typescale-body-medium-weight: 400;
+      --md-sys-typescale-body-medium-size: 14px;
+
+      --md-sys-typescale-label-large-font: 'Roboto', sans-serif;
+      --md-sys-typescale-label-large-weight: 500;
+      --md-sys-typescale-label-large-size: 14px;
+
+      --md-sys-typescale-label-medium-font: 'Roboto', sans-serif;
+      --md-sys-typescale-label-medium-weight: 500;
+      --md-sys-typescale-label-medium-size: 12px;
+    }
+
+    /* ========== BASE RESET ========== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ========== LAYOUT ========== */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Header */
+    #header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 16px;
+      background: var(--md-sys-color-surface-container);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+      flex-shrink: 0;
+    }
+    #header .title-section {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    #header h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+    }
+    #header .subtitle {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    #header .persona-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #header .persona-selector label {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    /* Main content */
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* Stats Panel (Group View) */
+    #stats-panel {
+      padding: 16px;
+      background: var(--md-sys-color-surface-container-low);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    }
+    #stats-panel.hidden { display: none; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: var(--md-sys-color-surface-container);
+      border-radius: 12px;
+    }
+    .stat-item .icon {
+      font-size: 24px;
+      color: var(--md-sys-color-primary);
+    }
+    .stat-item .content {
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-item .value {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+    }
+    .stat-item .label {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    /* Per-person flight stats */
+    .person-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+    }
+    .person-stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--md-sys-color-surface-container);
+      border-radius: 20px;
+      border-left: 3px solid;
+    }
+    .person-stat .name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+    }
+    .person-stat .stats {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    /* MyView Summary (filtered view) */
+    #myview-summary {
+      padding: 16px;
+      background: var(--md-sys-color-surface-container-low);
+      border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    }
+    #myview-summary.hidden { display: none; }
+    .summary-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .summary-header h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .status-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .action-list {
+      background: var(--md-sys-color-error-container);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .action-list.hidden { display: none; }
+    .action-list h3 {
+      margin: 0 0 8px 0;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-error-container);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .action-list ul {
+      margin: 0;
+      padding: 0 0 0 20px;
+    }
+    .action-list li {
+      font-size: 13px;
+      color: var(--md-sys-color-on-error-container);
+      margin-bottom: 4px;
+    }
+
+    /* Accommodations section */
+    .accommodations-section {
+      margin-top: 12px;
+    }
+    .accommodations-section.hidden { display: none; }
+    .accommodations-section h3 {
+      margin: 0 0 8px 0;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface-variant);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .accommodation-card {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      background: var(--md-sys-color-surface-container);
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+    .accommodation-card:last-child {
+      margin-bottom: 0;
+    }
+    .accommodation-icon {
+      font-size: 24px;
+      color: var(--md-sys-color-primary);
+    }
+    .accommodation-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .accommodation-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+      margin-bottom: 2px;
+    }
+    .accommodation-dates {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-bottom: 4px;
+    }
+    .accommodation-address {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    .accommodation-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .confirmation-code {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-family: monospace;
+      background: var(--md-sys-color-surface-container-high);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--md-sys-color-on-surface);
+    }
+
+    /* Content area (map + itinerary) */
+    #content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* Map section */
+    #map-section {
+      flex: 0 0 40%;
+      min-height: 250px;
+      position: relative;
+    }
+    #map-section.hidden { display: none; }
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Itinerary section */
+    #itinerary-section {
+      flex: 1;
+      overflow: auto;
+      padding: 16px;
+      background: var(--md-sys-color-surface);
+    }
+
+    /* Day card */
+    .day-card {
+      background: var(--md-sys-color-surface-container);
+      border-radius: 16px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      background: var(--md-sys-color-surface-container-high);
+      cursor: pointer;
+    }
+    .day-header:hover {
+      background: var(--md-sys-color-surface-container-highest);
+    }
+    .day-header .day-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .day-header .day-name {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+    }
+    .day-header .day-location {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    .day-header .day-theme {
+      font-size: 12px;
+      padding: 4px 10px;
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      border-radius: 16px;
+    }
+    .day-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .expand-icon {
+      font-size: 24px;
+      color: var(--md-sys-color-on-surface-variant);
+      transition: transform 200ms ease;
+    }
+    .day-header.expanded .expand-icon {
+      transform: rotate(180deg);
+    }
+    .day-content {
+      padding: 8px 16px 16px;
+    }
+    .day-content.collapsed {
+      display: none;
+    }
+
+    /* Activity item */
+    .activity-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      background: var(--md-sys-color-surface-container-low);
+      cursor: pointer;
+      transition: background 150ms ease;
+    }
+    .activity-item:hover {
+      background: var(--md-sys-color-surface-container);
+    }
+    .activity-item:last-child {
+      margin-bottom: 0;
+    }
+    .activity-time {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 50px;
+    }
+    .activity-time .time {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+    }
+    .activity-time .time-end {
+      font-size: 11px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    .activity-time .icon {
+      font-size: 20px;
+      margin-top: 4px;
+    }
+    .activity-details {
+      flex: 1;
+      min-width: 0;
+    }
+    .activity-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .activity-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
+    }
+    .activity-status {
+      font-size: 16px;
+    }
+    .activity-status.confirmed { color: var(--md-sys-color-primary); }
+    .activity-status.warning { color: var(--md-sys-color-tertiary); }
+    .activity-status.action { color: var(--md-sys-color-error); }
+    .activity-location {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-bottom: 4px;
+    }
+    .activity-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .activity-transit {
+      font-size: 11px;
+      color: var(--md-sys-color-on-surface-variant);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .activity-transit .icon {
+      font-size: 14px;
+    }
+    .activity-links {
+      display: flex;
+      gap: 4px;
+    }
+    .activity-alerts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .alert-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 12px;
+    }
+    .alert-badge .material-symbols-outlined {
+      font-size: 14px;
+    }
+    .alert-badge.warning {
+      background: var(--md-sys-color-tertiary-container);
+      color: var(--md-sys-color-on-tertiary-container);
+    }
+    .alert-badge.action {
+      background: var(--md-sys-color-error-container);
+      color: var(--md-sys-color-on-error-container);
+    }
+    .alert-badge.info {
+      background: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    .activity-desc {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+    .group-badge {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      margin-right: 6px;
+    }
+
+    /* Also happening section */
+    .also-happening {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+    }
+    .also-happening-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    .also-happening-header:hover {
+      background: var(--md-sys-color-surface-container);
+    }
+    .also-happening-header .icon {
+      font-size: 18px;
+      transition: transform 200ms ease;
+    }
+    .also-happening-header.expanded .icon {
+      transform: rotate(90deg);
+    }
+    .also-happening-content {
+      display: none;
+      padding-top: 8px;
+    }
+    .also-happening-content.expanded {
+      display: block;
+    }
+    .also-happening .activity-item {
+      opacity: 0.7;
+    }
+
+    /* Map tooltip */
+    .leaflet-tooltip.flightTip {
+      background: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-on-surface);
+      border-radius: 12px;
+      padding: 10px 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .leaflet-tooltip.flightTip::before {
+      border-top-color: var(--md-sys-color-surface-container-high);
+    }
+
+    /* City overlays */
+    .cityIcon {
+      width: 70px;
+      height: 54px;
+      border-radius: 12px;
+      background: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+    .cityIcon .photo {
+      width: 100%;
+      height: 36px;
+      background-size: cover;
+      background-position: center;
+    }
+    .cityIcon .label {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 5px 6px;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .cityIcon .label span:nth-child(2) {
+      font-size: 10px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+
+    /* ========== RESPONSIVE (Mobile-first) ========== */
+    @media (min-width: 768px) {
+      #content {
+        flex-direction: row;
+      }
+      #map-section {
+        flex: 0 0 50%;
+        min-height: auto;
+      }
+      #itinerary-section {
+        flex: 1;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      #map-section {
+        flex: 0 0 60%;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(8, 1fr);
+      }
+    }
+
+    /* Material Web component styling */
+    md-filled-select {
+      --md-filled-select-text-field-container-color: var(--md-sys-color-surface-container-high);
+      --md-filled-select-text-field-input-text-color: var(--md-sys-color-on-surface);
+      --md-filled-select-text-field-label-text-color: var(--md-sys-color-on-surface-variant);
+      min-width: 160px;
+    }
+
+    md-assist-chip {
+      --md-assist-chip-container-color: var(--md-sys-color-surface-container-high);
+      --md-assist-chip-label-text-color: var(--md-sys-color-on-surface);
+    }
+
+    /* Link buttons */
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--md-sys-color-primary);
+      text-decoration: none;
+      border-radius: 16px;
+      transition: background 150ms ease;
+    }
+    .link-btn:hover {
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+    .link-btn .material-symbols-outlined {
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+<div id="app">
+  <!-- Header with persona selector -->
+  <header id="header">
+    <div class="title-section">
+      <h1 id="trip-title">Athens + Bangalore Trip</h1>
+      <div class="subtitle" id="trip-dates">Jan 28 - Feb 7, 2025</div>
+    </div>
+    <div class="persona-selector">
+      <label>Viewing as:</label>
+      <md-filled-select id="persona-select">
+        <md-select-option value="everyone" selected>
+          <div slot="headline">Everyone</div>
+        </md-select-option>
+      </md-filled-select>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main id="main">
+    <!-- Group View Stats Panel -->
+    <section id="stats-panel">
+      <div class="stats-grid" id="stats-grid">
+        <!-- Stats populated by JS -->
+      </div>
+      <div class="person-stats" id="person-stats">
+        <!-- Per-person stats populated by JS -->
+      </div>
+    </section>
+
+    <!-- MyView Summary Panel -->
+    <section id="myview-summary" class="hidden">
+      <div class="summary-header">
+        <span class="material-symbols-outlined">person</span>
+        <h2 id="myview-title">My Trip Summary</h2>
+      </div>
+      <div class="status-chips" id="status-chips">
+        <!-- Status chips populated by JS -->
+      </div>
+      <div class="action-list hidden" id="action-list">
+        <h3>Action Needed</h3>
+        <ul id="action-items">
+          <!-- Action items populated by JS -->
+        </ul>
+      </div>
+      <div class="accommodations-section hidden" id="accommodations-section">
+        <h3>Accommodations</h3>
+        <div id="accommodations-list">
+          <!-- Accommodations populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Content: Map + Itinerary -->
+    <div id="content">
+      <section id="map-section">
+        <div id="map"></div>
+      </section>
+
+      <section id="itinerary-section">
+        <div id="itinerary-container">
+          <!-- Day cards populated by JS -->
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════╗
+// ║  TRIP DATA - EDIT THIS SECTION TO CUSTOMIZE YOUR TRIP   ║
+// ╚══════════════════════════════════════════════════════════╝
+
+const TRIP_CONFIG = {
+  title: "Athens + Bangalore Trip",
+  dates: "Jan 28 - Feb 7, 2025"
+};
+
+const TRAVELERS = [
+  { id: "seth", name: "Seth", group: "guys", color: "#a8e6cf" },
+  { id: "paul", name: "Paul", group: "guys", color: "#a8e6cf" },
+  { id: "katrina", name: "Katrina", group: "girls", color: "#f9d77e" },
+  { id: "sheri", name: "Sheri", group: "girls", color: "#f9d77e" }
+];
+
+const GROUPS = {
+  all: { name: "Everyone", color: "#a8c7fa", travelers: ["seth", "paul", "katrina", "sheri"] },
+  guys: { name: "Seth + Paul", color: "#a8e6cf", travelers: ["seth", "paul"] },
+  girls: { name: "Katrina + Sheri", color: "#f9d77e", travelers: ["katrina", "sheri"] }
+};
+
+const AIRPORTS = {
+  DCA: { name: "Washington Reagan", code: "DCA", lat: 38.8512, lon: -77.0402, country: "USA" },
+  CMH: { name: "Columbus", code: "CMH", lat: 39.9980, lon: -82.8919, country: "USA" },
+  EWR: { name: "Newark", code: "EWR", lat: 40.6895, lon: -74.1745, country: "USA" },
+  ATH: { name: "Athens", code: "ATH", lat: 37.9364, lon: 23.9445, country: "Greece" },
+  DXB: { name: "Dubai", code: "DXB", lat: 25.2532, lon: 55.3657, country: "UAE" },
+  BLR: { name: "Bengaluru", code: "BLR", lat: 13.1986, lon: 77.7066, country: "India" },
+  ORD: { name: "Chicago O'Hare", code: "ORD", lat: 41.9742, lon: -87.9073, country: "USA" }
+};
+
+const FLIGHTS = [
+  // Day 0 - Positioning + outbound
+  { id: "f1", code: "POS-DCA-EWR", date: "2025-01-28", from: "DCA", to: "EWR", dep: "TBD", arr: "TBD", travelers: ["katrina"], status: "confirmed", notes: "Positioning flight" },
+  { id: "f2", code: "POS-CMH-EWR", date: "2025-01-28", from: "CMH", to: "EWR", dep: "TBD", arr: "TBD", travelers: ["seth", "paul", "sheri"], status: "confirmed", notes: "Positioning flight" },
+  { id: "f3", code: "EK210", date: "2025-01-28", from: "EWR", to: "ATH", dep: "23:45", arr: "18:30+1", travelers: ["all"], status: "confirmed", notes: "Overnight flight to Athens" },
+
+  // Day 5 - Split return
+  { id: "f4", code: "EK209", date: "2025-02-02", from: "ATH", to: "EWR", dep: "17:10", arr: "21:10", travelers: ["katrina", "sheri"], status: "confirmed", notes: "Direct return to Newark" },
+  { id: "f5", code: "EK210", date: "2025-02-03", from: "ATH", to: "DXB", dep: "18:00", arr: "00:15+1", travelers: ["seth", "paul"], status: "confirmed", notes: "Athens to Dubai" },
+  { id: "f6", code: "EK564", date: "2025-02-03", from: "DXB", to: "BLR", dep: "03:40", arr: "08:50", travelers: ["seth", "paul"], status: "confirmed", alerts: ["short-layover"], notes: "Dubai to Bangalore (short layover)" },
+
+  // Day 10 - Seth+Paul return
+  { id: "f7", code: "EK569", date: "2025-02-07", from: "BLR", to: "DXB", dep: "04:30", arr: "07:00", travelers: ["seth", "paul"], status: "confirmed", alerts: ["early-departure"], notes: "Early morning departure" },
+  { id: "f8", code: "EK235", date: "2025-02-07", from: "DXB", to: "ORD", dep: "09:45", arr: "15:55", travelers: ["seth", "paul"], status: "confirmed", notes: "Long-haul to Chicago" },
+  { id: "f9", code: "UA3650", date: "2025-02-07", from: "ORD", to: "CMH", dep: "19:39", arr: "22:13", travelers: ["seth", "paul"], status: "confirmed", notes: "Final leg home" }
+];
+
+const ACCOMMODATIONS = [
+  {
+    id: "hotel-ath",
+    location: "ATH",
+    name: "Hotel Grande Bretagne",
+    address: "Syntagma Square, Athens 105 64",
+    mapsLink: "https://maps.google.com/?q=Hotel+Grande+Bretagne+Athens",
+    checkIn: "2025-01-29 15:00",
+    checkOut: "2025-02-03 11:00",
+    confirmation: "GB-2025-12345",
+    travelers: ["all"],
+    status: "confirmed",
+    notes: "Request high floor for Acropolis view"
+  },
+  {
+    id: "hotel-blr",
+    location: "BLR",
+    name: "The Leela Palace",
+    address: "23, HAL Old Airport Rd, Bengaluru",
+    mapsLink: "https://maps.google.com/?q=Leela+Palace+Bengaluru",
+    checkIn: "2025-02-03 14:00",
+    checkOut: "2025-02-07 11:00",
+    confirmation: "LP-2025-67890",
+    travelers: ["seth", "paul"],
+    status: "confirmed",
+    notes: "Near HAL Airport Road"
+  }
+];
+
+const ITINERARY = [
+  {
+    date: "2025-01-29",
+    dayLabel: "Thu Jan 29",
+    location: "Athens",
+    theme: "Arrival Day",
+    items: [
+      {
+        id: "i1",
+        time: "18:30",
+        title: "Arrive Athens",
+        type: "travel",
+        travelers: ["all"],
+        where: "Athens Airport (ATH)",
+        status: "confirmed",
+        alerts: ["ground-transport-needed"],
+        details: "Clear customs, collect bags, meet driver"
+      },
+      {
+        id: "i2",
+        time: "20:00",
+        endTime: "22:00",
+        title: "Welcome Dinner",
+        type: "meal",
+        travelers: ["all"],
+        where: "Varoulko Seaside",
+        address: "Akti Koumoundourou 54",
+        mapsLink: "https://maps.google.com/?q=Varoulko+Seaside+Athens",
+        venueLink: "https://varoulko.gr",
+        transitTime: "25 min from hotel",
+        status: "confirmed",
+        confirmation: "VAR-2025",
+        details: "Michelin-starred seafood restaurant",
+        notes: "Reservation under 'Katrina'"
+      }
+    ]
+  },
+  {
+    date: "2025-01-30",
+    dayLabel: "Fri Jan 30",
+    location: "Athens",
+    theme: "Sights + Work",
+    items: [
+      {
+        id: "i3",
+        time: "09:00",
+        endTime: "12:00",
+        title: "Acropolis + Viewpoints",
+        type: "activity",
+        travelers: ["katrina", "sheri"],
+        where: "Acropolis / Plaka",
+        mapsLink: "https://maps.google.com/?q=Acropolis+Athens",
+        transitTime: "15 min walk from hotel",
+        status: "confirmed",
+        details: "Morning walk: Acropolis area + scenic loop",
+        notes: "Comfortable shoes - marble can be slick"
+      },
+      {
+        id: "i4",
+        time: "10:00",
+        endTime: "14:00",
+        title: "Work Block",
+        type: "work",
+        travelers: ["seth", "paul"],
+        where: "Hotel lounge / coworking",
+        status: "confirmed",
+        details: "4-hour focused work session",
+        notes: "Schedule meetings inside this block only"
+      },
+      {
+        id: "i5",
+        time: "19:30",
+        title: "Group Dinner",
+        type: "meal",
+        travelers: ["all"],
+        where: "Koukaki neighborhood",
+        status: "pending",
+        details: "Meet up after work - flexible based on energy"
+      }
+    ]
+  },
+  {
+    date: "2025-01-31",
+    dayLabel: "Sat Jan 31",
+    location: "Athens",
+    theme: "Museums + Old Town",
+    items: [
+      {
+        id: "i6",
+        time: "10:00",
+        endTime: "12:00",
+        title: "Acropolis Museum",
+        type: "activity",
+        travelers: ["all"],
+        where: "Acropolis Museum",
+        mapsLink: "https://maps.google.com/?q=Acropolis+Museum+Athens",
+        venueLink: "https://theacropolismuseum.gr",
+        transitTime: "10 min walk from hotel",
+        status: "confirmed",
+        details: "Indoor-friendly, great winter option"
+      },
+      {
+        id: "i7",
+        time: "12:30",
+        endTime: "14:00",
+        title: "Lunch in Koukaki",
+        type: "meal",
+        travelers: ["all"],
+        where: "Koukaki",
+        transitTime: "5 min walk",
+        status: "pending",
+        details: "Easy post-museum meal, relaxed neighborhood feel"
+      },
+      {
+        id: "i8",
+        time: "15:00",
+        endTime: "17:00",
+        title: "Monastiraki + Ancient Agora",
+        type: "activity",
+        travelers: ["all"],
+        where: "Monastiraki / Agora",
+        mapsLink: "https://maps.google.com/?q=Ancient+Agora+Athens",
+        transitTime: "15 min walk",
+        status: "confirmed",
+        details: "Markets + Temple of Hephaestus area",
+        notes: "Good photo time late afternoon"
+      }
+    ]
+  },
+  {
+    date: "2025-02-01",
+    dayLabel: "Sun Feb 1",
+    location: "Athens / Attica",
+    theme: "Day Trip",
+    items: [
+      {
+        id: "i9",
+        time: "09:00",
+        endTime: "17:00",
+        title: "Cape Sounion Day Trip",
+        type: "activity",
+        travelers: ["all"],
+        where: "Cape Sounion - Temple of Poseidon",
+        mapsLink: "https://maps.google.com/?q=Temple+of+Poseidon+Sounion",
+        status: "needs-booking",
+        details: "Coast drive + sunset at ancient temple",
+        notes: "Alternative: Delphi (longer, mountains)"
+      },
+      {
+        id: "i10",
+        time: "19:30",
+        title: "Final Athens Dinner",
+        type: "meal",
+        travelers: ["all"],
+        where: "Athens center",
+        status: "pending",
+        details: "Wrap-up dinner - nicer reservation",
+        notes: "Last night all together in Athens"
+      }
+    ]
+  },
+  {
+    date: "2025-02-02",
+    dayLabel: "Mon Feb 2",
+    location: "Athens → Newark",
+    theme: "Girls Return",
+    items: [
+      {
+        id: "i11",
+        time: "14:00",
+        title: "Leave for Airport",
+        type: "travel",
+        travelers: ["katrina", "sheri"],
+        where: "Hotel → ATH Airport",
+        transitTime: "45 min to airport",
+        status: "confirmed",
+        details: "Ground transport to airport"
+      },
+      {
+        id: "i12",
+        time: "17:10",
+        title: "EK209 ATH→EWR",
+        type: "travel",
+        travelers: ["katrina", "sheri"],
+        where: "Athens Airport",
+        status: "confirmed",
+        details: "Arrive Newark ~21:10 local",
+        notes: "Pick hotel with reliable early shuttle"
+      }
+    ]
+  },
+  {
+    date: "2025-02-03",
+    dayLabel: "Tue Feb 3",
+    location: "Athens → Bangalore",
+    theme: "Guys to India",
+    items: [
+      {
+        id: "i13",
+        time: "15:00",
+        title: "Leave for Airport",
+        type: "travel",
+        travelers: ["seth", "paul"],
+        where: "Hotel → ATH Airport",
+        status: "confirmed",
+        details: "Ground transport to airport"
+      },
+      {
+        id: "i14",
+        time: "18:00",
+        title: "ATH→DXB (Emirates)",
+        type: "travel",
+        travelers: ["seth", "paul"],
+        where: "Athens Airport",
+        status: "confirmed",
+        alerts: ["short-layover"],
+        details: "Overnight connection in Dubai (~3h 15m layover)",
+        notes: "Keep water/snacks handy"
+      },
+      {
+        id: "i15",
+        time: "03:40",
+        title: "EK564 DXB→BLR",
+        type: "travel",
+        travelers: ["seth", "paul"],
+        where: "Dubai Airport",
+        status: "confirmed",
+        details: "Arrive Bangalore 08:50 local"
+      }
+    ]
+  },
+  {
+    date: "2025-02-04",
+    dayLabel: "Tue Feb 4",
+    location: "Bangalore",
+    theme: "Work + Explore",
+    items: [
+      {
+        id: "i20",
+        time: "10:00",
+        endTime: "14:00",
+        title: "Work Session",
+        type: "work",
+        travelers: ["seth", "paul"],
+        where: "Hotel lounge / coworking",
+        status: "confirmed",
+        details: "Focus time - schedule meetings here"
+      },
+      {
+        id: "i21",
+        time: "18:00",
+        endTime: "21:00",
+        title: "Dinner at MTR",
+        type: "meal",
+        travelers: ["seth", "paul"],
+        where: "MTR Restaurant, Lalbagh Road",
+        mapsLink: "https://maps.google.com/?q=MTR+Restaurant+Bangalore",
+        venueLink: "https://mavallitiffinrooms.com",
+        transitTime: "20 min from hotel",
+        status: "confirmed",
+        details: "Classic South Indian cuisine since 1924"
+      }
+    ]
+  },
+  {
+    date: "2025-02-05",
+    dayLabel: "Wed Feb 5",
+    location: "Bangalore",
+    theme: "Sightseeing",
+    items: [
+      {
+        id: "i22",
+        time: "09:00",
+        endTime: "12:00",
+        title: "Lalbagh Botanical Garden",
+        type: "activity",
+        travelers: ["seth", "paul"],
+        where: "Lalbagh Botanical Garden",
+        mapsLink: "https://maps.google.com/?q=Lalbagh+Botanical+Garden+Bangalore",
+        transitTime: "15 min from hotel",
+        status: "confirmed",
+        details: "Historic garden with Glass House"
+      },
+      {
+        id: "i23",
+        time: "15:00",
+        endTime: "18:00",
+        title: "ISKCON Temple",
+        type: "activity",
+        travelers: ["seth", "paul"],
+        where: "ISKCON Temple, Rajajinagar",
+        mapsLink: "https://maps.google.com/?q=ISKCON+Temple+Bangalore",
+        transitTime: "30 min from hotel",
+        status: "confirmed",
+        details: "Stunning temple complex and cultural center"
+      }
+    ]
+  },
+  {
+    date: "2025-02-06",
+    dayLabel: "Thu Feb 6",
+    location: "Bangalore",
+    theme: "Work + Final Night",
+    items: [
+      {
+        id: "i24",
+        time: "09:00",
+        endTime: "17:00",
+        title: "Work Day",
+        type: "work",
+        travelers: ["seth", "paul"],
+        where: "Hotel / coworking",
+        status: "confirmed",
+        details: "Full work day - last day in India"
+      },
+      {
+        id: "i25",
+        time: "20:00",
+        title: "Farewell Dinner",
+        type: "meal",
+        travelers: ["seth", "paul"],
+        where: "Karavalli, The Gateway Hotel",
+        mapsLink: "https://maps.google.com/?q=Karavalli+Restaurant+Bangalore",
+        transitTime: "25 min from hotel",
+        status: "pending",
+        details: "Upscale coastal cuisine"
+      }
+    ]
+  },
+  {
+    date: "2025-02-07",
+    dayLabel: "Sat Feb 7",
+    location: "Bangalore → Columbus",
+    theme: "Guys Return",
+    items: [
+      {
+        id: "i16",
+        time: "02:00",
+        title: "Leave for Airport",
+        type: "travel",
+        travelers: ["seth", "paul"],
+        where: "Hotel → BLR Airport",
+        status: "confirmed",
+        alerts: ["early-departure"],
+        details: "Very early departure"
+      },
+      {
+        id: "i17",
+        time: "04:30",
+        title: "EK569 BLR→DXB",
+        type: "travel",
+        travelers: ["seth", "paul"],
+        where: "Bangalore Airport",
+        status: "confirmed",
+        alerts: ["early-departure"],
+        details: "Early morning flight"
+      },
+      {
+        id: "i18",
+        time: "09:45",
+        title: "EK235 DXB→ORD",
+        type: "travel",
+        travelers: ["seth", "paul"],
+        where: "Dubai Airport",
+        status: "confirmed",
+        details: "Long-haul to Chicago, US re-entry",
+        notes: "Plan time for immigration + TSA"
+      },
+      {
+        id: "i19",
+        time: "19:39",
+        title: "UA3650 ORD→CMH",
+        type: "travel",
+        travelers: ["seth", "paul"],
+        where: "Chicago O'Hare",
+        status: "confirmed",
+        details: "Arrive Columbus 22:13",
+        notes: "Comfortable 4h 44m layover"
+      }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════
+// APP CODE BELOW - NO NEED TO EDIT
+// ═══════════════════════════════════════════════════════════
+
+// State
+let currentPersona = "everyone";
+let expandedDays = new Set();
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', initApp);
+
+function initApp() {
+  // Set trip info
+  document.getElementById('trip-title').textContent = TRIP_CONFIG.title;
+  document.getElementById('trip-dates').textContent = TRIP_CONFIG.dates;
+
+  // Populate persona selector
+  populatePersonaSelector();
+
+  // Initialize map
+  initMap();
+
+  // Render based on current persona
+  render();
+
+  // Event listeners - Material Web select uses 'change' event with e.target.value
+  const personaSelect = document.getElementById('persona-select');
+  personaSelect.addEventListener('change', (e) => {
+    currentPersona = e.target.value;
+    localStorage.setItem('selectedPersona', currentPersona);
+    render();
+  });
+
+  // Restore persona from localStorage if available
+  const savedPersona = localStorage.getItem('selectedPersona');
+  if (savedPersona && (savedPersona === 'everyone' || TRAVELERS.find(t => t.id === savedPersona))) {
+    currentPersona = savedPersona;
+    personaSelect.value = savedPersona;
+  }
+}
+
+function populatePersonaSelector() {
+  const select = document.getElementById('persona-select');
+  // Add traveler options
+  TRAVELERS.forEach(t => {
+    const option = document.createElement('md-select-option');
+    option.value = t.id;
+    option.innerHTML = `<div slot="headline">${t.name}</div>`;
+    select.appendChild(option);
+  });
+}
+
+function render() {
+  if (currentPersona === "everyone") {
+    renderGroupView();
+  } else {
+    renderMyView(currentPersona);
+  }
+  renderItinerary();
+}
+
+// ========== GROUP VIEW ==========
+function renderGroupView() {
+  document.getElementById('stats-panel').classList.remove('hidden');
+  document.getElementById('myview-summary').classList.add('hidden');
+  document.getElementById('map-section').classList.remove('hidden');
+
+  const statsGrid = document.getElementById('stats-grid');
+  const stats = calculateAggregateStats();
+
+  statsGrid.innerHTML = `
+    <div class="stat-item">
+      <span class="material-symbols-outlined icon">group</span>
+      <div class="content">
+        <div class="value">${stats.travelers}</div>
+        <div class="label">Travelers</div>
+      </div>
+    </div>
+    <div class="stat-item">
+      <span class="material-symbols-outlined icon">public</span>
+      <div class="content">
+        <div class="value">${stats.countries}</div>
+        <div class="label">Countries</div>
+      </div>
+    </div>
+    <div class="stat-item">
+      <span class="material-symbols-outlined icon">flight</span>
+      <div class="content">
+        <div class="value">${stats.flights}</div>
+        <div class="label">Flights</div>
+      </div>
+    </div>
+    <div class="stat-item">
+      <span class="material-symbols-outlined icon">connecting_airports</span>
+      <div class="content">
+        <div class="value">${stats.airports}</div>
+        <div class="label">Airports</div>
+      </div>
+    </div>
+    <div class="stat-item">
+      <span class="material-symbols-outlined icon">route</span>
+      <div class="content">
+        <div class="value">${stats.miles.toLocaleString()}</div>
+        <div class="label">Total Miles</div>
+      </div>
+    </div>
+    <div class="stat-item">
+      <span class="material-symbols-outlined icon">schedule</span>
+      <div class="content">
+        <div class="value">${stats.hours}</div>
+        <div class="label">Flight Hours</div>
+      </div>
+    </div>
+    <div class="stat-item">
+      <span class="material-symbols-outlined icon">calendar_month</span>
+      <div class="content">
+        <div class="value">${stats.days}</div>
+        <div class="label">Days</div>
+      </div>
+    </div>
+    <div class="stat-item">
+      <span class="material-symbols-outlined icon">event</span>
+      <div class="content">
+        <div class="value">${stats.activities}</div>
+        <div class="label">Activities</div>
+      </div>
+    </div>
+  `;
+
+  // Per-person stats
+  const personStats = document.getElementById('person-stats');
+  personStats.innerHTML = TRAVELERS.map(t => {
+    const pStats = calculatePersonStats(t.id);
+    return `
+      <div class="person-stat" style="border-color: ${t.color};">
+        <span class="name">${t.name}</span>
+        <span class="stats">${pStats.flights} flights | ${pStats.miles.toLocaleString()} mi | ${pStats.hours}h</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function calculatePersonStats(travelerId) {
+  let miles = 0;
+  let flights = 0;
+
+  FLIGHTS.forEach(f => {
+    const isForTraveler = f.travelers.includes('all') ||
+                          f.travelers.includes(travelerId) ||
+                          (TRAVELERS.find(t => t.id === travelerId)?.group &&
+                           f.travelers.includes(TRAVELERS.find(t => t.id === travelerId).group));
+    if (isForTraveler) {
+      flights++;
+      miles += flightMiles(f);
+    }
+  });
+
+  const hours = Math.round(miles / 520 + flights * 0.6);
+  return { flights, miles: Math.round(miles), hours };
+}
+
+function calculateAggregateStats() {
+  const countries = new Set();
+  const airports = new Set();
+
+  Object.values(AIRPORTS).forEach(a => {
+    countries.add(a.country);
+    airports.add(a.code);
+  });
+
+  let totalMiles = 0;
+  FLIGHTS.forEach(f => {
+    totalMiles += flightMiles(f);
+  });
+
+  const totalHours = Math.round(totalMiles / 520 + FLIGHTS.length * 0.6);
+  const totalActivities = ITINERARY.reduce((sum, day) => sum + day.items.length, 0);
+
+  return {
+    travelers: TRAVELERS.length,
+    countries: countries.size,
+    flights: FLIGHTS.length,
+    airports: airports.size,
+    miles: Math.round(totalMiles),
+    hours: totalHours,
+    days: ITINERARY.length,
+    activities: totalActivities
+  };
+}
+
+// ========== MYVIEW ==========
+function renderMyView(travelerId) {
+  document.getElementById('stats-panel').classList.add('hidden');
+  document.getElementById('myview-summary').classList.remove('hidden');
+  document.getElementById('map-section').classList.add('hidden'); // Hide map in MyView
+
+  const traveler = TRAVELERS.find(t => t.id === travelerId);
+  document.getElementById('myview-title').textContent = `${traveler.name}'s Trip Summary`;
+
+  // Calculate status counts
+  const myFlights = getFlightsForTraveler(travelerId);
+  const myActivities = getActivitiesForTraveler(travelerId);
+
+  let confirmed = 0, pending = 0, needsBooking = 0, warnings = 0;
+  const actionItems = [];
+
+  myFlights.forEach(f => {
+    if (f.status === 'confirmed') confirmed++;
+    if (f.alerts && f.alerts.length > 0) warnings += f.alerts.length;
+  });
+
+  myActivities.forEach(a => {
+    if (a.status === 'confirmed') confirmed++;
+    else if (a.status === 'pending') pending++;
+    else if (a.status === 'needs-booking') {
+      needsBooking++;
+      actionItems.push({ text: a.title, date: a.date || '' });
+    }
+    if (a.alerts) {
+      a.alerts.forEach(alert => {
+        if (alert === 'ground-transport-needed') {
+          actionItems.push({ text: `Book ground transport for ${a.title}`, date: a.date || '' });
+        }
+      });
+    }
+  });
+
+  // Render status chips
+  const chipsHtml = `
+    <md-assist-chip label="${confirmed} Confirmed">
+      <span slot="icon" class="material-symbols-outlined" style="color: var(--md-sys-color-primary);">check_circle</span>
+    </md-assist-chip>
+    ${pending > 0 ? `<md-assist-chip label="${pending} Pending">
+      <span slot="icon" class="material-symbols-outlined" style="color: var(--md-sys-color-tertiary);">schedule</span>
+    </md-assist-chip>` : ''}
+    ${warnings > 0 ? `<md-assist-chip label="${warnings} Warnings">
+      <span slot="icon" class="material-symbols-outlined" style="color: var(--md-sys-color-tertiary);">warning</span>
+    </md-assist-chip>` : ''}
+  `;
+  document.getElementById('status-chips').innerHTML = chipsHtml;
+
+  // Render action items
+  const actionList = document.getElementById('action-list');
+  const actionItemsEl = document.getElementById('action-items');
+  if (actionItems.length > 0) {
+    actionList.classList.remove('hidden');
+    actionItemsEl.innerHTML = actionItems.map(a => `<li>${a.text}</li>`).join('');
+  } else {
+    actionList.classList.add('hidden');
+  }
+
+  // Render accommodations
+  renderAccommodations(travelerId);
+}
+
+function renderAccommodations(travelerId) {
+  const section = document.getElementById('accommodations-section');
+  const list = document.getElementById('accommodations-list');
+
+  const myAccommodations = ACCOMMODATIONS.filter(a => {
+    if (a.travelers.includes('all')) return true;
+    if (a.travelers.includes(travelerId)) return true;
+    const traveler = TRAVELERS.find(t => t.id === travelerId);
+    if (traveler && a.travelers.includes(traveler.group)) return true;
+    return false;
+  });
+
+  if (myAccommodations.length === 0) {
+    section.classList.add('hidden');
+    return;
+  }
+
+  section.classList.remove('hidden');
+  list.innerHTML = myAccommodations.map(a => {
+    const checkInDate = new Date(a.checkIn).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const checkOutDate = new Date(a.checkOut).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+    return `
+      <div class="accommodation-card">
+        <span class="material-symbols-outlined accommodation-icon">hotel</span>
+        <div class="accommodation-info">
+          <div class="accommodation-name">${a.name}</div>
+          <div class="accommodation-dates">${checkInDate} - ${checkOutDate}</div>
+          <div class="accommodation-address">${a.address}</div>
+          <div class="accommodation-meta">
+            ${a.confirmation ? `<span class="confirmation-code">${a.confirmation}</span>` : ''}
+            ${a.mapsLink ? `<a href="${a.mapsLink}" target="_blank" rel="noopener" class="link-btn"><span class="material-symbols-outlined">map</span>Maps</a>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function getFlightsForTraveler(travelerId) {
+  return FLIGHTS.filter(f => {
+    if (f.travelers.includes('all')) return true;
+    if (f.travelers.includes(travelerId)) return true;
+    // Check group membership
+    const traveler = TRAVELERS.find(t => t.id === travelerId);
+    if (traveler && f.travelers.includes(traveler.group)) return true;
+    return false;
+  });
+}
+
+function getActivitiesForTraveler(travelerId) {
+  const activities = [];
+  ITINERARY.forEach(day => {
+    day.items.forEach(item => {
+      if (isActivityForTraveler(item, travelerId)) {
+        activities.push({ ...item, date: day.dayLabel });
+      }
+    });
+  });
+  return activities;
+}
+
+function isActivityForTraveler(item, travelerId) {
+  if (item.travelers.includes('all')) return true;
+  if (item.travelers.includes(travelerId)) return true;
+  const traveler = TRAVELERS.find(t => t.id === travelerId);
+  if (traveler && item.travelers.includes(traveler.group)) return true;
+  return false;
+}
+
+// ========== ITINERARY RENDER ==========
+function renderItinerary() {
+  const container = document.getElementById('itinerary-container');
+  container.innerHTML = '';
+
+  ITINERARY.forEach(day => {
+    const dayCard = createDayCard(day);
+    container.appendChild(dayCard);
+  });
+}
+
+function createDayCard(day) {
+  const card = document.createElement('div');
+  card.className = 'day-card';
+
+  // Separate items into "mine" and "others" based on persona
+  let myItems = day.items;
+  let otherItems = [];
+
+  if (currentPersona !== 'everyone') {
+    myItems = day.items.filter(item => isActivityForTraveler(item, currentPersona));
+    otherItems = day.items.filter(item => !isActivityForTraveler(item, currentPersona));
+  }
+
+  // All days start expanded
+  expandedDays.add(day.date);
+  const isExpanded = true;
+
+  card.innerHTML = `
+    <div class="day-header expanded" data-date="${day.date}">
+      <div class="day-info">
+        <div class="day-name">${day.dayLabel}</div>
+        <div class="day-location">${day.location}</div>
+      </div>
+      <div class="day-header-right">
+        <div class="day-theme">${day.theme}</div>
+        <span class="material-symbols-outlined expand-icon">expand_more</span>
+      </div>
+    </div>
+    <div class="day-content">
+      ${myItems.map(item => createActivityItem(item)).join('')}
+      ${otherItems.length > 0 && currentPersona !== 'everyone' ? `
+        <div class="also-happening">
+          <div class="also-happening-header">
+            <span class="material-symbols-outlined icon">chevron_right</span>
+            <span>Also happening (${otherItems.length} items)</span>
+          </div>
+          <div class="also-happening-content">
+            ${otherItems.map(item => createActivityItem(item)).join('')}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+
+  // Event listeners
+  const header = card.querySelector('.day-header');
+  header.addEventListener('click', () => {
+    const content = card.querySelector('.day-content');
+    content.classList.toggle('collapsed');
+    header.classList.toggle('expanded');
+    if (content.classList.contains('collapsed')) {
+      expandedDays.delete(day.date);
+    } else {
+      expandedDays.add(day.date);
+    }
+  });
+
+  // Also happening toggle
+  const alsoHeader = card.querySelector('.also-happening-header');
+  if (alsoHeader) {
+    alsoHeader.addEventListener('click', (e) => {
+      e.stopPropagation();
+      alsoHeader.classList.toggle('expanded');
+      const content = card.querySelector('.also-happening-content');
+      content.classList.toggle('expanded');
+    });
+  }
+
+  return card;
+}
+
+function createActivityItem(item) {
+  const typeIcons = {
+    travel: 'flight',
+    meal: 'restaurant',
+    activity: 'museum',
+    work: 'work',
+    default: 'event'
+  };
+  const icon = typeIcons[item.type] || typeIcons.default;
+
+  const statusIcon = getStatusIcon(item.status);
+  const groupColor = getGroupColor(item.travelers);
+  const alertBadges = getAlertBadges(item.alerts);
+
+  return `
+    <div class="activity-item" data-id="${item.id}">
+      <div class="activity-time">
+        <div class="time">${item.time}</div>
+        ${item.endTime ? `<div class="time-end">- ${item.endTime}</div>` : ''}
+        <span class="material-symbols-outlined icon" style="color: ${groupColor};">${icon}</span>
+      </div>
+      <div class="activity-details">
+        <div class="activity-title-row">
+          <span class="group-badge" style="background: ${groupColor};"></span>
+          <span class="activity-title">${item.title}</span>
+          ${statusIcon}
+        </div>
+        ${item.where ? `<div class="activity-location">${item.where}</div>` : ''}
+        ${alertBadges ? `<div class="activity-alerts">${alertBadges}</div>` : ''}
+        <div class="activity-meta">
+          ${item.transitTime ? `
+            <span class="activity-transit">
+              <span class="material-symbols-outlined icon">directions_walk</span>
+              ${item.transitTime}
+            </span>
+          ` : ''}
+          <div class="activity-links">
+            ${item.mapsLink ? `<a href="${item.mapsLink}" target="_blank" rel="noopener" class="link-btn"><span class="material-symbols-outlined">map</span>Maps</a>` : ''}
+            ${item.venueLink ? `<a href="${item.venueLink}" target="_blank" rel="noopener" class="link-btn"><span class="material-symbols-outlined">open_in_new</span>Web</a>` : ''}
+          </div>
+        </div>
+        ${item.details ? `<div class="activity-desc">${item.details}</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function getStatusIcon(status) {
+  if (status === 'confirmed') {
+    return '<span class="material-symbols-outlined activity-status confirmed">check_circle</span>';
+  } else if (status === 'pending') {
+    return '<span class="material-symbols-outlined activity-status warning">schedule</span>';
+  } else if (status === 'needs-booking') {
+    return '<span class="material-symbols-outlined activity-status action">error</span>';
+  }
+  return '';
+}
+
+function getAlertBadges(alerts) {
+  if (!alerts || alerts.length === 0) return '';
+
+  const alertLabels = {
+    'short-layover': { icon: 'timer', text: 'Short layover', type: 'warning' },
+    'early-departure': { icon: 'alarm', text: 'Early departure', type: 'warning' },
+    'ground-transport-needed': { icon: 'directions_car', text: 'Book transport', type: 'action' },
+    'late-arrival': { icon: 'bedtime', text: 'Late arrival', type: 'info' },
+    'long-travel-day': { icon: 'flight_takeoff', text: 'Long travel day', type: 'info' }
+  };
+
+  return alerts.map(alert => {
+    const config = alertLabels[alert] || { icon: 'info', text: alert, type: 'info' };
+    return `<span class="alert-badge ${config.type}">
+      <span class="material-symbols-outlined">${config.icon}</span>
+      ${config.text}
+    </span>`;
+  }).join('');
+}
+
+function getGroupColor(travelers) {
+  if (travelers.includes('all')) return GROUPS.all.color;
+  // Check if it's a specific group
+  if (travelers.length === 2) {
+    if (travelers.includes('seth') && travelers.includes('paul')) return GROUPS.guys.color;
+    if (travelers.includes('katrina') && travelers.includes('sheri')) return GROUPS.girls.color;
+  }
+  // Single traveler - use their color
+  const traveler = TRAVELERS.find(t => travelers.includes(t.id));
+  return traveler ? traveler.color : GROUPS.all.color;
+}
+
+// ========== MAP ==========
+let map, routeLayer, markerLayer, cityLayer;
+
+function initMap() {
+  map = L.map('map', { zoomControl: true, worldCopyJump: false }).setView([26, 10], 2);
+
+  const worldBounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
+  map.setMaxBounds(worldBounds);
+  map.on('drag', () => map.panInsideBounds(worldBounds, { animate: false }));
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 7,
+    minZoom: 2,
+    noWrap: true,
+    bounds: worldBounds,
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+
+  routeLayer = L.layerGroup().addTo(map);
+  markerLayer = L.layerGroup().addTo(map);
+  cityLayer = L.layerGroup().addTo(map);
+
+  renderMapRoutes();
+  addCityOverlays();
+
+  // Fit bounds to show all airports
+  const allLatLngs = Object.values(AIRPORTS).map(a => [a.lat, a.lon]);
+  map.fitBounds(L.latLngBounds(allLatLngs), { padding: [40, 40], maxZoom: 3 });
+}
+
+function renderMapRoutes() {
+  routeLayer.clearLayers();
+  markerLayer.clearLayers();
+
+  const hubs = new Set(['EWR', 'DXB', 'ORD']);
+  const usedAirports = new Set();
+
+  FLIGHTS.forEach(f => {
+    usedAirports.add(f.from);
+    usedAirports.add(f.to);
+
+    const A = AIRPORTS[f.from];
+    const B = AIRPORTS[f.to];
+    if (!A || !B) return;
+
+    const pts = greatCirclePoints(A, B, 90);
+    const color = getFlightColor(f.travelers);
+
+    // Casing
+    L.polyline(pts, {
+      color: 'rgba(0,0,0,0.4)',
+      weight: 7,
+      opacity: 1,
+      lineCap: 'round'
+    }).addTo(routeLayer);
+
+    // Main line
+    const line = L.polyline(pts, {
+      color: color,
+      weight: 4,
+      opacity: 0.85,
+      lineCap: 'round'
+    }).addTo(routeLayer);
+
+    // Tooltip
+    line.bindTooltip(`
+      <div style="font-weight:500; margin-bottom:4px;">${f.code} • ${f.from}→${f.to}</div>
+      <div>Departure: ${f.dep}</div>
+    `, { sticky: true, className: 'flightTip' });
+  });
+
+  // Airport markers
+  usedAirports.forEach(code => {
+    const a = AIRPORTS[code];
+    const isHub = hubs.has(code);
+    L.circleMarker([a.lat, a.lon], {
+      radius: isHub ? 7 : 5,
+      color: isHub ? '#ff8a9a' : '#e3e2e9',
+      weight: 2,
+      fillColor: isHub ? 'rgba(255,138,154,0.3)' : 'rgba(227,226,233,0.2)',
+      fillOpacity: 1
+    }).bindTooltip(`${code} - ${a.name}`, { sticky: true }).addTo(markerLayer);
+  });
+}
+
+function getFlightColor(travelers) {
+  if (travelers.includes('all')) return GROUPS.all.color;
+  if (travelers.includes('seth') || travelers.includes('paul')) return GROUPS.guys.color;
+  if (travelers.includes('katrina') || travelers.includes('sheri')) return GROUPS.girls.color;
+  return GROUPS.all.color;
+}
+
+function greatCirclePoints(a, b, n = 90) {
+  const toRad = d => d * Math.PI / 180;
+  const toDeg = r => r * 180 / Math.PI;
+
+  const lat1 = toRad(a.lat), lon1 = toRad(a.lon);
+  const lat2 = toRad(b.lat), lon2 = toRad(b.lon);
+
+  const dLat = lat2 - lat1;
+  const dLon = lon2 - lon1;
+  const h = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
+  const delta = 2 * Math.asin(Math.min(1, Math.sqrt(h)));
+
+  if (delta === 0) return [[a.lat, a.lon], [b.lat, b.lon]];
+
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const f = i / n;
+    const A = Math.sin((1-f)*delta) / Math.sin(delta);
+    const B = Math.sin(f*delta) / Math.sin(delta);
+
+    const x = A*Math.cos(lat1)*Math.cos(lon1) + B*Math.cos(lat2)*Math.cos(lon2);
+    const y = A*Math.cos(lat1)*Math.sin(lon1) + B*Math.cos(lat2)*Math.sin(lon2);
+    const z = A*Math.sin(lat1) + B*Math.sin(lat2);
+
+    pts.push([toDeg(Math.atan2(z, Math.sqrt(x*x + y*y))), toDeg(Math.atan2(y, x))]);
+  }
+  return pts;
+}
+
+function flightMiles(f) {
+  const A = AIRPORTS[f.from], B = AIRPORTS[f.to];
+  if (!A || !B) return 0;
+  const R = 3958.7613;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(B.lat - A.lat);
+  const dLon = toRad(B.lon - A.lon);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(A.lat))*Math.cos(toRad(B.lat))*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function addCityOverlays() {
+  const overlays = [
+    { code: 'ATH', title: 'Athens', file: 'Agora_of_Athens_2.jpg' },
+    { code: 'DXB', title: 'Dubai', file: 'Dubai_Airport_16.08.2009_05-08-19.jpg' },
+    { code: 'BLR', title: 'Bangalore', file: 'Bengaluru_Airport_International_Departures.jpg' }
+  ];
+
+  overlays.forEach(c => {
+    const a = AIRPORTS[c.code];
+    if (!a) return;
+    const url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(c.file)}?width=220`;
+    const iconHtml = `
+      <div class="cityIcon">
+        <div class="photo" style="background-image:url('${url}')"></div>
+        <div class="label"><span>${c.code}</span><span>${c.title}</span></div>
+      </div>`;
+    const icon = L.divIcon({
+      html: iconHtml,
+      className: '',
+      iconSize: [70, 54],
+      iconAnchor: [35, 54]
+    });
+    L.marker([a.lat + 0.5, a.lon + 0.8], { icon }).addTo(cityLayer);
+  });
+}
+</script>
+</body>
+</html>
