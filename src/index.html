@@ -645,6 +645,172 @@
       display: none;
     }
 
+    /* Photo Ribbon (Scrolling Thumbnails) */
+    .photo-ribbon {
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, rgba(79,172,254,0.1) 0%, rgba(0,242,254,0.1) 100%);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .photo-ribbon-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .photo-ribbon-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .photo-ribbon-title .material-symbols-outlined {
+      font-size: 18px;
+      color: var(--color-sky);
+    }
+
+    .photo-ribbon-count {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      background: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+
+    .photo-ribbon-track {
+      position: relative;
+      overflow: hidden;
+      height: 80px;
+    }
+
+    .photo-ribbon-scroll {
+      display: flex;
+      gap: 12px;
+      animation: scrollPhotos 30s linear infinite;
+      width: max-content;
+    }
+
+    .photo-ribbon-scroll.paused {
+      animation-play-state: paused;
+    }
+
+    @keyframes scrollPhotos {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .ribbon-thumbnail {
+      width: 100px;
+      height: 70px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: transform 0.2s;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .ribbon-thumbnail:hover {
+      transform: scale(1.05);
+    }
+
+    .ribbon-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .ribbon-placeholder {
+      width: 100px;
+      height: 70px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--color-cream) 0%, white 100%);
+      border: 2px dashed var(--color-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ribbon-placeholder:hover {
+      border-color: var(--color-sky);
+      background: white;
+    }
+
+    .ribbon-placeholder .material-symbols-outlined {
+      font-size: 24px;
+      color: var(--color-text-muted);
+      opacity: 0.5;
+    }
+
+    .ribbon-placeholder span:last-child {
+      font-size: 0.6rem;
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+
+    .photo-ribbon-controls {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .ribbon-control-btn {
+      padding: 6px 14px;
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .ribbon-control-btn:hover {
+      border-color: var(--color-sky);
+      color: var(--color-sky);
+    }
+
+    .ribbon-control-btn .material-symbols-outlined {
+      font-size: 14px;
+    }
+
+    .photo-ribbon-empty {
+      text-align: center;
+      padding: 20px;
+      color: var(--color-text-muted);
+    }
+
+    .photo-ribbon-empty .material-symbols-outlined {
+      font-size: 32px;
+      opacity: 0.4;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 480px) {
+      .ribbon-thumbnail, .ribbon-placeholder {
+        width: 80px;
+        height: 56px;
+      }
+
+      .photo-ribbon-track {
+        height: 64px;
+      }
+    }
+
     /* Phase Tabs */
     .phase-tabs {
       display: flex;
@@ -2998,6 +3164,32 @@
 
   <main class="main-content">
     <div class="journey-view" id="journeyView">
+      <!-- Photo Ribbon -->
+      <div class="photo-ribbon" id="photoRibbon">
+        <div class="photo-ribbon-header">
+          <span class="photo-ribbon-title">
+            <span class="material-symbols-outlined">photo_library</span>
+            Trip Memories
+          </span>
+          <span class="photo-ribbon-count" id="ribbonCount">Loading...</span>
+        </div>
+        <div class="photo-ribbon-track">
+          <div class="photo-ribbon-scroll" id="ribbonScroll">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+        <div class="photo-ribbon-controls" id="ribbonControls" style="display: none;">
+          <button class="ribbon-control-btn" id="ribbonPauseBtn" onclick="toggleRibbonPause()">
+            <span class="material-symbols-outlined">pause</span>
+            Pause
+          </button>
+          <button class="ribbon-control-btn" onclick="openUploadModal()">
+            <span class="material-symbols-outlined">add_photo_alternate</span>
+            Add Photo
+          </button>
+        </div>
+      </div>
+
       <div class="phase-tabs" id="phaseTabs">
         <button class="phase-tab active" data-phase="together">
           <span class="material-symbols-outlined">groups</span>
@@ -5177,6 +5369,10 @@
     const API_BASE = '/api';
     let selectedFile = null;
     let selectedFileData = null;
+    let ribbonPaused = false;
+    let tripPhotosCache = [];
+    const MAX_RIBBON_PHOTOS = 12; // Pause after this many
+    const PLACEHOLDER_COUNT = 6; // Empty slots to encourage uploads
 
     async function loadTripPhotos() {
       const loadingEl = document.getElementById('photosLoading');
@@ -5188,12 +5384,16 @@
         if (!response.ok) throw new Error('Failed to load photos');
 
         const data = await response.json();
+        tripPhotosCache = data.photos || [];
         loadingEl.style.display = 'none';
 
-        if (data.photos && data.photos.length > 0) {
+        // Update ribbon
+        renderPhotoRibbon(tripPhotosCache);
+
+        if (tripPhotosCache.length > 0) {
           emptyEl.style.display = 'none';
           gridEl.style.display = 'grid';
-          renderPhotos(data.photos);
+          renderPhotos(tripPhotosCache);
         } else {
           emptyEl.style.display = 'block';
           gridEl.style.display = 'none';
@@ -5205,6 +5405,124 @@
           <p>Photo sharing available when hosted on Azure</p>
           <p style="font-size: 0.8rem;">The static version works offline!</p>
         `;
+        // Show ribbon with placeholders only
+        renderPhotoRibbon([]);
+      }
+    }
+
+    function renderPhotoRibbon(photos) {
+      const ribbonEl = document.getElementById('ribbonScroll');
+      const countEl = document.getElementById('ribbonCount');
+      const controlsEl = document.getElementById('ribbonControls');
+
+      if (!ribbonEl) return;
+
+      const photoCount = photos.length;
+      countEl.textContent = photoCount > 0
+        ? `${photoCount} photo${photoCount !== 1 ? 's' : ''}`
+        : 'No photos yet - be the first!';
+
+      // Build ribbon content
+      let ribbonHTML = '';
+
+      // Add actual photos (duplicate for seamless loop)
+      const displayPhotos = photos.slice(0, MAX_RIBBON_PHOTOS);
+
+      if (displayPhotos.length > 0) {
+        // First set
+        displayPhotos.forEach(photo => {
+          const caption = photo.metadata?.caption || '';
+          const safeCaption = caption.replace(/'/g, "\\'");
+          const uploader = (photo.metadata?.uploadedBy || '').replace(/'/g, "\\'");
+          ribbonHTML += `
+            <div class="ribbon-thumbnail" onclick="openLightbox('${photo.url}', '${safeCaption}', '${uploader}')">
+              <img src="${photo.url}" alt="${caption}" loading="lazy">
+            </div>
+          `;
+        });
+
+        // Add some placeholders if we don't have many photos
+        const placeholdersNeeded = Math.max(0, PLACEHOLDER_COUNT - displayPhotos.length);
+        for (let i = 0; i < placeholdersNeeded; i++) {
+          ribbonHTML += `
+            <div class="ribbon-placeholder" onclick="openUploadModal()">
+              <span class="material-symbols-outlined">add_a_photo</span>
+              <span>Add yours</span>
+            </div>
+          `;
+        }
+
+        // Duplicate for seamless scrolling
+        displayPhotos.forEach(photo => {
+          const caption = photo.metadata?.caption || '';
+          const safeCaption = caption.replace(/'/g, "\\'");
+          const uploader = (photo.metadata?.uploadedBy || '').replace(/'/g, "\\'");
+          ribbonHTML += `
+            <div class="ribbon-thumbnail" onclick="openLightbox('${photo.url}', '${safeCaption}', '${uploader}')">
+              <img src="${photo.url}" alt="${caption}" loading="lazy">
+            </div>
+          `;
+        });
+
+        // Show controls when we have photos
+        controlsEl.style.display = 'flex';
+
+        // Auto-pause if many photos
+        if (displayPhotos.length >= MAX_RIBBON_PHOTOS && !ribbonPaused) {
+          setTimeout(() => {
+            setRibbonPaused(true);
+            countEl.textContent += ' (paused - click to continue)';
+          }, 15000); // Pause after 15 seconds
+        }
+      } else {
+        // All placeholders when no photos
+        for (let i = 0; i < PLACEHOLDER_COUNT; i++) {
+          const prompts = ['Your photo here!', 'Add a memory', 'Share a moment', 'Capture the trip', 'Add yours', 'Upload photo'];
+          ribbonHTML += `
+            <div class="ribbon-placeholder" onclick="openUploadModal()">
+              <span class="material-symbols-outlined">add_a_photo</span>
+              <span>${prompts[i % prompts.length]}</span>
+            </div>
+          `;
+        }
+        // Duplicate
+        for (let i = 0; i < PLACEHOLDER_COUNT; i++) {
+          const prompts = ['Your photo here!', 'Add a memory', 'Share a moment', 'Capture the trip', 'Add yours', 'Upload photo'];
+          ribbonHTML += `
+            <div class="ribbon-placeholder" onclick="openUploadModal()">
+              <span class="material-symbols-outlined">add_a_photo</span>
+              <span>${prompts[i % prompts.length]}</span>
+            </div>
+          `;
+        }
+        controlsEl.style.display = 'none';
+      }
+
+      ribbonEl.innerHTML = ribbonHTML;
+
+      // Adjust animation speed based on content
+      const itemCount = displayPhotos.length || PLACEHOLDER_COUNT;
+      const duration = Math.max(15, itemCount * 3); // 3 seconds per item, min 15s
+      ribbonEl.style.animationDuration = `${duration}s`;
+    }
+
+    function toggleRibbonPause() {
+      setRibbonPaused(!ribbonPaused);
+    }
+
+    function setRibbonPaused(paused) {
+      ribbonPaused = paused;
+      const ribbonEl = document.getElementById('ribbonScroll');
+      const btnEl = document.getElementById('ribbonPauseBtn');
+
+      if (ribbonEl) {
+        ribbonEl.classList.toggle('paused', paused);
+      }
+
+      if (btnEl) {
+        btnEl.innerHTML = paused
+          ? '<span class="material-symbols-outlined">play_arrow</span> Play'
+          : '<span class="material-symbols-outlined">pause</span> Pause';
       }
     }
 
