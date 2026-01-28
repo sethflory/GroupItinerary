@@ -3384,6 +3384,105 @@
       font-size: 0.8rem;
       color: var(--color-text-muted);
     }
+
+    /* Settings Button */
+    .settings-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      backdrop-filter: blur(10px);
+    }
+
+    .settings-btn:hover {
+      background: rgba(255,255,255,0.3);
+      transform: rotate(45deg);
+    }
+
+    .settings-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    .settings-modal {
+      max-width: 450px;
+    }
+
+    .settings-section {
+      margin-bottom: 24px;
+    }
+
+    .settings-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 8px;
+    }
+
+    .settings-input {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 0.9rem;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-family: 'Consolas', 'Monaco', monospace;
+    }
+
+    .settings-input:focus {
+      outline: none;
+      border-color: var(--color-sky);
+    }
+
+    .settings-hint {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      margin-top: 6px;
+    }
+
+    .settings-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      margin-top: 12px;
+    }
+
+    .settings-status.success {
+      background: rgba(56, 239, 125, 0.15);
+      color: #1a5c2e;
+    }
+
+    .settings-status.missing {
+      background: rgba(255, 126, 95, 0.15);
+      color: #8b3a2f;
+    }
+
+    .settings-save-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--color-sky), var(--color-ocean));
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+
+    .settings-save-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -3427,6 +3526,9 @@
             <!-- Populated by JS -->
           </div>
         </div>
+        <button class="settings-btn" onclick="openSettings()" title="Settings">
+          <span class="material-symbols-outlined">settings</span>
+        </button>
       </div>
       <p class="trip-dates" id="tripDates">February 1 - 12, 2026 &bull; Athens together, then S&P continue to India</p>
       <div class="header-widgets">
@@ -3756,6 +3858,26 @@
     </div>
   </div>
 
+  <!-- Settings Modal -->
+  <div class="share-modal-overlay" id="settingsModal">
+    <div class="share-modal settings-modal">
+      <button class="modal-close" onclick="closeSettings()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+      <h3 class="upload-title">
+        <span class="material-symbols-outlined" style="color: var(--color-sky);">settings</span>
+        Settings
+      </h3>
+      <div class="settings-section">
+        <label class="settings-label">Anthropic API Key</label>
+        <input type="password" class="settings-input" id="settingsApiKey" placeholder="sk-ant-api03-...">
+        <p class="settings-hint">Required for AI features. Get a key at console.anthropic.com</p>
+        <div class="settings-status" id="apiKeyStatus"></div>
+      </div>
+      <button class="settings-save-btn" onclick="saveSettings()">Save Settings</button>
+    </div>
+  </div>
+
   <script>
     // ========================================
     // FEATURE FLAGS
@@ -3829,9 +3951,8 @@
         photoPrefix: '', // Default container, no prefix
         startDate: '2026-02-01T16:27:00-05:00',
         endDate: '2026-02-12T23:59:00-05:00',
-        accessCode: 'athens2026', // Change this to your group's code
-        // AI Configuration - set your API key here
-        anthropicApiKey: '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' // Add your Anthropic API key
+        accessCode: 'athens2026' // Change this to your group's code
+        // API key is now stored in Settings (localStorage) to avoid committing secrets
       },
       'test-trip': {
         id: 'test-trip',
@@ -3844,8 +3965,8 @@
         photoPrefix: 'test-', // Photos prefixed with 'test-'
         startDate: '2025-01-01T09:00:00-05:00',
         endDate: '2025-01-03T23:59:00-05:00',
-        accessCode: 'test123', // Simple code for testing
-        anthropicApiKey: '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' // Optional: separate key for testing
+        accessCode: 'test123' // Simple code for testing
+        // API key is now stored in Settings (localStorage)
       }
     };
 
@@ -3866,7 +3987,16 @@
     }
 
     function getAnthropicApiKey() {
-      return getCurrentTrip().anthropicApiKey || '';
+      // Read from localStorage (user enters key via Settings)
+      return localStorage.getItem('anthropicApiKey') || '';
+    }
+
+    function setAnthropicApiKey(key) {
+      if (key) {
+        localStorage.setItem('anthropicApiKey', key);
+      } else {
+        localStorage.removeItem('anthropicApiKey');
+      }
     }
 
     // ========================================
@@ -7249,6 +7379,64 @@ No external dependencies except Google Fonts.</div>
     document.getElementById('hiwModal').addEventListener('click', (e) => {
       if (e.target.id === 'hiwModal') {
         closeHiwModal();
+      }
+    });
+
+    // ========================================
+    // SETTINGS MODAL
+    // ========================================
+
+    function openSettings() {
+      const modal = document.getElementById('settingsModal');
+      const input = document.getElementById('settingsApiKey');
+      const statusEl = document.getElementById('apiKeyStatus');
+
+      const currentKey = getAnthropicApiKey();
+      if (currentKey) {
+        input.value = currentKey;
+        statusEl.className = 'settings-status success';
+        statusEl.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">check_circle</span> API key configured';
+      } else {
+        input.value = '';
+        statusEl.className = 'settings-status missing';
+        statusEl.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">warning</span> No API key set - AI features disabled';
+      }
+
+      modal.classList.add('active');
+    }
+
+    function closeSettings() {
+      document.getElementById('settingsModal').classList.remove('active');
+    }
+
+    function saveSettings() {
+      const input = document.getElementById('settingsApiKey');
+      const statusEl = document.getElementById('apiKeyStatus');
+      const key = input.value.trim();
+
+      if (key && !key.startsWith('sk-ant-')) {
+        statusEl.className = 'settings-status missing';
+        statusEl.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">error</span> Invalid key format (should start with sk-ant-)';
+        return;
+      }
+
+      setAnthropicApiKey(key);
+
+      if (key) {
+        statusEl.className = 'settings-status success';
+        statusEl.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">check_circle</span> API key saved!';
+      } else {
+        statusEl.className = 'settings-status missing';
+        statusEl.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">warning</span> API key removed';
+      }
+
+      setTimeout(() => closeSettings(), 1000);
+    }
+
+    // Close settings modal on overlay click
+    document.getElementById('settingsModal').addEventListener('click', (e) => {
+      if (e.target.id === 'settingsModal') {
+        closeSettings();
       }
     });
   </script>
