@@ -96,8 +96,9 @@ npm install
    - App location: `/src`
    - API location: `/api`
    - Output location: (leave empty)
-4. Add Application Setting:
+4. Add Application Settings:
    - `AZURE_STORAGE_CONNECTION_STRING` = your connection string
+   - `ANTHROPIC_API_KEY` = your Anthropic API key (for AI features)
 
 #### Option B: Via Azure CLI
 
@@ -112,11 +113,12 @@ az staticwebapp create \
   --api-location "/api" \
   --login-with-github
 
-# Add storage connection string
+# Add application settings
 az staticwebapp appsettings set \
   --name group-itinerary \
   --resource-group $RESOURCE_GROUP \
-  --setting-names AZURE_STORAGE_CONNECTION_STRING="YOUR_CONNECTION_STRING"
+  --setting-names AZURE_STORAGE_CONNECTION_STRING="YOUR_CONNECTION_STRING" \
+  ANTHROPIC_API_KEY="YOUR_ANTHROPIC_API_KEY"
 ```
 
 ### 4. Local Development
