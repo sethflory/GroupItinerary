@@ -1,10 +1,6 @@
 const https = require('https');
 
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-
 module.exports = async function (context, req) {
-  context.log('AI API called:', req.method);
-
   // CORS headers
   const headers = {
     'Content-Type': 'application/json',
@@ -13,25 +9,34 @@ module.exports = async function (context, req) {
     'Access-Control-Allow-Headers': 'Content-Type'
   };
 
-  // Handle preflight
-  if (req.method === 'OPTIONS') {
-    context.res = { status: 204, headers };
-    return;
-  }
-
-  // Check for API key
-  if (!ANTHROPIC_API_KEY) {
-    context.log.error('ANTHROPIC_API_KEY not configured');
-    context.res = {
-      status: 500,
-      headers,
-      body: JSON.stringify({ error: 'AI service not configured. Please set ANTHROPIC_API_KEY in application settings.' })
-    };
-    return;
-  }
-
   try {
-    const { messages, system, max_tokens = 1024, type = 'chat' } = req.body;
+    context.log('AI API called:', req.method);
+
+    // Handle preflight
+    if (req.method === 'OPTIONS') {
+      context.res = { status: 204, headers };
+      return;
+    }
+
+    // Check for API key
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      context.log.error('ANTHROPIC_API_KEY not configured');
+      context.res = {
+        status: 500,
+        headers,
+        body: JSON.stringify({ error: 'AI service not configured. Please set ANTHROPIC_API_KEY in Environment Variables.' })
+      };
+      return;
+    }
+
+    // Parse body - handle both string and object
+    let body = req.body;
+    if (typeof body === 'string') {
+      body = JSON.parse(body);
+    }
+
+    const { messages, system, max_tokens = 1024 } = body || {};
 
     if (!messages || !Array.isArray(messages)) {
       context.res = {
@@ -54,7 +59,7 @@ module.exports = async function (context, req) {
     }
 
     // Make request to Anthropic API
-    const response = await callAnthropic(anthropicRequest, ANTHROPIC_API_KEY);
+    const response = await callAnthropic(anthropicRequest, apiKey);
 
     context.res = {
       status: 200,
@@ -63,7 +68,7 @@ module.exports = async function (context, req) {
     };
 
   } catch (error) {
-    context.log.error('Error in AI API:', error);
+    context.log.error('Error in AI API:', error.message, error.stack);
     context.res = {
       status: 500,
       headers,
