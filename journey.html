@@ -75,12 +75,119 @@
       margin: 0 auto;
     }
 
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .trip-title {
       font-family: 'Playfair Display', serif;
       font-size: 2rem;
       font-weight: 700;
       margin-bottom: 4px;
       text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .how-it-works-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      backdrop-filter: blur(10px);
+    }
+
+    .how-it-works-btn:hover {
+      background: rgba(255,255,255,0.4);
+      transform: scale(1.1);
+    }
+
+    .how-it-works-btn .material-symbols-outlined {
+      font-size: 18px;
+      color: white;
+    }
+
+    /* How It Works Modal */
+    .hiw-modal {
+      max-width: 700px;
+      max-height: 90vh;
+    }
+
+    .hiw-content {
+      padding: 20px;
+      overflow-y: auto;
+      max-height: calc(90vh - 60px);
+    }
+
+    .hiw-section {
+      margin-bottom: 20px;
+    }
+
+    .hiw-section h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--color-sunset);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hiw-section p {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .hiw-code {
+      background: #1a1a2e;
+      color: #e8e8e8;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.75rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .hiw-copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--color-sunset);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-top: 12px;
+    }
+
+    .hiw-copy-btn:hover {
+      background: var(--color-sunrise);
+    }
+
+    .hiw-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      color: white;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
     }
 
     .trip-dates {
@@ -1833,7 +1940,12 @@
 <body>
   <header class="header">
     <div class="header-content">
-      <h1 class="trip-title">Athens & Bangalore 2026</h1>
+      <div class="title-row">
+        <h1 class="trip-title">Athens & Bangalore 2026</h1>
+        <button class="how-it-works-btn" onclick="openHowItWorks()" title="How It Works">
+          <span class="material-symbols-outlined">magic_button</span>
+        </button>
+      </div>
       <p class="trip-dates">February 1 - 12, 2026 &bull; Athens together, then S&P continue to India</p>
       <div class="header-widgets">
         <div class="countdown-widget" id="countdownWidget">
@@ -1980,6 +2092,10 @@
       { id: "paul", name: "Paul", group: "guys", color: "#4a90d9", initials: "P" },
       { id: "sheri", name: "Sheri", group: "girls", color: "#d94a8c", initials: "S" }
     ];
+
+    // Derived constants for traveler pills (DRY principle)
+    const TRAVELER_ORDER = TRAVELERS.map(t => t.id);
+    const TRAVELER_INITIALS = Object.fromEntries(TRAVELERS.map(t => [t.id, t.initials]));
 
     const HOTEL = {
       name: "The Fresh Hotel",
@@ -2849,20 +2965,16 @@
       return travelers.map(t => TRAVELERS.find(tr => tr.id === t)?.name || t).join(', ');
     }
 
-    function renderTravelerPills(travelers) {
-      // Order: S K P F
-      const order = ['seth', 'katrina', 'paul', 'sheri'];
-      const initials = { seth: 'F', katrina: 'K', paul: 'P', sheri: 'S' };
-
-      return `<div class="traveler-pills">${order.map(id => {
+    function renderTravelerPills(travelers, compact = false) {
+      // Uses shared TRAVELER_ORDER and TRAVELER_INITIALS constants
+      const html = TRAVELER_ORDER.map(id => {
+        const traveler = TRAVELERS.find(t => t.id === id);
         const isActive = travelers.includes('all') ||
                          travelers.includes(id) ||
-                         (id === 'seth' && travelers.includes('guys')) ||
-                         (id === 'paul' && travelers.includes('guys')) ||
-                         (id === 'katrina' && travelers.includes('girls')) ||
-                         (id === 'sheri' && travelers.includes('girls'));
-        return `<span class="traveler-pill ${isActive ? 'active ' + id : 'inactive'}">${initials[id]}</span>`;
-      }).join('')}</div>`;
+                         travelers.includes(traveler.group);
+        return `<span class="traveler-pill ${isActive ? 'active ' + id : 'inactive'}">${TRAVELER_INITIALS[id]}</span>`;
+      }).join('');
+      return compact ? html : `<div class="traveler-pills">${html}</div>`;
     }
 
     function formatTime(time) {
@@ -3069,19 +3181,9 @@
       });
     }
 
+    // Compact version just calls the main function with compact=true
     function renderTravelerPillsCompact(travelers) {
-      const order = ['seth', 'katrina', 'paul', 'sheri'];
-      const initials = { seth: 'F', katrina: 'K', paul: 'P', sheri: 'S' };
-
-      return order.map(id => {
-        const isActive = travelers.includes('all') ||
-                         travelers.includes(id) ||
-                         (id === 'seth' && travelers.includes('guys')) ||
-                         (id === 'paul' && travelers.includes('guys')) ||
-                         (id === 'katrina' && travelers.includes('girls')) ||
-                         (id === 'sheri' && travelers.includes('girls'));
-        return `<span class="traveler-pill ${isActive ? 'active ' + id : 'inactive'}">${initials[id]}</span>`;
-      }).join('');
+      return renderTravelerPills(travelers, true);
     }
 
     function renderCarousel(carouselId) {
@@ -3710,6 +3812,114 @@
     </div>
   </div>
 
+  <!-- How It Works Modal -->
+  <div class="share-modal-overlay" id="hiwModal">
+    <div class="share-modal hiw-modal">
+      <div class="share-modal-header">
+        <h3><span class="material-symbols-outlined">magic_button</span> How It Works</h3>
+        <button class="share-modal-close" onclick="closeHiwModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="hiw-content">
+        <div class="hiw-section">
+          <h4><span class="material-symbols-outlined">auto_awesome</span> Built with Claude</h4>
+          <p>
+            This interactive travel itinerary was generated as a single, self-contained HTML file using
+            <span class="hiw-badge">Claude</span>. No frameworks, no build tools, no server required —
+            just open in any browser and share with your travel group.
+          </p>
+        </div>
+
+        <div class="hiw-section">
+          <h4><span class="material-symbols-outlined">rocket_launch</span> Create Your Own</h4>
+          <p>
+            To generate a custom itinerary for your group, provide Claude with your trip details in a structured format.
+            Copy the prompt template below and replace the sample data with your own trip information.
+          </p>
+        </div>
+
+        <div class="hiw-section">
+          <h4><span class="material-symbols-outlined">code</span> Prompt Template</h4>
+          <div class="hiw-code" id="hiwPromptCode">Create a single-file interactive HTML group travel itinerary with these features:
+- Phase-based navigation for trip segments
+- Traveler filtering (show events per person)
+- Live countdown timer to departure
+- Timezone helper showing local vs home time
+- Weather widgets for each destination
+- Image carousels for hotels/venues
+- Social post composer for sharing
+- Travel time estimates between locations
+- Collapsible list view
+
+TRIP DATA:
+{
+  "title": "Your Trip Title 2026",
+  "dates": "Month Day - Day, Year",
+  "travelers": [
+    { "id": "person1", "name": "Name", "initials": "X", "group": "groupA" },
+    { "id": "person2", "name": "Name", "initials": "Y", "group": "groupB" }
+  ],
+  "phases": [
+    { "name": "Phase 1", "travelers": ["all"], "days": [1, 2, 3] },
+    { "name": "Phase 2", "travelers": ["person1"], "days": [4, 5] }
+  ],
+  "destinations": {
+    "CODE": { "city": "City", "country": "Country", "utcOffset": 0 }
+  },
+  "days": [
+    {
+      "date": "2026-MM-DD",
+      "dayNum": 1,
+      "label": "Day, Mon D",
+      "location": "CODE",
+      "theme": "Day Theme",
+      "events": [
+        {
+          "time": "HH:MM",
+          "type": "flight|hotel|activity|meal",
+          "title": "Event Title",
+          "subtitle": "Subtitle",
+          "travelers": ["all"] or ["person1", "person2"],
+          "status": "confirmed|pending",
+          "details": "Additional details",
+          "where": "Location name",
+          "travelTime": 30,
+          "travelNote": "🚗 30 min from X"
+        }
+      ]
+    }
+  ],
+  "carousels": {
+    "venue-id": {
+      "images": [
+        { "url": "https://...", "caption": "Caption" }
+      ]
+    }
+  }
+}
+
+Generate a complete, working HTML file with embedded CSS and JavaScript.</div>
+          <button class="hiw-copy-btn" onclick="copyHiwPrompt()">
+            <span class="material-symbols-outlined">content_copy</span>
+            Copy Prompt Template
+          </button>
+        </div>
+
+        <div class="hiw-section">
+          <h4><span class="material-symbols-outlined">tips_and_updates</span> Tips</h4>
+          <p>
+            • Include flight numbers, hotel names, and booking confirmations<br>
+            • Add "travelTime" and "travelNote" for ground transport estimates<br>
+            • Use "carousel" property to link venue images<br>
+            • Set "feelsLike" for timezone context (e.g., "feels like 2 PM ET")<br>
+            • Group travelers logically for filtering (couples, families, etc.)
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ========================================
     // SHARE POST FUNCTIONALITY
@@ -4019,6 +4229,37 @@
       const addBtn = e.target.closest('.share-add-btn');
       if (!addBtn && !e.target.closest('.share-event-picker')) {
         picker.classList.remove('active');
+      }
+    });
+
+    // ========================================
+    // HOW IT WORKS MODAL
+    // ========================================
+
+    function openHowItWorks() {
+      document.getElementById('hiwModal').classList.add('active');
+    }
+
+    function closeHiwModal() {
+      document.getElementById('hiwModal').classList.remove('active');
+    }
+
+    function copyHiwPrompt() {
+      const promptText = document.getElementById('hiwPromptCode').textContent;
+      navigator.clipboard.writeText(promptText).then(() => {
+        const btn = event.target.closest('.hiw-copy-btn');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<span class="material-symbols-outlined">check</span> Copied!';
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+        }, 2000);
+      });
+    }
+
+    // Close modal on overlay click
+    document.getElementById('hiwModal').addEventListener('click', (e) => {
+      if (e.target.id === 'hiwModal') {
+        closeHiwModal();
       }
     });
   </script>
