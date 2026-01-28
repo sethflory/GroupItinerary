@@ -1,14 +1,9 @@
 module.exports = async function (context, req) {
-  context.res = {
+  return {
     status: 200,
     headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*'
+      'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      test: true,
-      method: req.method,
-      hasApiKey: !!process.env.ANTHROPIC_API_KEY
-    })
+    body: JSON.stringify({ test: true })
   };
 };
