@@ -2280,22 +2280,39 @@
       color: var(--color-sunset);
     }
 
-    .event-share-btn {
+    .event-actions {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .event-share-btn,
+    .event-card .ai-insights-btn {
       background: none;
       border: none;
       cursor: pointer;
-      padding: 4px;
+      padding: 6px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       opacity: 0.5;
-      transition: opacity 0.2s, background 0.2s;
+      transition: opacity 0.2s, background 0.2s, transform 0.2s;
     }
 
-    .event-share-btn:hover {
+    .event-share-btn:hover,
+    .event-card .ai-insights-btn:hover {
       opacity: 1;
       background: var(--color-cream);
+    }
+
+    .event-card .ai-insights-btn:hover {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+    }
+
+    .event-card .ai-insights-btn .material-symbols-outlined {
+      font-size: 18px;
+      color: #667eea;
     }
 
     .event-share-btn .material-symbols-outlined {
@@ -2981,7 +2998,91 @@
     }
 
     .ai-insights-modal {
-      max-width: 500px;
+      max-width: 550px;
+    }
+
+    .ai-insights-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .ai-insight-btn {
+      flex: 1;
+      min-width: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .ai-insight-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .ai-insight-btn .material-symbols-outlined {
+      font-size: 24px;
+    }
+
+    .ai-insight-response {
+      background: var(--color-cream);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      min-height: 150px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .ai-insight-text {
+      line-height: 1.7;
+      color: var(--color-text);
+    }
+
+    .ai-insight-text strong {
+      color: var(--color-text);
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 4px;
+    }
+
+    .ai-insight-text strong:first-child {
+      margin-top: 0;
+    }
+
+    .ai-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100px;
+      color: var(--color-text-muted);
+    }
+
+    .typing-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .typing-indicator::after {
+      content: '';
+      animation: dots 1.5s infinite;
+    }
+
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
     }
 
     .ai-prompt-buttons {
@@ -3639,6 +3740,22 @@
     <div class="photo-lightbox-caption" id="lightboxCaption"></div>
   </div>
 
+  <!-- AI Insights Modal -->
+  <div class="share-modal-overlay" id="aiInsightsModal">
+    <div class="share-modal ai-insights-modal">
+      <button class="modal-close" onclick="closeAiInsights()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+      <h3 class="upload-title">
+        <span class="material-symbols-outlined" style="color: #667eea;">smart_toy</span>
+        <span id="aiInsightsTitle">AI Insights</span>
+      </h3>
+      <div id="aiInsightsContent">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
   <script>
     // ========================================
     // FEATURE FLAGS
@@ -3649,15 +3766,12 @@
     const FEATURES = {
       // Currently working
       PHOTO_SHARING: true,           // Upload and view trip photos
+      AI_EVENT_INSIGHTS: true,       // AI-powered insights about each event (3 prompts)
+      AI_CHAT: true,                 // Embedded AI chat interface
 
       // In development - set to true to enable
       USER_PROFILES: false,          // User profiles with social media connections
       GPS_PHOTO_OPS: false,          // GPS-triggered notifications for famous photo spots
-      AI_EVENT_INSIGHTS: false,      // AI-powered insights about each event (3 prompts)
-      AI_CHAT: false,                // Embedded AI chat interface
-
-      // API Keys (set these when enabling AI features)
-      ANTHROPIC_API_KEY: '',         // For AI features - DO NOT commit with real key
     };
 
     // Feature flag helper
@@ -3715,7 +3829,9 @@
         photoPrefix: '', // Default container, no prefix
         startDate: '2026-02-01T16:27:00-05:00',
         endDate: '2026-02-12T23:59:00-05:00',
-        accessCode: 'athens2026' // Change this to your group's code
+        accessCode: 'athens2026', // Change this to your group's code
+        // AI Configuration - set your API key here
+        anthropicApiKey: '' // Add your Anthropic API key
       },
       'test-trip': {
         id: 'test-trip',
@@ -3728,7 +3844,8 @@
         photoPrefix: 'test-', // Photos prefixed with 'test-'
         startDate: '2025-01-01T09:00:00-05:00',
         endDate: '2025-01-03T23:59:00-05:00',
-        accessCode: 'test123' // Simple code for testing
+        accessCode: 'test123', // Simple code for testing
+        anthropicApiKey: '' // Optional: separate key for testing
       }
     };
 
@@ -3746,6 +3863,10 @@
 
     function getCurrentPhotoPrefix() {
       return getCurrentTrip().photoPrefix || '';
+    }
+
+    function getAnthropicApiKey() {
+      return getCurrentTrip().anthropicApiKey || '';
     }
 
     // ========================================
@@ -5363,6 +5484,9 @@
           ` : '<div class="day-nav-placeholder"></div>'}
         </div>
       `;
+
+      // Apply feature flags to newly rendered elements
+      applyFeatureFlags();
     }
 
     function goToDay(dayIndex) {
@@ -5462,9 +5586,14 @@
                   ${e.walkingSteps ? `<span class="event-badge" style="background:#e8f5e9;color:#2e7d32">${(e.walkingSteps/1000).toFixed(1)}k steps</span>` : ''}
                 </div>
               </div>
-              <button class="event-share-btn" onclick="openShareModal('${e.id}')" title="Create post">
-                <span class="material-symbols-outlined">share</span>
-              </button>
+              <div class="event-actions">
+                <button class="ai-insights-btn" onclick="openAiInsights('${e.id}', '${(e.title || '').replace(/'/g, "\\'")}', '${(e.details || '').replace(/'/g, "\\'")}')" title="AI Insights">
+                  <span class="material-symbols-outlined">smart_toy</span>
+                </button>
+                <button class="event-share-btn" onclick="openShareModal('${e.id}')" title="Create post">
+                  <span class="material-symbols-outlined">share</span>
+                </button>
+              </div>
             </div>
           </div>
           ${e.details ? `<div class="event-details"><p>${e.details}</p></div>` : ''}
@@ -5530,6 +5659,9 @@
 
       // Fetch weather for list view
       updateListViewWeather();
+
+      // Apply feature flags to newly rendered elements
+      applyFeatureFlags();
     }
 
     function toggleListDay(dayIndex) {
@@ -6305,10 +6437,33 @@
     // ========================================
 
     // --- AI Chat ---
+    let chatHistory = [];
+
     function toggleAiChat() {
       if (!isFeatureEnabled('AI_CHAT')) return;
       const chatWindow = document.getElementById('aiChatWindow');
       chatWindow.classList.toggle('visible');
+    }
+
+    function getTripContext() {
+      const trip = getCurrentTrip();
+      const currentDay = DAYS[currentDayIndex];
+      return `You are a helpful travel assistant for a group trip. Here's the context:
+
+Trip: ${trip.name}
+Dates: ${trip.dates}
+Description: ${trip.description}
+Travelers: ${TRAVELERS.map(t => t.name).join(', ')}
+
+Current day being viewed: ${currentDay?.label || 'N/A'} - ${currentDay?.theme || 'N/A'}
+Location: ${currentDay?.location || 'N/A'}
+
+Key destinations on this trip:
+${Object.entries(DESTINATIONS).map(([code, dest]) => `- ${dest.city}, ${dest.country}: ${dest.info}`).join('\n')}
+
+Hotel in Athens: ${HOTEL?.name || 'N/A'} - ${HOTEL?.neighborhood || ''}
+
+Be helpful, friendly, and concise. Provide practical travel tips, cultural insights, and help with itinerary questions. If asked about specific events, provide relevant context about the location, cuisine, or activity.`;
     }
 
     async function sendAiMessage() {
@@ -6319,34 +6474,202 @@
       if (!message) return;
 
       const messagesEl = document.getElementById('aiChatMessages');
+      const apiKey = getAnthropicApiKey();
 
       // Add user message
-      messagesEl.innerHTML += `<div class="ai-chat-message user">${message}</div>`;
+      messagesEl.innerHTML += `<div class="ai-chat-message user">${escapeHtml(message)}</div>`;
       input.value = '';
       messagesEl.scrollTop = messagesEl.scrollHeight;
 
       // Check for API key
-      if (!FEATURES.ANTHROPIC_API_KEY) {
-        messagesEl.innerHTML += `<div class="ai-chat-message assistant">⚠️ AI Chat requires an API key. Set FEATURES.ANTHROPIC_API_KEY to enable.</div>`;
+      if (!apiKey) {
+        messagesEl.innerHTML += `<div class="ai-chat-message assistant">⚠️ AI Chat requires an API key. Add your Anthropic API key to the trip configuration.</div>`;
         messagesEl.scrollTop = messagesEl.scrollHeight;
         return;
       }
 
-      // TODO: Implement actual API call
-      messagesEl.innerHTML += `<div class="ai-chat-message assistant">🚧 AI integration coming soon! This will connect to Claude for intelligent trip assistance.</div>`;
+      // Add loading indicator
+      const loadingId = 'loading-' + Date.now();
+      messagesEl.innerHTML += `<div class="ai-chat-message assistant" id="${loadingId}"><span class="typing-indicator">Thinking...</span></div>`;
       messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      // Add to chat history
+      chatHistory.push({ role: 'user', content: message });
+
+      try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1024,
+            system: getTripContext(),
+            messages: chatHistory
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error?.message || 'API request failed');
+        }
+
+        const data = await response.json();
+        const assistantMessage = data.content[0].text;
+
+        // Add to history
+        chatHistory.push({ role: 'assistant', content: assistantMessage });
+
+        // Keep history manageable (last 10 exchanges)
+        if (chatHistory.length > 20) {
+          chatHistory = chatHistory.slice(-20);
+        }
+
+        // Replace loading with response
+        document.getElementById(loadingId).innerHTML = formatAiResponse(assistantMessage);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      } catch (error) {
+        console.error('AI Chat error:', error);
+        document.getElementById(loadingId).innerHTML = `⚠️ Error: ${error.message}`;
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatAiResponse(text) {
+      // Basic markdown-like formatting
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
     }
 
     // --- AI Event Insights ---
-    function openAiInsights(eventId, eventTitle) {
+    let currentInsightEvent = null;
+
+    function openAiInsights(eventId, eventTitle, eventDetails) {
       if (!isFeatureEnabled('AI_EVENT_INSIGHTS')) return;
 
-      // TODO: Open modal with 3 prompt buttons
-      // 1. "Tell me the history" - Historical context
-      // 2. "Local tips" - Insider recommendations
-      // 3. "What to expect" - Practical info
-      console.log('AI Insights requested for:', eventId, eventTitle);
-      alert(`AI Insights for "${eventTitle}" coming soon!\n\nThis will offer:\n• Historical context\n• Local insider tips\n• What to expect`);
+      currentInsightEvent = { id: eventId, title: eventTitle, details: eventDetails };
+
+      // Find the event data
+      let eventData = null;
+      for (const day of DAYS) {
+        const found = day.events.find(e => e.id === eventId);
+        if (found) {
+          eventData = { ...found, dayLabel: day.label, location: day.location };
+          break;
+        }
+      }
+
+      const modal = document.getElementById('aiInsightsModal');
+      const titleEl = document.getElementById('aiInsightsTitle');
+      const contentEl = document.getElementById('aiInsightsContent');
+
+      titleEl.textContent = eventTitle;
+      contentEl.innerHTML = `
+        <div class="ai-insights-buttons">
+          <button class="ai-insight-btn" onclick="getInsight('history')">
+            <span class="material-symbols-outlined">history_edu</span>
+            <span>History & Background</span>
+          </button>
+          <button class="ai-insight-btn" onclick="getInsight('tips')">
+            <span class="material-symbols-outlined">lightbulb</span>
+            <span>Local Tips</span>
+          </button>
+          <button class="ai-insight-btn" onclick="getInsight('expect')">
+            <span class="material-symbols-outlined">checklist</span>
+            <span>What to Expect</span>
+          </button>
+        </div>
+        <div class="ai-insight-response" id="aiInsightResponse">
+          <p style="color: var(--color-text-muted); text-align: center;">Select a topic above to get AI-powered insights</p>
+        </div>
+      `;
+
+      modal.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAiInsights() {
+      const modal = document.getElementById('aiInsightsModal');
+      modal.classList.remove('visible');
+      document.body.style.overflow = '';
+      currentInsightEvent = null;
+    }
+
+    async function getInsight(type) {
+      if (!currentInsightEvent) return;
+
+      const apiKey = getAnthropicApiKey();
+      const responseEl = document.getElementById('aiInsightResponse');
+
+      if (!apiKey) {
+        responseEl.innerHTML = `<p style="color: var(--color-sunrise);">⚠️ AI features require an API key. Add your Anthropic API key to the trip configuration.</p>`;
+        return;
+      }
+
+      // Find full event data
+      let eventData = null;
+      let dayData = null;
+      for (const day of DAYS) {
+        const found = day.events.find(e => e.id === currentInsightEvent.id);
+        if (found) {
+          eventData = found;
+          dayData = day;
+          break;
+        }
+      }
+
+      const prompts = {
+        history: `Tell me about the history and background of "${currentInsightEvent.title}". ${eventData?.where ? `Location: ${eventData.where}` : ''} ${dayData?.location ? `City: ${DESTINATIONS[dayData.location]?.city || dayData.location}` : ''}. Provide interesting historical context, cultural significance, and fascinating facts. Keep it concise but engaging (2-3 paragraphs).`,
+        tips: `Give me insider local tips for "${currentInsightEvent.title}". ${eventData?.where ? `Location: ${eventData.where}` : ''} ${dayData?.location ? `City: ${DESTINATIONS[dayData.location]?.city || dayData.location}` : ''}. Include: best times to visit, what to order/see, local customs, photo spots, and things tourists often miss. Be practical and specific.`,
+        expect: `What should I expect when visiting "${currentInsightEvent.title}"? ${eventData?.where ? `Location: ${eventData.where}` : ''} ${eventData?.details ? `Details: ${eventData.details}` : ''} ${dayData?.location ? `City: ${DESTINATIONS[dayData.location]?.city || dayData.location}` : ''}. Cover: dress code, typical duration, accessibility, costs, crowds, and any preparations needed. Be practical.`
+      };
+
+      responseEl.innerHTML = `<div class="ai-loading"><span class="typing-indicator">Getting insights...</span></div>`;
+
+      try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1024,
+            system: 'You are a knowledgeable travel guide providing helpful, accurate information. Be concise, practical, and engaging. Format your response with clear sections using **bold** for headings.',
+            messages: [{ role: 'user', content: prompts[type] }]
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error?.message || 'API request failed');
+        }
+
+        const data = await response.json();
+        const insightText = data.content[0].text;
+
+        responseEl.innerHTML = `<div class="ai-insight-text">${formatAiResponse(insightText)}</div>`;
+
+      } catch (error) {
+        console.error('AI Insights error:', error);
+        responseEl.innerHTML = `<p style="color: var(--color-sunrise);">⚠️ Error: ${error.message}</p>`;
+      }
     }
 
     // --- GPS Photo Ops ---
