@@ -2540,6 +2540,347 @@
       }
     }
 
+    /* ========================================
+       FEATURE: User Profiles (STUB)
+       ======================================== */
+    .user-profiles-section {
+      display: none;
+      margin-top: 32px;
+      padding: 24px;
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+    }
+
+    .feature-coming-soon {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--color-text-muted);
+    }
+
+    .feature-coming-soon .material-symbols-outlined {
+      font-size: 64px;
+      opacity: 0.3;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .feature-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: linear-gradient(135deg, var(--color-sky), var(--color-ocean));
+      color: white;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    /* ========================================
+       FEATURE: GPS Photo Ops (STUB)
+       ======================================== */
+    .gps-photo-ops-section {
+      display: none;
+      margin-top: 32px;
+      padding: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: var(--radius-lg);
+      color: white;
+    }
+
+    .gps-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .gps-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .gps-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      font-size: 0.85rem;
+    }
+
+    .gps-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #38ef7d;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .photo-ops-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .photo-op-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(255,255,255,0.15);
+      border-radius: var(--radius-md);
+      backdrop-filter: blur(10px);
+    }
+
+    .photo-op-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .photo-op-info {
+      flex: 1;
+    }
+
+    .photo-op-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .photo-op-distance {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .photo-op-captured {
+      color: #38ef7d;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ========================================
+       FEATURE: AI Event Insights (STUB)
+       ======================================== */
+    .ai-insights-btn {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ai-insights-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .ai-insights-btn .material-symbols-outlined {
+      font-size: 16px;
+    }
+
+    .ai-insights-modal {
+      max-width: 500px;
+    }
+
+    .ai-prompt-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .ai-prompt-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: var(--color-cream);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+
+    .ai-prompt-btn:hover {
+      border-color: var(--color-sky);
+      background: white;
+    }
+
+    .ai-prompt-btn.active {
+      border-color: var(--color-sky);
+      background: rgba(79, 172, 254, 0.1);
+    }
+
+    .ai-prompt-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--color-sky), var(--color-ocean));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .ai-response-area {
+      padding: 20px;
+      background: var(--color-cream);
+      border-radius: var(--radius-md);
+      min-height: 150px;
+    }
+
+    .ai-response-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--color-text-muted);
+      height: 150px;
+    }
+
+    /* ========================================
+       FEATURE: AI Chat (STUB)
+       ======================================== */
+    .ai-chat-section {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    .ai-chat-toggle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      color: white;
+      cursor: pointer;
+      box-shadow: var(--shadow-elevated);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+
+    .ai-chat-toggle:hover {
+      transform: scale(1.1);
+    }
+
+    .ai-chat-toggle .material-symbols-outlined {
+      font-size: 28px;
+    }
+
+    .ai-chat-window {
+      display: none;
+      position: absolute;
+      bottom: 70px;
+      right: 0;
+      width: 350px;
+      height: 500px;
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-elevated);
+      overflow: hidden;
+      flex-direction: column;
+    }
+
+    .ai-chat-window.visible {
+      display: flex;
+    }
+
+    .ai-chat-header {
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ai-chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .ai-chat-message {
+      margin-bottom: 12px;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      max-width: 85%;
+    }
+
+    .ai-chat-message.user {
+      background: var(--color-sky);
+      color: white;
+      margin-left: auto;
+    }
+
+    .ai-chat-message.assistant {
+      background: var(--color-cream);
+    }
+
+    .ai-chat-input-area {
+      padding: 12px;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      gap: 8px;
+    }
+
+    .ai-chat-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+
+    .ai-chat-send {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (max-width: 480px) {
+      .ai-chat-window {
+        width: calc(100vw - 40px);
+        height: 60vh;
+      }
+    }
+
     /* Print Styles */
     @media print {
       .header {
@@ -2726,6 +3067,97 @@
         <!-- Photos loaded dynamically -->
       </div>
     </div>
+
+    <!-- FEATURE: User Profiles (STUB) -->
+    <div class="user-profiles-section" id="userProfilesSection">
+      <div class="trip-photos-header">
+        <h2 class="trip-photos-title">
+          <span class="material-symbols-outlined">group</span>
+          Traveler Profiles
+        </h2>
+      </div>
+      <div class="feature-coming-soon">
+        <span class="feature-badge">Coming Soon</span>
+        <span class="material-symbols-outlined">person_add</span>
+        <p><strong>Connect with your travel group</strong></p>
+        <p>Link social media, share contact info, and stay connected after the trip.</p>
+      </div>
+    </div>
+
+    <!-- FEATURE: GPS Photo Ops (STUB) -->
+    <div class="gps-photo-ops-section" id="gpsPhotoOpsSection">
+      <div class="gps-header">
+        <h2 class="gps-title">
+          <span class="material-symbols-outlined">photo_camera</span>
+          Photo Ops Nearby
+        </h2>
+        <div class="gps-status">
+          <span class="gps-status-dot"></span>
+          GPS Active
+        </div>
+      </div>
+      <div class="photo-ops-list">
+        <div class="photo-op-card">
+          <div class="photo-op-icon">
+            <span class="material-symbols-outlined">temple_buddhist</span>
+          </div>
+          <div class="photo-op-info">
+            <div class="photo-op-name">Parthenon at Sunset</div>
+            <div class="photo-op-distance">📍 1.2 km away • Best at 6:30 PM</div>
+          </div>
+          <span class="material-symbols-outlined" style="color: rgba(255,255,255,0.5)">chevron_right</span>
+        </div>
+        <div class="photo-op-card">
+          <div class="photo-op-icon">
+            <span class="material-symbols-outlined">location_city</span>
+          </div>
+          <div class="photo-op-info">
+            <div class="photo-op-name">Monastiraki Square</div>
+            <div class="photo-op-distance">📍 0.3 km away</div>
+          </div>
+          <div class="photo-op-captured">
+            <span class="material-symbols-outlined" style="font-size: 16px">check_circle</span>
+            Captured!
+          </div>
+        </div>
+        <div class="photo-op-card">
+          <div class="photo-op-icon">
+            <span class="material-symbols-outlined">restaurant</span>
+          </div>
+          <div class="photo-op-info">
+            <div class="photo-op-name">A for Athens Rooftop View</div>
+            <div class="photo-op-distance">📍 0.5 km away • Night shot</div>
+          </div>
+          <span class="material-symbols-outlined" style="color: rgba(255,255,255,0.5)">chevron_right</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURE: AI Chat (STUB) -->
+    <div class="ai-chat-section" id="aiChatSection">
+      <button class="ai-chat-toggle" onclick="toggleAiChat()">
+        <span class="material-symbols-outlined">smart_toy</span>
+      </button>
+      <div class="ai-chat-window" id="aiChatWindow">
+        <div class="ai-chat-header">
+          <span><strong>Trip Assistant</strong> • AI Powered</span>
+          <button onclick="toggleAiChat()" style="background:none;border:none;color:white;cursor:pointer">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="ai-chat-messages" id="aiChatMessages">
+          <div class="ai-chat-message assistant">
+            Hi! I'm your trip assistant. Ask me anything about Athens, Bangalore, your itinerary, or travel tips! 🌍
+          </div>
+        </div>
+        <div class="ai-chat-input-area">
+          <input type="text" class="ai-chat-input" id="aiChatInput" placeholder="Ask about your trip..." onkeypress="if(event.key==='Enter')sendAiMessage()">
+          <button class="ai-chat-send" onclick="sendAiMessage()">
+            <span class="material-symbols-outlined">send</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </main>
 
   <!-- Photo Upload Modal -->
@@ -2780,6 +3212,63 @@
   </div>
 
   <script>
+    // ========================================
+    // FEATURE FLAGS
+    // ========================================
+    // Toggle features on/off during development
+    // Set to true to enable, false to disable
+
+    const FEATURES = {
+      // Currently working
+      PHOTO_SHARING: true,           // Upload and view trip photos
+
+      // In development - set to true to enable
+      USER_PROFILES: false,          // User profiles with social media connections
+      GPS_PHOTO_OPS: false,          // GPS-triggered notifications for famous photo spots
+      AI_EVENT_INSIGHTS: false,      // AI-powered insights about each event (3 prompts)
+      AI_CHAT: false,                // Embedded AI chat interface
+
+      // API Keys (set these when enabling AI features)
+      ANTHROPIC_API_KEY: '',         // For AI features - DO NOT commit with real key
+    };
+
+    // Feature flag helper
+    function isFeatureEnabled(featureName) {
+      return FEATURES[featureName] === true;
+    }
+
+    // Apply feature visibility on load
+    function applyFeatureFlags() {
+      // Photo sharing
+      const photosSection = document.getElementById('tripPhotosSection');
+      if (photosSection) {
+        photosSection.style.display = isFeatureEnabled('PHOTO_SHARING') ? 'block' : 'none';
+      }
+
+      // User profiles
+      const profilesSection = document.getElementById('userProfilesSection');
+      if (profilesSection) {
+        profilesSection.style.display = isFeatureEnabled('USER_PROFILES') ? 'block' : 'none';
+      }
+
+      // GPS Photo Ops
+      const gpsSection = document.getElementById('gpsPhotoOpsSection');
+      if (gpsSection) {
+        gpsSection.style.display = isFeatureEnabled('GPS_PHOTO_OPS') ? 'block' : 'none';
+      }
+
+      // AI Event Insights buttons
+      document.querySelectorAll('.ai-insights-btn').forEach(btn => {
+        btn.style.display = isFeatureEnabled('AI_EVENT_INSIGHTS') ? 'inline-flex' : 'none';
+      });
+
+      // AI Chat
+      const chatSection = document.getElementById('aiChatSection');
+      if (chatSection) {
+        chatSection.style.display = isFeatureEnabled('AI_CHAT') ? 'block' : 'none';
+      }
+    }
+
     // ========================================
     // DATA
     // ========================================
@@ -4861,7 +5350,122 @@
     });
 
     // Load photos on page load
-    loadTripPhotos();
+    if (isFeatureEnabled('PHOTO_SHARING')) {
+      loadTripPhotos();
+    }
+
+    // Apply feature flags
+    applyFeatureFlags();
+
+    // ========================================
+    // FEATURE STUBS
+    // ========================================
+
+    // --- AI Chat ---
+    function toggleAiChat() {
+      if (!isFeatureEnabled('AI_CHAT')) return;
+      const chatWindow = document.getElementById('aiChatWindow');
+      chatWindow.classList.toggle('visible');
+    }
+
+    async function sendAiMessage() {
+      if (!isFeatureEnabled('AI_CHAT')) return;
+
+      const input = document.getElementById('aiChatInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      const messagesEl = document.getElementById('aiChatMessages');
+
+      // Add user message
+      messagesEl.innerHTML += `<div class="ai-chat-message user">${message}</div>`;
+      input.value = '';
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      // Check for API key
+      if (!FEATURES.ANTHROPIC_API_KEY) {
+        messagesEl.innerHTML += `<div class="ai-chat-message assistant">⚠️ AI Chat requires an API key. Set FEATURES.ANTHROPIC_API_KEY to enable.</div>`;
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+        return;
+      }
+
+      // TODO: Implement actual API call
+      messagesEl.innerHTML += `<div class="ai-chat-message assistant">🚧 AI integration coming soon! This will connect to Claude for intelligent trip assistance.</div>`;
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    // --- AI Event Insights ---
+    function openAiInsights(eventId, eventTitle) {
+      if (!isFeatureEnabled('AI_EVENT_INSIGHTS')) return;
+
+      // TODO: Open modal with 3 prompt buttons
+      // 1. "Tell me the history" - Historical context
+      // 2. "Local tips" - Insider recommendations
+      // 3. "What to expect" - Practical info
+      console.log('AI Insights requested for:', eventId, eventTitle);
+      alert(`AI Insights for "${eventTitle}" coming soon!\n\nThis will offer:\n• Historical context\n• Local insider tips\n• What to expect`);
+    }
+
+    // --- GPS Photo Ops ---
+    let gpsWatchId = null;
+
+    function initGpsPhotoOps() {
+      if (!isFeatureEnabled('GPS_PHOTO_OPS')) return;
+
+      if ('geolocation' in navigator) {
+        gpsWatchId = navigator.geolocation.watchPosition(
+          (position) => {
+            checkNearbyPhotoOps(position.coords.latitude, position.coords.longitude);
+          },
+          (error) => {
+            console.log('GPS error:', error.message);
+          },
+          { enableHighAccuracy: true, maximumAge: 30000 }
+        );
+      }
+    }
+
+    function checkNearbyPhotoOps(lat, lon) {
+      // Pre-loaded Athens photo op locations
+      const PHOTO_OPS = [
+        { id: 'parthenon', name: 'Parthenon at Sunset', lat: 37.9715, lon: 23.7267, radius: 500, tip: 'Best light at golden hour!' },
+        { id: 'monastiraki', name: 'Monastiraki Square', lat: 37.9763, lon: 23.7254, radius: 200, tip: 'Great for street photography' },
+        { id: 'aforathens', name: 'A for Athens Rooftop', lat: 37.9758, lon: 23.7252, radius: 100, tip: 'Stunning night views of Acropolis' },
+        { id: 'plaka', name: 'Plaka Streets', lat: 37.9725, lon: 23.7290, radius: 300, tip: 'Charming alleyways and cafes' },
+        { id: 'agora', name: 'Ancient Agora', lat: 37.9747, lon: 23.7220, radius: 400, tip: 'Temple of Hephaestus is a must' },
+      ];
+
+      PHOTO_OPS.forEach(op => {
+        const distance = getDistance(lat, lon, op.lat, op.lon);
+        if (distance < op.radius) {
+          // TODO: Show notification
+          console.log(`📸 Photo op nearby: ${op.name} (${Math.round(distance)}m) - ${op.tip}`);
+        }
+      });
+    }
+
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3; // Earth's radius in meters
+      const φ1 = lat1 * Math.PI / 180;
+      const φ2 = lat2 * Math.PI / 180;
+      const Δφ = (lat2 - lat1) * Math.PI / 180;
+      const Δλ = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(Δφ/2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    // Initialize GPS if enabled
+    if (isFeatureEnabled('GPS_PHOTO_OPS')) {
+      initGpsPhotoOps();
+    }
+
+    // --- User Profiles ---
+    function connectSocialMedia(platform) {
+      if (!isFeatureEnabled('USER_PROFILES')) return;
+      // TODO: Implement OAuth flow for social media
+      console.log('Connect to:', platform);
+      alert(`Connect to ${platform} coming soon!`);
+    }
   </script>
 
   <!-- Share Post Modal -->
