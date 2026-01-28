@@ -3843,29 +3843,30 @@
           <h4><span class="material-symbols-outlined">code</span> Prompt Template</h4>
           <div class="hiw-code" id="hiwPromptCode">Create a single-file interactive HTML group travel itinerary with these features:
 - Phase-based navigation for trip segments
-- Traveler filtering (show events per person)
+- Traveler filtering with pills (show events per person)
 - Live countdown timer to departure
 - Timezone helper showing local vs home time
-- Weather widgets for each destination
-- Image carousels for hotels/venues
-- Social post composer for sharing
-- Travel time estimates between locations
-- Collapsible list view
+- Weather widgets (live API) for each destination
+- Image carousels for hotels/venues/tours
+- Social post composer (events + trip stats)
+- Travel time estimates with KPI card
+- Collapsible list view with day summaries
 
 TRIP DATA:
 {
   "title": "Your Trip Title 2026",
   "dates": "Month Day - Day, Year",
+  "homeTimezone": "America/New_York",
   "travelers": [
-    { "id": "person1", "name": "Name", "initials": "X", "group": "groupA" },
-    { "id": "person2", "name": "Name", "initials": "Y", "group": "groupB" }
+    { "id": "person1", "name": "Name", "initials": "X", "group": "groupA", "color": "#hex" },
+    { "id": "person2", "name": "Name", "initials": "Y", "group": "groupB", "color": "#hex" }
   ],
   "phases": [
     { "name": "Phase 1", "travelers": ["all"], "days": [1, 2, 3] },
     { "name": "Phase 2", "travelers": ["person1"], "days": [4, 5] }
   ],
   "destinations": {
-    "CODE": { "city": "City", "country": "Country", "utcOffset": 0 }
+    "CODE": { "city": "City", "country": "Country", "utcOffset": 0, "timezone": "Region/City" }
   },
   "days": [
     {
@@ -3874,18 +3875,27 @@ TRIP DATA:
       "label": "Day, Mon D",
       "location": "CODE",
       "theme": "Day Theme",
+      "estimatedSteps": 10000,
       "events": [
         {
           "time": "HH:MM",
+          "endTime": "HH:MM",
           "type": "flight|hotel|activity|meal",
           "title": "Event Title",
           "subtitle": "Subtitle",
-          "travelers": ["all"] or ["person1", "person2"],
+          "travelers": ["all"] or ["person1", "person2"] or ["groupA"],
           "status": "confirmed|pending",
           "details": "Additional details",
           "where": "Location name",
+          "mapsLink": "https://maps.google.com/?q=...",
+          "venueLink": "https://venue-website.com",
+          "airline": "united|emirates",
+          "flightCode": "UA123",
+          "miles": 500,
+          "feelsLike": "2 PM ET (jet lag context)",
           "travelTime": 30,
-          "travelNote": "🚗 30 min from X"
+          "travelNote": "🚗 30 min from X",
+          "carousel": "venue-id"
         }
       ]
     }
@@ -3899,7 +3909,8 @@ TRIP DATA:
   }
 }
 
-Generate a complete, working HTML file with embedded CSS and JavaScript.</div>
+Generate a complete, self-contained HTML file with embedded CSS and JavaScript.
+No external dependencies except Google Fonts.</div>
           <button class="hiw-copy-btn" onclick="copyHiwPrompt()">
             <span class="material-symbols-outlined">content_copy</span>
             Copy Prompt Template
@@ -3909,11 +3920,13 @@ Generate a complete, working HTML file with embedded CSS and JavaScript.</div>
         <div class="hiw-section">
           <h4><span class="material-symbols-outlined">tips_and_updates</span> Tips</h4>
           <p>
-            • Include flight numbers, hotel names, and booking confirmations<br>
-            • Add "travelTime" and "travelNote" for ground transport estimates<br>
-            • Use "carousel" property to link venue images<br>
-            • Set "feelsLike" for timezone context (e.g., "feels like 2 PM ET")<br>
-            • Group travelers logically for filtering (couples, families, etc.)
+            • <strong>Flights:</strong> Include airline, flightCode, miles for stats<br>
+            • <strong>Hotels:</strong> Add carousel images, venueLink, mapsLink<br>
+            • <strong>Ground travel:</strong> Use travelTime (minutes) + travelNote for KPI<br>
+            • <strong>Jet lag:</strong> Set feelsLike for "feels like X PM back home"<br>
+            • <strong>Groups:</strong> Use group IDs (guys/girls, familyA/familyB) for filtering<br>
+            • <strong>Phases:</strong> Split long trips into logical segments (city, region)<br>
+            • <strong>Steps:</strong> Add estimatedSteps per day for walking stats
           </p>
         </div>
       </div>
