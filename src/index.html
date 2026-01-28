@@ -113,6 +113,119 @@
       color: white;
     }
 
+    /* Trip Selector */
+    .trip-selector-wrapper {
+      position: relative;
+      margin-left: auto;
+    }
+
+    .trip-selector-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: var(--radius-md);
+      color: white;
+      font-size: 0.75rem;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: all 0.2s;
+    }
+
+    .trip-selector-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .trip-selector-btn .material-symbols-outlined {
+      font-size: 16px;
+    }
+
+    .trip-selector-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 250px;
+      background: white;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-elevated);
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    .trip-selector-dropdown.visible {
+      display: block;
+    }
+
+    .trip-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .trip-option:last-child {
+      border-bottom: none;
+    }
+
+    .trip-option:hover {
+      background: var(--color-cream);
+    }
+
+    .trip-option.active {
+      background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.1));
+    }
+
+    .trip-option-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .trip-option-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .trip-option-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .trip-option-dates {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    .trip-option-badge {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .trip-option-badge.production {
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      color: white;
+    }
+
+    .trip-option-badge.test {
+      background: #e8e4df;
+      color: var(--color-text-muted);
+    }
+
     /* How It Works Modal */
     .hiw-modal {
       max-width: 700px;
@@ -3065,12 +3178,21 @@
   <header class="header">
     <div class="header-content">
       <div class="title-row">
-        <h1 class="trip-title">Athens & Bangalore 2026</h1>
+        <h1 class="trip-title" id="tripTitle">Athens & Bangalore 2026</h1>
         <button class="how-it-works-btn" onclick="openHowItWorks()" title="How It Works">
           <span class="material-symbols-outlined">magic_button</span>
         </button>
+        <div class="trip-selector-wrapper">
+          <button class="trip-selector-btn" onclick="toggleTripSelector()" title="Switch Trip">
+            <span class="material-symbols-outlined">swap_horiz</span>
+            <span id="tripSelectorLabel">Switch Trip</span>
+          </button>
+          <div class="trip-selector-dropdown" id="tripSelectorDropdown">
+            <!-- Populated by JS -->
+          </div>
+        </div>
       </div>
-      <p class="trip-dates">February 1 - 12, 2026 &bull; Athens together, then S&P continue to India</p>
+      <p class="trip-dates" id="tripDates">February 1 - 12, 2026 &bull; Athens together, then S&P continue to India</p>
       <div class="header-widgets">
         <div class="countdown-widget" id="countdownWidget">
           <span class="countdown-label">Departure in</span>
@@ -3110,19 +3232,7 @@
 
       <div class="header-controls">
         <div class="traveler-toggle" id="travelerToggle">
-          <button class="traveler-btn active" data-traveler="all">All</button>
-          <button class="traveler-btn" data-traveler="seth">
-            <span class="dot" style="background: #4a90d9"></span>F
-          </button>
-          <button class="traveler-btn" data-traveler="katrina">
-            <span class="dot" style="background: #d94a8c"></span>K
-          </button>
-          <button class="traveler-btn" data-traveler="paul">
-            <span class="dot" style="background: #4a90d9"></span>P
-          </button>
-          <button class="traveler-btn" data-traveler="sheri">
-            <span class="dot" style="background: #d94a8c"></span>S
-          </button>
+          <!-- Dynamically rendered by JS based on current trip -->
         </div>
 
         <div class="view-toggle" id="viewToggle">
@@ -3191,16 +3301,7 @@
       </div>
 
       <div class="phase-tabs" id="phaseTabs">
-        <button class="phase-tab active" data-phase="together">
-          <span class="material-symbols-outlined">groups</span>
-          <span>Together</span>
-          <span class="phase-tab-dates">Feb 1-6</span>
-        </button>
-        <button class="phase-tab" data-phase="india">
-          <span class="material-symbols-outlined">flight</span>
-          <span>S&P India</span>
-          <span class="phase-tab-dates">Feb 7-12</span>
-        </button>
+        <!-- Phase tabs dynamically rendered by JS -->
         <button class="today-btn" id="todayBtn" onclick="goToToday()">
           <span class="material-symbols-outlined">today</span>
           Today
@@ -3462,21 +3563,161 @@
     }
 
     // ========================================
+    // MULTI-TRIP SUPPORT
+    // ========================================
+
+    // Trip registry - add new trips here
+    const TRIPS = {
+      'athens-bangalore-2026': {
+        id: 'athens-bangalore-2026',
+        name: 'Athens & Bangalore 2026',
+        subtitle: 'Our Journey',
+        dates: 'February 1 - 12, 2026',
+        description: 'Athens together, then S&P continue to India',
+        icon: '🇬🇷',
+        badge: 'production',
+        photoPrefix: '', // Default container, no prefix
+        startDate: '2026-02-01T16:27:00-05:00',
+        endDate: '2026-02-12T23:59:00-05:00'
+      },
+      'test-trip': {
+        id: 'test-trip',
+        name: 'Test Trip',
+        subtitle: 'Development Testing',
+        dates: 'Jan 1 - 3, 2025',
+        description: 'For testing features without affecting real trip',
+        icon: '🧪',
+        badge: 'test',
+        photoPrefix: 'test-', // Photos prefixed with 'test-'
+        startDate: '2025-01-01T09:00:00-05:00',
+        endDate: '2025-01-03T23:59:00-05:00'
+      }
+    };
+
+    // Current trip state - persisted in localStorage
+    let currentTripId = localStorage.getItem('currentTripId') || 'athens-bangalore-2026';
+
+    // Ensure valid trip
+    if (!TRIPS[currentTripId]) {
+      currentTripId = 'athens-bangalore-2026';
+    }
+
+    function getCurrentTrip() {
+      return TRIPS[currentTripId];
+    }
+
+    function getCurrentPhotoPrefix() {
+      return getCurrentTrip().photoPrefix || '';
+    }
+
+    // Test trip data - minimal sample for development testing
+    const TEST_TRIP_DATA = {
+      travelers: [
+        { id: "tester1", name: "Tester 1", group: "guys", color: "#4a90d9", initials: "T1" },
+        { id: "tester2", name: "Tester 2", group: "girls", color: "#d94a8c", initials: "T2" }
+      ],
+      hotel: {
+        name: "Test Hotel",
+        address: "123 Test Street",
+        neighborhood: "Test Town",
+        website: "https://example.com",
+        mapsLink: "https://maps.google.com",
+        checkIn: "2025-01-01",
+        checkOut: "2025-01-03",
+        nights: 2,
+        highlights: "Testing features"
+      },
+      days: [
+        {
+          date: "2025-01-01",
+          dayNum: 1,
+          label: "Wed, Jan 1",
+          location: "CMH",
+          theme: "Test Day 1",
+          destination: "travel",
+          events: [
+            {
+              id: "test-event-1",
+              time: "09:00",
+              endTime: "10:00",
+              type: "activity",
+              title: "Test Event 1",
+              subtitle: "Sample event for testing",
+              travelers: ["all"],
+              status: "confirmed",
+              where: "Test Location",
+              details: "This is a test event to verify features work correctly."
+            }
+          ]
+        },
+        {
+          date: "2025-01-02",
+          dayNum: 2,
+          label: "Thu, Jan 2",
+          location: "CMH",
+          theme: "Test Day 2",
+          destination: "travel",
+          events: [
+            {
+              id: "test-event-2",
+              time: "14:00",
+              endTime: "16:00",
+              type: "meal",
+              title: "Test Meal",
+              subtitle: "Testing meal events",
+              travelers: ["all"],
+              status: "confirmed",
+              where: "Test Restaurant"
+            }
+          ]
+        },
+        {
+          date: "2025-01-03",
+          dayNum: 3,
+          label: "Fri, Jan 3",
+          location: "CMH",
+          theme: "Test Day 3",
+          destination: "travel",
+          events: [
+            {
+              id: "test-event-3",
+              time: "12:00",
+              type: "activity",
+              title: "Test Complete",
+              travelers: ["all"],
+              status: "confirmed",
+              details: "Testing complete - switch back to production trip."
+            }
+          ]
+        }
+      ]
+    };
+
+    // Check if we should use test data
+    function isTestTrip() {
+      return currentTripId === 'test-trip';
+    }
+
+    // ========================================
     // DATA
     // ========================================
 
-    const TRAVELERS = [
+    // Production trip data (Athens & Bangalore 2026)
+    const PRODUCTION_TRAVELERS = [
       { id: "seth", name: "Seth", group: "guys", color: "#4a90d9", initials: "F" },
       { id: "katrina", name: "Katrina", group: "girls", color: "#d94a8c", initials: "K" },
       { id: "paul", name: "Paul", group: "guys", color: "#4a90d9", initials: "P" },
       { id: "sheri", name: "Sheri", group: "girls", color: "#d94a8c", initials: "S" }
     ];
 
-    // Derived constants for traveler pills (DRY principle)
-    const TRAVELER_ORDER = TRAVELERS.map(t => t.id);
-    const TRAVELER_INITIALS = Object.fromEntries(TRAVELERS.map(t => [t.id, t.initials]));
+    // Active data - swapped based on current trip
+    let TRAVELERS = isTestTrip() ? TEST_TRIP_DATA.travelers : PRODUCTION_TRAVELERS;
 
-    const HOTEL = {
+    // Derived constants for traveler pills (DRY principle)
+    let TRAVELER_ORDER = TRAVELERS.map(t => t.id);
+    let TRAVELER_INITIALS = Object.fromEntries(TRAVELERS.map(t => [t.id, t.initials]));
+
+    const PRODUCTION_HOTEL = {
       name: "The Fresh Hotel",
       address: "26 Sophocleous & Klisthenous Street, Athens 10552",
       neighborhood: "Near Omonia Square, 8-min walk to Monastiraki",
@@ -3487,6 +3728,8 @@
       nights: 5,
       highlights: "Rooftop pool with Acropolis views, Air Lounge Bar-Restaurant, Design Hotels member"
     };
+
+    let HOTEL = isTestTrip() ? TEST_TRIP_DATA.hotel : PRODUCTION_HOTEL;
 
     const DESTINATIONS = {
       "CMH": { name: "John Glenn Columbus", city: "Columbus", country: "USA", timezone: "America/New_York", utcOffset: -5, info: "Home base", lounge: "Escape Lounge - Concourse B, Gate 32B (Priority Pass, 5AM-8PM)" },
@@ -3530,7 +3773,7 @@
       }
     };
 
-    const DAYS = [
+    const PRODUCTION_DAYS = [
       {
         date: "2026-02-01",
         dayNum: 1,
@@ -4365,6 +4608,9 @@
       }
     ];
 
+    // Active DAYS data - swapped based on current trip
+    let DAYS = isTestTrip() ? TEST_TRIP_DATA.days : PRODUCTION_DAYS;
+
     // ========================================
     // STATE
     // ========================================
@@ -4375,7 +4621,8 @@
     let currentPhase = 'together';
 
     // Phase definitions - which days belong to which phase
-    const PHASES = {
+    // Test trip only has one phase
+    const PRODUCTION_PHASES = {
       together: {
         name: 'Together',
         days: [0, 1, 2, 3, 4, 5], // Day indices for Feb 1-6
@@ -4387,6 +4634,16 @@
         travelers: ['all', 'seth', 'paul']
       }
     };
+
+    const TEST_PHASES = {
+      together: {
+        name: 'Test Phase',
+        days: [0, 1, 2], // All test days
+        travelers: ['all', 'tester1', 'tester2']
+      }
+    };
+
+    let PHASES = isTestTrip() ? TEST_PHASES : PRODUCTION_PHASES;
 
     // ========================================
     // UTILITIES
@@ -4569,19 +4826,62 @@
 
     function renderPhaseTabs() {
       const tabs = document.getElementById('phaseTabs');
-      const phase = PHASES[currentPhase];
+      const todayBtn = document.getElementById('todayBtn');
 
-      // Check if current traveler can see India phase
+      // Clear existing phase tabs (keep today button)
+      tabs.querySelectorAll('.phase-tab').forEach(tab => tab.remove());
+
+      // Phase icons - customize per phase name
+      const phaseIcons = {
+        'together': 'groups',
+        'india': 'flight',
+        'Test Phase': 'science'
+      };
+
+      // Phase date labels
+      const phaseDates = {
+        'together': isTestTrip() ? 'Jan 1-3' : 'Feb 1-6',
+        'india': 'Feb 7-12',
+        'Test Phase': 'Jan 1-3'
+      };
+
+      // Check if current traveler can see India phase (production trip only)
       const canSeeIndia = currentTraveler === 'all' || currentTraveler === 'seth' || currentTraveler === 'paul';
 
-      tabs.querySelectorAll('.phase-tab').forEach(tab => {
-        const tabPhase = tab.dataset.phase;
-        tab.classList.toggle('active', tabPhase === currentPhase);
+      // Create phase tabs
+      Object.entries(PHASES).forEach(([phaseId, phase]) => {
+        const btn = document.createElement('button');
+        btn.className = 'phase-tab';
+        btn.dataset.phase = phaseId;
 
-        // Disable India tab for K & F
-        if (tabPhase === 'india') {
-          tab.classList.toggle('disabled', !canSeeIndia);
-        }
+        if (phaseId === currentPhase) btn.classList.add('active');
+        if (phaseId === 'india' && !canSeeIndia) btn.classList.add('disabled');
+
+        const icon = phaseIcons[phase.name] || phaseIcons[phaseId] || 'calendar_today';
+        const dates = phaseDates[phaseId] || phaseDates[phase.name] || '';
+
+        btn.innerHTML = `
+          <span class="material-symbols-outlined">${icon}</span>
+          <span>${phase.name}</span>
+          ${dates ? `<span class="phase-tab-dates">${dates}</span>` : ''}
+        `;
+
+        // Insert before today button
+        tabs.insertBefore(btn, todayBtn);
+      });
+
+      // Re-attach click handler
+      tabs.querySelectorAll('.phase-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          if (tab.classList.contains('disabled')) return;
+          currentPhase = tab.dataset.phase;
+          currentDayIndex = PHASES[currentPhase].days[0];
+          renderPhaseTabs();
+          renderDayList();
+          renderDayDetail();
+          renderListView();
+          updateTimezone();
+        });
       });
     }
 
@@ -5033,47 +5333,8 @@
       document.getElementById('statsBanner').classList.toggle('expanded');
     }
 
-    // Phase tab switching
-    document.getElementById('phaseTabs').addEventListener('click', (e) => {
-      const tab = e.target.closest('.phase-tab');
-      if (!tab || tab.classList.contains('disabled')) return;
-
-      currentPhase = tab.dataset.phase;
-
-      // Set current day to first day of this phase
-      const phaseDays = PHASES[currentPhase].days;
-      if (!phaseDays.includes(currentDayIndex)) {
-        currentDayIndex = phaseDays[0];
-      }
-
-      renderPhaseTabs();
-      renderDayList();
-      renderDayDetail();
-      updateTimezone();
-    });
-
-    document.getElementById('travelerToggle').addEventListener('click', (e) => {
-      const btn = e.target.closest('.traveler-btn');
-      if (!btn) return;
-
-      document.querySelectorAll('.traveler-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      currentTraveler = btn.dataset.traveler;
-
-      // If K or F selected and on India phase, switch to Together
-      const canSeeIndia = currentTraveler === 'all' || currentTraveler === 'seth' || currentTraveler === 'paul';
-      if (!canSeeIndia && currentPhase === 'india') {
-        currentPhase = 'together';
-        currentDayIndex = 0;
-      }
-
-      renderStats();
-      renderPhaseTabs();
-      renderDayList();
-      renderDayDetail();
-      renderListView();
-    });
+    // Note: Phase tab click handlers are now attached in renderPhaseTabs()
+    // Note: Traveler toggle click handler is now attached in renderTravelerToggle()
 
     document.getElementById('viewToggle').addEventListener('click', (e) => {
       const btn = e.target.closest('.view-btn');
@@ -5096,8 +5357,16 @@
     // COUNTDOWN TIMER
     // ========================================
 
-    const TRIP_START = new Date('2026-02-01T16:27:00-05:00'); // Departure time ET
-    const TRIP_END = new Date('2026-02-12T23:59:00-05:00');
+    // Trip dates - uses current trip configuration
+    function getTripStart() {
+      return new Date(getCurrentTrip().startDate);
+    }
+    function getTripEnd() {
+      return new Date(getCurrentTrip().endDate);
+    }
+    // Legacy compatibility
+    const TRIP_START = getTripStart();
+    const TRIP_END = getTripEnd();
 
     function updateCountdown() {
       const now = new Date();
@@ -5310,7 +5579,112 @@
       }
     }
 
+    // ========================================
+    // TRAVELER TOGGLE
+    // ========================================
+
+    function renderTravelerToggle() {
+      const toggle = document.getElementById('travelerToggle');
+      if (!toggle) return;
+
+      let html = '<button class="traveler-btn active" data-traveler="all">All</button>';
+
+      TRAVELERS.forEach(traveler => {
+        html += `
+          <button class="traveler-btn" data-traveler="${traveler.id}">
+            <span class="dot" style="background: ${traveler.color}"></span>${traveler.initials}
+          </button>
+        `;
+      });
+
+      toggle.innerHTML = html;
+
+      // Re-attach click handlers
+      toggle.querySelectorAll('.traveler-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          toggle.querySelectorAll('.traveler-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          currentTraveler = btn.dataset.traveler;
+
+          // If K or F selected and on India phase, switch to Together
+          const canSeeIndia = currentTraveler === 'all' || currentTraveler === 'seth' || currentTraveler === 'paul';
+          if (!canSeeIndia && currentPhase === 'india') {
+            currentPhase = 'together';
+            currentDayIndex = 0;
+          }
+
+          renderStats();
+          renderPhaseTabs();
+          renderDayList();
+          renderDayDetail();
+          renderListView();
+        });
+      });
+    }
+
+    // ========================================
+    // TRIP SELECTOR
+    // ========================================
+
+    function renderTripSelector() {
+      const dropdown = document.getElementById('tripSelectorDropdown');
+      if (!dropdown) return;
+
+      let html = '';
+      Object.values(TRIPS).forEach(trip => {
+        const isActive = trip.id === currentTripId;
+        html += `
+          <div class="trip-option ${isActive ? 'active' : ''}" onclick="switchTrip('${trip.id}')">
+            <div class="trip-option-icon">${trip.icon}</div>
+            <div class="trip-option-info">
+              <div class="trip-option-name">${trip.name}</div>
+              <div class="trip-option-dates">${trip.dates}</div>
+            </div>
+            <span class="trip-option-badge ${trip.badge}">${trip.badge}</span>
+          </div>
+        `;
+      });
+
+      dropdown.innerHTML = html;
+
+      // Update header
+      const trip = getCurrentTrip();
+      document.getElementById('tripTitle').textContent = trip.name;
+      document.getElementById('tripDates').innerHTML = `${trip.dates} &bull; ${trip.description}`;
+    }
+
+    function toggleTripSelector() {
+      const dropdown = document.getElementById('tripSelectorDropdown');
+      dropdown.classList.toggle('visible');
+    }
+
+    function switchTrip(tripId) {
+      if (!TRIPS[tripId]) return;
+
+      currentTripId = tripId;
+      localStorage.setItem('currentTripId', tripId);
+
+      // Close dropdown
+      document.getElementById('tripSelectorDropdown').classList.remove('visible');
+
+      // For now, reload the page to apply trip change
+      // In the future, could dynamically swap data without reload
+      window.location.reload();
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.trip-selector-wrapper')) {
+        document.getElementById('tripSelectorDropdown')?.classList.remove('visible');
+      }
+    });
+
     function init() {
+      // Initialize trip selector and traveler toggle
+      renderTripSelector();
+      renderTravelerToggle();
+
       renderStats();
       renderPhaseTabs();
       renderDayList();
@@ -5380,7 +5754,9 @@
       const gridEl = document.getElementById('photosGrid');
 
       try {
-        const response = await fetch(`${API_BASE}/photos`);
+        // Include trip prefix in API call for trip-specific photos
+        const prefix = getCurrentPhotoPrefix();
+        const response = await fetch(`${API_BASE}/photos?tripId=${currentTripId}&prefix=${encodeURIComponent(prefix)}`);
         if (!response.ok) throw new Error('Failed to load photos');
 
         const data = await response.json();
@@ -5622,6 +5998,8 @@
       submitBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">hourglass_empty</span> Uploading...';
 
       try {
+        // Include trip prefix for trip-specific photo storage
+        const prefix = getCurrentPhotoPrefix();
         const response = await fetch(`${API_BASE}/photos`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -5629,7 +6007,9 @@
             fileName: selectedFile.name,
             fileData: selectedFileData,
             caption: document.getElementById('photoCaption').value,
-            uploadedBy: document.getElementById('uploadedBy').value || 'Anonymous'
+            uploadedBy: document.getElementById('uploadedBy').value || 'Anonymous',
+            tripId: currentTripId,
+            prefix: prefix
           })
         });
 

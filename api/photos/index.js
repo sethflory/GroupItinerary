@@ -27,11 +27,18 @@ module.exports = async function (context, req) {
     // Ensure container exists
     await containerClient.createIfNotExists({ access: 'blob' });
 
+    // Get trip prefix from query params (for multi-trip support)
+    const prefix = req.query.prefix || '';
+    const tripId = req.query.tripId || 'default';
+
     if (req.method === 'GET') {
-      // List all photos
+      // List photos, optionally filtered by prefix
       const photos = [];
 
-      for await (const blob of containerClient.listBlobsFlat()) {
+      // Use prefix to filter blobs if provided
+      const listOptions = prefix ? { prefix } : {};
+
+      for await (const blob of containerClient.listBlobsFlat(listOptions)) {
         const blobClient = containerClient.getBlobClient(blob.name);
         const properties = await blobClient.getProperties();
 
@@ -41,7 +48,8 @@ module.exports = async function (context, req) {
           uploadedAt: properties.createdOn || properties.lastModified,
           size: properties.contentLength,
           contentType: properties.contentType,
-          metadata: properties.metadata || {}
+          metadata: properties.metadata || {},
+          tripId: properties.metadata?.tripId || 'default'
         });
       }
 
@@ -51,7 +59,7 @@ module.exports = async function (context, req) {
       context.res = {
         status: 200,
         headers,
-        body: { photos, count: photos.length }
+        body: { photos, count: photos.length, tripId, prefix }
       };
 
     } else if (req.method === 'POST') {
@@ -68,6 +76,9 @@ module.exports = async function (context, req) {
       }
 
       const { fileName, fileData, caption, uploadedBy } = body;
+      // Get prefix from body (for uploads) or use empty string
+      const uploadPrefix = body.prefix || '';
+      const uploadTripId = body.tripId || 'default';
 
       // Decode base64 image data
       const matches = fileData.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
@@ -83,10 +94,10 @@ module.exports = async function (context, req) {
       const contentType = matches[1];
       const buffer = Buffer.from(matches[2], 'base64');
 
-      // Generate unique filename
+      // Generate unique filename with prefix
       const timestamp = Date.now();
       const safeName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const blobName = `${timestamp}-${safeName}`;
+      const blobName = `${uploadPrefix}${timestamp}-${safeName}`;
 
       // Upload to blob storage
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
@@ -95,7 +106,8 @@ module.exports = async function (context, req) {
         metadata: {
           caption: caption || '',
           uploadedBy: uploadedBy || 'anonymous',
-          originalName: fileName
+          originalName: fileName,
+          tripId: uploadTripId
         }
       });
 
@@ -108,7 +120,8 @@ module.exports = async function (context, req) {
             name: blobName,
             url: blockBlobClient.url,
             caption,
-            uploadedBy
+            uploadedBy,
+            tripId: uploadTripId
           }
         }
       };
