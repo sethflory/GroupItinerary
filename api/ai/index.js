@@ -25,7 +25,7 @@ module.exports = async function (context, req) {
     context.res = {
       status: 500,
       headers,
-      body: { error: 'AI service not configured. Please set ANTHROPIC_API_KEY in application settings.' }
+      body: JSON.stringify({ error: 'AI service not configured. Please set ANTHROPIC_API_KEY in application settings.' })
     };
     return;
   }
@@ -37,7 +37,7 @@ module.exports = async function (context, req) {
       context.res = {
         status: 400,
         headers,
-        body: { error: 'Missing or invalid messages array' }
+        body: JSON.stringify({ error: 'Missing or invalid messages array' })
       };
       return;
     }
@@ -59,7 +59,7 @@ module.exports = async function (context, req) {
     context.res = {
       status: 200,
       headers,
-      body: response
+      body: JSON.stringify(response)
     };
 
   } catch (error) {
@@ -67,10 +67,10 @@ module.exports = async function (context, req) {
     context.res = {
       status: 500,
       headers,
-      body: {
+      body: JSON.stringify({
         error: 'AI request failed',
         details: error.message
-      }
+      })
     };
   }
 };
