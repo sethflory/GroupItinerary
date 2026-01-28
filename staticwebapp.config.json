@@ -1,7 +1,4 @@
 {
-  "platform": {
-    "apiRuntime": "node:18"
-  },
   "routes": [
     {
       "route": "/api/*",
@@ -9,8 +6,7 @@
     }
   ],
   "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": ["/api/*"]
+    "rewrite": "/index.html"
   },
   "mimeTypes": {
     ".json": "application/json"
