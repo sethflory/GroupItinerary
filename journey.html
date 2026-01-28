@@ -1306,6 +1306,70 @@
       border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
     }
 
+    /* Hover Image - lightweight single image preview */
+    .event-hover-image {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: var(--color-cream);
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .event-hover-image:hover {
+      background: var(--color-border);
+    }
+
+    .event-hover-image .material-symbols-outlined {
+      font-size: 14px;
+    }
+
+    .event-hover-image .hover-preview {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      width: 240px;
+      height: 160px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-elevated);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .event-hover-image:hover .hover-preview {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(-8px);
+    }
+
+    .event-hover-image .hover-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .event-hover-image .hover-preview .hover-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 8px 6px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      color: white;
+      font-size: 0.7rem;
+      text-align: center;
+    }
+
     .event-links {
       display: flex;
       gap: 12px;
@@ -2705,7 +2769,8 @@
             mapsLink: "https://maps.google.com/?q=EY+Old+Madras+Road+Bangalore",
             details: "Full work day in Bangalore.",
             travelTime: 60,
-            travelNote: "🚗 45-75 min from Leela Palace (rush hour: 2 hrs for 10 km!)"
+            travelNote: "🚗 45-75 min from Leela Palace (rush hour: 2 hrs for 10 km!)",
+            hoverImage: { url: "https://rmz-static.s3.dualstack.ap-south-1.amazonaws.com/01_264d8a9716.webp", caption: "RMZ Infinity - EY Bangalore" }
           },
           {
             id: "m-blr-dinner-mon",
@@ -2753,7 +2818,8 @@
             mapsLink: "https://maps.google.com/?q=EY+Old+Madras+Road+Bangalore",
             details: "Full work day in Bangalore.",
             travelTime: 60,
-            travelNote: "🚗 45-75 min from Leela Palace (leave early!)"
+            travelNote: "🚗 45-75 min from Leela Palace (leave early!)",
+            hoverImage: { url: "https://rmz-static.s3.dualstack.ap-south-1.amazonaws.com/01_264d8a9716.webp", caption: "RMZ Infinity - EY Bangalore" }
           },
           {
             id: "m-happy-hour",
@@ -2803,7 +2869,8 @@
             mapsLink: "https://maps.google.com/?q=EY+Old+Madras+Road+Bangalore",
             details: "Last work day in Bangalore. Wrap up and say goodbyes to colleagues.",
             travelTime: 60,
-            travelNote: "🚗 45-75 min from Leela Palace (leave early!)"
+            travelNote: "🚗 45-75 min from Leela Palace (leave early!)",
+            hoverImage: { url: "https://rmz-static.s3.dualstack.ap-south-1.amazonaws.com/01_264d8a9716.webp", caption: "RMZ Infinity - EY Bangalore" }
           },
           {
             id: "w-program-leads",
@@ -3384,11 +3451,21 @@
           ${e.details ? `<div class="event-details"><p>${e.details}</p></div>` : ''}
           ${e.travelNote ? `<div class="event-travel-note">${e.travelNote}</div>` : ''}
           ${e.carousel ? renderCarousel(e.carousel) : ''}
-          ${e.mapsLink || e.where || e.venueLink ? `
+          ${e.mapsLink || e.where || e.venueLink || e.hoverImage ? `
             <div class="event-links">
               ${e.mapsLink ? `<a href="${e.mapsLink}" target="_blank" class="event-link"><span class="material-symbols-outlined">map</span>Maps</a>` : ''}
               ${e.venueLink ? `<a href="${e.venueLink}" target="_blank" class="event-link"><span class="material-symbols-outlined">language</span>Website</a>` : ''}
               ${e.where ? `<span class="event-link" style="cursor:default"><span class="material-symbols-outlined">location_on</span>${e.where}</span>` : ''}
+              ${e.hoverImage ? `
+                <span class="event-hover-image">
+                  <span class="material-symbols-outlined">image</span>
+                  Preview
+                  <span class="hover-preview">
+                    <img src="${e.hoverImage.url}" alt="${e.hoverImage.caption || ''}" loading="lazy">
+                    ${e.hoverImage.caption ? `<span class="hover-caption">${e.hoverImage.caption}</span>` : ''}
+                  </span>
+                </span>
+              ` : ''}
             </div>
           ` : ''}
         </div>
@@ -3848,6 +3925,7 @@
 - Timezone helper showing local vs home time
 - Weather widgets (live API) for each destination
 - Image carousels for hotels/venues/tours
+- Hover images for offices, restaurants, bars
 - Social post composer (events + trip stats)
 - Travel time estimates with KPI card
 - Collapsible list view with day summaries
@@ -3895,7 +3973,8 @@ TRIP DATA:
           "feelsLike": "2 PM ET (jet lag context)",
           "travelTime": 30,
           "travelNote": "🚗 30 min from X",
-          "carousel": "venue-id"
+          "carousel": "venue-id",
+          "hoverImage": { "url": "https://...", "caption": "Preview caption" }
         }
       ]
     }
