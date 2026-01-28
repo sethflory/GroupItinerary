@@ -516,7 +516,7 @@
     }
 
     .stats-banner.expanded .stats-detail {
-      max-height: 400px;
+      max-height: 600px;
     }
 
     .stats-grid {
@@ -685,6 +685,36 @@
     .phase-tab.disabled {
       opacity: 0.4;
       cursor: not-allowed;
+    }
+
+    /* Today Button */
+    .today-btn {
+      display: none;
+      padding: 10px 16px;
+      border: none;
+      background: var(--color-sky);
+      color: white;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+    }
+
+    .today-btn:hover {
+      background: var(--color-ocean);
+      transform: translateY(-1px);
+    }
+
+    .today-btn.visible {
+      display: flex;
+    }
+
+    .today-btn .material-symbols-outlined {
+      font-size: 18px;
     }
 
     .phase-tab .material-symbols-outlined {
@@ -1346,10 +1376,16 @@
       pointer-events: none;
     }
 
-    .event-hover-image:hover .hover-preview {
+    .event-hover-image:hover .hover-preview,
+    .event-hover-image.touch-active .hover-preview {
       opacity: 1;
       visibility: visible;
       transform: translateX(-50%) translateY(-8px);
+    }
+
+    /* Touch active state for mobile */
+    .event-hover-image.touch-active .hover-preview {
+      transform: translate(-50%, -50%);
     }
 
     .event-hover-image .hover-preview img {
@@ -1392,6 +1428,53 @@
 
     .event-link .material-symbols-outlined {
       font-size: 16px;
+    }
+
+    /* Day Navigation */
+    .day-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+      margin-top: 16px;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .day-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: var(--color-sky);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .day-nav-btn:hover {
+      background: var(--color-ocean);
+      transform: translateY(-1px);
+    }
+
+    .day-nav-btn.prev {
+      background: var(--color-cream);
+      color: var(--color-text);
+    }
+
+    .day-nav-btn.prev:hover {
+      background: var(--color-border);
+    }
+
+    .day-nav-btn .material-symbols-outlined {
+      font-size: 20px;
+    }
+
+    .day-nav-placeholder {
+      width: 140px;
     }
 
     /* List View */
@@ -1987,6 +2070,195 @@
       }
     }
 
+    /* Mobile-specific optimizations (phones) */
+    @media (max-width: 480px) {
+      /* Header compacting */
+      .header {
+        padding: 12px 12px 20px;
+      }
+
+      .trip-title {
+        font-size: 1.3rem;
+      }
+
+      .trip-dates {
+        font-size: 0.8rem;
+      }
+
+      /* Stack header widgets vertically */
+      .header-widgets {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .countdown-widget, .timezone-widget {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .countdown-unit span {
+        font-size: 1.2rem;
+      }
+
+      .tz-time {
+        font-size: 1rem;
+      }
+
+      .tz-helper-text {
+        font-size: 0.65rem;
+      }
+
+      /* Traveler pills - horizontal scroll */
+      .traveler-toggle {
+        padding-bottom: 8px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .traveler-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+      }
+
+      /* Day items - single column or smaller */
+      .day-item {
+        min-width: 100%;
+        max-width: 100%;
+        padding: 10px;
+      }
+
+      .day-item-title {
+        font-size: 0.75rem;
+      }
+
+      /* Event cards */
+      .event-card {
+        margin-bottom: 12px;
+      }
+
+      .event-title {
+        font-size: 1rem;
+      }
+
+      .event-links {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      /* Hover images - tap to show on mobile */
+      .event-hover-image .hover-preview {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 85vw;
+        height: auto;
+        max-height: 60vh;
+        z-index: 1000;
+      }
+
+      .event-hover-image .hover-preview img {
+        height: auto;
+        max-height: 60vh;
+      }
+
+      /* Day navigation - full width buttons */
+      .day-navigation {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .day-nav-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .day-nav-placeholder {
+        display: none;
+      }
+
+      /* Carousels - touch friendly */
+      .carousel-container {
+        margin: 0 -12px;
+        padding: 0 12px;
+      }
+
+      .carousel-btn {
+        width: 36px;
+        height: 36px;
+        opacity: 0.9;
+      }
+
+      /* Modals - nearly full screen */
+      .share-modal {
+        width: 95vw;
+        max-width: none;
+        max-height: 90vh;
+        margin: 5vh auto;
+      }
+
+      .hiw-modal {
+        max-width: 95vw;
+      }
+
+      .hiw-code {
+        font-size: 0.7rem;
+      }
+
+      /* Stats dropdown */
+      .stats-dropdown {
+        min-width: 280px;
+        right: -50px;
+      }
+
+      /* Phase tabs */
+      .phase-tab {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+      }
+    }
+
+    /* Touch device adjustments */
+    @media (hover: none) and (pointer: coarse) {
+      /* Make tap targets larger */
+      .traveler-btn, .view-btn, .phase-tab, .day-nav-btn {
+        min-height: 44px;
+      }
+
+      /* Carousel dots larger for touch */
+      .carousel-dot {
+        width: 10px;
+        height: 10px;
+      }
+
+      /* Hover image shows on tap (handled via JS) */
+      .event-hover-image {
+        cursor: pointer;
+      }
+
+      /* Remove hover effects that don't work on touch */
+      .day-item:hover {
+        transform: none;
+      }
+
+      .event-card:hover {
+        transform: none;
+      }
+    }
+
+    /* iOS Safari fixes */
+    @supports (-webkit-touch-callout: none) {
+      /* Fix for iOS viewport height */
+      .share-modal-overlay {
+        height: -webkit-fill-available;
+      }
+
+      /* Prevent zoom on input focus */
+      input, select, textarea {
+        font-size: 16px;
+      }
+    }
+
     /* Print Styles */
     @media print {
       .header {
@@ -2114,6 +2386,10 @@
           <span class="material-symbols-outlined">flight</span>
           <span>S&P India</span>
           <span class="phase-tab-dates">Feb 7-12</span>
+        </button>
+        <button class="today-btn" id="todayBtn" onclick="goToToday()">
+          <span class="material-symbols-outlined">today</span>
+          Today
         </button>
       </div>
       <div class="journey-layout">
@@ -2485,6 +2761,20 @@
             travelers: ["girls"],
             status: "pending",
             details: "K & F enjoy dinner on their own while the guys are at work dinner."
+          },
+          {
+            id: "drinks-wed",
+            time: "21:30",
+            type: "meal",
+            title: "Nightcap at A for Athens",
+            subtitle: "Rooftop cocktails with Acropolis views",
+            travelers: ["all"],
+            status: "confirmed",
+            where: "A for Athens, Miaouli 2",
+            mapsLink: "https://maps.google.com/?q=A+for+Athens+Monastiraki",
+            venueLink: "https://aforathens.com/bar-restaurant/",
+            details: "Everyone reunites after separate dinners. Award-winning cocktails on a stunning rooftop terrace overlooking the Acropolis. 1 min walk from Monastiraki Square.",
+            hoverImage: { url: "https://aforathens.com/wp-content/uploads/2018/10/restaurant-bar-1728x1080.jpg", caption: "A for Athens - Rooftop Bar" }
           }
         ]
       },
@@ -2521,18 +2811,18 @@
           },
           {
             id: "m6",
-            time: "13:00",
+            time: "12:00",
             type: "meal",
             title: "Group Lunch",
-            subtitle: "Last lunch all together",
+            subtitle: "Quick bite before tour",
             travelers: ["all"],
             status: "pending",
             details: "Everyone reunites for a leisurely lunch."
           },
           {
             id: "a5-parthenon",
-            time: "15:00",
-            endTime: "18:00",
+            time: "13:00",
+            endTime: "16:00",
             type: "activity",
             title: "Parthenon Guided Walking Tour",
             subtitle: "Expert-led exploration",
@@ -2680,6 +2970,20 @@
             to: "DXB",
             miles: 2031,
             details: "Arrives Dubai 11:35 PM. Short layover then on to Bangalore."
+          },
+          {
+            id: "lounge-dxb-out",
+            time: "23:45",
+            endTime: "03:00",
+            type: "activity",
+            title: "Emirates Business Lounge",
+            subtitle: "Overnight layover luxury",
+            travelers: ["guys"],
+            status: "confirmed",
+            where: "DXB Terminal 3, Concourse A",
+            details: "World's largest business class lounge (172,000 sq ft). Champagne bar, spa, showers, fine dining. Direct gate boarding to EK564.",
+            hoverImage: { url: "https://cdn.onemileatatime.com/wp-content/uploads/2022/07/Emirates-Business-Lounge-Dubai-40.jpeg", caption: "Emirates Business Lounge - Champagne Bar" },
+            badges: ["lounge"]
           }
         ]
       },
@@ -2709,8 +3013,22 @@
             feelsLike: "9:45 PM ET (Sat night)"
           },
           {
+            id: "limo-blr",
+            time: "08:30",
+            type: "activity",
+            title: "Emirates Chauffeur-Drive",
+            subtitle: "Complimentary limo to hotel",
+            travelers: ["guys"],
+            status: "confirmed",
+            where: "BLR Airport Arrivals",
+            details: "BMW 5 Series with leather seating. Paul has the reservation confirmation. Driver will meet at arrivals with name sign.",
+            hoverImage: { url: "https://c.ekstatic.net/ecl/airport/chauffeur/emirates-chauffeur-drive-service-business-class-768x480.jpg", caption: "Emirates Chauffeur-Drive Service" },
+            travelTime: 75,
+            travelNote: "🚘 60-90 min to Leela Palace (35 km, Bangalore traffic)"
+          },
+          {
             id: "h-leela",
-            time: "09:00",
+            time: "09:45",
             type: "hotel",
             title: "Check into The Leela Palace",
             subtitle: "Early check-in confirmed",
@@ -2720,10 +3038,8 @@
             mapsLink: "https://maps.google.com/?q=Leela+Palace+Bangalore",
             venueLink: "https://www.theleela.com/the-leela-palace-bengaluru",
             details: "Ranked #1 City Hotel in India. 357 rooms, modeled after Royal Palace of Mysore. Pool, spa, 6 restaurants. 4 nights.",
-            feelsLike: "10:30 PM ET (Sat night)",
-            carousel: "leela-palace",
-            travelTime: 90,
-            travelNote: "🚗 60-90 min from airport (35 km, Bangalore traffic!)"
+            feelsLike: "11:15 PM ET (Sat night)",
+            carousel: "leela-palace"
           },
           {
             id: "a-sp-rest",
@@ -2948,6 +3264,20 @@
             feelsLike: "5:30 PM ET (Wed)"
           },
           {
+            id: "lounge-dxb-return",
+            time: "07:30",
+            endTime: "09:15",
+            type: "activity",
+            title: "Emirates Business Lounge",
+            subtitle: "Morning refresh before long haul",
+            travelers: ["guys"],
+            status: "confirmed",
+            where: "DXB Terminal 3, Concourse A",
+            details: "Grab breakfast, freshen up with a shower, enjoy the Timeless Spa before the 15-hour flight to Chicago.",
+            hoverImage: { url: "https://cdn.onemileatatime.com/wp-content/uploads/2022/07/Emirates-Business-Lounge-Dubai-55.jpeg", caption: "Emirates Business Lounge - Dining" },
+            badges: ["lounge"]
+          },
+          {
             id: "f-dxb-ord",
             time: "09:45",
             type: "flight",
@@ -2962,6 +3292,20 @@
             miles: 7228,
             details: "Long haul to Chicago. Arrives 3:45 PM CT.",
             feelsLike: "12:45 AM ET (Thu)"
+          },
+          {
+            id: "lounge-ord",
+            time: "16:30",
+            endTime: "19:00",
+            type: "activity",
+            title: "Air France-KLM Lounge",
+            subtitle: "Priority Pass via Chase Sapphire Reserve",
+            travelers: ["guys"],
+            status: "confirmed",
+            where: "ORD Terminal 5, near Gate M17",
+            details: "Relax before the final leg home. Complimentary food, drinks, and Wi-Fi. Open 5 PM-8 PM for Priority Pass. French-style hospitality.",
+            hoverImage: { url: "https://thertwguys.com/wp-content/uploads/2019/06/chicago-air-france-klm-lounge-seating-1-1600x900.jpg", caption: "Air France-KLM Lounge ORD" },
+            badges: ["lounge"]
           },
           {
             id: "f-ord-cmh",
@@ -3317,6 +3661,27 @@
       }
     });
 
+    // Touch swipe support for carousels
+    let touchStartX = 0;
+    let touchEndX = 0;
+    document.addEventListener('touchstart', (e) => {
+      if (e.target.closest('.image-carousel')) {
+        touchStartX = e.changedTouches[0].screenX;
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      const carousel = e.target.closest('.image-carousel');
+      if (carousel) {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 50) { // Minimum swipe distance
+          const carouselId = carousel.dataset.carousel;
+          moveCarousel(carouselId, diff > 0 ? 1 : -1);
+        }
+      }
+    }, { passive: true });
+
     function renderDayDetail() {
       const day = DAYS[currentDayIndex];
       const dest = DESTINATIONS[day.location];
@@ -3399,10 +3764,103 @@
             ${otherEvents.map(e => renderEventCard(e, true)).join('')}
           ` : ''}
         </div>
+
+        ${renderDayNavigation()}
       `;
 
       // Fetch weather for current location
       renderWeatherWidget(day.location);
+    }
+
+    function renderDayNavigation() {
+      const phaseDays = PHASES[currentPhase].days;
+      const currentPosInPhase = phaseDays.indexOf(currentDayIndex);
+      const isFirstDay = currentPosInPhase === 0;
+      const isLastDay = currentPosInPhase === phaseDays.length - 1;
+
+      // Don't show navigation on the very last day of the phase
+      if (isFirstDay && isLastDay) return '';
+
+      const prevDayIndex = isFirstDay ? null : phaseDays[currentPosInPhase - 1];
+      const nextDayIndex = isLastDay ? null : phaseDays[currentPosInPhase + 1];
+      const prevDay = prevDayIndex !== null ? DAYS[prevDayIndex] : null;
+      const nextDay = nextDayIndex !== null ? DAYS[nextDayIndex] : null;
+
+      return `
+        <div class="day-navigation">
+          ${prevDay ? `
+            <button class="day-nav-btn prev" onclick="goToDay(${prevDayIndex})">
+              <span class="material-symbols-outlined">arrow_back</span>
+              ${prevDay.label}
+            </button>
+          ` : '<div class="day-nav-placeholder"></div>'}
+          ${nextDay ? `
+            <button class="day-nav-btn next" onclick="goToDay(${nextDayIndex})">
+              ${nextDay.label}
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          ` : '<div class="day-nav-placeholder"></div>'}
+        </div>
+      `;
+    }
+
+    function goToDay(dayIndex) {
+      currentDayIndex = dayIndex;
+      renderDayList();
+      renderDayDetail();
+      // Scroll to top of day detail
+      document.getElementById('dayDetail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function goToToday() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Find the day that matches today's date
+      let targetIndex = -1;
+      for (let i = 0; i < DAYS.length; i++) {
+        const dayDate = new Date(DAYS[i].date + 'T00:00:00');
+        if (dayDate.getTime() === today.getTime()) {
+          targetIndex = i;
+          break;
+        }
+      }
+
+      if (targetIndex === -1) return; // Today not in trip
+
+      // Switch to correct phase if needed
+      const targetDay = DAYS[targetIndex];
+      if (PHASES.together.days.includes(targetIndex)) {
+        currentPhase = 'together';
+      } else if (PHASES.india.days.includes(targetIndex)) {
+        currentPhase = 'india';
+      }
+
+      // Update phase tabs
+      document.querySelectorAll('.phase-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.phase === currentPhase);
+      });
+
+      goToDay(targetIndex);
+    }
+
+    function updateTodayButton() {
+      const todayBtn = document.getElementById('todayBtn');
+      if (!todayBtn) return;
+
+      const now = new Date();
+      const tripStart = new Date(DAYS[0].date + 'T00:00:00');
+      const tripEnd = new Date(DAYS[DAYS.length - 1].date + 'T23:59:59');
+
+      // Show button only if trip is in progress
+      const tripStarted = now >= tripStart;
+      const tripEnded = now > tripEnd;
+
+      if (tripStarted && !tripEnded) {
+        todayBtn.classList.add('visible');
+      } else {
+        todayBtn.classList.remove('visible');
+      }
     }
 
     function renderEventCard(e, notMine) {
@@ -3832,6 +4290,34 @@
       const currentDay = DAYS[currentDayIndex];
       if (currentDay) {
         renderWeatherWidget(currentDay.location);
+      }
+
+      // Update Today button visibility
+      updateTodayButton();
+      setInterval(updateTodayButton, 60000); // Check every minute
+
+      // Touch device: tap to show/dismiss hover images
+      if ('ontouchstart' in window) {
+        document.addEventListener('click', (e) => {
+          const hoverImg = e.target.closest('.event-hover-image');
+          if (hoverImg) {
+            e.preventDefault();
+            // Toggle active class for this hover image
+            const wasActive = hoverImg.classList.contains('touch-active');
+            // Remove active from all others
+            document.querySelectorAll('.event-hover-image.touch-active').forEach(el => {
+              el.classList.remove('touch-active');
+            });
+            if (!wasActive) {
+              hoverImg.classList.add('touch-active');
+            }
+          } else {
+            // Tap elsewhere dismisses all
+            document.querySelectorAll('.event-hover-image.touch-active').forEach(el => {
+              el.classList.remove('touch-active');
+            });
+          }
+        });
       }
     }
 
