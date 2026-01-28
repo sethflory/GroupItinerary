@@ -3172,9 +3172,144 @@
       .list-view { display: block !important; }
       .event-card { break-inside: avoid; }
     }
+
+    /* ========================================
+       ACCESS CODE LOCK SCREEN
+       ======================================== */
+    .lock-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, var(--color-sunrise) 0%, var(--color-sunset) 50%, var(--color-sky) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .lock-screen.hidden {
+      display: none;
+    }
+
+    .lock-box {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: var(--shadow-elevated);
+      text-align: center;
+    }
+
+    .lock-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .lock-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--color-text);
+    }
+
+    .lock-subtitle {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      margin-bottom: 24px;
+    }
+
+    .lock-input-group {
+      margin-bottom: 20px;
+    }
+
+    .lock-input {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 1.1rem;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      text-align: center;
+      letter-spacing: 2px;
+      transition: border-color 0.2s;
+    }
+
+    .lock-input:focus {
+      outline: none;
+      border-color: var(--color-sky);
+    }
+
+    .lock-input.error {
+      border-color: var(--color-sunrise);
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+
+    .lock-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .lock-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 126, 95, 0.4);
+    }
+
+    .lock-error {
+      color: var(--color-sunrise);
+      font-size: 0.85rem;
+      margin-top: 12px;
+      min-height: 20px;
+    }
+
+    .lock-hint {
+      margin-top: 20px;
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
   </style>
 </head>
 <body>
+  <!-- Access Code Lock Screen -->
+  <div class="lock-screen" id="lockScreen">
+    <div class="lock-box">
+      <div class="lock-icon">🔐</div>
+      <h2 class="lock-title">Trip Access</h2>
+      <p class="lock-subtitle">Enter the trip code to continue</p>
+      <div class="lock-input-group">
+        <input
+          type="text"
+          class="lock-input"
+          id="accessCodeInput"
+          placeholder="Enter code"
+          autocomplete="off"
+          autocapitalize="none"
+        >
+      </div>
+      <button class="lock-submit" onclick="verifyAccessCode()">
+        Enter Trip
+      </button>
+      <div class="lock-error" id="lockError"></div>
+      <p class="lock-hint">Code was shared by your trip organizer</p>
+    </div>
+  </div>
+
   <header class="header">
     <div class="header-content">
       <div class="title-row">
@@ -3567,6 +3702,7 @@
     // ========================================
 
     // Trip registry - add new trips here
+    // IMPORTANT: Change these codes before sharing with your group!
     const TRIPS = {
       'athens-bangalore-2026': {
         id: 'athens-bangalore-2026',
@@ -3578,7 +3714,8 @@
         badge: 'production',
         photoPrefix: '', // Default container, no prefix
         startDate: '2026-02-01T16:27:00-05:00',
-        endDate: '2026-02-12T23:59:00-05:00'
+        endDate: '2026-02-12T23:59:00-05:00',
+        accessCode: 'athens2026' // Change this to your group's code
       },
       'test-trip': {
         id: 'test-trip',
@@ -3590,7 +3727,8 @@
         badge: 'test',
         photoPrefix: 'test-', // Photos prefixed with 'test-'
         startDate: '2025-01-01T09:00:00-05:00',
-        endDate: '2025-01-03T23:59:00-05:00'
+        endDate: '2025-01-03T23:59:00-05:00',
+        accessCode: 'test123' // Simple code for testing
       }
     };
 
@@ -3609,6 +3747,90 @@
     function getCurrentPhotoPrefix() {
       return getCurrentTrip().photoPrefix || '';
     }
+
+    // ========================================
+    // ACCESS CODE VERIFICATION
+    // ========================================
+
+    function getAccessKey(tripId) {
+      return `tripAccess_${tripId}`;
+    }
+
+    function isAccessGranted(tripId) {
+      const trip = TRIPS[tripId];
+      if (!trip || !trip.accessCode) return true; // No code required
+      return localStorage.getItem(getAccessKey(tripId)) === 'granted';
+    }
+
+    function grantAccess(tripId) {
+      localStorage.setItem(getAccessKey(tripId), 'granted');
+    }
+
+    function revokeAccess(tripId) {
+      localStorage.removeItem(getAccessKey(tripId));
+    }
+
+    function verifyAccessCode() {
+      const input = document.getElementById('accessCodeInput');
+      const errorEl = document.getElementById('lockError');
+      const enteredCode = input.value.trim().toLowerCase();
+      const trip = getCurrentTrip();
+
+      if (enteredCode === trip.accessCode.toLowerCase()) {
+        // Correct code
+        grantAccess(currentTripId);
+        hideLockScreen();
+        errorEl.textContent = '';
+      } else {
+        // Wrong code
+        input.classList.add('error');
+        errorEl.textContent = 'Incorrect code. Please try again.';
+        setTimeout(() => input.classList.remove('error'), 500);
+      }
+    }
+
+    function showLockScreen() {
+      const lockScreen = document.getElementById('lockScreen');
+      if (lockScreen) {
+        lockScreen.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        // Focus the input
+        setTimeout(() => {
+          document.getElementById('accessCodeInput')?.focus();
+        }, 100);
+      }
+    }
+
+    function hideLockScreen() {
+      const lockScreen = document.getElementById('lockScreen');
+      if (lockScreen) {
+        lockScreen.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    }
+
+    function checkAccessOnLoad() {
+      if (!isAccessGranted(currentTripId)) {
+        showLockScreen();
+      } else {
+        hideLockScreen();
+      }
+    }
+
+    // Handle Enter key on access code input
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.getElementById('accessCodeInput');
+      if (input) {
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            verifyAccessCode();
+          }
+        });
+      }
+    });
+
+    // Check access immediately
+    checkAccessOnLoad();
 
     // Test trip data - minimal sample for development testing
     const TEST_TRIP_DATA = {
@@ -5646,6 +5868,17 @@
         `;
       });
 
+      // Add lock option
+      html += `
+        <div class="trip-option" onclick="lockTrip()" style="border-top: 2px solid var(--color-border);">
+          <div class="trip-option-icon">🔒</div>
+          <div class="trip-option-info">
+            <div class="trip-option-name">Lock Access</div>
+            <div class="trip-option-dates">Require code to re-enter</div>
+          </div>
+        </div>
+      `;
+
       dropdown.innerHTML = html;
 
       // Update header
@@ -5671,6 +5904,18 @@
       // For now, reload the page to apply trip change
       // In the future, could dynamically swap data without reload
       window.location.reload();
+    }
+
+    function lockTrip() {
+      // Revoke access for current trip
+      revokeAccess(currentTripId);
+
+      // Close dropdown
+      document.getElementById('tripSelectorDropdown').classList.remove('visible');
+
+      // Show lock screen
+      document.getElementById('accessCodeInput').value = '';
+      showLockScreen();
     }
 
     // Close dropdown when clicking outside
