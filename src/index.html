@@ -1,0 +1,5386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athens & Bangalore 2026 — Our Journey</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  <style>
+    :root {
+      --color-sunrise: #ff7e5f;
+      --color-sunset: #feb47b;
+      --color-sky: #4facfe;
+      --color-ocean: #00f2fe;
+      --color-forest: #38ef7d;
+      --color-earth: #8b7355;
+      --color-night: #1a1a2e;
+      --color-cream: #faf8f5;
+      --color-warm-white: #fff9f0;
+      --color-text: #2d2d2d;
+      --color-text-muted: #6b6b6b;
+      --color-border: #e8e4df;
+
+      --group-all: #4facfe;
+      --group-guys: #38ef7d;
+      --group-girls: #feb47b;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+
+      --shadow-soft: 0 2px 12px rgba(0,0,0,0.08);
+      --shadow-card: 0 4px 20px rgba(0,0,0,0.1);
+      --shadow-elevated: 0 8px 32px rgba(0,0,0,0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, var(--color-cream) 0%, var(--color-warm-white) 100%);
+      color: var(--color-text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--color-sunrise) 0%, var(--color-sunset) 50%, var(--color-sky) 100%);
+      padding: 24px 20px 32px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 80 Q25 60 50 70 T100 60 V100 H0Z' fill='rgba(255,255,255,0.1)'/%3E%3C/svg%3E") bottom/cover no-repeat;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .trip-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .how-it-works-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      backdrop-filter: blur(10px);
+    }
+
+    .how-it-works-btn:hover {
+      background: rgba(255,255,255,0.4);
+      transform: scale(1.1);
+    }
+
+    .how-it-works-btn .material-symbols-outlined {
+      font-size: 18px;
+      color: white;
+    }
+
+    /* How It Works Modal */
+    .hiw-modal {
+      max-width: 700px;
+      max-height: 90vh;
+    }
+
+    .hiw-content {
+      padding: 20px;
+      overflow-y: auto;
+      max-height: calc(90vh - 60px);
+    }
+
+    .hiw-section {
+      margin-bottom: 20px;
+    }
+
+    .hiw-section h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--color-sunset);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hiw-section p {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .hiw-code {
+      background: #1a1a2e;
+      color: #e8e8e8;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.75rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .hiw-copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--color-sunset);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-top: 12px;
+    }
+
+    .hiw-copy-btn:hover {
+      background: var(--color-sunrise);
+    }
+
+    .hiw-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      color: white;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .trip-dates {
+      font-size: 0.95rem;
+      opacity: 0.95;
+      font-weight: 500;
+    }
+
+    /* Countdown Timer */
+    .countdown-widget {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius-lg);
+      width: fit-content;
+    }
+
+    .countdown-widget.trip-active {
+      background: rgba(56, 239, 125, 0.2);
+    }
+
+    .countdown-widget.trip-active .countdown-label {
+      color: #1a5c2e;
+    }
+
+    .countdown-widget.trip-ended {
+      background: rgba(255,126,95,0.2);
+    }
+
+    .countdown-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.9;
+    }
+
+    .countdown-timer {
+      display: flex;
+      gap: 8px;
+    }
+
+    .countdown-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 36px;
+    }
+
+    .countdown-unit span {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .countdown-unit small {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      opacity: 0.7;
+      letter-spacing: 0.5px;
+    }
+
+    /* Header Widgets Container */
+    .header-widgets {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    /* Timezone Widget */
+    .timezone-widget {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius-lg);
+    }
+
+    .tz-clocks {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tz-clock {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tz-flag {
+      font-size: 1.3rem;
+    }
+
+    .tz-time-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tz-time {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .tz-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      opacity: 0.8;
+      letter-spacing: 0.3px;
+    }
+
+    .tz-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 4px;
+    }
+
+    .tz-offset {
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.3);
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+
+    .tz-helper {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 6px;
+    }
+
+    .tz-helper-text {
+      font-size: 0.7rem;
+      opacity: 0.9;
+      font-style: italic;
+    }
+
+    /* Weather Widget */
+    .weather-meta {
+      min-width: 80px;
+    }
+
+    .weather-meta:empty {
+      display: none;
+    }
+
+    .weather-widget {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .weather-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .weather-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .weather-temp {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .weather-desc {
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* Traveler Toggle */
+    .traveler-toggle {
+      display: flex;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-lg);
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .traveler-btn {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .traveler-btn:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    .traveler-btn.active {
+      background: white;
+      color: var(--color-text);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .traveler-btn .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    /* View Toggle */
+    .view-toggle {
+      display: flex;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      margin-left: auto;
+    }
+
+    .view-btn {
+      padding: 8px 12px;
+      border: none;
+      background: transparent;
+      color: white;
+      font-size: 0.875rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .view-btn:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    .view-btn.active {
+      background: white;
+      color: var(--color-text);
+    }
+
+    .view-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    /* Stats Banner */
+    .stats-banner {
+      background: white;
+      border-bottom: 1px solid var(--color-border);
+      overflow: hidden;
+    }
+
+    .stats-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .stats-toggle:hover {
+      background: rgba(0,0,0,0.02);
+    }
+
+    .stats-summary {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .stat-mini {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+    }
+
+    .stat-mini strong {
+      color: var(--color-text);
+      font-weight: 600;
+    }
+
+    .stat-mini .material-symbols-outlined {
+      font-size: 18px;
+      color: var(--color-sunrise);
+    }
+
+    .stats-expand-icon {
+      transition: transform 0.2s ease;
+    }
+
+    .stats-banner.expanded .stats-expand-icon {
+      transform: rotate(180deg);
+    }
+
+    .stats-detail {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .stats-banner.expanded .stats-detail {
+      max-height: 600px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      padding: 0 20px 20px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #f8f7f5 0%, #fff 100%);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      border: 1px solid var(--color-border);
+    }
+
+    .stat-card-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-card-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .stat-card-sub {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+    }
+
+    .traveler-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 0 20px 20px;
+    }
+
+    .traveler-stat {
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .traveler-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: white;
+    }
+
+    .traveler-stat-info {
+      flex: 1;
+    }
+
+    .traveler-stat-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .traveler-stat-detail {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    .stats-share {
+      padding: 16px 20px;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      justify-content: center;
+    }
+
+    .stats-share-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      color: white;
+      border: none;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stats-share-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 126, 95, 0.4);
+    }
+
+    .stats-share-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Journey View */
+    .journey-view {
+      display: block;
+    }
+
+    .journey-view.hidden {
+      display: none;
+    }
+
+    /* Phase Tabs */
+    .phase-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid var(--color-border);
+      padding-bottom: 12px;
+    }
+
+    .phase-tab {
+      padding: 10px 20px;
+      border: none;
+      background: white;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--color-text-muted);
+      border: 2px solid var(--color-border);
+    }
+
+    .phase-tab:hover {
+      border-color: var(--color-sunrise);
+      color: var(--color-text);
+    }
+
+    .phase-tab.active {
+      background: linear-gradient(135deg, var(--color-sunrise) 0%, var(--color-sunset) 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .phase-tab.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Today Button */
+    .today-btn {
+      display: none;
+      padding: 10px 16px;
+      border: none;
+      background: var(--color-sky);
+      color: white;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+    }
+
+    .today-btn:hover {
+      background: var(--color-ocean);
+      transform: translateY(-1px);
+    }
+
+    .today-btn.visible {
+      display: flex;
+    }
+
+    .today-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    .phase-tab .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    .phase-tab-dates {
+      font-size: 0.75rem;
+      font-weight: 400;
+      opacity: 0.8;
+    }
+
+    /* Journey Layout - Sidebar + Content */
+    .journey-layout {
+      display: flex;
+      gap: 20px;
+    }
+
+    /* Vertical Day List (Sidebar) */
+    .day-list {
+      width: 200px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: calc(100vh - 300px);
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    .day-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .day-list::-webkit-scrollbar-track {
+      background: var(--color-border);
+      border-radius: 2px;
+    }
+
+    .day-list::-webkit-scrollbar-thumb {
+      background: var(--color-sunrise);
+      border-radius: 2px;
+    }
+
+    .day-item {
+      background: white;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .day-item:hover {
+      border-color: var(--color-sunrise);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .day-item.active {
+      border-color: var(--color-sunrise);
+      background: linear-gradient(135deg, #fff5f2 0%, #fff 100%);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .day-item.not-mine {
+      opacity: 0.5;
+    }
+
+    .day-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .day-item-date {
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .day-item-num {
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: var(--color-sunrise);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+
+    .day-item-title {
+      font-weight: 600;
+      font-size: 0.85rem;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+
+    .day-item-location {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .day-item-location .material-symbols-outlined {
+      font-size: 12px;
+    }
+
+    .day-item-pills {
+      display: flex;
+      gap: 2px;
+      margin-top: 6px;
+    }
+
+    .day-item-pills .traveler-pill {
+      width: 18px;
+      height: 18px;
+      font-size: 0.6rem;
+      border-radius: 4px;
+    }
+
+    /* Day Content Area */
+    .day-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Mobile: Stack layout */
+    @media (max-width: 768px) {
+      .phase-tabs {
+        flex-wrap: wrap;
+      }
+
+      .phase-tab {
+        flex: 1;
+        min-width: calc(50% - 4px);
+        justify-content: center;
+        padding: 12px 16px;
+      }
+
+      .phase-tab-dates {
+        display: none;
+      }
+
+      .journey-layout {
+        flex-direction: column;
+      }
+
+      .day-list {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        max-height: none;
+        overflow-y: visible;
+        padding-right: 0;
+        gap: 8px;
+      }
+
+      .day-item {
+        flex: 1;
+        min-width: calc(50% - 4px);
+        max-width: calc(50% - 4px);
+      }
+
+      .day-item-title {
+        font-size: 0.8rem;
+      }
+    }
+
+    /* Day Detail */
+    .day-detail {
+      margin-top: 24px;
+    }
+
+    .day-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .day-header-main {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .day-header-date {
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .day-header-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 4px 0;
+    }
+
+    .day-header-subtitle {
+      color: var(--color-text-muted);
+      font-size: 0.95rem;
+    }
+
+    .day-meta-cards {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .day-meta-card {
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .day-meta-card .material-symbols-outlined {
+      font-size: 18px;
+      color: var(--color-sunrise);
+    }
+
+    .day-meta-card strong {
+      font-weight: 600;
+    }
+
+    .day-meta-card .sub {
+      color: var(--color-text-muted);
+      font-size: 0.75rem;
+    }
+
+    /* Destination Card */
+    .destination-card {
+      background: linear-gradient(135deg, var(--color-sky) 0%, var(--color-ocean) 100%);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      color: white;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .destination-card.athens {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .destination-card.bangalore {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .destination-card.travel {
+      background: linear-gradient(135deg, var(--color-sunrise) 0%, var(--color-sunset) 100%);
+    }
+
+    .destination-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 150px;
+      height: 150px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      transform: translate(30%, -30%);
+    }
+
+    .destination-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .destination-info {
+      font-size: 0.875rem;
+      opacity: 0.95;
+      line-height: 1.5;
+    }
+
+    .destination-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      font-size: 0.8rem;
+    }
+
+    .destination-meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .destination-meta .material-symbols-outlined {
+      font-size: 16px;
+    }
+
+    /* Event Cards */
+    .events-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .event-card {
+      background: white;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .event-card:hover {
+      box-shadow: var(--shadow-card);
+      border-color: transparent;
+    }
+
+    .event-card.flight {
+      border-left: 4px solid var(--color-sky);
+    }
+
+    .event-card.activity {
+      border-left: 4px solid var(--color-forest);
+    }
+
+    .event-card.meal {
+      border-left: 4px solid var(--color-sunset);
+    }
+
+    .event-card.hotel {
+      border-left: 4px solid var(--color-earth);
+    }
+
+    .event-card.not-mine {
+      opacity: 0.5;
+      border-left-color: #ccc;
+    }
+
+    .event-main {
+      padding: 16px;
+    }
+
+    .event-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .event-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .event-icon.flight { background: #e3f2fd; color: #1976d2; }
+    .event-icon.activity { background: #e8f5e9; color: #388e3c; }
+    .event-icon.meal { background: #fff3e0; color: #f57c00; }
+    .event-icon.hotel { background: #efebe9; color: #5d4037; }
+
+    .event-icon .material-symbols-outlined {
+      font-size: 22px;
+    }
+
+    .event-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-time {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+
+    .event-time-feels {
+      font-size: 0.7rem;
+      color: var(--color-sunrise);
+      margin-left: 8px;
+    }
+
+    .event-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin: 2px 0;
+    }
+
+    .event-subtitle {
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+    }
+
+    .event-badges {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .event-badge {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+
+    .event-badge.group {
+      background: var(--group-all);
+      color: white;
+    }
+
+    .event-badge.group.guys {
+      background: var(--group-guys);
+      color: #1a5928;
+    }
+
+    .event-badge.group.girls {
+      background: var(--group-girls);
+      color: #7a4a1f;
+    }
+
+    .event-badge.status-confirmed {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .event-badge.status-pending {
+      background: #fff3e0;
+      color: #ef6c00;
+    }
+
+    .event-badge.alert {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .event-badge.airline-united {
+      background: #0033a0;
+      color: white;
+      font-weight: 600;
+    }
+
+    .event-badge.airline-emirates {
+      background: #d71921;
+      color: white;
+      font-weight: 600;
+    }
+
+    .event-badge.lounge {
+      background: #6b5b95;
+      color: white;
+    }
+
+    .event-badge.interview {
+      background: #2e7d32;
+      color: white;
+    }
+
+    /* Traveler Pills - S K P F */
+    .traveler-pills {
+      display: inline-flex;
+      gap: 3px;
+      margin-right: 8px;
+    }
+
+    .traveler-pill {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .traveler-pill.inactive {
+      background: #e8e4df;
+      color: #bbb;
+    }
+
+    .traveler-pill.active {
+      color: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .traveler-pill.active.seth { background: #4a90d9; }
+    .traveler-pill.active.katrina { background: #d94a8c; }
+    .traveler-pill.active.paul { background: #4a90d9; }
+    .traveler-pill.active.sheri { background: #d94a8c; }
+
+    /* Destination Watermarks */
+    .day-detail {
+      position: relative;
+    }
+
+    .day-detail::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: opacity 0.5s ease;
+    }
+
+    .day-detail.athens-bg::before {
+      /* Parthenon silhouette - Unsplash free image */
+      background-image: url('https://images.unsplash.com/photo-1555993539-1732b0258235?w=1200&q=80');
+      opacity: 0.06;
+      background-position: center 30%;
+      filter: grayscale(30%) contrast(1.1);
+    }
+
+    .day-detail.bangalore-bg::before {
+      /* Bangalore garden city vibe - Unsplash free image */
+      background-image: url('https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=1200&q=80');
+      opacity: 0.05;
+      background-position: center;
+      filter: grayscale(20%) contrast(1.1);
+    }
+
+    .day-detail.travel-bg::before {
+      /* Airplane/clouds aesthetic */
+      background: linear-gradient(135deg, rgba(79,172,254,0.03) 0%, rgba(0,242,254,0.03) 100%);
+      opacity: 1;
+    }
+
+    .day-detail > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Hotel Card Special Styling */
+    .event-card.hotel.fresh-hotel {
+      background: linear-gradient(135deg, #fff 0%, #f8f6ff 100%);
+      border-left: 4px solid #6b5b95;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .event-card.hotel.fresh-hotel::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 120px;
+      height: 100%;
+      /* Fresh Hotel rooftop vibe - purple/sunset gradient */
+      background: linear-gradient(135deg, rgba(107,91,149,0.08) 0%, rgba(255,126,95,0.08) 100%);
+      pointer-events: none;
+    }
+
+    .event-card.hotel.leela-palace {
+      background: linear-gradient(135deg, #fff 0%, #fff8f0 100%);
+      border-left: 4px solid #c9a227;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .event-card.hotel.leela-palace::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 120px;
+      height: 100%;
+      /* Leela Palace royal gold vibe */
+      background: linear-gradient(135deg, rgba(201,162,39,0.08) 0%, rgba(139,115,85,0.08) 100%);
+      pointer-events: none;
+    }
+
+    /* Destination info card images */
+    .destination-card.athens {
+      background: linear-gradient(135deg, rgba(102,126,234,0.95) 0%, rgba(118,75,162,0.95) 100%),
+                  url('https://images.unsplash.com/photo-1555993539-1732b0258235?w=800&q=80') center/cover;
+    }
+
+    .destination-card.fresh-hotel-card {
+      background: linear-gradient(135deg, rgba(107,91,149,0.92) 0%, rgba(255,126,95,0.88) 100%),
+                  url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80') center/cover;
+    }
+
+    .event-details {
+      padding: 0 16px 16px;
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+    }
+
+    .event-details p {
+      margin-bottom: 8px;
+    }
+
+    .event-travel-note {
+      padding: 8px 16px 12px;
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      background: linear-gradient(90deg, rgba(79, 172, 254, 0.1), transparent);
+      border-left: 3px solid var(--color-sky);
+      margin: 0 16px 12px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+
+    /* Hover Image - lightweight single image preview */
+    .event-hover-image {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: var(--color-cream);
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .event-hover-image:hover {
+      background: var(--color-border);
+    }
+
+    .event-hover-image .material-symbols-outlined {
+      font-size: 14px;
+    }
+
+    .event-hover-image .hover-preview {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      width: 240px;
+      height: 160px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-elevated);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .event-hover-image:hover .hover-preview,
+    .event-hover-image.touch-active .hover-preview {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(-8px);
+    }
+
+    /* Touch active state for mobile */
+    .event-hover-image.touch-active .hover-preview {
+      transform: translate(-50%, -50%);
+    }
+
+    .event-hover-image .hover-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .event-hover-image .hover-preview .hover-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 8px 6px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      color: white;
+      font-size: 0.7rem;
+      text-align: center;
+    }
+
+    .event-links {
+      display: flex;
+      gap: 12px;
+      padding: 0 16px 16px;
+    }
+
+    .event-link {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: var(--color-sky);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .event-link:hover {
+      text-decoration: underline;
+    }
+
+    .event-link .material-symbols-outlined {
+      font-size: 16px;
+    }
+
+    /* Day Navigation */
+    .day-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+      margin-top: 16px;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .day-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: var(--color-sky);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .day-nav-btn:hover {
+      background: var(--color-ocean);
+      transform: translateY(-1px);
+    }
+
+    .day-nav-btn.prev {
+      background: var(--color-cream);
+      color: var(--color-text);
+    }
+
+    .day-nav-btn.prev:hover {
+      background: var(--color-border);
+    }
+
+    .day-nav-btn .material-symbols-outlined {
+      font-size: 20px;
+    }
+
+    .day-nav-placeholder {
+      width: 140px;
+    }
+
+    /* List View */
+    .list-view {
+      display: none;
+    }
+
+    .list-view.visible {
+      display: block;
+    }
+
+    .list-day {
+      margin-bottom: 12px;
+      background: white;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      overflow: hidden;
+    }
+
+    .list-day-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s ease;
+    }
+
+    .list-day-header:hover {
+      background: rgba(0,0,0,0.02);
+    }
+
+    .list-day-badge {
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      color: white;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+
+    .list-day-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      flex: 1;
+    }
+
+    .list-day-weather {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      min-width: 60px;
+    }
+
+    .list-day-weather:empty {
+      display: none;
+    }
+
+    .list-day-weather .weather-emoji {
+      font-size: 1rem;
+    }
+
+    .list-day-location {
+      color: var(--color-text-muted);
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .list-day-location .material-symbols-outlined {
+      font-size: 14px;
+    }
+
+    .list-day-toggle {
+      color: var(--color-text-muted);
+      transition: transform 0.2s ease;
+    }
+
+    .list-day.expanded .list-day-toggle {
+      transform: rotate(180deg);
+    }
+
+    .list-day-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .list-day.expanded .list-day-content {
+      max-height: 2000px;
+    }
+
+    .list-day-events {
+      padding: 0 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .list-day-summary {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .list-day-summary .material-symbols-outlined {
+      font-size: 14px;
+    }
+
+    .list-controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .list-control-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      border: 1px solid var(--color-border);
+      background: white;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .list-control-btn:hover {
+      border-color: var(--color-sunrise);
+      color: var(--color-text);
+    }
+
+    .list-control-btn .material-symbols-outlined {
+      font-size: 16px;
+    }
+
+    .list-days {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Image Carousel */
+    .image-carousel {
+      position: relative;
+      width: 100%;
+      height: 160px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-top: 12px;
+      background: var(--color-border);
+    }
+
+    .carousel-slides {
+      display: flex;
+      height: 100%;
+      transition: transform 0.4s ease;
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .carousel-nav {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+    }
+
+    .carousel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0;
+    }
+
+    .carousel-dot.active {
+      background: white;
+      transform: scale(1.2);
+    }
+
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .image-carousel:hover .carousel-btn {
+      opacity: 1;
+    }
+
+    .carousel-btn:hover {
+      background: white;
+    }
+
+    .carousel-btn.prev { left: 8px; }
+    .carousel-btn.next { right: 8px; }
+
+    .carousel-btn .material-symbols-outlined {
+      font-size: 18px;
+      color: var(--color-text);
+    }
+
+    .carousel-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 24px 12px 8px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.6));
+      color: white;
+      font-size: 0.75rem;
+      text-align: center;
+    }
+
+    /* Share Post Modal */
+    .share-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .share-modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .share-modal {
+      background: white;
+      border-radius: var(--radius-lg);
+      width: 90%;
+      max-width: 500px;
+      max-height: 85vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(20px);
+      transition: transform 0.3s;
+    }
+
+    .share-modal-overlay.active .share-modal {
+      transform: translateY(0);
+    }
+
+    .share-modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .share-modal-header h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .share-modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .share-modal-close:hover {
+      background: var(--color-border);
+    }
+
+    .share-modal-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .share-section {
+      margin-bottom: 16px;
+    }
+
+    .share-section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .share-selected-events {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .share-event-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: var(--color-cream);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      border: 1px solid var(--color-border);
+    }
+
+    .share-event-chip .material-symbols-outlined {
+      font-size: 14px;
+    }
+
+    .share-event-chip .remove-event {
+      cursor: pointer;
+      opacity: 0.6;
+      margin-left: 2px;
+    }
+
+    .share-event-chip .remove-event:hover {
+      opacity: 1;
+    }
+
+    .share-add-events {
+      position: relative;
+    }
+
+    .share-add-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: white;
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--color-muted);
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .share-add-btn:hover {
+      border-color: var(--color-sunset);
+      color: var(--color-sunset);
+    }
+
+    .share-event-picker {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+
+    .share-event-picker.active {
+      display: block;
+    }
+
+    .share-event-option {
+      padding: 10px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .share-event-option:last-child {
+      border-bottom: none;
+    }
+
+    .share-event-option:hover {
+      background: var(--color-cream);
+    }
+
+    .share-event-option.selected {
+      background: #e8f5e9;
+    }
+
+    .share-event-option .event-day {
+      font-size: 0.7rem;
+      color: var(--color-muted);
+      background: var(--color-border);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .share-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.9rem;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .share-textarea:focus {
+      outline: none;
+      border-color: var(--color-sunset);
+    }
+
+    .share-char-count {
+      text-align: right;
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      margin-top: 4px;
+    }
+
+    .share-char-count.over {
+      color: #d32f2f;
+    }
+
+    .share-platforms {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .share-platform-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .share-platform-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .share-platform-btn.twitter {
+      background: #1DA1F2;
+      color: white;
+    }
+
+    .share-platform-btn.facebook {
+      background: #1877F2;
+      color: white;
+    }
+
+    .share-platform-btn.copy {
+      background: var(--color-text);
+      color: white;
+    }
+
+    .share-platform-btn.copy.copied {
+      background: #4caf50;
+    }
+
+    .share-regenerate {
+      background: none;
+      border: 1px solid var(--color-border);
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      color: var(--color-muted);
+    }
+
+    .share-regenerate:hover {
+      border-color: var(--color-sunset);
+      color: var(--color-sunset);
+    }
+
+    .event-share-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.5;
+      transition: opacity 0.2s, background 0.2s;
+    }
+
+    .event-share-btn:hover {
+      opacity: 1;
+      background: var(--color-cream);
+    }
+
+    .event-share-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    /* Mobile Adjustments */
+    @media (max-width: 640px) {
+      .header {
+        padding: 16px 16px 24px;
+      }
+
+      .trip-title {
+        font-size: 1.5rem;
+      }
+
+      .header-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .traveler-toggle {
+        overflow-x: auto;
+        justify-content: flex-start;
+      }
+
+      .view-toggle {
+        margin-left: 0;
+        align-self: flex-start;
+      }
+
+      .stats-summary {
+        gap: 12px;
+      }
+
+      .main-content {
+        padding: 16px;
+      }
+
+      .day-header {
+        flex-direction: column;
+      }
+
+      .day-meta-cards {
+        width: 100%;
+      }
+
+      .day-meta-card {
+        flex: 1;
+        min-width: calc(50% - 6px);
+      }
+    }
+
+    /* Mobile-specific optimizations (phones) */
+    @media (max-width: 480px) {
+      /* Header compacting */
+      .header {
+        padding: 12px 12px 20px;
+      }
+
+      .trip-title {
+        font-size: 1.3rem;
+      }
+
+      .trip-dates {
+        font-size: 0.8rem;
+      }
+
+      /* Stack header widgets vertically */
+      .header-widgets {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .countdown-widget, .timezone-widget {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .countdown-unit span {
+        font-size: 1.2rem;
+      }
+
+      .tz-time {
+        font-size: 1rem;
+      }
+
+      .tz-helper-text {
+        font-size: 0.65rem;
+      }
+
+      /* Traveler pills - horizontal scroll */
+      .traveler-toggle {
+        padding-bottom: 8px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .traveler-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+      }
+
+      /* Day items - single column or smaller */
+      .day-item {
+        min-width: 100%;
+        max-width: 100%;
+        padding: 10px;
+      }
+
+      .day-item-title {
+        font-size: 0.75rem;
+      }
+
+      /* Event cards */
+      .event-card {
+        margin-bottom: 12px;
+      }
+
+      .event-title {
+        font-size: 1rem;
+      }
+
+      .event-links {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      /* Hover images - tap to show on mobile */
+      .event-hover-image .hover-preview {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 85vw;
+        height: auto;
+        max-height: 60vh;
+        z-index: 1000;
+      }
+
+      .event-hover-image .hover-preview img {
+        height: auto;
+        max-height: 60vh;
+      }
+
+      /* Day navigation - full width buttons */
+      .day-navigation {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .day-nav-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .day-nav-placeholder {
+        display: none;
+      }
+
+      /* Carousels - touch friendly */
+      .carousel-container {
+        margin: 0 -12px;
+        padding: 0 12px;
+      }
+
+      .carousel-btn {
+        width: 36px;
+        height: 36px;
+        opacity: 0.9;
+      }
+
+      /* Modals - nearly full screen */
+      .share-modal {
+        width: 95vw;
+        max-width: none;
+        max-height: 90vh;
+        margin: 5vh auto;
+      }
+
+      .hiw-modal {
+        max-width: 95vw;
+      }
+
+      .hiw-code {
+        font-size: 0.7rem;
+      }
+
+      /* Stats dropdown */
+      .stats-dropdown {
+        min-width: 280px;
+        right: -50px;
+      }
+
+      /* Phase tabs */
+      .phase-tab {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+      }
+    }
+
+    /* Touch device adjustments */
+    @media (hover: none) and (pointer: coarse) {
+      /* Make tap targets larger */
+      .traveler-btn, .view-btn, .phase-tab, .day-nav-btn {
+        min-height: 44px;
+      }
+
+      /* Carousel dots larger for touch */
+      .carousel-dot {
+        width: 10px;
+        height: 10px;
+      }
+
+      /* Hover image shows on tap (handled via JS) */
+      .event-hover-image {
+        cursor: pointer;
+      }
+
+      /* Remove hover effects that don't work on touch */
+      .day-item:hover {
+        transform: none;
+      }
+
+      .event-card:hover {
+        transform: none;
+      }
+    }
+
+    /* iOS Safari fixes */
+    @supports (-webkit-touch-callout: none) {
+      /* Fix for iOS viewport height */
+      .share-modal-overlay {
+        height: -webkit-fill-available;
+      }
+
+      /* Prevent zoom on input focus */
+      input, select, textarea {
+        font-size: 16px;
+      }
+    }
+
+    /* Trip Photos Section */
+    .trip-photos-section {
+      margin-top: 32px;
+      padding: 24px;
+      background: white;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+    }
+
+    .trip-photos-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .trip-photos-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .trip-photos-title .material-symbols-outlined {
+      color: var(--color-sunrise);
+    }
+
+    .upload-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--color-sky), var(--color-ocean));
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .upload-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+    }
+
+    .photos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .photo-card {
+      position: relative;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .photo-card:hover {
+      transform: scale(1.02);
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-card-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      color: white;
+    }
+
+    .photo-caption {
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .photo-meta {
+      font-size: 0.7rem;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    .photos-empty {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--color-text-muted);
+    }
+
+    .photos-empty .material-symbols-outlined {
+      font-size: 64px;
+      opacity: 0.3;
+      margin-bottom: 16px;
+    }
+
+    .photos-loading {
+      text-align: center;
+      padding: 48px;
+      color: var(--color-text-muted);
+    }
+
+    /* Upload Modal */
+    .upload-modal {
+      max-width: 500px;
+    }
+
+    .upload-dropzone {
+      border: 2px dashed var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 20px;
+    }
+
+    .upload-dropzone:hover,
+    .upload-dropzone.dragover {
+      border-color: var(--color-sky);
+      background: rgba(79, 172, 254, 0.05);
+    }
+
+    .upload-dropzone .material-symbols-outlined {
+      font-size: 48px;
+      color: var(--color-sky);
+      margin-bottom: 12px;
+    }
+
+    .upload-preview {
+      display: none;
+      margin-bottom: 20px;
+    }
+
+    .upload-preview.visible {
+      display: block;
+    }
+
+    .upload-preview img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: var(--radius-md);
+      margin-bottom: 12px;
+    }
+
+    .upload-form-group {
+      margin-bottom: 16px;
+    }
+
+    .upload-form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .upload-form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+    }
+
+    .upload-form-group input:focus {
+      outline: none;
+      border-color: var(--color-sky);
+    }
+
+    .upload-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .upload-submit {
+      padding: 10px 24px;
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .upload-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .upload-cancel {
+      padding: 10px 24px;
+      background: var(--color-cream);
+      color: var(--color-text);
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* Photo Lightbox */
+    .photo-lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .photo-lightbox.visible {
+      display: flex;
+    }
+
+    .photo-lightbox img {
+      max-width: 90vw;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: var(--radius-md);
+    }
+
+    .photo-lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: white;
+    }
+
+    .photo-lightbox-caption {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      text-align: center;
+      max-width: 80%;
+    }
+
+    @media (max-width: 480px) {
+      .trip-photos-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .upload-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .photos-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+    }
+
+    /* Print Styles */
+    @media print {
+      .header {
+        background: #f5f5f5 !important;
+        color: black !important;
+        -webkit-print-color-adjust: exact;
+      }
+      .traveler-toggle, .view-toggle, .stats-banner { display: none; }
+      .journey-ribbon { display: none; }
+      .list-view { display: block !important; }
+      .event-card { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div class="title-row">
+        <h1 class="trip-title">Athens & Bangalore 2026</h1>
+        <button class="how-it-works-btn" onclick="openHowItWorks()" title="How It Works">
+          <span class="material-symbols-outlined">magic_button</span>
+        </button>
+      </div>
+      <p class="trip-dates">February 1 - 12, 2026 &bull; Athens together, then S&P continue to India</p>
+      <div class="header-widgets">
+        <div class="countdown-widget" id="countdownWidget">
+          <span class="countdown-label">Departure in</span>
+          <div class="countdown-timer" id="countdownTimer">
+            <div class="countdown-unit"><span id="countDays">--</span><small>days</small></div>
+            <div class="countdown-unit"><span id="countHours">--</span><small>hrs</small></div>
+            <div class="countdown-unit"><span id="countMins">--</span><small>min</small></div>
+            <div class="countdown-unit"><span id="countSecs">--</span><small>sec</small></div>
+          </div>
+        </div>
+
+        <div class="timezone-widget" id="timezoneWidget">
+          <div class="tz-clocks">
+            <div class="tz-clock destination">
+              <span class="tz-flag" id="tzFlag">🇬🇷</span>
+              <div class="tz-time-group">
+                <span class="tz-time" id="tzDestTime">--:--</span>
+                <span class="tz-label" id="tzDestLabel">Athens</span>
+              </div>
+            </div>
+            <div class="tz-arrow">
+              <span class="tz-offset" id="tzOffset">+7h</span>
+            </div>
+            <div class="tz-clock home">
+              <span class="tz-flag">🏠</span>
+              <div class="tz-time-group">
+                <span class="tz-time" id="tzHomeTime">--:--</span>
+                <span class="tz-label">Home (ET)</span>
+              </div>
+            </div>
+          </div>
+          <div class="tz-helper">
+            <span class="tz-helper-text" id="tzHelperText">Dinner at 8 PM = 1 PM back home</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="traveler-toggle" id="travelerToggle">
+          <button class="traveler-btn active" data-traveler="all">All</button>
+          <button class="traveler-btn" data-traveler="seth">
+            <span class="dot" style="background: #4a90d9"></span>F
+          </button>
+          <button class="traveler-btn" data-traveler="katrina">
+            <span class="dot" style="background: #d94a8c"></span>K
+          </button>
+          <button class="traveler-btn" data-traveler="paul">
+            <span class="dot" style="background: #4a90d9"></span>P
+          </button>
+          <button class="traveler-btn" data-traveler="sheri">
+            <span class="dot" style="background: #d94a8c"></span>S
+          </button>
+        </div>
+
+        <div class="view-toggle" id="viewToggle">
+          <button class="view-btn active" data-view="journey">
+            <span class="material-symbols-outlined">timeline</span>
+            Journey
+          </button>
+          <button class="view-btn" data-view="list">
+            <span class="material-symbols-outlined">list</span>
+            List
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="stats-banner" id="statsBanner">
+    <div class="stats-toggle" onclick="toggleStats()">
+      <div class="stats-summary" id="statsSummary">
+        <!-- Populated by JS -->
+      </div>
+      <span class="material-symbols-outlined stats-expand-icon">expand_more</span>
+    </div>
+    <div class="stats-detail">
+      <div class="stats-grid" id="statsGrid">
+        <!-- Populated by JS -->
+      </div>
+      <div class="traveler-stats" id="travelerStats">
+        <!-- Populated by JS -->
+      </div>
+      <div class="stats-share">
+        <button class="stats-share-btn" onclick="openStatsShareModal()">
+          <span class="material-symbols-outlined">share</span>
+          Share Trip Stats
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <main class="main-content">
+    <div class="journey-view" id="journeyView">
+      <div class="phase-tabs" id="phaseTabs">
+        <button class="phase-tab active" data-phase="together">
+          <span class="material-symbols-outlined">groups</span>
+          <span>Together</span>
+          <span class="phase-tab-dates">Feb 1-6</span>
+        </button>
+        <button class="phase-tab" data-phase="india">
+          <span class="material-symbols-outlined">flight</span>
+          <span>S&P India</span>
+          <span class="phase-tab-dates">Feb 7-12</span>
+        </button>
+        <button class="today-btn" id="todayBtn" onclick="goToToday()">
+          <span class="material-symbols-outlined">today</span>
+          Today
+        </button>
+      </div>
+      <div class="journey-layout">
+        <div class="day-list" id="dayList">
+          <!-- Populated by JS -->
+        </div>
+        <div class="day-content">
+          <div class="day-detail" id="dayDetail">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="list-view" id="listView">
+      <div class="list-controls">
+        <button class="list-control-btn" onclick="expandAllDays()">
+          <span class="material-symbols-outlined">unfold_more</span>
+          Expand All
+        </button>
+        <button class="list-control-btn" onclick="collapseAllDays()">
+          <span class="material-symbols-outlined">unfold_less</span>
+          Collapse All
+        </button>
+      </div>
+      <div class="list-days" id="listDays">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Trip Photos Section -->
+    <div class="trip-photos-section" id="tripPhotosSection">
+      <div class="trip-photos-header">
+        <h2 class="trip-photos-title">
+          <span class="material-symbols-outlined">photo_library</span>
+          Trip Memories
+        </h2>
+        <button class="upload-btn" onclick="openUploadModal()">
+          <span class="material-symbols-outlined">add_photo_alternate</span>
+          Add Photo
+        </button>
+      </div>
+      <div class="photos-loading" id="photosLoading">
+        <span class="material-symbols-outlined">hourglass_empty</span>
+        <p>Loading photos...</p>
+      </div>
+      <div class="photos-empty" id="photosEmpty" style="display: none;">
+        <span class="material-symbols-outlined">add_a_photo</span>
+        <p>No photos yet!</p>
+        <p>Be the first to share a memory from the trip.</p>
+      </div>
+      <div class="photos-grid" id="photosGrid" style="display: none;">
+        <!-- Photos loaded dynamically -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Photo Upload Modal -->
+  <div class="share-modal-overlay" id="uploadModal">
+    <div class="share-modal upload-modal">
+      <div class="share-modal-header">
+        <h3><span class="material-symbols-outlined">add_photo_alternate</span> Upload Photo</h3>
+        <button class="share-modal-close" onclick="closeUploadModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="share-modal-body" style="padding: 20px;">
+        <div class="upload-dropzone" id="uploadDropzone" onclick="document.getElementById('fileInput').click()">
+          <span class="material-symbols-outlined">cloud_upload</span>
+          <p><strong>Click to select</strong> or drag & drop</p>
+          <p style="font-size: 0.8rem; color: var(--color-text-muted);">JPG, PNG up to 10MB</p>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+
+        <div class="upload-preview" id="uploadPreview">
+          <img id="previewImage" src="" alt="Preview">
+        </div>
+
+        <div class="upload-form-group">
+          <label for="photoCaption">Caption (optional)</label>
+          <input type="text" id="photoCaption" placeholder="What's happening in this photo?">
+        </div>
+
+        <div class="upload-form-group">
+          <label for="uploadedBy">Your name</label>
+          <input type="text" id="uploadedBy" placeholder="Who's uploading?">
+        </div>
+
+        <div class="upload-actions">
+          <button class="upload-cancel" onclick="closeUploadModal()">Cancel</button>
+          <button class="upload-submit" id="uploadSubmit" disabled onclick="uploadPhoto()">
+            <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">upload</span>
+            Upload
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo Lightbox -->
+  <div class="photo-lightbox" id="photoLightbox" onclick="closeLightbox()">
+    <button class="photo-lightbox-close">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+    <img id="lightboxImage" src="" alt="">
+    <div class="photo-lightbox-caption" id="lightboxCaption"></div>
+  </div>
+
+  <script>
+    // ========================================
+    // DATA
+    // ========================================
+
+    const TRAVELERS = [
+      { id: "seth", name: "Seth", group: "guys", color: "#4a90d9", initials: "F" },
+      { id: "katrina", name: "Katrina", group: "girls", color: "#d94a8c", initials: "K" },
+      { id: "paul", name: "Paul", group: "guys", color: "#4a90d9", initials: "P" },
+      { id: "sheri", name: "Sheri", group: "girls", color: "#d94a8c", initials: "S" }
+    ];
+
+    // Derived constants for traveler pills (DRY principle)
+    const TRAVELER_ORDER = TRAVELERS.map(t => t.id);
+    const TRAVELER_INITIALS = Object.fromEntries(TRAVELERS.map(t => [t.id, t.initials]));
+
+    const HOTEL = {
+      name: "The Fresh Hotel",
+      address: "26 Sophocleous & Klisthenous Street, Athens 10552",
+      neighborhood: "Near Omonia Square, 8-min walk to Monastiraki",
+      website: "https://freshhotel.gr/",
+      mapsLink: "https://maps.google.com/?q=Fresh+Hotel+Athens",
+      checkIn: "2026-02-02",
+      checkOut: "2026-02-07",
+      nights: 5,
+      highlights: "Rooftop pool with Acropolis views, Air Lounge Bar-Restaurant, Design Hotels member"
+    };
+
+    const DESTINATIONS = {
+      "CMH": { name: "John Glenn Columbus", city: "Columbus", country: "USA", timezone: "America/New_York", utcOffset: -5, info: "Home base", lounge: "Escape Lounge - Concourse B, Gate 32B (Priority Pass, 5AM-8PM)" },
+      "EWR": { name: "Newark Liberty", city: "Newark", country: "USA", timezone: "America/New_York", utcOffset: -5, info: "Gateway to the world", loungeB: "Virgin Atlantic Clubhouse / Art & Lounge - Terminal B", loungeC: "United Club - Terminal C" },
+      "ATH": { name: "Athens International", city: "Athens", country: "Greece", timezone: "Europe/Athens", utcOffset: 2, info: "Birthplace of democracy, ancient ruins, Mediterranean charm. The Acropolis awaits!", localTip: "Try a freddo espresso - it's life-changing." },
+      "DXB": { name: "Dubai International", city: "Dubai", country: "UAE", timezone: "Asia/Dubai", utcOffset: 4, info: "Futuristic desert metropolis. Quick layover hub." },
+      "ORD": { name: "O'Hare International", city: "Chicago", country: "USA", timezone: "America/Chicago", utcOffset: -6, info: "Windy City connection" },
+      "BLR": { name: "Kempegowda International", city: "Bangalore", country: "India", timezone: "Asia/Kolkata", utcOffset: 5.5, info: "India's tech hub meets garden city. Amazing food, vibrant culture, perfect weather.", localTip: "Don't miss the filter coffee and masala dosa." }
+    };
+
+    // Image carousels for hotels/venues
+    const CAROUSELS = {
+      'leela-palace': {
+        images: [
+          { url: 'https://www.theleela.com/prod/content/assets/aio-banner/dekstop/The-Leela-Palace-Bengaluru-hero-image_0.webp', caption: 'The Leela Palace Bengaluru' },
+          { url: 'https://www.theleela.com/prod/content/assets/aio-banner/dekstop/The-Leela-Palace-Bengaluru-port-cochere_0.webp', caption: 'Grand Entrance' },
+          { url: 'https://www.theleela.com/prod/content/assets/2026-01/Royal-Suite-The-Leela-Palace-Bengaluru.webp', caption: 'Royal Suite' },
+          { url: 'https://www.theleela.com/prod/content/assets/styles/tl_full_screen_webp/public/2026-01/Zen-at-the-leela-palace-bengaluru.jpg', caption: 'Zen Restaurant' }
+        ]
+      },
+      'fresh-hotel': {
+        images: [
+          { url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80', caption: 'Rooftop Pool' },
+          { url: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&q=80', caption: 'Modern Design' },
+          { url: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&q=80', caption: 'City Views' }
+        ]
+      },
+      'tuktuk-athens': {
+        images: [
+          { url: 'https://www.civitatis.com/f/grecia/atenas/tour-tuk-tuk-atenas-589x392.jpg', caption: 'TukTuk Athens Tour' },
+          { url: 'https://www.civitatis.com/f/grecia/atenas/galeria/tuk-tuk-atenas.jpg', caption: 'Cruising Through Athens' }
+        ]
+      },
+      'parthenon-tour': {
+        images: [
+          { url: 'https://www.athens-walks.com/wp-content/uploads/2017/11/parthenon2.jpg', caption: 'The Parthenon' },
+          { url: 'https://www.athens-walks.com/wp-content/uploads/2017/12/erechteum.jpg', caption: 'The Erechtheion' },
+          { url: 'https://www.athens-walks.com/wp-content/uploads/2017/11/kariatides4-550x550.jpg', caption: 'Caryatid Statues' },
+          { url: 'https://www.athens-walks.com/wp-content/uploads/2017/11/athena-nike-temple-550x400.jpg', caption: 'Temple of Athena Nike' }
+        ]
+      }
+    };
+
+    const DAYS = [
+      {
+        date: "2026-02-01",
+        dayNum: 1,
+        label: "Sun, Feb 1",
+        location: "CMH",
+        theme: "Departure Day",
+        destination: "travel",
+        events: [
+          {
+            id: "lounge-cmh",
+            time: "15:00",
+            endTime: "16:00",
+            type: "activity",
+            title: "Escape Lounge",
+            subtitle: "Concourse B, Gate 32B",
+            travelers: ["all"],
+            status: "confirmed",
+            where: "CMH Airport",
+            details: "Priority Pass accepted. Fresh food, wifi, quiet space before the journey begins.",
+            badges: ["lounge"]
+          },
+          {
+            id: "f1",
+            time: "16:27",
+            type: "flight",
+            title: "CMH → EWR",
+            subtitle: "United UA3675 • 1h 53m",
+            travelers: ["all"],
+            status: "confirmed",
+            flightCode: "UA3675",
+            airline: "united",
+            from: "CMH",
+            to: "EWR",
+            miles: 462,
+            details: "Arrives Newark ~6:20 PM. Terminal C arrival, need to get to Terminal B for Emirates."
+          },
+          {
+            id: "ge-interview",
+            time: "19:00",
+            type: "activity",
+            title: "Global Entry Interview",
+            subtitle: "Terminal B",
+            travelers: ["seth", "katrina"],
+            status: "confirmed",
+            where: "EWR Terminal B",
+            details: "Enrollment center. Bring passport and confirmation.",
+            badges: ["interview"]
+          },
+          {
+            id: "lounge-ewr",
+            time: "20:00",
+            endTime: "23:00",
+            type: "activity",
+            title: "Terminal B Lounge",
+            subtitle: "Virgin Atlantic Clubhouse or Art & Lounge",
+            travelers: ["all"],
+            status: "confirmed",
+            where: "EWR Terminal B",
+            details: "Relax before the overnight flight. Virgin Atlantic Clubhouse near Gates B51-B57.",
+            badges: ["lounge"]
+          },
+          {
+            id: "f2",
+            time: "23:55",
+            type: "flight",
+            title: "EWR → ATH",
+            subtitle: "Emirates EK210 • 9h 10m",
+            travelers: ["all"],
+            status: "confirmed",
+            flightCode: "EK210",
+            airline: "emirates",
+            from: "EWR",
+            to: "ATH",
+            miles: 4927,
+            details: "Overnight flight. Boeing 777-300ER. Arrives Athens Monday ~4 PM local."
+          }
+        ]
+      },
+      {
+        date: "2026-02-02",
+        dayNum: 2,
+        label: "Mon, Feb 2",
+        location: "ATH",
+        theme: "Athens Arrival",
+        destination: "athens",
+        destinationInfo: "Welcome to Athens! 7 hours ahead of ET. Your body says it's morning, but it's late afternoon here. The Acropolis awaits!",
+        events: [
+          {
+            id: "f2-arrive",
+            time: "16:05",
+            type: "flight",
+            title: "Arrive Athens",
+            subtitle: "Welcome to Greece!",
+            travelers: ["all"],
+            status: "confirmed",
+            from: "EWR",
+            to: "ATH",
+            feelsLike: "9:05 AM ET"
+          },
+          {
+            id: "h1",
+            time: "18:00",
+            type: "hotel",
+            title: "Check into The Fresh Hotel",
+            subtitle: "Design Hotels member",
+            travelers: ["all"],
+            status: "confirmed",
+            where: "Near Omonia Square",
+            address: "26 Sophocleous & Klisthenous Street, Athens 10552",
+            mapsLink: "https://maps.google.com/?q=Fresh+Hotel+Athens",
+            venueLink: "https://freshhotel.gr/",
+            details: "Rooftop pool with Acropolis views! 8-min walk to Monastiraki. 5 nights (checkout Sat 2/7).",
+            feelsLike: "11:00 AM ET",
+            carousel: "fresh-hotel"
+          },
+          {
+            id: "m1",
+            time: "20:00",
+            type: "meal",
+            title: "Welcome Dinner",
+            subtitle: "First taste of Athens",
+            travelers: ["all"],
+            status: "pending",
+            where: "Near hotel - Plaka or Psirri area",
+            walkingSteps: 1500,
+            feelsLike: "1:00 PM ET",
+            details: "Keep it light - jet lag will be real. Maybe mezze and local wine?"
+          }
+        ]
+      },
+      {
+        date: "2026-02-03",
+        dayNum: 3,
+        label: "Tue, Feb 3",
+        location: "ATH",
+        theme: "Ancient Wonders",
+        destination: "athens",
+        estimatedSteps: 15000,
+        events: [
+          {
+            id: "a1",
+            time: "09:00",
+            endTime: "13:00",
+            type: "activity",
+            title: "Acropolis & Museum",
+            subtitle: "The crown jewel of Athens",
+            travelers: ["all"],
+            status: "pending",
+            where: "Acropolis Hill",
+            mapsLink: "https://maps.google.com/?q=Acropolis+Athens",
+            walkingSteps: 8000,
+            details: "Book skip-the-line tickets. Wear comfortable shoes - marble stairs!",
+            feelsLike: "2:00 AM ET (your body thinks it's the middle of the night)"
+          },
+          {
+            id: "m2",
+            time: "13:30",
+            type: "meal",
+            title: "Lunch in Plaka",
+            subtitle: "Rooftop dining with Acropolis views",
+            travelers: ["all"],
+            status: "pending",
+            where: "Plaka neighborhood",
+            walkingSteps: 1500
+          },
+          {
+            id: "a2-tuktuk",
+            time: "15:30",
+            endTime: "18:30",
+            type: "activity",
+            title: "TukTuk Athens Private Tour",
+            subtitle: "City Center & Old Town",
+            travelers: ["all"],
+            status: "confirmed",
+            where: "Athens City Center",
+            mapsLink: "https://maps.google.com/?q=Athens+City+Center",
+            walkingSteps: 2000,
+            details: "Private evening/afternoon complete tour covering City Center and Old Town. A fun way to see Athens!",
+            carousel: "tuktuk-athens"
+          },
+          {
+            id: "m3",
+            time: "20:00",
+            type: "meal",
+            title: "Dinner",
+            subtitle: "Greek taverna",
+            travelers: ["all"],
+            status: "pending"
+          }
+        ]
+      },
+      {
+        date: "2026-02-04",
+        dayNum: 4,
+        label: "Wed, Feb 4",
+        location: "ATH",
+        theme: "Work Day",
+        destination: "athens",
+        estimatedSteps: 8000,
+        events: [
+          {
+            id: "w1",
+            time: "09:00",
+            endTime: "17:00",
+            type: "activity",
+            title: "Work Day",
+            subtitle: "S & P on the clock",
+            travelers: ["guys"],
+            status: "confirmed",
+            details: "Working remotely from Athens. Full day of meetings."
+          },
+          {
+            id: "a3-kf",
+            time: "10:00",
+            endTime: "12:00",
+            type: "activity",
+            title: "Acropolis Museum",
+            subtitle: "World-class collection",
+            travelers: ["girls"],
+            status: "pending",
+            where: "Acropolis Museum",
+            mapsLink: "https://maps.google.com/?q=Acropolis+Museum+Athens",
+            venueLink: "https://theacropolismuseum.gr",
+            walkingSteps: 3000,
+            details: "Indoor option - great if weather is rough. K & F explore while the guys work."
+          },
+          {
+            id: "m4-kf",
+            time: "12:30",
+            type: "meal",
+            title: "Lunch in Koukaki",
+            subtitle: "Neighborhood gem",
+            travelers: ["girls"],
+            status: "pending",
+            where: "Koukaki neighborhood",
+            walkingSteps: 1500
+          },
+          {
+            id: "a4-kf",
+            time: "15:00",
+            endTime: "17:00",
+            type: "activity",
+            title: "Ancient Agora & Temple of Hephaestus",
+            subtitle: "Best-preserved ancient Greek temple",
+            travelers: ["girls"],
+            status: "pending",
+            where: "Ancient Agora",
+            mapsLink: "https://maps.google.com/?q=Ancient+Agora+Athens",
+            walkingSteps: 4000
+          },
+          {
+            id: "m5-work",
+            time: "19:30",
+            type: "meal",
+            title: "Work Dinner",
+            subtitle: "Business dinner",
+            travelers: ["guys"],
+            status: "confirmed",
+            details: "Work dinner for S & P."
+          },
+          {
+            id: "m5-kf",
+            time: "19:30",
+            type: "meal",
+            title: "Girls' Night Dinner",
+            subtitle: "K & F dinner",
+            travelers: ["girls"],
+            status: "pending",
+            details: "K & F enjoy dinner on their own while the guys are at work dinner."
+          },
+          {
+            id: "drinks-wed",
+            time: "21:30",
+            type: "meal",
+            title: "Nightcap at A for Athens",
+            subtitle: "Rooftop cocktails with Acropolis views",
+            travelers: ["all"],
+            status: "confirmed",
+            where: "A for Athens, Miaouli 2",
+            mapsLink: "https://maps.google.com/?q=A+for+Athens+Monastiraki",
+            venueLink: "https://aforathens.com/bar-restaurant/",
+            details: "Everyone reunites after separate dinners. Award-winning cocktails on a stunning rooftop terrace overlooking the Acropolis. 1 min walk from Monastiraki Square.",
+            hoverImage: { url: "https://aforathens.com/wp-content/uploads/2018/10/restaurant-bar-1728x1080.jpg", caption: "A for Athens - Rooftop Bar" }
+          }
+        ]
+      },
+      {
+        date: "2026-02-05",
+        dayNum: 5,
+        label: "Thu, Feb 5",
+        location: "ATH",
+        theme: "Last Full Day",
+        destination: "athens",
+        estimatedSteps: 8000,
+        events: [
+          {
+            id: "w2",
+            time: "09:00",
+            endTime: "12:00",
+            type: "activity",
+            title: "Work Morning",
+            subtitle: "S & P wrap up work",
+            travelers: ["guys"],
+            status: "confirmed",
+            details: "Morning meetings, then free for the rest of the day."
+          },
+          {
+            id: "a5-kf",
+            time: "10:00",
+            endTime: "12:00",
+            type: "activity",
+            title: "Morning Exploration",
+            subtitle: "K & F free time",
+            travelers: ["girls"],
+            status: "pending",
+            details: "Shopping, cafe hopping, or revisit favorite spots."
+          },
+          {
+            id: "m6",
+            time: "12:00",
+            type: "meal",
+            title: "Group Lunch",
+            subtitle: "Quick bite before tour",
+            travelers: ["all"],
+            status: "pending",
+            details: "Everyone reunites for a leisurely lunch."
+          },
+          {
+            id: "a5-parthenon",
+            time: "13:00",
+            endTime: "16:00",
+            type: "activity",
+            title: "Parthenon Guided Walking Tour",
+            subtitle: "Expert-led exploration",
+            travelers: ["all"],
+            status: "confirmed",
+            where: "Acropolis / Parthenon",
+            mapsLink: "https://maps.google.com/?q=Parthenon+Athens",
+            walkingSteps: 6000,
+            details: "Guided walking tour of the Parthenon and Acropolis. Everyone together for this iconic experience.",
+            carousel: "parthenon-tour"
+          },
+          {
+            id: "m7",
+            time: "20:00",
+            type: "meal",
+            title: "Farewell Dinner",
+            subtitle: "Last night all together",
+            travelers: ["all"],
+            status: "pending",
+            details: "Celebrate the trip before K & F head home tomorrow."
+          }
+        ]
+      },
+      {
+        date: "2026-02-06",
+        dayNum: 6,
+        label: "Fri, Feb 6",
+        location: "ATH",
+        theme: "Trip Splits",
+        destination: "athens",
+        destinationInfo: "Bittersweet day - K & F head home while S & P prepare for India. Last moments together in Athens!",
+        events: [
+          {
+            id: "h1-out-kf",
+            time: "10:00",
+            type: "hotel",
+            title: "K & F Check Out",
+            subtitle: "Fresh Hotel farewell",
+            travelers: ["girls"],
+            status: "confirmed",
+            details: "4 wonderful nights. Head to airport for afternoon flight."
+          },
+          {
+            id: "m7",
+            time: "12:00",
+            type: "meal",
+            title: "Farewell Lunch",
+            subtitle: "Last meal as a group",
+            travelers: ["all"],
+            status: "pending",
+            details: "Make it special - this is the last meal together!"
+          },
+          {
+            id: "f-kf-return",
+            time: "17:35",
+            type: "flight",
+            title: "ATH → EWR",
+            subtitle: "Emirates EK209 • 10h 45m",
+            travelers: ["girls"],
+            status: "confirmed",
+            flightCode: "EK209",
+            airline: "emirates",
+            from: "ATH",
+            to: "EWR",
+            miles: 4940,
+            details: "Arrives Newark 9:20 PM ET same day. Flying west gains time!"
+          },
+          {
+            id: "h-newark",
+            time: "22:00",
+            type: "hotel",
+            title: "Newark Airport Marriott",
+            subtitle: "One night layover",
+            travelers: ["girls"],
+            status: "confirmed",
+            where: "Newark Liberty International Airport",
+            details: "Rest up for morning flight home to CMH.",
+            feelsLike: "4:00 AM Athens time"
+          },
+          {
+            id: "a-sp-evening",
+            time: "19:00",
+            type: "activity",
+            title: "Last Evening in Athens",
+            subtitle: "S & P final night",
+            travelers: ["guys"],
+            status: "confirmed",
+            details: "Enjoy Athens one more night before the India adventure."
+          }
+        ]
+      },
+      {
+        date: "2026-02-07",
+        dayNum: 7,
+        label: "Sat, Feb 7",
+        location: "ATH",
+        theme: "K&F Home / S&P to India",
+        destination: "travel",
+        events: [
+          {
+            id: "f-kf-home",
+            time: "09:16",
+            type: "flight",
+            title: "EWR → CMH",
+            subtitle: "United • 1h 53m",
+            travelers: ["girls"],
+            status: "confirmed",
+            airline: "united",
+            from: "EWR",
+            to: "CMH",
+            miles: 462,
+            details: "K & F arrive home ~11:09 AM. Welcome back!"
+          },
+          {
+            id: "h1-out-sp",
+            time: "11:00",
+            type: "hotel",
+            title: "S & P Check Out",
+            subtitle: "Fresh Hotel farewell",
+            travelers: ["guys"],
+            status: "confirmed",
+            details: "5 nights complete. Store luggage, explore Athens, then evening flight."
+          },
+          {
+            id: "a-sp-day",
+            time: "12:00",
+            type: "activity",
+            title: "Final Athens Day",
+            subtitle: "Free time before flight",
+            travelers: ["guys"],
+            status: "confirmed",
+            details: "Last chance for sights, shopping, or a long Greek lunch."
+          },
+          {
+            id: "f-sp-dxb",
+            time: "18:05",
+            type: "flight",
+            title: "ATH → DXB",
+            subtitle: "Emirates EK210 • 4h 30m",
+            travelers: ["guys"],
+            status: "confirmed",
+            flightCode: "EK210",
+            airline: "emirates",
+            from: "ATH",
+            to: "DXB",
+            miles: 2031,
+            details: "Arrives Dubai 11:35 PM. Short layover then on to Bangalore."
+          },
+          {
+            id: "lounge-dxb-out",
+            time: "23:45",
+            endTime: "03:00",
+            type: "activity",
+            title: "Emirates Business Lounge",
+            subtitle: "Overnight layover luxury",
+            travelers: ["guys"],
+            status: "confirmed",
+            where: "DXB Terminal 3, Concourse A",
+            details: "World's largest business class lounge (172,000 sq ft). Champagne bar, spa, showers, fine dining. Direct gate boarding to EK564.",
+            hoverImage: { url: "https://cdn.onemileatatime.com/wp-content/uploads/2022/07/Emirates-Business-Lounge-Dubai-40.jpeg", caption: "Emirates Business Lounge - Champagne Bar" },
+            badges: ["lounge"]
+          }
+        ]
+      },
+      {
+        date: "2026-02-08",
+        dayNum: 8,
+        label: "Sun, Feb 8",
+        location: "BLR",
+        theme: "Bangalore Arrival",
+        destination: "bangalore",
+        destinationInfo: "Welcome to India! 10.5 hours ahead of ET. Garden city, tech hub, incredible food. The Leela Palace awaits!",
+        events: [
+          {
+            id: "f-sp-blr",
+            time: "03:40",
+            type: "flight",
+            title: "DXB → BLR",
+            subtitle: "Emirates EK564 • 4h 35m",
+            travelers: ["guys"],
+            status: "confirmed",
+            flightCode: "EK564",
+            airline: "emirates",
+            from: "DXB",
+            to: "BLR",
+            miles: 1675,
+            details: "Red-eye connection. Arrives Bangalore 8:15 AM local.",
+            feelsLike: "9:45 PM ET (Sat night)"
+          },
+          {
+            id: "limo-blr",
+            time: "08:30",
+            type: "activity",
+            title: "Emirates Chauffeur-Drive",
+            subtitle: "Complimentary limo to hotel",
+            travelers: ["guys"],
+            status: "confirmed",
+            where: "BLR Airport Arrivals",
+            details: "BMW 5 Series with leather seating. Paul has the reservation confirmation. Driver will meet at arrivals with name sign.",
+            hoverImage: { url: "https://c.ekstatic.net/ecl/airport/chauffeur/emirates-chauffeur-drive-service-business-class-768x480.jpg", caption: "Emirates Chauffeur-Drive Service" },
+            travelTime: 75,
+            travelNote: "🚘 60-90 min to Leela Palace (35 km, Bangalore traffic)"
+          },
+          {
+            id: "h-leela",
+            time: "09:45",
+            type: "hotel",
+            title: "Check into The Leela Palace",
+            subtitle: "Early check-in confirmed",
+            travelers: ["guys"],
+            status: "confirmed",
+            where: "HAL Airport Road, Bangalore",
+            mapsLink: "https://maps.google.com/?q=Leela+Palace+Bangalore",
+            venueLink: "https://www.theleela.com/the-leela-palace-bengaluru",
+            details: "Ranked #1 City Hotel in India. 357 rooms, modeled after Royal Palace of Mysore. Pool, spa, 6 restaurants. 4 nights.",
+            feelsLike: "11:15 PM ET (Sat night)",
+            carousel: "leela-palace"
+          },
+          {
+            id: "a-sp-rest",
+            time: "12:00",
+            type: "activity",
+            title: "Rest & Recover",
+            subtitle: "Catch up on sleep",
+            travelers: ["guys"],
+            status: "confirmed",
+            details: "Long travel day. Pool, spa, room service - ease into India."
+          },
+          {
+            id: "m-sp-dinner",
+            time: "19:30",
+            type: "meal",
+            title: "First Bangalore Dinner",
+            subtitle: "Hotel restaurant or local spot",
+            travelers: ["guys"],
+            status: "pending",
+            details: "Try Jamavar (Indian) or Zen (Pan-Asian) at the hotel, or venture out."
+          }
+        ]
+      },
+      {
+        date: "2026-02-09",
+        dayNum: 9,
+        label: "Mon, Feb 9",
+        location: "BLR",
+        theme: "Work Day",
+        destination: "bangalore",
+        estimatedSteps: 4000,
+        events: [
+          {
+            id: "w-mon",
+            time: "09:00",
+            endTime: "17:00",
+            type: "activity",
+            title: "Work Day",
+            subtitle: "S & P at the office",
+            travelers: ["guys"],
+            status: "confirmed",
+            where: "EY Office, Old Madras Road",
+            mapsLink: "https://maps.google.com/?q=EY+Old+Madras+Road+Bangalore",
+            details: "Full work day in Bangalore.",
+            travelTime: 60,
+            travelNote: "🚗 45-75 min from Leela Palace (rush hour: 2 hrs for 10 km!)",
+            hoverImage: { url: "https://rmz-static.s3.dualstack.ap-south-1.amazonaws.com/01_264d8a9716.webp", caption: "RMZ Infinity - EY Bangalore" }
+          },
+          {
+            id: "m-blr-dinner-mon",
+            time: "19:30",
+            type: "meal",
+            title: "Dinner",
+            subtitle: "Post-work meal",
+            travelers: ["guys"],
+            status: "pending",
+            details: "Explore Bangalore's dining scene."
+          },
+          {
+            id: "w-steerco",
+            time: "22:30",
+            endTime: "23:30",
+            type: "activity",
+            title: "SteerCo Meeting",
+            subtitle: "Seth late call",
+            travelers: ["seth"],
+            status: "confirmed",
+            where: "Hotel or Office",
+            details: "Late night SteerCo - 12 PM ET back home."
+          }
+        ]
+      },
+      {
+        date: "2026-02-10",
+        dayNum: 10,
+        label: "Tue, Feb 10",
+        location: "BLR",
+        theme: "Work Day",
+        destination: "bangalore",
+        estimatedSteps: 4000,
+        events: [
+          {
+            id: "w-tue",
+            time: "09:00",
+            endTime: "17:00",
+            type: "activity",
+            title: "Work Day",
+            subtitle: "S & P at the office",
+            travelers: ["guys"],
+            status: "confirmed",
+            where: "EY Office, Old Madras Road",
+            mapsLink: "https://maps.google.com/?q=EY+Old+Madras+Road+Bangalore",
+            details: "Full work day in Bangalore.",
+            travelTime: 60,
+            travelNote: "🚗 45-75 min from Leela Palace (leave early!)",
+            hoverImage: { url: "https://rmz-static.s3.dualstack.ap-south-1.amazonaws.com/01_264d8a9716.webp", caption: "RMZ Infinity - EY Bangalore" }
+          },
+          {
+            id: "m-happy-hour",
+            time: "17:30",
+            type: "meal",
+            title: "Happy Hour",
+            subtitle: "Near EY Office",
+            travelers: ["guys"],
+            status: "confirmed",
+            where: "Old Madras Road, Bangalore",
+            mapsLink: "https://maps.google.com/?q=Old+Madras+Road+Bangalore",
+            details: "Post-work drinks near the EY Bangalore office. Great way to unwind!",
+            travelTime: 10,
+            travelNote: "🚶 10 min walk from office"
+          },
+          {
+            id: "m-blr-dinner-tue",
+            time: "20:00",
+            type: "meal",
+            title: "Dinner",
+            subtitle: "After happy hour",
+            travelers: ["guys"],
+            status: "pending",
+            details: "Dinner nearby or head back toward the hotel."
+          }
+        ]
+      },
+      {
+        date: "2026-02-11",
+        dayNum: 11,
+        label: "Wed, Feb 11",
+        location: "BLR",
+        theme: "Last Work Day",
+        destination: "bangalore",
+        estimatedSteps: 4000,
+        events: [
+          {
+            id: "w-wed",
+            time: "09:00",
+            endTime: "17:00",
+            type: "activity",
+            title: "Work Day",
+            subtitle: "S & P final day at office",
+            travelers: ["guys"],
+            status: "confirmed",
+            where: "EY Office, Old Madras Road",
+            mapsLink: "https://maps.google.com/?q=EY+Old+Madras+Road+Bangalore",
+            details: "Last work day in Bangalore. Wrap up and say goodbyes to colleagues.",
+            travelTime: 60,
+            travelNote: "🚗 45-75 min from Leela Palace (leave early!)",
+            hoverImage: { url: "https://rmz-static.s3.dualstack.ap-south-1.amazonaws.com/01_264d8a9716.webp", caption: "RMZ Infinity - EY Bangalore" }
+          },
+          {
+            id: "w-program-leads",
+            time: "19:30",
+            endTime: "20:30",
+            type: "activity",
+            title: "Monthly Program Leads Call",
+            subtitle: "Seth from office",
+            travelers: ["seth"],
+            status: "confirmed",
+            where: "Office",
+            details: "Seth's Monthly Program Leads call. Paul heads back to hotel."
+          },
+          {
+            id: "m-closing-dinner",
+            time: "21:00",
+            type: "meal",
+            title: "Closing Dinner",
+            subtitle: "Leela Palace farewell",
+            travelers: ["guys"],
+            status: "confirmed",
+            where: "The Leela Palace Bengaluru",
+            mapsLink: "https://maps.google.com/?q=Leela+Palace+Bangalore",
+            venueLink: "https://www.theleela.com/the-leela-palace-bengaluru",
+            details: "Final celebration at the hotel. Early night after - 4 AM departure!",
+            hoverImage: { url: "https://cdn0.weddingwire.in/vendor/9648/3_2/1280/jpg/jamvar-outdoor_15_39648-161701164798216.jpeg", caption: "Jamvar at The Leela Palace" }
+          },
+          {
+            id: "sleep-note",
+            time: "23:00",
+            type: "activity",
+            title: "Early Night",
+            subtitle: "4 AM departure tomorrow",
+            travelers: ["guys"],
+            status: "confirmed",
+            details: "Set multiple alarms. Leave for airport ~2 AM."
+          }
+        ]
+      },
+      {
+        date: "2026-02-12",
+        dayNum: 12,
+        label: "Thu, Feb 12",
+        location: "BLR",
+        theme: "S & P Return Home",
+        destination: "travel",
+        events: [
+          {
+            id: "h-leela-out",
+            time: "02:00",
+            type: "hotel",
+            title: "Check out Leela Palace",
+            subtitle: "4 wonderful nights",
+            travelers: ["guys"],
+            status: "confirmed",
+            details: "Middle of the night checkout. Long journey home begins.",
+            feelsLike: "3:30 PM ET (Wed)",
+            travelTime: 45,
+            travelNote: "🚗 45 min to airport (light traffic at 2 AM)"
+          },
+          {
+            id: "f-blr-dxb",
+            time: "04:00",
+            type: "flight",
+            title: "BLR → DXB",
+            subtitle: "Emirates EK569 • 3h 30m",
+            travelers: ["guys"],
+            status: "confirmed",
+            flightCode: "EK569",
+            airline: "emirates",
+            from: "BLR",
+            to: "DXB",
+            miles: 1675,
+            details: "Arrives Dubai 7:10 AM. Quick connection to Chicago.",
+            feelsLike: "5:30 PM ET (Wed)"
+          },
+          {
+            id: "lounge-dxb-return",
+            time: "07:30",
+            endTime: "09:15",
+            type: "activity",
+            title: "Emirates Business Lounge",
+            subtitle: "Morning refresh before long haul",
+            travelers: ["guys"],
+            status: "confirmed",
+            where: "DXB Terminal 3, Concourse A",
+            details: "Grab breakfast, freshen up with a shower, enjoy the Timeless Spa before the 15-hour flight to Chicago.",
+            hoverImage: { url: "https://cdn.onemileatatime.com/wp-content/uploads/2022/07/Emirates-Business-Lounge-Dubai-55.jpeg", caption: "Emirates Business Lounge - Dining" },
+            badges: ["lounge"]
+          },
+          {
+            id: "f-dxb-ord",
+            time: "09:45",
+            type: "flight",
+            title: "DXB → ORD",
+            subtitle: "Emirates EK235 • 14h 50m",
+            travelers: ["guys"],
+            status: "confirmed",
+            flightCode: "EK235",
+            airline: "emirates",
+            from: "DXB",
+            to: "ORD",
+            miles: 7228,
+            details: "Long haul to Chicago. Arrives 3:45 PM CT.",
+            feelsLike: "12:45 AM ET (Thu)"
+          },
+          {
+            id: "lounge-ord",
+            time: "16:30",
+            endTime: "19:00",
+            type: "activity",
+            title: "Air France-KLM Lounge",
+            subtitle: "Priority Pass via Chase Sapphire Reserve",
+            travelers: ["guys"],
+            status: "confirmed",
+            where: "ORD Terminal 5, near Gate M17",
+            details: "Relax before the final leg home. Complimentary food, drinks, and Wi-Fi. Open 5 PM-8 PM for Priority Pass. French-style hospitality.",
+            hoverImage: { url: "https://thertwguys.com/wp-content/uploads/2019/06/chicago-air-france-klm-lounge-seating-1-1600x900.jpg", caption: "Air France-KLM Lounge ORD" },
+            badges: ["lounge"]
+          },
+          {
+            id: "f-ord-cmh",
+            time: "19:35",
+            type: "flight",
+            title: "ORD → CMH",
+            subtitle: "United (EK6236 codeshare) • 1h 27m",
+            travelers: ["guys"],
+            status: "confirmed",
+            flightCode: "EK6236",
+            airline: "united",
+            from: "ORD",
+            to: "CMH",
+            miles: 297,
+            details: "Final leg! Arrives Columbus 10:07 PM. Welcome home!"
+          }
+        ]
+      }
+    ];
+
+    // ========================================
+    // STATE
+    // ========================================
+
+    let currentTraveler = 'all';
+    let currentView = 'journey';
+    let currentDayIndex = 0;
+    let currentPhase = 'together';
+
+    // Phase definitions - which days belong to which phase
+    const PHASES = {
+      together: {
+        name: 'Together',
+        days: [0, 1, 2, 3, 4, 5], // Day indices for Feb 1-6
+        travelers: ['all', 'seth', 'katrina', 'paul', 'sheri']
+      },
+      india: {
+        name: 'S&P India',
+        days: [5, 6, 7, 8, 9, 10, 11], // Day indices for Feb 6-12 (overlap on split day)
+        travelers: ['all', 'seth', 'paul']
+      }
+    };
+
+    // ========================================
+    // UTILITIES
+    // ========================================
+
+    function isForTraveler(travelers, travelerId) {
+      if (travelerId === 'all') return true;
+      if (travelers.includes('all')) return true;
+      if (travelers.includes(travelerId)) return true;
+      const traveler = TRAVELERS.find(t => t.id === travelerId);
+      if (traveler && travelers.includes(traveler.group)) return true;
+      return false;
+    }
+
+    function getGroupBadgeClass(travelers) {
+      if (travelers.includes('all')) return 'group';
+      if (travelers.includes('guys') || travelers.every(t => ['seth', 'paul'].includes(t))) return 'group guys';
+      if (travelers.includes('girls') || travelers.every(t => ['katrina', 'sheri'].includes(t))) return 'group girls';
+      return 'group';
+    }
+
+    function getGroupLabel(travelers) {
+      if (travelers.includes('all')) return 'Everyone';
+      if (travelers.includes('guys')) return 'Seth & Paul';
+      if (travelers.includes('girls')) return 'Katrina & Sheri';
+      return travelers.map(t => TRAVELERS.find(tr => tr.id === t)?.name || t).join(', ');
+    }
+
+    function renderTravelerPills(travelers, compact = false) {
+      // Uses shared TRAVELER_ORDER and TRAVELER_INITIALS constants
+      const html = TRAVELER_ORDER.map(id => {
+        const traveler = TRAVELERS.find(t => t.id === id);
+        const isActive = travelers.includes('all') ||
+                         travelers.includes(id) ||
+                         travelers.includes(traveler.group);
+        return `<span class="traveler-pill ${isActive ? 'active ' + id : 'inactive'}">${TRAVELER_INITIALS[id]}</span>`;
+      }).join('');
+      return compact ? html : `<div class="traveler-pills">${html}</div>`;
+    }
+
+    function formatTime(time) {
+      const [h, m] = time.split(':');
+      const hour = parseInt(h);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      return `${hour12}:${m} ${ampm}`;
+    }
+
+    function calculateTotalMiles(travelerId) {
+      let total = 0;
+      DAYS.forEach(day => {
+        day.events.forEach(e => {
+          if (e.miles && isForTraveler(e.travelers, travelerId)) {
+            total += e.miles;
+          }
+        });
+      });
+      return total;
+    }
+
+    function calculateFlightCount(travelerId) {
+      let count = 0;
+      DAYS.forEach(day => {
+        day.events.forEach(e => {
+          if (e.type === 'flight' && e.from && isForTraveler(e.travelers, travelerId)) {
+            count++;
+          }
+        });
+      });
+      return count;
+    }
+
+    function calculateTotalSteps(travelerId) {
+      let total = 0;
+      DAYS.forEach(day => {
+        if (day.estimatedSteps && currentTraveler === 'all') {
+          total += day.estimatedSteps;
+        }
+        day.events.forEach(e => {
+          if (e.walkingSteps && isForTraveler(e.travelers, travelerId)) {
+            total += e.walkingSteps;
+          }
+        });
+      });
+      return total;
+    }
+
+    // ========================================
+    // RENDER FUNCTIONS
+    // ========================================
+
+    function calculateGroundTravelTime(travelerFilter) {
+      return DAYS.flatMap(d => d.events)
+        .filter(e => isForTraveler(e.travelers, travelerFilter))
+        .filter(e => e.travelTime)
+        .reduce((sum, e) => sum + e.travelTime, 0);
+    }
+
+    function renderStats() {
+      const miles = calculateTotalMiles(currentTraveler);
+      const flights = calculateFlightCount(currentTraveler);
+      const steps = calculateTotalSteps(currentTraveler);
+      const groundTravel = calculateGroundTravelTime(currentTraveler);
+
+      // Summary stats
+      document.getElementById('statsSummary').innerHTML = `
+        <div class="stat-mini">
+          <span class="material-symbols-outlined">flight</span>
+          <strong>${flights}</strong> flights
+        </div>
+        <div class="stat-mini">
+          <span class="material-symbols-outlined">route</span>
+          <strong>${miles.toLocaleString()}</strong> miles
+        </div>
+        <div class="stat-mini">
+          <span class="material-symbols-outlined">directions_walk</span>
+          <strong>~${Math.round(steps/1000)}k</strong> steps
+        </div>
+        <div class="stat-mini">
+          <span class="material-symbols-outlined">public</span>
+          <strong>3</strong> countries
+        </div>
+        ${groundTravel > 0 ? `
+        <div class="stat-mini">
+          <span class="material-symbols-outlined">directions_car</span>
+          <strong>${Math.round(groundTravel / 60 * 10) / 10}h</strong> ground
+        </div>
+        ` : ''}
+      `;
+
+      // Detailed stats
+      const earthCircumference = 24901;
+      const earthsCircled = (miles / earthCircumference).toFixed(2);
+
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-card-label">Total Distance</div>
+          <div class="stat-card-value">${miles.toLocaleString()} mi</div>
+          <div class="stat-card-sub">${earthsCircled}x around Earth</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Flight Time</div>
+          <div class="stat-card-value">~${Math.round(miles/500)}h</div>
+          <div class="stat-card-sub">Time in the air</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Time Zones</div>
+          <div class="stat-card-value">3</div>
+          <div class="stat-card-sub">ET → Athens (+7) → India (+10.5)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Walking</div>
+          <div class="stat-card-value">~${Math.round(steps/1000)}k steps</div>
+          <div class="stat-card-sub">≈ ${Math.round(steps * 0.0005)} miles on foot</div>
+        </div>
+        ${groundTravel > 0 ? `
+        <div class="stat-card">
+          <div class="stat-card-label">Ground Travel</div>
+          <div class="stat-card-value">${Math.floor(groundTravel / 60)}h ${groundTravel % 60}m</div>
+          <div class="stat-card-sub">🚗 Bangalore commutes & transfers</div>
+        </div>
+        ` : ''}
+      `;
+
+      // Per-traveler stats
+      document.getElementById('travelerStats').innerHTML = TRAVELERS.map(t => {
+        const tMiles = calculateTotalMiles(t.id);
+        const tFlights = calculateFlightCount(t.id);
+        return `
+          <div class="traveler-stat">
+            <div class="traveler-avatar" style="background: ${t.color}">${t.initials}</div>
+            <div class="traveler-stat-info">
+              <div class="traveler-stat-name">${t.name}</div>
+              <div class="traveler-stat-detail">${tFlights} flights • ${tMiles.toLocaleString()} mi</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderPhaseTabs() {
+      const tabs = document.getElementById('phaseTabs');
+      const phase = PHASES[currentPhase];
+
+      // Check if current traveler can see India phase
+      const canSeeIndia = currentTraveler === 'all' || currentTraveler === 'seth' || currentTraveler === 'paul';
+
+      tabs.querySelectorAll('.phase-tab').forEach(tab => {
+        const tabPhase = tab.dataset.phase;
+        tab.classList.toggle('active', tabPhase === currentPhase);
+
+        // Disable India tab for K & F
+        if (tabPhase === 'india') {
+          tab.classList.toggle('disabled', !canSeeIndia);
+        }
+      });
+    }
+
+    function renderDayList() {
+      const list = document.getElementById('dayList');
+      const phase = PHASES[currentPhase];
+
+      list.innerHTML = phase.days.map(i => {
+        const day = DAYS[i];
+        if (!day) return '';
+
+        const eventsForMe = day.events.filter(e => isForTraveler(e.travelers, currentTraveler));
+        const hasEventsForMe = eventsForMe.length > 0;
+        const dest = DESTINATIONS[day.location] || { city: day.location };
+
+        // For India phase, skip days where current traveler has no events
+        if (currentPhase === 'india' && currentTraveler !== 'all' && !hasEventsForMe) return '';
+
+        // Build traveler pills for this day
+        const dayTravelers = [...new Set(day.events.flatMap(e => e.travelers))];
+        const pillsHtml = renderTravelerPillsCompact(dayTravelers);
+
+        return `
+          <div class="day-item ${i === currentDayIndex ? 'active' : ''} ${!hasEventsForMe && currentTraveler !== 'all' ? 'not-mine' : ''}" data-day="${i}">
+            <div class="day-item-header">
+              <span class="day-item-date">${day.label.split(',')[0]}</span>
+              <span class="day-item-num">Day ${day.dayNum}</span>
+            </div>
+            <div class="day-item-title">${day.theme}</div>
+            <div class="day-item-location">
+              <span class="material-symbols-outlined">location_on</span>
+              ${dest.city || day.location}
+            </div>
+            <div class="day-item-pills">${pillsHtml}</div>
+          </div>
+        `;
+      }).join('');
+
+      // Add click handlers
+      list.querySelectorAll('.day-item').forEach(item => {
+        item.addEventListener('click', () => {
+          currentDayIndex = parseInt(item.dataset.day);
+          renderDayList();
+          renderDayDetail();
+          updateTimezone();
+        });
+      });
+    }
+
+    // Compact version just calls the main function with compact=true
+    function renderTravelerPillsCompact(travelers) {
+      return renderTravelerPills(travelers, true);
+    }
+
+    function renderCarousel(carouselId) {
+      const carousel = CAROUSELS[carouselId];
+      if (!carousel) return '';
+
+      const slidesHtml = carousel.images.map((img, i) =>
+        `<img class="carousel-slide" src="${img.url}" alt="${img.caption}" loading="lazy">`
+      ).join('');
+
+      const dotsHtml = carousel.images.map((_, i) =>
+        `<button class="carousel-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></button>`
+      ).join('');
+
+      return `
+        <div class="image-carousel" data-carousel="${carouselId}">
+          <div class="carousel-slides">${slidesHtml}</div>
+          <button class="carousel-btn prev" onclick="moveCarousel('${carouselId}', -1)">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+          <button class="carousel-btn next" onclick="moveCarousel('${carouselId}', 1)">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+          <div class="carousel-nav">${dotsHtml}</div>
+        </div>
+      `;
+    }
+
+    // Carousel state
+    const carouselPositions = {};
+
+    function moveCarousel(carouselId, direction) {
+      const carousel = CAROUSELS[carouselId];
+      if (!carousel) return;
+
+      const current = carouselPositions[carouselId] || 0;
+      const total = carousel.images.length;
+      const next = (current + direction + total) % total;
+
+      carouselPositions[carouselId] = next;
+
+      const el = document.querySelector(`[data-carousel="${carouselId}"]`);
+      if (el) {
+        el.querySelector('.carousel-slides').style.transform = `translateX(-${next * 100}%)`;
+        el.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+          dot.classList.toggle('active', i === next);
+        });
+      }
+    }
+
+    // Dot click handler
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('carousel-dot')) {
+        const carousel = e.target.closest('.image-carousel');
+        const carouselId = carousel?.dataset.carousel;
+        const index = parseInt(e.target.dataset.index);
+        if (carouselId && !isNaN(index)) {
+          carouselPositions[carouselId] = index;
+          carousel.querySelector('.carousel-slides').style.transform = `translateX(-${index * 100}%)`;
+          carousel.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+          });
+        }
+      }
+    });
+
+    // Touch swipe support for carousels
+    let touchStartX = 0;
+    let touchEndX = 0;
+    document.addEventListener('touchstart', (e) => {
+      if (e.target.closest('.image-carousel')) {
+        touchStartX = e.changedTouches[0].screenX;
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      const carousel = e.target.closest('.image-carousel');
+      if (carousel) {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 50) { // Minimum swipe distance
+          const carouselId = carousel.dataset.carousel;
+          moveCarousel(carouselId, diff > 0 ? 1 : -1);
+        }
+      }
+    }, { passive: true });
+
+    function renderDayDetail() {
+      const day = DAYS[currentDayIndex];
+      const dest = DESTINATIONS[day.location];
+      const eventsForMe = day.events.filter(e => isForTraveler(e.travelers, currentTraveler));
+      const otherEvents = currentTraveler !== 'all'
+        ? day.events.filter(e => !isForTraveler(e.travelers, currentTraveler))
+        : [];
+
+      let destinationCard = '';
+      if (dest && dest.info && day.destination !== 'travel') {
+        const cardClass = day.location === 'ATH' ? 'athens' : day.location === 'BLR' ? 'bangalore' : '';
+        destinationCard = `
+          <div class="destination-card ${cardClass}">
+            <div class="destination-name">${dest.city}, ${dest.country}</div>
+            <div class="destination-info">${day.destinationInfo || dest.info}</div>
+            ${dest.localTip ? `<div class="destination-info" style="margin-top:8px;font-style:italic">"${dest.localTip}"</div>` : ''}
+            <div class="destination-meta">
+              <span><span class="material-symbols-outlined">schedule</span> UTC${dest.utcOffset >= 0 ? '+' : ''}${dest.utcOffset}</span>
+              <span><span class="material-symbols-outlined">home</span> ${dest.utcOffset - (-5) >= 0 ? '+' : ''}${dest.utcOffset - (-5)}h from ET</span>
+            </div>
+          </div>
+        `;
+      } else if (day.destination === 'travel') {
+        destinationCard = `
+          <div class="destination-card travel">
+            <div class="destination-name">Travel Day</div>
+            <div class="destination-info">${day.theme}</div>
+          </div>
+        `;
+      }
+
+      const detail = document.getElementById('dayDetail');
+
+      // Set background class based on destination
+      detail.className = 'day-detail';
+      if (day.destination === 'athens') detail.classList.add('athens-bg');
+      else if (day.destination === 'bangalore') detail.classList.add('bangalore-bg');
+      else if (day.destination === 'travel') detail.classList.add('travel-bg');
+
+      detail.innerHTML = `
+        <div class="day-header">
+          <div class="day-header-main">
+            <div class="day-header-date">${day.label} • Day ${day.dayNum}</div>
+            <h2 class="day-header-title">${day.theme}</h2>
+            <div class="day-header-subtitle">${eventsForMe.length} ${currentTraveler === 'all' ? '' : 'of ' + day.events.length + ' '}events${day.estimatedSteps ? ' • ~' + day.estimatedSteps.toLocaleString() + ' steps' : ''}</div>
+          </div>
+          <div class="day-meta-cards">
+            ${dest && dest.utcOffset !== undefined ? `
+              <div class="day-meta-card">
+                <span class="material-symbols-outlined">schedule</span>
+                <div>
+                  <strong>Local Time</strong>
+                  <div class="sub">${dest.utcOffset - (-5)}h ahead of ET</div>
+                </div>
+              </div>
+            ` : ''}
+            ${day.estimatedSteps ? `
+              <div class="day-meta-card">
+                <span class="material-symbols-outlined">directions_walk</span>
+                <div>
+                  <strong>~${(day.estimatedSteps/1000).toFixed(0)}k steps</strong>
+                  <div class="sub">≈${(day.estimatedSteps * 0.0005).toFixed(1)} miles</div>
+                </div>
+              </div>
+            ` : ''}
+            <div class="day-meta-card weather-meta" id="weatherContainer">
+              <!-- Weather loaded via JS -->
+            </div>
+          </div>
+        </div>
+
+        ${destinationCard}
+
+        <div class="events-list">
+          ${eventsForMe.map(e => renderEventCard(e, false)).join('')}
+          ${otherEvents.length > 0 ? `
+            <div style="color: var(--color-text-muted); font-size: 0.85rem; margin: 16px 0 8px; font-weight: 500;">
+              Also happening (not in your itinerary):
+            </div>
+            ${otherEvents.map(e => renderEventCard(e, true)).join('')}
+          ` : ''}
+        </div>
+
+        ${renderDayNavigation()}
+      `;
+
+      // Fetch weather for current location
+      renderWeatherWidget(day.location);
+    }
+
+    function renderDayNavigation() {
+      const phaseDays = PHASES[currentPhase].days;
+      const currentPosInPhase = phaseDays.indexOf(currentDayIndex);
+      const isFirstDay = currentPosInPhase === 0;
+      const isLastDay = currentPosInPhase === phaseDays.length - 1;
+
+      // Don't show navigation on the very last day of the phase
+      if (isFirstDay && isLastDay) return '';
+
+      const prevDayIndex = isFirstDay ? null : phaseDays[currentPosInPhase - 1];
+      const nextDayIndex = isLastDay ? null : phaseDays[currentPosInPhase + 1];
+      const prevDay = prevDayIndex !== null ? DAYS[prevDayIndex] : null;
+      const nextDay = nextDayIndex !== null ? DAYS[nextDayIndex] : null;
+
+      return `
+        <div class="day-navigation">
+          ${prevDay ? `
+            <button class="day-nav-btn prev" onclick="goToDay(${prevDayIndex})">
+              <span class="material-symbols-outlined">arrow_back</span>
+              ${prevDay.label}
+            </button>
+          ` : '<div class="day-nav-placeholder"></div>'}
+          ${nextDay ? `
+            <button class="day-nav-btn next" onclick="goToDay(${nextDayIndex})">
+              ${nextDay.label}
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          ` : '<div class="day-nav-placeholder"></div>'}
+        </div>
+      `;
+    }
+
+    function goToDay(dayIndex) {
+      currentDayIndex = dayIndex;
+      renderDayList();
+      renderDayDetail();
+      // Scroll to top of day detail
+      document.getElementById('dayDetail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function goToToday() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Find the day that matches today's date
+      let targetIndex = -1;
+      for (let i = 0; i < DAYS.length; i++) {
+        const dayDate = new Date(DAYS[i].date + 'T00:00:00');
+        if (dayDate.getTime() === today.getTime()) {
+          targetIndex = i;
+          break;
+        }
+      }
+
+      if (targetIndex === -1) return; // Today not in trip
+
+      // Switch to correct phase if needed
+      const targetDay = DAYS[targetIndex];
+      if (PHASES.together.days.includes(targetIndex)) {
+        currentPhase = 'together';
+      } else if (PHASES.india.days.includes(targetIndex)) {
+        currentPhase = 'india';
+      }
+
+      // Update phase tabs
+      document.querySelectorAll('.phase-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.phase === currentPhase);
+      });
+
+      goToDay(targetIndex);
+    }
+
+    function updateTodayButton() {
+      const todayBtn = document.getElementById('todayBtn');
+      if (!todayBtn) return;
+
+      const now = new Date();
+      const tripStart = new Date(DAYS[0].date + 'T00:00:00');
+      const tripEnd = new Date(DAYS[DAYS.length - 1].date + 'T23:59:59');
+
+      // Show button only if trip is in progress
+      const tripStarted = now >= tripStart;
+      const tripEnded = now > tripEnd;
+
+      if (tripStarted && !tripEnded) {
+        todayBtn.classList.add('visible');
+      } else {
+        todayBtn.classList.remove('visible');
+      }
+    }
+
+    function renderEventCard(e, notMine) {
+      const iconMap = {
+        flight: 'flight',
+        activity: 'hiking',
+        meal: 'restaurant',
+        hotel: 'hotel'
+      };
+
+      // Special class for Fresh Hotel
+      const isFreshHotel = e.type === 'hotel' && (e.title?.includes('Fresh Hotel') || e.subtitle?.includes('Fresh Hotel'));
+
+      return `
+        <div class="event-card ${e.type} ${notMine ? 'not-mine' : ''} ${isFreshHotel ? 'fresh-hotel' : ''}">
+          <div class="event-main">
+            <div class="event-header">
+              <div class="event-icon ${e.type}">
+                <span class="material-symbols-outlined">${iconMap[e.type] || 'event'}</span>
+              </div>
+              <div class="event-content">
+                <div class="event-time">
+                  ${formatTime(e.time)}${e.endTime ? ' - ' + formatTime(e.endTime) : ''}
+                  ${e.feelsLike ? `<span class="event-time-feels">feels like ${e.feelsLike}</span>` : ''}
+                </div>
+                <div class="event-title">${e.title}</div>
+                <div class="event-subtitle">${e.subtitle || ''}</div>
+                <div class="event-badges">
+                  ${renderTravelerPills(e.travelers)}
+                  ${e.airline === 'united' ? '<span class="event-badge airline-united">United</span>' : ''}
+                  ${e.airline === 'emirates' ? '<span class="event-badge airline-emirates">Emirates</span>' : ''}
+                  ${e.badges?.includes('lounge') ? '<span class="event-badge lounge">Lounge</span>' : ''}
+                  ${e.badges?.includes('interview') ? '<span class="event-badge interview">Global Entry</span>' : ''}
+                  ${e.status === 'confirmed' ? '<span class="event-badge status-confirmed">Confirmed</span>' : ''}
+                  ${e.status === 'pending' ? '<span class="event-badge status-pending">Pending</span>' : ''}
+                  ${e.alerts?.includes('needs-booking') ? '<span class="event-badge alert">Needs Booking</span>' : ''}
+                  ${e.miles ? `<span class="event-badge" style="background:#e3f2fd;color:#1565c0">${e.miles.toLocaleString()} mi</span>` : ''}
+                  ${e.walkingSteps ? `<span class="event-badge" style="background:#e8f5e9;color:#2e7d32">${(e.walkingSteps/1000).toFixed(1)}k steps</span>` : ''}
+                </div>
+              </div>
+              <button class="event-share-btn" onclick="openShareModal('${e.id}')" title="Create post">
+                <span class="material-symbols-outlined">share</span>
+              </button>
+            </div>
+          </div>
+          ${e.details ? `<div class="event-details"><p>${e.details}</p></div>` : ''}
+          ${e.travelNote ? `<div class="event-travel-note">${e.travelNote}</div>` : ''}
+          ${e.carousel ? renderCarousel(e.carousel) : ''}
+          ${e.mapsLink || e.where || e.venueLink || e.hoverImage ? `
+            <div class="event-links">
+              ${e.mapsLink ? `<a href="${e.mapsLink}" target="_blank" class="event-link"><span class="material-symbols-outlined">map</span>Maps</a>` : ''}
+              ${e.venueLink ? `<a href="${e.venueLink}" target="_blank" class="event-link"><span class="material-symbols-outlined">language</span>Website</a>` : ''}
+              ${e.where ? `<span class="event-link" style="cursor:default"><span class="material-symbols-outlined">location_on</span>${e.where}</span>` : ''}
+              ${e.hoverImage ? `
+                <span class="event-hover-image">
+                  <span class="material-symbols-outlined">image</span>
+                  Preview
+                  <span class="hover-preview">
+                    <img src="${e.hoverImage.url}" alt="${e.hoverImage.caption || ''}" loading="lazy">
+                    ${e.hoverImage.caption ? `<span class="hover-caption">${e.hoverImage.caption}</span>` : ''}
+                  </span>
+                </span>
+              ` : ''}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function renderListView() {
+      const listDays = document.getElementById('listDays');
+      listDays.innerHTML = DAYS.map((day, i) => {
+        const eventsForMe = day.events.filter(e => isForTraveler(e.travelers, currentTraveler));
+        if (currentTraveler !== 'all' && eventsForMe.length === 0) return '';
+
+        const dest = DESTINATIONS[day.location];
+        const flightCount = eventsForMe.filter(e => e.type === 'flight').length;
+        const activityCount = eventsForMe.filter(e => e.type === 'activity').length;
+        const mealCount = eventsForMe.filter(e => e.type === 'meal').length;
+
+        return `
+          <div class="list-day" data-day="${i}">
+            <div class="list-day-header" onclick="toggleListDay(${i})">
+              <span class="list-day-badge">Day ${day.dayNum}</span>
+              <span class="list-day-title">${day.theme}</span>
+              <span class="list-day-summary">
+                ${flightCount ? `<span class="material-symbols-outlined">flight</span>${flightCount}` : ''}
+                ${activityCount ? `<span class="material-symbols-outlined">hiking</span>${activityCount}` : ''}
+                ${mealCount ? `<span class="material-symbols-outlined">restaurant</span>${mealCount}` : ''}
+              </span>
+              <span class="list-day-weather" data-location="${day.location}"></span>
+              <span class="list-day-location">
+                <span class="material-symbols-outlined">location_on</span>
+                ${dest?.city || day.location}
+              </span>
+              <span class="material-symbols-outlined list-day-toggle">expand_more</span>
+            </div>
+            <div class="list-day-content">
+              <div class="list-day-events">
+                ${eventsForMe.map(e => renderEventCard(e, false)).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Fetch weather for list view
+      updateListViewWeather();
+    }
+
+    function toggleListDay(dayIndex) {
+      const dayEl = document.querySelector(`.list-day[data-day="${dayIndex}"]`);
+      if (dayEl) {
+        dayEl.classList.toggle('expanded');
+      }
+    }
+
+    function expandAllDays() {
+      document.querySelectorAll('.list-day').forEach(el => el.classList.add('expanded'));
+    }
+
+    function collapseAllDays() {
+      document.querySelectorAll('.list-day').forEach(el => el.classList.remove('expanded'));
+    }
+
+    // ========================================
+    // EVENT HANDLERS
+    // ========================================
+
+    function toggleStats() {
+      document.getElementById('statsBanner').classList.toggle('expanded');
+    }
+
+    // Phase tab switching
+    document.getElementById('phaseTabs').addEventListener('click', (e) => {
+      const tab = e.target.closest('.phase-tab');
+      if (!tab || tab.classList.contains('disabled')) return;
+
+      currentPhase = tab.dataset.phase;
+
+      // Set current day to first day of this phase
+      const phaseDays = PHASES[currentPhase].days;
+      if (!phaseDays.includes(currentDayIndex)) {
+        currentDayIndex = phaseDays[0];
+      }
+
+      renderPhaseTabs();
+      renderDayList();
+      renderDayDetail();
+      updateTimezone();
+    });
+
+    document.getElementById('travelerToggle').addEventListener('click', (e) => {
+      const btn = e.target.closest('.traveler-btn');
+      if (!btn) return;
+
+      document.querySelectorAll('.traveler-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      currentTraveler = btn.dataset.traveler;
+
+      // If K or F selected and on India phase, switch to Together
+      const canSeeIndia = currentTraveler === 'all' || currentTraveler === 'seth' || currentTraveler === 'paul';
+      if (!canSeeIndia && currentPhase === 'india') {
+        currentPhase = 'together';
+        currentDayIndex = 0;
+      }
+
+      renderStats();
+      renderPhaseTabs();
+      renderDayList();
+      renderDayDetail();
+      renderListView();
+    });
+
+    document.getElementById('viewToggle').addEventListener('click', (e) => {
+      const btn = e.target.closest('.view-btn');
+      if (!btn) return;
+
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      currentView = btn.dataset.view;
+
+      document.getElementById('journeyView').classList.toggle('hidden', currentView !== 'journey');
+      document.getElementById('listView').classList.toggle('visible', currentView === 'list');
+    });
+
+    // ========================================
+    // INIT
+    // ========================================
+
+    // ========================================
+    // COUNTDOWN TIMER
+    // ========================================
+
+    const TRIP_START = new Date('2026-02-01T16:27:00-05:00'); // Departure time ET
+    const TRIP_END = new Date('2026-02-12T23:59:00-05:00');
+
+    function updateCountdown() {
+      const now = new Date();
+      const widget = document.getElementById('countdownWidget');
+      const label = widget.querySelector('.countdown-label');
+
+      let diff, status;
+
+      if (now < TRIP_START) {
+        diff = TRIP_START - now;
+        label.textContent = 'Departure in';
+        widget.classList.remove('trip-active', 'trip-ended');
+      } else if (now >= TRIP_START && now <= TRIP_END) {
+        diff = TRIP_END - now;
+        label.textContent = '✈️ Trip in progress!';
+        widget.classList.add('trip-active');
+        widget.classList.remove('trip-ended');
+      } else {
+        label.textContent = '🎉 Trip complete!';
+        widget.classList.add('trip-ended');
+        widget.classList.remove('trip-active');
+        document.getElementById('countDays').textContent = '🌟';
+        document.getElementById('countHours').textContent = '';
+        document.getElementById('countMins').textContent = '';
+        document.getElementById('countSecs').textContent = '';
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+      document.getElementById('countDays').textContent = days;
+      document.getElementById('countHours').textContent = hours.toString().padStart(2, '0');
+      document.getElementById('countMins').textContent = mins.toString().padStart(2, '0');
+      document.getElementById('countSecs').textContent = secs.toString().padStart(2, '0');
+    }
+
+    // ========================================
+    // TIMEZONE HELPER
+    // ========================================
+
+    const TZ_INFO = {
+      'ATH': { name: 'Athens', flag: '🇬🇷', offset: 2, tz: 'Europe/Athens' },
+      'BLR': { name: 'Bangalore', flag: '🇮🇳', offset: 5.5, tz: 'Asia/Kolkata' },
+      'CMH': { name: 'Columbus', flag: '🇺🇸', offset: -5, tz: 'America/New_York' },
+      'EWR': { name: 'Newark', flag: '🇺🇸', offset: -5, tz: 'America/New_York' },
+      'DXB': { name: 'Dubai', flag: '🇦🇪', offset: 4, tz: 'Asia/Dubai' }
+    };
+
+    const HOME_OFFSET = -5; // ET
+
+    function updateTimezone() {
+      const day = DAYS[currentDayIndex];
+      if (!day) return;
+
+      const tzInfo = TZ_INFO[day.location];
+      if (!tzInfo) return;
+
+      const now = new Date();
+
+      // Calculate times using timezone
+      const homeTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      const destTime = new Date(now.toLocaleString('en-US', { timeZone: tzInfo.tz }));
+
+      // Format times
+      const formatTime = (d) => d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+      document.getElementById('tzFlag').textContent = tzInfo.flag;
+      document.getElementById('tzDestTime').textContent = formatTime(destTime);
+      document.getElementById('tzDestLabel').textContent = tzInfo.name;
+      document.getElementById('tzHomeTime').textContent = formatTime(homeTime);
+
+      // Calculate offset from home
+      const offsetHours = tzInfo.offset - HOME_OFFSET;
+      const offsetStr = offsetHours >= 0 ? `+${offsetHours}h` : `${offsetHours}h`;
+      document.getElementById('tzOffset').textContent = offsetStr;
+
+      // Generate helpful example
+      const examples = [
+        { destHour: 8, label: 'Breakfast' },
+        { destHour: 12, label: 'Lunch' },
+        { destHour: 14, label: '2 PM there' },
+        { destHour: 20, label: 'Dinner' },
+        { destHour: 22, label: 'Evening' }
+      ];
+
+      // Pick example based on current hour at destination
+      const destHour = destTime.getHours();
+      let example;
+      if (destHour < 10) example = examples[0];
+      else if (destHour < 14) example = examples[1];
+      else if (destHour < 18) example = examples[2];
+      else if (destHour < 21) example = examples[3];
+      else example = examples[4];
+
+      // Calculate home equivalent
+      let homeEquiv = example.destHour - offsetHours;
+      const homeAmPm = homeEquiv >= 12 ? 'PM' : 'AM';
+      if (homeEquiv > 12) homeEquiv -= 12;
+      if (homeEquiv <= 0) homeEquiv += 12;
+      const destAmPm = example.destHour >= 12 ? 'PM' : 'AM';
+      const destDisplay = example.destHour > 12 ? example.destHour - 12 : example.destHour;
+
+      document.getElementById('tzHelperText').textContent =
+        `${example.label} at ${destDisplay} ${destAmPm} = ${Math.floor(homeEquiv)} ${homeAmPm} back home`;
+    }
+
+    // ========================================
+    // WEATHER WIDGET
+    // ========================================
+
+    const WEATHER_COORDS = {
+      'ATH': { lat: 37.9838, lon: 23.7275, name: 'Athens' },
+      'BLR': { lat: 12.9716, lon: 77.5946, name: 'Bangalore' },
+      'CMH': { lat: 39.9612, lon: -82.9988, name: 'Columbus' },
+      'EWR': { lat: 40.6895, lon: -74.1745, name: 'Newark' },
+      'DXB': { lat: 25.2048, lon: 55.2708, name: 'Dubai' }
+    };
+
+    const WEATHER_ICONS = {
+      0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
+      45: '🌫️', 48: '🌫️',
+      51: '🌦️', 53: '🌦️', 55: '🌧️',
+      61: '🌧️', 63: '🌧️', 65: '🌧️',
+      71: '🌨️', 73: '🌨️', 75: '❄️',
+      80: '🌦️', 81: '🌧️', 82: '⛈️',
+      95: '⛈️', 96: '⛈️', 99: '⛈️'
+    };
+
+    const WEATHER_DESC = {
+      0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
+      45: 'Foggy', 48: 'Foggy',
+      51: 'Light drizzle', 53: 'Drizzle', 55: 'Heavy drizzle',
+      61: 'Light rain', 63: 'Rain', 65: 'Heavy rain',
+      71: 'Light snow', 73: 'Snow', 75: 'Heavy snow',
+      80: 'Light showers', 81: 'Showers', 82: 'Heavy showers',
+      95: 'Thunderstorm', 96: 'Thunderstorm', 99: 'Severe storm'
+    };
+
+    let weatherCache = {};
+
+    async function fetchWeather(locationCode) {
+      const coords = WEATHER_COORDS[locationCode];
+      if (!coords) return null;
+
+      // Check cache (valid for 30 min)
+      const cached = weatherCache[locationCode];
+      if (cached && (Date.now() - cached.time) < 30 * 60 * 1000) {
+        return cached.data;
+      }
+
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,weather_code&temperature_unit=fahrenheit`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        const weather = {
+          temp: Math.round(data.current.temperature_2m),
+          code: data.current.weather_code,
+          location: coords.name
+        };
+
+        weatherCache[locationCode] = { data: weather, time: Date.now() };
+        return weather;
+      } catch (e) {
+        console.log('Weather fetch failed:', e);
+        return null;
+      }
+    }
+
+    function renderWeatherWidget(locationCode) {
+      const container = document.getElementById('weatherContainer');
+      if (!container) return;
+
+      container.innerHTML = '<div class="weather-widget"><span class="weather-icon">🌡️</span><span class="weather-desc">Loading...</span></div>';
+
+      fetchWeather(locationCode).then(weather => {
+        if (weather) {
+          container.innerHTML = `
+            <div class="weather-widget">
+              <span class="weather-icon">${WEATHER_ICONS[weather.code] || '🌡️'}</span>
+              <div class="weather-info">
+                <span class="weather-temp">${weather.temp}°F</span>
+                <span class="weather-desc">${WEATHER_DESC[weather.code] || 'Unknown'}</span>
+              </div>
+            </div>
+          `;
+        } else {
+          container.innerHTML = '';
+        }
+      });
+    }
+
+    async function updateListViewWeather() {
+      // Get unique locations from visible days
+      const weatherElements = document.querySelectorAll('.list-day-weather[data-location]');
+      const locations = [...new Set([...weatherElements].map(el => el.dataset.location))];
+
+      // Fetch weather for each unique location
+      for (const loc of locations) {
+        const weather = await fetchWeather(loc);
+        if (weather) {
+          // Update all elements with this location
+          document.querySelectorAll(`.list-day-weather[data-location="${loc}"]`).forEach(el => {
+            el.innerHTML = `<span class="weather-emoji">${WEATHER_ICONS[weather.code] || '🌡️'}</span>${weather.temp}°`;
+          });
+        }
+      }
+    }
+
+    function init() {
+      renderStats();
+      renderPhaseTabs();
+      renderDayList();
+      renderDayDetail();
+      renderListView();
+
+      // Start countdown
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+
+      // Start timezone clock
+      updateTimezone();
+      setInterval(updateTimezone, 60000); // Update every minute
+
+      // Fetch initial weather
+      const currentDay = DAYS[currentDayIndex];
+      if (currentDay) {
+        renderWeatherWidget(currentDay.location);
+      }
+
+      // Update Today button visibility
+      updateTodayButton();
+      setInterval(updateTodayButton, 60000); // Check every minute
+
+      // Touch device: tap to show/dismiss hover images
+      if ('ontouchstart' in window) {
+        document.addEventListener('click', (e) => {
+          const hoverImg = e.target.closest('.event-hover-image');
+          if (hoverImg) {
+            e.preventDefault();
+            // Toggle active class for this hover image
+            const wasActive = hoverImg.classList.contains('touch-active');
+            // Remove active from all others
+            document.querySelectorAll('.event-hover-image.touch-active').forEach(el => {
+              el.classList.remove('touch-active');
+            });
+            if (!wasActive) {
+              hoverImg.classList.add('touch-active');
+            }
+          } else {
+            // Tap elsewhere dismisses all
+            document.querySelectorAll('.event-hover-image.touch-active').forEach(el => {
+              el.classList.remove('touch-active');
+            });
+          }
+        });
+      }
+    }
+
+    init();
+
+    // ========================================
+    // TRIP PHOTOS
+    // ========================================
+
+    const API_BASE = '/api';
+    let selectedFile = null;
+    let selectedFileData = null;
+
+    async function loadTripPhotos() {
+      const loadingEl = document.getElementById('photosLoading');
+      const emptyEl = document.getElementById('photosEmpty');
+      const gridEl = document.getElementById('photosGrid');
+
+      try {
+        const response = await fetch(`${API_BASE}/photos`);
+        if (!response.ok) throw new Error('Failed to load photos');
+
+        const data = await response.json();
+        loadingEl.style.display = 'none';
+
+        if (data.photos && data.photos.length > 0) {
+          emptyEl.style.display = 'none';
+          gridEl.style.display = 'grid';
+          renderPhotos(data.photos);
+        } else {
+          emptyEl.style.display = 'block';
+          gridEl.style.display = 'none';
+        }
+      } catch (error) {
+        console.log('Photos API not available:', error.message);
+        loadingEl.innerHTML = `
+          <span class="material-symbols-outlined">cloud_off</span>
+          <p>Photo sharing available when hosted on Azure</p>
+          <p style="font-size: 0.8rem;">The static version works offline!</p>
+        `;
+      }
+    }
+
+    function renderPhotos(photos) {
+      const gridEl = document.getElementById('photosGrid');
+      gridEl.innerHTML = photos.map(photo => `
+        <div class="photo-card" onclick="openLightbox('${photo.url}', '${photo.metadata?.caption || ''}', '${photo.metadata?.uploadedBy || ''}')">
+          <img src="${photo.url}" alt="${photo.metadata?.caption || 'Trip photo'}" loading="lazy">
+          <div class="photo-card-overlay">
+            ${photo.metadata?.caption ? `<div class="photo-caption">${photo.metadata.caption}</div>` : ''}
+            <div class="photo-meta">
+              ${photo.metadata?.uploadedBy ? `by ${photo.metadata.uploadedBy} • ` : ''}
+              ${new Date(photo.uploadedAt).toLocaleDateString()}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openUploadModal() {
+      document.getElementById('uploadModal').classList.add('visible');
+      resetUploadForm();
+    }
+
+    function closeUploadModal() {
+      document.getElementById('uploadModal').classList.remove('visible');
+      resetUploadForm();
+    }
+
+    function resetUploadForm() {
+      selectedFile = null;
+      selectedFileData = null;
+      document.getElementById('fileInput').value = '';
+      document.getElementById('uploadPreview').classList.remove('visible');
+      document.getElementById('previewImage').src = '';
+      document.getElementById('photoCaption').value = '';
+      document.getElementById('uploadedBy').value = '';
+      document.getElementById('uploadSubmit').disabled = true;
+      document.getElementById('uploadDropzone').style.display = 'block';
+    }
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be under 10MB');
+        return;
+      }
+
+      selectedFile = file;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        selectedFileData = e.target.result;
+        document.getElementById('previewImage').src = selectedFileData;
+        document.getElementById('uploadPreview').classList.add('visible');
+        document.getElementById('uploadDropzone').style.display = 'none';
+        document.getElementById('uploadSubmit').disabled = false;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Drag and drop
+    const dropzone = document.getElementById('uploadDropzone');
+    if (dropzone) {
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+
+      dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('dragover');
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file) {
+          document.getElementById('fileInput').files = e.dataTransfer.files;
+          handleFileSelect({ target: { files: [file] } });
+        }
+      });
+    }
+
+    async function uploadPhoto() {
+      if (!selectedFile || !selectedFileData) return;
+
+      const submitBtn = document.getElementById('uploadSubmit');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">hourglass_empty</span> Uploading...';
+
+      try {
+        const response = await fetch(`${API_BASE}/photos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileName: selectedFile.name,
+            fileData: selectedFileData,
+            caption: document.getElementById('photoCaption').value,
+            uploadedBy: document.getElementById('uploadedBy').value || 'Anonymous'
+          })
+        });
+
+        if (!response.ok) throw new Error('Upload failed');
+
+        closeUploadModal();
+        loadTripPhotos(); // Refresh the grid
+      } catch (error) {
+        alert('Failed to upload photo. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">upload</span> Upload';
+      }
+    }
+
+    function openLightbox(url, caption, uploadedBy) {
+      document.getElementById('lightboxImage').src = url;
+      document.getElementById('lightboxCaption').innerHTML = `
+        ${caption ? `<strong>${caption}</strong><br>` : ''}
+        ${uploadedBy ? `<span style="opacity: 0.7">by ${uploadedBy}</span>` : ''}
+      `;
+      document.getElementById('photoLightbox').classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      document.getElementById('photoLightbox').classList.remove('visible');
+      document.body.style.overflow = '';
+    }
+
+    // Close lightbox on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeLightbox();
+        closeUploadModal();
+      }
+    });
+
+    // Load photos on page load
+    loadTripPhotos();
+  </script>
+
+  <!-- Share Post Modal -->
+  <div class="share-modal-overlay" id="shareModal">
+    <div class="share-modal">
+      <div class="share-modal-header">
+        <h3><span class="material-symbols-outlined">edit_note</span> Create Trip Post</h3>
+        <button class="share-modal-close" onclick="closeShareModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="share-modal-body">
+        <div class="share-section">
+          <div class="share-section-label">Selected Moments</div>
+          <div class="share-selected-events" id="shareSelectedEvents"></div>
+        </div>
+
+        <div class="share-section share-add-events">
+          <button class="share-add-btn" onclick="toggleEventPicker()">
+            <span class="material-symbols-outlined">add_circle</span>
+            Add more moments to your post
+          </button>
+          <div class="share-event-picker" id="shareEventPicker"></div>
+        </div>
+
+        <div class="share-section">
+          <div class="share-section-label">Your Post</div>
+          <textarea class="share-textarea" id="shareTextarea" oninput="updateCharCount()"></textarea>
+          <div class="share-char-count" id="shareCharCount">0 / 280</div>
+          <button class="share-regenerate" onclick="regeneratePost()">
+            <span class="material-symbols-outlined">refresh</span>
+            Regenerate with different style
+          </button>
+        </div>
+
+        <div class="share-section">
+          <div class="share-section-label">Share To</div>
+          <div class="share-platforms">
+            <button class="share-platform-btn twitter" onclick="shareToTwitter()">
+              <span class="material-symbols-outlined">share</span> Twitter / X
+            </button>
+            <button class="share-platform-btn facebook" onclick="shareToFacebook()">
+              <span class="material-symbols-outlined">share</span> Facebook
+            </button>
+            <button class="share-platform-btn copy" id="copyBtn" onclick="copyToClipboard()">
+              <span class="material-symbols-outlined">content_copy</span> Copy
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How It Works Modal -->
+  <div class="share-modal-overlay" id="hiwModal">
+    <div class="share-modal hiw-modal">
+      <div class="share-modal-header">
+        <h3><span class="material-symbols-outlined">magic_button</span> How It Works</h3>
+        <button class="share-modal-close" onclick="closeHiwModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="hiw-content">
+        <div class="hiw-section">
+          <h4><span class="material-symbols-outlined">auto_awesome</span> Built with Claude</h4>
+          <p>
+            This interactive travel itinerary was generated as a single, self-contained HTML file using
+            <span class="hiw-badge">Claude</span>. No frameworks, no build tools, no server required —
+            just open in any browser and share with your travel group.
+          </p>
+        </div>
+
+        <div class="hiw-section">
+          <h4><span class="material-symbols-outlined">rocket_launch</span> Create Your Own</h4>
+          <p>
+            To generate a custom itinerary for your group, provide Claude with your trip details in a structured format.
+            Copy the prompt template below and replace the sample data with your own trip information.
+          </p>
+        </div>
+
+        <div class="hiw-section">
+          <h4><span class="material-symbols-outlined">code</span> Prompt Template</h4>
+          <div class="hiw-code" id="hiwPromptCode">Create a single-file interactive HTML group travel itinerary with these features:
+- Phase-based navigation for trip segments
+- Traveler filtering with pills (show events per person)
+- Live countdown timer to departure
+- Timezone helper showing local vs home time
+- Weather widgets (live API) for each destination
+- Image carousels for hotels/venues/tours
+- Hover images for offices, restaurants, bars
+- Search for and source real images from venue websites for hotels, restaurants, tours, and landmarks
+- Social post composer (events + trip stats)
+- Travel time estimates with KPI card
+- Collapsible list view with day summaries
+
+TRIP DATA:
+{
+  "title": "Your Trip Title 2026",
+  "dates": "Month Day - Day, Year",
+  "homeTimezone": "America/New_York",
+  "travelers": [
+    { "id": "person1", "name": "Name", "initials": "X", "group": "groupA", "color": "#hex" },
+    { "id": "person2", "name": "Name", "initials": "Y", "group": "groupB", "color": "#hex" }
+  ],
+  "phases": [
+    { "name": "Phase 1", "travelers": ["all"], "days": [1, 2, 3] },
+    { "name": "Phase 2", "travelers": ["person1"], "days": [4, 5] }
+  ],
+  "destinations": {
+    "CODE": { "city": "City", "country": "Country", "utcOffset": 0, "timezone": "Region/City" }
+  },
+  "days": [
+    {
+      "date": "2026-MM-DD",
+      "dayNum": 1,
+      "label": "Day, Mon D",
+      "location": "CODE",
+      "theme": "Day Theme",
+      "estimatedSteps": 10000,
+      "events": [
+        {
+          "time": "HH:MM",
+          "endTime": "HH:MM",
+          "type": "flight|hotel|activity|meal",
+          "title": "Event Title",
+          "subtitle": "Subtitle",
+          "travelers": ["all"] or ["person1", "person2"] or ["groupA"],
+          "status": "confirmed|pending",
+          "details": "Additional details",
+          "where": "Location name",
+          "mapsLink": "https://maps.google.com/?q=...",
+          "venueLink": "https://venue-website.com",
+          "airline": "united|emirates",
+          "flightCode": "UA123",
+          "miles": 500,
+          "feelsLike": "2 PM ET (jet lag context)",
+          "travelTime": 30,
+          "travelNote": "🚗 30 min from X",
+          "carousel": "venue-id",
+          "hoverImage": { "url": "https://...", "caption": "Preview caption" }
+        }
+      ]
+    }
+  ],
+  "carousels": {
+    "venue-id": {
+      "images": [
+        { "url": "https://...", "caption": "Caption" }
+      ]
+    }
+  }
+}
+
+Generate a complete, self-contained HTML file with embedded CSS and JavaScript.
+No external dependencies except Google Fonts.</div>
+          <button class="hiw-copy-btn" onclick="copyHiwPrompt()">
+            <span class="material-symbols-outlined">content_copy</span>
+            Copy Prompt Template
+          </button>
+        </div>
+
+        <div class="hiw-section">
+          <h4><span class="material-symbols-outlined">tips_and_updates</span> Tips</h4>
+          <p>
+            • <strong>Flights:</strong> Include airline, flightCode, miles for stats<br>
+            • <strong>Hotels:</strong> Add carousel images, venueLink, mapsLink<br>
+            • <strong>Ground travel:</strong> Use travelTime (minutes) + travelNote for KPI<br>
+            • <strong>Jet lag:</strong> Set feelsLike for "feels like X PM back home"<br>
+            • <strong>Groups:</strong> Use group IDs (guys/girls, familyA/familyB) for filtering<br>
+            • <strong>Phases:</strong> Split long trips into logical segments (city, region)<br>
+            • <strong>Steps:</strong> Add estimatedSteps per day for walking stats
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========================================
+    // SHARE POST FUNCTIONALITY
+    // ========================================
+
+    let selectedShareEvents = [];
+    let currentPostStyle = 0;
+
+    const POST_STYLES = [
+      { name: 'excited', prefix: '✈️ ', suffix: ' #TravelDreams #Wanderlust' },
+      { name: 'casual', prefix: '🌍 ', suffix: ' #Travel #Adventure' },
+      { name: 'elegant', prefix: '🗺️ ', suffix: ' #ExploringTheWorld' },
+      { name: 'foodie', prefix: '🍽️ ', suffix: ' #FoodieTravel #Yum' }
+    ];
+
+    const LOCATION_EMOJIS = {
+      'ATH': '🇬🇷',
+      'CMH': '🇺🇸',
+      'EWR': '🛫',
+      'DXB': '🇦🇪',
+      'BLR': '🇮🇳'
+    };
+
+    const TYPE_EMOJIS = {
+      'flight': '✈️',
+      'hotel': '🏨',
+      'meal': '🍽️',
+      'activity': '🎯',
+      'lounge': '🍸'
+    };
+
+    function getAllShareableEvents() {
+      const events = [];
+      DAYS.forEach((day, dayIndex) => {
+        day.events.forEach(event => {
+          events.push({
+            ...event,
+            dayLabel: day.label,
+            dayIndex,
+            location: day.location
+          });
+        });
+      });
+      return events;
+    }
+
+    function openShareModal(eventId) {
+      const allEvents = getAllShareableEvents();
+      const event = allEvents.find(e => e.id === eventId);
+      if (event) {
+        selectedShareEvents = [event];
+      }
+      currentPostStyle = 0;
+      renderShareModal();
+      document.getElementById('shareModal').classList.add('active');
+      generatePostContent();
+    }
+
+    function openStatsShareModal() {
+      // Calculate trip stats
+      const totalMiles = DAYS.flatMap(d => d.events)
+        .filter(e => e.miles)
+        .reduce((sum, e) => sum + e.miles, 0);
+
+      const totalSteps = DAYS.reduce((sum, d) => sum + (d.estimatedSteps || 0), 0);
+
+      const countries = [...new Set(DAYS.map(d => DESTINATIONS[d.location]?.country).filter(Boolean))];
+
+      const cities = [...new Set(DAYS.map(d => DESTINATIONS[d.location]?.city).filter(Boolean))];
+
+      const totalDays = DAYS.length;
+
+      const flightCount = DAYS.flatMap(d => d.events).filter(e => e.type === 'flight').length;
+
+      // Calculate countdown
+      const now = new Date();
+      let countdownText = '';
+      if (now < TRIP_START) {
+        const diff = TRIP_START - now;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        countdownText = `⏳ ${days} days to go!`;
+      } else if (now >= TRIP_START && now <= TRIP_END) {
+        countdownText = `✈️ Currently on the adventure!`;
+      } else {
+        countdownText = `✅ Trip complete!`;
+      }
+
+      // Generate fun stats post
+      const posts = [
+        `🌍 Epic adventure loading...\n\n` +
+        `📍 ${countries.length} countries: ${countries.join(' → ')}\n` +
+        `🏙️ ${cities.length} cities to explore\n` +
+        `✈️ ${flightCount} flights covering ${totalMiles.toLocaleString()}+ miles\n` +
+        `👟 ~${(totalSteps/1000).toFixed(0)}k steps planned\n` +
+        `📅 ${totalDays} days of adventure\n\n` +
+        `${countdownText}\n\n` +
+        `#TravelPlanning #Wanderlust #Adventure`,
+
+        `✈️ Trip stats that make me smile:\n\n` +
+        `🗺️ ${totalMiles.toLocaleString()} miles\n` +
+        `🌏 ${countries.length} countries\n` +
+        `🏨 ${cities.length} cities\n` +
+        `📆 ${totalDays} days\n` +
+        `👣 ${(totalSteps/1000).toFixed(0)}k steps\n\n` +
+        `${countdownText} 🎉\n\n` +
+        `#TravelStats #Exploring`,
+
+        `🎒 Packing for:\n\n` +
+        `${countries.map(c => c === 'Greece' ? '🇬🇷 Greece' : c === 'India' ? '🇮🇳 India' : c === 'UAE' ? '🇦🇪 UAE' : c === 'USA' ? '🇺🇸 USA' : c).join('\n')}\n\n` +
+        `${totalMiles.toLocaleString()} miles • ${totalDays} days • ${flightCount} flights\n\n` +
+        `${countdownText}\n\n` +
+        `#TravelPrep #WorldTraveler`
+      ];
+
+      // Pick a random post style
+      const randomPost = posts[Math.floor(Math.random() * posts.length)];
+
+      // Clear selected events and set stats mode
+      selectedShareEvents = [];
+
+      // Open modal and set content
+      document.getElementById('shareModal').classList.add('active');
+      document.getElementById('shareSelectedEvents').innerHTML = `
+        <span class="share-event-chip">
+          <span class="material-symbols-outlined">bar_chart</span>
+          Trip Stats
+        </span>
+      `;
+      document.getElementById('shareEventPicker').classList.remove('active');
+      document.querySelector('.share-add-events').style.display = 'none';
+      document.getElementById('shareTextarea').value = randomPost;
+      updateCharCount();
+
+      // Store that we're in stats mode for regenerate
+      window.statsShareMode = true;
+      window.statsPostOptions = posts;
+      window.statsPostIndex = posts.indexOf(randomPost);
+    }
+
+    function closeShareModal() {
+      // Reset stats mode
+      window.statsShareMode = false;
+      document.querySelector('.share-add-events').style.display = '';
+
+      document.getElementById('shareModal').classList.remove('active');
+      document.getElementById('shareEventPicker').classList.remove('active');
+      selectedShareEvents = [];
+    }
+
+    function renderShareModal() {
+      renderSelectedEvents();
+      renderEventPicker();
+    }
+
+    function renderSelectedEvents() {
+      const container = document.getElementById('shareSelectedEvents');
+      container.innerHTML = selectedShareEvents.map(event => `
+        <span class="share-event-chip">
+          <span class="material-symbols-outlined">${TYPE_EMOJIS[event.type] ? 'check' : 'event'}</span>
+          ${event.title}
+          ${selectedShareEvents.length > 1 ? `<span class="material-symbols-outlined remove-event" onclick="removeShareEvent('${event.id}')">close</span>` : ''}
+        </span>
+      `).join('');
+    }
+
+    function renderEventPicker() {
+      const allEvents = getAllShareableEvents();
+      const selectedIds = selectedShareEvents.map(e => e.id);
+      const container = document.getElementById('shareEventPicker');
+
+      container.innerHTML = allEvents
+        .filter(e => !selectedIds.includes(e.id))
+        .map(event => `
+          <div class="share-event-option" onclick="addShareEvent('${event.id}')">
+            <span>${TYPE_EMOJIS[event.type] || '📍'}</span>
+            <span>${event.title}</span>
+            <span class="event-day">${event.dayLabel}</span>
+          </div>
+        `).join('');
+    }
+
+    function toggleEventPicker() {
+      document.getElementById('shareEventPicker').classList.toggle('active');
+    }
+
+    function addShareEvent(eventId) {
+      const allEvents = getAllShareableEvents();
+      const event = allEvents.find(e => e.id === eventId);
+      if (event && !selectedShareEvents.find(e => e.id === eventId)) {
+        selectedShareEvents.push(event);
+        renderShareModal();
+        generatePostContent();
+      }
+      document.getElementById('shareEventPicker').classList.remove('active');
+    }
+
+    function removeShareEvent(eventId) {
+      selectedShareEvents = selectedShareEvents.filter(e => e.id !== eventId);
+      if (selectedShareEvents.length === 0) {
+        closeShareModal();
+      } else {
+        renderShareModal();
+        generatePostContent();
+      }
+    }
+
+    function generatePostContent() {
+      const style = POST_STYLES[currentPostStyle];
+      let content = style.prefix;
+
+      // Group events by location
+      const locations = [...new Set(selectedShareEvents.map(e => e.location))];
+      const locationNames = {
+        'ATH': 'Athens',
+        'CMH': 'Columbus',
+        'EWR': 'Newark',
+        'DXB': 'Dubai',
+        'BLR': 'Bangalore'
+      };
+
+      if (selectedShareEvents.length === 1) {
+        const event = selectedShareEvents[0];
+        const emoji = LOCATION_EMOJIS[event.location] || '📍';
+
+        if (event.type === 'flight') {
+          content += `Taking off! ${event.title}`;
+        } else if (event.type === 'hotel') {
+          content += `Checking into ${event.title} ${emoji}`;
+        } else if (event.type === 'meal') {
+          content += `Time for ${event.title.toLowerCase()} in ${locationNames[event.location] || event.location} ${emoji}`;
+        } else if (event.type === 'activity') {
+          content += `${event.title} in ${locationNames[event.location] || event.location} ${emoji}`;
+        } else {
+          content += `${event.title} ${emoji}`;
+        }
+      } else {
+        // Multiple events
+        const eventTypes = [...new Set(selectedShareEvents.map(e => e.type))];
+        const locationEmojis = locations.map(l => LOCATION_EMOJIS[l] || '📍').join(' ');
+
+        if (locations.length > 1) {
+          content += `Trip highlights: ${locations.map(l => locationNames[l]).join(' → ')} ${locationEmojis}\n\n`;
+        } else {
+          content += `${locationNames[locations[0]] || locations[0]} adventures ${LOCATION_EMOJIS[locations[0]] || '📍'}\n\n`;
+        }
+
+        selectedShareEvents.forEach(event => {
+          const emoji = TYPE_EMOJIS[event.type] || '📍';
+          content += `${emoji} ${event.title}\n`;
+        });
+      }
+
+      content += style.suffix;
+
+      document.getElementById('shareTextarea').value = content;
+      updateCharCount();
+    }
+
+    function regeneratePost() {
+      currentPostStyle = (currentPostStyle + 1) % POST_STYLES.length;
+      generatePostContent();
+    }
+
+    function updateCharCount() {
+      const textarea = document.getElementById('shareTextarea');
+      const count = textarea.value.length;
+      const countEl = document.getElementById('shareCharCount');
+      countEl.textContent = `${count} / 280`;
+      countEl.classList.toggle('over', count > 280);
+    }
+
+    function shareToTwitter() {
+      const text = document.getElementById('shareTextarea').value;
+      const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank', 'width=550,height=420');
+    }
+
+    function shareToFacebook() {
+      const text = document.getElementById('shareTextarea').value;
+      const url = `https://www.facebook.com/sharer/sharer.php?quote=${encodeURIComponent(text)}`;
+      window.open(url, '_blank', 'width=550,height=420');
+    }
+
+    function copyToClipboard() {
+      const text = document.getElementById('shareTextarea').value;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.classList.add('copied');
+        btn.innerHTML = '<span class="material-symbols-outlined">check</span> Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = '<span class="material-symbols-outlined">content_copy</span> Copy';
+        }, 2000);
+      });
+    }
+
+    // Close modal on overlay click
+    document.getElementById('shareModal').addEventListener('click', (e) => {
+      if (e.target.id === 'shareModal') {
+        closeShareModal();
+      }
+    });
+
+    // Close event picker when clicking outside
+    document.addEventListener('click', (e) => {
+      const picker = document.getElementById('shareEventPicker');
+      const addBtn = e.target.closest('.share-add-btn');
+      if (!addBtn && !e.target.closest('.share-event-picker')) {
+        picker.classList.remove('active');
+      }
+    });
+
+    // ========================================
+    // HOW IT WORKS MODAL
+    // ========================================
+
+    function openHowItWorks() {
+      document.getElementById('hiwModal').classList.add('active');
+    }
+
+    function closeHiwModal() {
+      document.getElementById('hiwModal').classList.remove('active');
+    }
+
+    function copyHiwPrompt() {
+      const promptText = document.getElementById('hiwPromptCode').textContent;
+      navigator.clipboard.writeText(promptText).then(() => {
+        const btn = event.target.closest('.hiw-copy-btn');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<span class="material-symbols-outlined">check</span> Copied!';
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+        }, 2000);
+      });
+    }
+
+    // Close modal on overlay click
+    document.getElementById('hiwModal').addEventListener('click', (e) => {
+      if (e.target.id === 'hiwModal') {
+        closeHiwModal();
+      }
+    });
+  </script>
+</body>
+</html>

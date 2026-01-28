@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+api/node_modules/
+
+# Local settings (contains secrets)
+api/local.settings.json
+
+# Build output
+dist/
+.output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Azure
+.azure/
+
+# Logs
+*.log
+npm-debug.log*
