@@ -44,8 +44,9 @@ export function renderPhotoRibbon(photos) {
       const caption = photo.metadata?.caption || '';
       const safeCaption = caption.replace(/'/g, "\\'");
       const uploader = (photo.metadata?.uploadedBy || '').replace(/'/g, "\\'");
+      const photoDate = (photo.metadata?.photoDate || photo.metadata?.uploadedAt?.split('T')[0] || '').replace(/'/g, "\\'");
       ribbonHTML += `
-        <div class="ribbon-thumbnail" onclick="openLightbox('${photo.url}', '${safeCaption}', '${uploader}')">
+        <div class="ribbon-thumbnail" onclick="openLightbox('${photo.url}', '${safeCaption}', '${uploader}', '${photoDate}')">
           <img src="${photo.url}" alt="${caption}" loading="lazy">
         </div>
       `;
@@ -67,8 +68,9 @@ export function renderPhotoRibbon(photos) {
       const caption = photo.metadata?.caption || '';
       const safeCaption = caption.replace(/'/g, "\\'");
       const uploader = (photo.metadata?.uploadedBy || '').replace(/'/g, "\\'");
+      const photoDate = (photo.metadata?.photoDate || photo.metadata?.uploadedAt?.split('T')[0] || '').replace(/'/g, "\\'");
       ribbonHTML += `
-        <div class="ribbon-thumbnail" onclick="openLightbox('${photo.url}', '${safeCaption}', '${uploader}')">
+        <div class="ribbon-thumbnail" onclick="openLightbox('${photo.url}', '${safeCaption}', '${uploader}', '${photoDate}')">
           <img src="${photo.url}" alt="${caption}" loading="lazy">
         </div>
       `;
@@ -194,7 +196,12 @@ export async function uploadPhotoHandler() {
   }
 }
 
-export function openLightbox(url, caption, uploadedBy) {
+// Store current lightbox photo for "Add Moment" feature
+let currentLightboxPhoto = null;
+
+export function openLightbox(url, caption, uploadedBy, photoDate) {
+  currentLightboxPhoto = { url, caption, uploadedBy, photoDate };
+
   document.getElementById('lightboxImage').src = url;
   document.getElementById('lightboxCaption').innerHTML = `
     ${caption ? `<strong>${caption}</strong><br>` : ''}
@@ -202,6 +209,63 @@ export function openLightbox(url, caption, uploadedBy) {
   `;
   document.getElementById('photoLightbox').classList.add('visible');
   document.body.style.overflow = 'hidden';
+}
+
+export function addMomentFromPhoto() {
+  if (!currentLightboxPhoto) return;
+
+  closeLightbox();
+
+  // Open event form with photo data pre-filled
+  if (window.openAddEventForm) {
+    // Determine date - use photo date if available, otherwise today or first day
+    const DAYS = window.DAYS || [];
+    let targetDate = currentLightboxPhoto.photoDate;
+
+    if (!targetDate && DAYS.length > 0) {
+      // Find today's date in the trip, or use first day
+      const today = new Date().toISOString().split('T')[0];
+      const todayDay = DAYS.find(d => d.date === today);
+      targetDate = todayDay ? today : DAYS[0].date;
+    }
+
+    window.openAddEventForm(targetDate);
+
+    // Pre-fill form with photo data after a brief delay
+    setTimeout(() => {
+      const titleInput = document.getElementById('eventFormTitleInput');
+      const subtitleInput = document.getElementById('eventFormSubtitle');
+      const typeSelect = document.getElementById('eventFormType');
+
+      if (titleInput && currentLightboxPhoto.caption) {
+        titleInput.value = currentLightboxPhoto.caption;
+      }
+
+      if (subtitleInput && currentLightboxPhoto.uploadedBy) {
+        subtitleInput.value = `Photo by ${currentLightboxPhoto.uploadedBy}`;
+      }
+
+      // Set type to "moment" if available, otherwise "activity"
+      if (typeSelect) {
+        const momentOption = Array.from(typeSelect.options).find(o => o.value === 'moment');
+        typeSelect.value = momentOption ? 'moment' : 'activity';
+      }
+
+      // Store photo URL for linking when event is saved
+      const form = document.getElementById('eventForm');
+      if (form) {
+        let hiddenInput = document.getElementById('eventFormLinkedPhoto');
+        if (!hiddenInput) {
+          hiddenInput = document.createElement('input');
+          hiddenInput.type = 'hidden';
+          hiddenInput.id = 'eventFormLinkedPhoto';
+          hiddenInput.name = 'linkedPhotoUrl';
+          form.appendChild(hiddenInput);
+        }
+        hiddenInput.value = currentLightboxPhoto.url;
+      }
+    }, 100);
+  }
 }
 
 export function closeLightbox() {

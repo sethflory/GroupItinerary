@@ -3015,12 +3015,46 @@
 
     .photo-lightbox-caption {
       position: absolute;
-      bottom: 20px;
+      bottom: 60px;
       left: 50%;
       transform: translateX(-50%);
       color: white;
       text-align: center;
       max-width: 80%;
+    }
+
+    .photo-lightbox-actions {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+    }
+
+    .lightbox-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: var(--radius-md);
+      color: white;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lightbox-action-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .lightbox-action-btn .material-symbols-outlined {
+      font-size: 18px;
     }
 
     @media (max-width: 480px) {

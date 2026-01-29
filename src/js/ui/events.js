@@ -76,6 +76,12 @@ export function closeEventForm() {
   document.getElementById('eventFormModal').classList.remove('active');
   editingEventId = null;
   editingEventDate = null;
+
+  // Clear linked photo input if present
+  const linkedPhotoInput = document.getElementById('eventFormLinkedPhoto');
+  if (linkedPhotoInput) {
+    linkedPhotoInput.value = '';
+  }
 }
 
 function renderEventFormTravelers() {
@@ -128,6 +134,10 @@ export async function submitEventForm(e) {
   const originalDate = document.getElementById('eventFormOriginalDate').value;
   const dateChanged = editingEventId && newDate !== originalDate;
 
+  // Get linked photo URL if present (from "Add Moment" feature)
+  const linkedPhotoInput = document.getElementById('eventFormLinkedPhoto');
+  const linkedPhotoUrl = linkedPhotoInput?.value || null;
+
   const eventData = {
     title: document.getElementById('eventFormTitleInput').value,
     type: document.getElementById('eventFormType').value,
@@ -139,7 +149,8 @@ export async function submitEventForm(e) {
     details: document.getElementById('eventFormDetails').value || null,
     travelers: selectedEventTravelers,
     date: newDate,
-    isUserGenerated: true
+    isUserGenerated: true,
+    linkedPhotoUrl
   };
 
   if (isFeatureEnabled('USE_TABLE_STORAGE')) {

@@ -332,6 +332,12 @@
     </button>
     <img id="lightboxImage" src="" alt="">
     <div class="photo-lightbox-caption" id="lightboxCaption"></div>
+    <div class="photo-lightbox-actions" onclick="event.stopPropagation()">
+      <button class="lightbox-action-btn" onclick="addMomentFromPhoto()">
+        <span class="material-symbols-outlined">add_circle</span>
+        Add as Moment
+      </button>
+    </div>
   </div>
 
   <!-- AI Insights Modal -->
@@ -449,6 +455,7 @@
               <label class="event-form-label">Type *</label>
               <select class="event-form-select" id="eventFormType" required>
                 <option value="activity">Activity</option>
+                <option value="moment">Moment</option>
                 <option value="meal">Meal</option>
                 <option value="flight">Flight</option>
                 <option value="hotel">Hotel</option>

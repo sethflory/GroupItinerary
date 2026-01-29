@@ -163,6 +163,7 @@ window.handleFileSelect = photos.handleFileSelect;
 window.uploadPhotoHandler = photos.uploadPhotoHandler;
 window.openLightbox = photos.openLightbox;
 window.closeLightbox = photos.closeLightbox;
+window.addMomentFromPhoto = photos.addMomentFromPhoto;
 
 // ========================================
 // EVENTS EXPORTS
