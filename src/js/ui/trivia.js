@@ -18,7 +18,7 @@ let hasAnswered = false;
 
 async function fetchTrivia(action, method = 'GET', body = null) {
   const accessCode = getStoredAccessCode(currentTripId);
-  const url = `${API_BASE}/trips/${currentTripId}/trivia/${action}?accessCode=${encodeURIComponent(accessCode)}`;
+  const url = `${API_BASE}/trips/${currentTripId}/trivia/${action}?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
 
   const options = {
     method,
@@ -26,7 +26,7 @@ async function fetchTrivia(action, method = 'GET', body = null) {
   };
 
   if (body) {
-    options.body = JSON.stringify({ ...body, accessCode });
+    options.body = JSON.stringify({ ...body, tripId: currentTripId, accessCode });
   }
 
   const response = await fetch(url, options);
