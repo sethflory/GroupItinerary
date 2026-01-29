@@ -25,6 +25,38 @@ export function isFeatureEnabled(featureName) {
   return FEATURE_FLAGS[featureName] === true;
 }
 
+// Apply feature visibility on load
+export function applyFeatureFlags() {
+  // Photo sharing
+  const photosSection = document.getElementById('tripPhotosSection');
+  if (photosSection) {
+    photosSection.style.display = isFeatureEnabled('PHOTO_SHARING') ? 'block' : 'none';
+  }
+
+  // User profiles
+  const profilesSection = document.getElementById('userProfilesSection');
+  if (profilesSection) {
+    profilesSection.style.display = isFeatureEnabled('USER_PROFILES') ? 'block' : 'none';
+  }
+
+  // GPS Photo Ops
+  const gpsSection = document.getElementById('gpsPhotoOpsSection');
+  if (gpsSection) {
+    gpsSection.style.display = isFeatureEnabled('GPS_PHOTO_OPS') ? 'block' : 'none';
+  }
+
+  // AI Event Insights buttons
+  document.querySelectorAll('.ai-insights-btn').forEach(btn => {
+    btn.style.display = isFeatureEnabled('AI_INSIGHTS') ? 'inline-flex' : 'none';
+  });
+
+  // AI Chat
+  const chatSection = document.getElementById('aiChatSection');
+  if (chatSection) {
+    chatSection.style.display = isFeatureEnabled('AI_CHAT') ? 'block' : 'none';
+  }
+}
+
 // Trip registry
 export const TRIPS = {
   'athens-bangalore-2026': {
