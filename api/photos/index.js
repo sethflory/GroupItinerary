@@ -1,13 +1,36 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
-const { validateRequest } = require('../shared/tripAuth');
 
 const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
 const containerName = process.env.PHOTOS_CONTAINER_NAME || 'trip-photos';
 
+// Inline trip validation (shared modules can have issues in Azure managed functions)
+function validateRequest(req) {
+  const tripId = req.body?.tripId || req.query?.tripId;
+  const accessCode = req.body?.accessCode || req.query?.accessCode;
+
+  if (!tripId) return { valid: false, error: 'Missing tripId' };
+  if (!accessCode) return { valid: false, error: 'Missing accessCode' };
+
+  const codesJson = process.env.TRIP_ACCESS_CODES || '{}';
+  let codes;
+  try {
+    codes = JSON.parse(codesJson);
+  } catch (e) {
+    return { valid: false, error: 'Server configuration error' };
+  }
+
+  const expectedCode = codes[tripId];
+  if (!expectedCode) return { valid: false, error: 'Trip not found' };
+  if (accessCode.toLowerCase() !== expectedCode.toLowerCase()) {
+    return { valid: false, error: 'Invalid access code' };
+  }
+
+  return { valid: true, tripId, accessCode };
+}
+
 module.exports = async function (context, req) {
   context.log('Photos API called:', req.method, req.url);
 
-  // CORS headers
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
@@ -15,7 +38,6 @@ module.exports = async function (context, req) {
     'Access-Control-Allow-Headers': 'Content-Type'
   };
 
-  // Handle preflight
   if (req.method === 'OPTIONS') {
     context.res = { status: 204, headers };
     return;
