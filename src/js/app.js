@@ -20,6 +20,7 @@ import * as navigation from './ui/navigation.js';
 import * as stats from './ui/stats.js';
 import * as countdown from './ui/countdown.js';
 import * as modals from './ui/modals.js';
+import * as trivia from './ui/trivia.js';
 
 // ========================================
 // GLOBAL STATE
@@ -245,6 +246,16 @@ window.stopTimers = countdown.stopTimers;
 window.openHowItWorks = modals.openHowItWorks;
 window.closeHiwModal = modals.closeHiwModal;
 window.copyHiwPrompt = modals.copyHiwPrompt;
+
+// ========================================
+// TRIVIA EXPORTS
+// ========================================
+
+window.openTriviaModal = trivia.openTriviaModal;
+window.closeTriviaModal = trivia.closeTriviaModal;
+window.startTriviaRound = trivia.startTriviaRound;
+window.selectTriviaAnswer = trivia.selectTriviaAnswer;
+window.submitTriviaAnswer = trivia.submitTriviaAnswer;
 
 // ========================================
 // DEPENDENCY INJECTION

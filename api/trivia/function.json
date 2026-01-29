@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "req",
       "methods": ["get", "post", "put", "options"],
-      "route": "trips/{tripId}/trivia/{resource}/{resourceId?}"
+      "route": "trips/{tripId}/trivia/{action}"
     },
     {
       "type": "http",

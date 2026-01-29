@@ -1,7 +1,6 @@
 const {
   TABLES,
   getEntity,
-  queryEntities,
   queryByPartition,
   upsertEntity,
   generateRowKey
@@ -13,21 +12,6 @@ const {
   sendError,
   sendSuccess
 } = require("../shared/validation");
-const { buildTriviaContext } = require("../shared/contextBuilder");
-
-// Round lifecycle states
-const ROUND_STATES = {
-  INITIATE: "initiate",
-  COUNTDOWN: "countdown",
-  ACTIVE: "active",
-  SCORING: "scoring",
-  COMPLETE: "complete"
-};
-
-// Scoring constants
-const BASE_POINTS = 10;
-const MAX_SPEED_BONUS = 5;
-const ROUND_DURATION_MS = 30000; // 30 seconds
 
 module.exports = async function (context, req) {
   const headers = getHeaders("GET, POST, PUT, OPTIONS");
@@ -38,8 +22,7 @@ module.exports = async function (context, req) {
   }
 
   const tripId = context.bindingData.tripId;
-  const resource = context.bindingData.resource;
-  const resourceId = context.bindingData.resourceId;
+  const action = context.bindingData.action;
 
   const auth = requireAuth(context, req, { methods: "GET, POST, PUT, OPTIONS" });
   if (!auth) return;
@@ -50,164 +33,84 @@ module.exports = async function (context, req) {
   }
 
   try {
-    // Route handling
-    if (resource === "rounds") {
-      if (resourceId === "active") {
-        // GET /api/trips/{tripId}/trivia/rounds/active - Poll for active round
-        if (req.method === "GET") {
-          return await getActiveRound(context, tripId, headers);
-        }
-      } else if (resourceId) {
-        // PUT /api/trips/{tripId}/trivia/rounds/{roundId} - Submit answer
-        if (req.method === "PUT") {
-          return await submitAnswer(context, tripId, resourceId, req.body, headers);
-        }
-        // GET /api/trips/{tripId}/trivia/rounds/{roundId} - Get round details
-        if (req.method === "GET") {
-          return await getRound(context, tripId, resourceId, headers);
-        }
-      } else {
-        // POST /api/trips/{tripId}/trivia/rounds - Start new round
-        if (req.method === "POST") {
-          return await startRound(context, tripId, req.body, headers);
-        }
-        // GET /api/trips/{tripId}/trivia/rounds - List recent rounds
-        if (req.method === "GET") {
-          return await listRounds(context, tripId, headers);
-        }
-      }
-    } else if (resource === "leaderboard") {
-      // GET /api/trips/{tripId}/trivia/leaderboard
-      if (req.method === "GET") {
-        return await getLeaderboard(context, tripId, headers);
-      }
-    } else if (resource === "poke") {
-      // POST /api/trips/{tripId}/trivia/poke - Send poke
-      if (req.method === "POST") {
-        return await sendPoke(context, tripId, req.body, headers);
-      }
-    } else if (resource === "pokes") {
-      // GET /api/trips/{tripId}/trivia/pokes - Get pending pokes
-      if (req.method === "GET") {
-        return await getPokes(context, tripId, req.query, headers);
-      }
+    switch (action) {
+      case "rounds":
+        if (req.method === "GET") return await getActiveRound(context, tripId, headers);
+        if (req.method === "POST") return await startRound(context, tripId, req.body, auth, headers);
+        break;
+      case "answer":
+        if (req.method === "POST") return await submitAnswer(context, tripId, req.body, auth, headers);
+        break;
+      case "leaderboard":
+        if (req.method === "GET") return await getLeaderboard(context, tripId, headers);
+        break;
+      default:
+        sendError(context, "Unknown trivia action", 404, headers);
+        return;
     }
-
-    sendError(context, "Not found", 404, headers);
-
+    sendError(context, "Method not allowed", 405, headers);
   } catch (err) {
     console.error("Trivia API error:", err);
     sendError(context, err.message, 500, headers);
   }
 };
 
-// Start a new trivia round
-async function startRound(context, tripId, body, headers) {
-  const { category, eventId, initiatedBy } = body;
+async function getActiveRound(context, tripId, headers) {
+  const rounds = await queryByPartition(TABLES.TRIVIA_ROUNDS, tripId);
+  const activeRound = rounds.find(r => r.status === "active" || r.status === "countdown");
+  if (!activeRound) {
+    sendSuccess(context, { active: false }, 200, headers);
+    return;
+  }
+  sendSuccess(context, { active: true, round: formatRound(activeRound) }, 200, headers);
+}
 
-  if (!initiatedBy) {
-    sendError(context, "initiatedBy is required", 400, headers);
+async function startRound(context, tripId, body, auth, headers) {
+  const { category, eventContext } = body || {};
+
+  const rounds = await queryByPartition(TABLES.TRIVIA_ROUNDS, tripId);
+  const activeRound = rounds.find(r => r.status === "active" || r.status === "countdown");
+  if (activeRound) {
+    sendError(context, "A round is already in progress", 400, headers);
     return;
   }
 
-  // Generate question using AI
-  const question = await generateQuestion(tripId, category, eventId);
+  const question = await generateTriviaQuestion(category, eventContext);
   if (!question) {
     sendError(context, "Failed to generate question", 500, headers);
     return;
   }
 
   const roundId = generateRowKey("round");
-  const now = Date.now();
+  const now = new Date();
+  const countdownEnd = new Date(now.getTime() + 3000);
+  const questionEnd = new Date(countdownEnd.getTime() + 30000);
 
   const round = {
     partitionKey: tripId,
     rowKey: roundId,
     id: roundId,
-    state: ROUND_STATES.COUNTDOWN,
+    status: "countdown",
     category: category || "general",
-    eventId: eventId || null,
-    initiatedBy,
     question: question.question,
     answers: JSON.stringify(question.answers),
     correctIndex: question.correctIndex,
-    createdAt: new Date(now).toISOString(),
-    countdownEndsAt: new Date(now + 3000).toISOString(), // 3 second countdown
-    activeEndsAt: new Date(now + 3000 + ROUND_DURATION_MS).toISOString(),
-    responses: JSON.stringify({}), // { travelerId: { answer, timestamp, correct, points } }
-    totalParticipants: 0
+    startedAt: now.toISOString(),
+    countdownEndsAt: countdownEnd.toISOString(),
+    questionEndsAt: questionEnd.toISOString(),
+    startedBy: auth.travelerId || auth.userId,
+    responses: JSON.stringify([])
   };
 
   await upsertEntity(TABLES.TRIVIA_ROUNDS, round);
-
-  sendSuccess(context, formatRound(round, false), 201, headers);
+  sendSuccess(context, { round: formatRound(round), countdownMs: 3000 }, 201, headers);
 }
 
-// Get active round (for polling)
-async function getActiveRound(context, tripId, headers) {
-  const now = Date.now();
+async function submitAnswer(context, tripId, body, auth, headers) {
+  const { roundId, answerIndex, answeredAt } = body || {};
 
-  // Find most recent round that's not complete
-  const rounds = await queryByPartition(TABLES.TRIVIA_ROUNDS, tripId);
-
-  // Sort by creation time, newest first
-  const sorted = rounds.sort((a, b) =>
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
-
-  // Find active or countdown round
-  for (const round of sorted) {
-    const activeEnds = new Date(round.activeEndsAt).getTime();
-
-    // Check if round is still active
-    if (round.state === ROUND_STATES.COUNTDOWN || round.state === ROUND_STATES.ACTIVE) {
-      // Auto-transition countdown -> active
-      if (round.state === ROUND_STATES.COUNTDOWN) {
-        const countdownEnds = new Date(round.countdownEndsAt).getTime();
-        if (now >= countdownEnds) {
-          round.state = ROUND_STATES.ACTIVE;
-          await upsertEntity(TABLES.TRIVIA_ROUNDS, round);
-        }
-      }
-
-      // Auto-transition active -> scoring -> complete
-      if (round.state === ROUND_STATES.ACTIVE && now >= activeEnds) {
-        round.state = ROUND_STATES.COMPLETE;
-        await upsertEntity(TABLES.TRIVIA_ROUNDS, round);
-        // Update leaderboard
-        await updateLeaderboard(tripId, round);
-        continue; // Skip this round, look for another
-      }
-
-      // Return the active round (hide correct answer if still active)
-      sendSuccess(context, formatRound(round, round.state !== ROUND_STATES.COMPLETE), 200, headers);
-      return;
-    }
-  }
-
-  // No active round
-  sendSuccess(context, { active: false }, 200, headers);
-}
-
-// Get specific round
-async function getRound(context, tripId, roundId, headers) {
-  const round = await getEntity(TABLES.TRIVIA_ROUNDS, tripId, roundId);
-  if (!round) {
-    sendError(context, "Round not found", 404, headers);
-    return;
-  }
-
-  // Hide answer if still active
-  const hideAnswer = round.state === ROUND_STATES.COUNTDOWN || round.state === ROUND_STATES.ACTIVE;
-  sendSuccess(context, formatRound(round, hideAnswer), 200, headers);
-}
-
-// Submit answer to round
-async function submitAnswer(context, tripId, roundId, body, headers) {
-  const { travelerId, answerIndex } = body;
-
-  if (!travelerId || answerIndex === undefined) {
-    sendError(context, "travelerId and answerIndex are required", 400, headers);
+  if (roundId === undefined || answerIndex === undefined) {
+    sendError(context, "Missing roundId or answerIndex", 400, headers);
     return;
   }
 
@@ -216,236 +119,93 @@ async function submitAnswer(context, tripId, roundId, body, headers) {
     sendError(context, "Round not found", 404, headers);
     return;
   }
-
-  // Check if round is still active
-  const now = Date.now();
-  const activeEnds = new Date(round.activeEndsAt).getTime();
-
-  if (round.state !== ROUND_STATES.ACTIVE && round.state !== ROUND_STATES.COUNTDOWN) {
-    sendError(context, "Round is no longer accepting answers", 400, headers);
+  if (round.status !== "active") {
+    sendError(context, "Round is not active", 400, headers);
     return;
   }
 
-  if (now >= activeEnds) {
-    sendError(context, "Time expired", 400, headers);
+  const responses = JSON.parse(round.responses || "[]");
+  const travelerId = auth.travelerId || auth.userId;
+
+  if (responses.find(r => r.travelerId === travelerId)) {
+    sendError(context, "Already answered this round", 400, headers);
     return;
   }
 
-  // Parse existing responses
-  const responses = JSON.parse(round.responses || "{}");
+  const now = new Date(answeredAt || Date.now());
+  const questionStart = new Date(round.countdownEndsAt);
+  const questionEnd = new Date(round.questionEndsAt);
+  const timeElapsed = now - questionStart;
+  const totalTime = questionEnd - questionStart;
 
-  // Check if already answered
-  if (responses[travelerId]) {
-    sendError(context, "Already answered", 400, headers);
-    return;
+  const isCorrect = answerIndex === round.correctIndex;
+  let points = 0;
+
+  if (isCorrect) {
+    const speedRatio = Math.max(0, 1 - (timeElapsed / totalTime));
+    points = 10 + Math.round(speedRatio * 5);
   }
 
-  // Calculate score
-  const correct = answerIndex === round.correctIndex;
-  const activeStarted = new Date(round.countdownEndsAt).getTime();
-  const elapsed = now - activeStarted;
-  const timeRatio = Math.max(0, 1 - (elapsed / ROUND_DURATION_MS));
-  const speedBonus = correct ? Math.round(timeRatio * MAX_SPEED_BONUS) : 0;
-  const points = correct ? BASE_POINTS + speedBonus : 0;
-
-  // Record response
-  responses[travelerId] = {
-    answer: answerIndex,
-    timestamp: new Date(now).toISOString(),
-    correct,
+  responses.push({
+    travelerId,
+    answerIndex,
+    isCorrect,
     points,
-    speedBonus
-  };
+    answeredAt: now.toISOString(),
+    timeMs: timeElapsed
+  });
 
   round.responses = JSON.stringify(responses);
-  round.totalParticipants = Object.keys(responses).length;
-
   await upsertEntity(TABLES.TRIVIA_ROUNDS, round);
+  await updateLeaderboard(tripId, travelerId, points, isCorrect);
 
-  sendSuccess(context, {
-    recorded: true,
-    correct,
-    points,
-    speedBonus,
-    // Don't reveal correct answer until round ends
-    message: correct ? "Correct!" : "Answer recorded"
-  }, 200, headers);
+  sendSuccess(context, { correct: isCorrect, points, correctIndex: round.correctIndex }, 200, headers);
 }
 
-// List recent rounds
-async function listRounds(context, tripId, headers) {
-  const rounds = await queryByPartition(TABLES.TRIVIA_ROUNDS, tripId);
-
-  // Sort by creation time, newest first
-  const sorted = rounds
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 20); // Last 20 rounds
-
-  const formatted = sorted.map(r => formatRound(r, false));
-
-  sendSuccess(context, { rounds: formatted }, 200, headers);
-}
-
-// Get leaderboard
 async function getLeaderboard(context, tripId, headers) {
-  const leaderboard = await getEntity(TABLES.TRIVIA_LEADERBOARD, tripId, "leaderboard");
-
-  if (!leaderboard || !leaderboard.scores) {
-    // Return empty leaderboard
-    sendSuccess(context, {
-      scores: [],
-      lastUpdated: null
-    }, 200, headers);
-    return;
-  }
-
-  const scores = JSON.parse(leaderboard.scores);
-
-  // Sort by total points descending
-  const sorted = Object.entries(scores)
-    .map(([travelerId, data]) => ({
-      travelerId,
-      ...data
+  const entries = await queryByPartition(TABLES.TRIVIA_LEADERBOARD, tripId);
+  const sorted = entries
+    .map(e => ({
+      travelerId: e.rowKey,
+      displayName: e.displayName,
+      totalPoints: e.totalPoints || 0,
+      correctAnswers: e.correctAnswers || 0,
+      totalAnswers: e.totalAnswers || 0,
+      streak: e.streak || 0
     }))
     .sort((a, b) => b.totalPoints - a.totalPoints);
-
-  sendSuccess(context, {
-    scores: sorted,
-    lastUpdated: leaderboard.lastUpdated
-  }, 200, headers);
+  sendSuccess(context, { leaderboard: sorted }, 200, headers);
 }
 
-// Update leaderboard after round completes
-async function updateLeaderboard(tripId, round) {
-  const responses = JSON.parse(round.responses || "{}");
-
-  // Get or create leaderboard
-  let leaderboard = await getEntity(TABLES.TRIVIA_LEADERBOARD, tripId, "leaderboard");
-
-  if (!leaderboard) {
-    leaderboard = {
-      partitionKey: tripId,
-      rowKey: "leaderboard",
-      scores: JSON.stringify({}),
-      lastUpdated: null
-    };
+async function generateTriviaQuestion(category, eventContext) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    console.error("ANTHROPIC_API_KEY not configured");
+    return null;
   }
 
-  const scores = JSON.parse(leaderboard.scores || "{}");
-
-  // Update scores for each participant
-  for (const [travelerId, response] of Object.entries(responses)) {
-    if (!scores[travelerId]) {
-      scores[travelerId] = {
-        totalPoints: 0,
-        correctAnswers: 0,
-        totalAnswers: 0,
-        streak: 0,
-        maxStreak: 0
-      };
-    }
-
-    const travelerScore = scores[travelerId];
-    travelerScore.totalPoints += response.points;
-    travelerScore.totalAnswers += 1;
-
-    if (response.correct) {
-      travelerScore.correctAnswers += 1;
-      travelerScore.streak += 1;
-      travelerScore.maxStreak = Math.max(travelerScore.maxStreak, travelerScore.streak);
-    } else {
-      travelerScore.streak = 0;
-    }
-  }
-
-  leaderboard.scores = JSON.stringify(scores);
-  leaderboard.lastUpdated = new Date().toISOString();
-
-  await upsertEntity(TABLES.TRIVIA_LEADERBOARD, leaderboard);
-}
-
-// Send poke
-async function sendPoke(context, tripId, body, headers) {
-  const { fromTravelerId, toTravelerId, message } = body;
-
-  if (!fromTravelerId || !toTravelerId) {
-    sendError(context, "fromTravelerId and toTravelerId are required", 400, headers);
-    return;
-  }
-
-  const pokeId = generateRowKey("poke");
-
-  const poke = {
-    partitionKey: tripId,
-    rowKey: pokeId,
-    id: pokeId,
-    fromTravelerId,
-    toTravelerId,
-    message: message || "wants to play trivia!",
-    createdAt: new Date().toISOString(),
-    acknowledged: false
+  const categoryPrompts = {
+    funny: "Make this a fun, silly question that will make people laugh",
+    historical: "Focus on interesting historical facts about the destination",
+    food: "Make this about local cuisine, restaurants, or food culture",
+    expert: "Make this challenging - something only a travel expert would know",
+    general: "Make this an interesting general knowledge question about travel"
   };
 
-  await upsertEntity(TABLES.TRIVIA_POKES, poke);
+  const categoryHint = categoryPrompts[category] || categoryPrompts.general;
+  const contextHint = eventContext ? `\n\nContext: ${eventContext}` : "";
 
-  sendSuccess(context, { sent: true, pokeId }, 201, headers);
-}
+  const prompt = `Generate a trivia question about travel, destinations, or culture. ${categoryHint}${contextHint}
 
-// Get pending pokes for a traveler
-async function getPokes(context, tripId, query, headers) {
-  const { travelerId, since } = query;
+Return ONLY valid JSON in this exact format:
+{"question": "Your question here?", "answers": ["Option A", "Option B", "Option C", "Option D"], "correctIndex": 0}
 
-  if (!travelerId) {
-    sendError(context, "travelerId is required", 400, headers);
-    return;
-  }
+Rules:
+- correctIndex must be 0, 1, 2, or 3
+- All 4 answers must be plausible
+- Only output the JSON, nothing else`;
 
-  const allPokes = await queryByPartition(TABLES.TRIVIA_POKES, tripId);
-
-  // Filter pokes for this traveler that are not acknowledged
-  let pokes = allPokes.filter(p =>
-    p.toTravelerId === travelerId && !p.acknowledged
-  );
-
-  // Filter by timestamp if provided
-  if (since) {
-    const sinceTime = new Date(since).getTime();
-    pokes = pokes.filter(p => new Date(p.createdAt).getTime() > sinceTime);
-  }
-
-  // Sort by creation time
-  pokes.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-  sendSuccess(context, {
-    pokes: pokes.map(p => ({
-      id: p.id,
-      fromTravelerId: p.fromTravelerId,
-      message: p.message,
-      createdAt: p.createdAt
-    }))
-  }, 200, headers);
-}
-
-// Generate trivia question using AI
-async function generateQuestion(tripId, category, eventId) {
   try {
-    const tripContext = await buildTriviaContext(tripId, { category, eventId });
-
-    const prompt = `${tripContext}
-
-Generate a trivia question about this trip or event. The question should be ${category || 'general'} in style.
-
-Return ONLY valid JSON in this exact format (no markdown, no code blocks):
-{"question":"Your question here?","answers":["Option A","Option B","Option C","Option D"],"correctIndex":0}
-
-The correctIndex should be 0, 1, 2, or 3 indicating which answer is correct.`;
-
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      console.error("ANTHROPIC_API_KEY not configured");
-      return getDefaultQuestion(category);
-    }
-
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -460,82 +220,63 @@ The correctIndex should be 0, 1, 2, or 3 indicating which answer is correct.`;
       })
     });
 
-    if (!response.ok) {
-      console.error("AI API error:", response.status);
-      return getDefaultQuestion(category);
-    }
-
     const data = await response.json();
-    const text = data.content?.[0]?.text || "";
+    if (!response.ok) {
+      console.error("AI API error:", data);
+      return null;
+    }
 
-    // Parse JSON from response
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const content = data.content[0]?.text || "";
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      console.error("No JSON found in AI response");
-      return getDefaultQuestion(category);
+      console.error("Failed to parse AI response:", content);
+      return null;
     }
 
-    const parsed = JSON.parse(jsonMatch[0]);
-
-    // Validate structure
-    if (!parsed.question || !Array.isArray(parsed.answers) || parsed.answers.length !== 4) {
-      console.error("Invalid question structure");
-      return getDefaultQuestion(category);
-    }
-
-    return {
-      question: parsed.question,
-      answers: parsed.answers,
-      correctIndex: parsed.correctIndex || 0
-    };
-
+    return JSON.parse(jsonMatch[0]);
   } catch (err) {
-    console.error("Error generating question:", err);
-    return getDefaultQuestion(category);
+    console.error("Question generation error:", err);
+    return null;
   }
 }
 
-// Default questions as fallback
-function getDefaultQuestion(category) {
-  const questions = {
-    funny: {
-      question: "What's the best way to survive a long-haul flight?",
-      answers: ["Never sleep, watch all the movies", "Bring your own pillow fortress", "Make friends with the flight attendants", "All of the above"],
-      correctIndex: 3
-    },
-    historical: {
-      question: "The Parthenon was built in which century?",
-      answers: ["3rd century BC", "5th century BC", "1st century AD", "2nd century BC"],
-      correctIndex: 1
-    },
-    general: {
-      question: "What is the capital of Greece?",
-      answers: ["Thessaloniki", "Athens", "Sparta", "Patras"],
-      correctIndex: 1
-    }
-  };
+async function updateLeaderboard(tripId, travelerId, points, isCorrect) {
+  let entry = await getEntity(TABLES.TRIVIA_LEADERBOARD, tripId, travelerId);
 
-  return questions[category] || questions.general;
+  if (!entry) {
+    entry = {
+      partitionKey: tripId,
+      rowKey: travelerId,
+      totalPoints: 0,
+      correctAnswers: 0,
+      totalAnswers: 0,
+      streak: 0
+    };
+  }
+
+  entry.totalPoints = (entry.totalPoints || 0) + points;
+  entry.totalAnswers = (entry.totalAnswers || 0) + 1;
+
+  if (isCorrect) {
+    entry.correctAnswers = (entry.correctAnswers || 0) + 1;
+    entry.streak = (entry.streak || 0) + 1;
+  } else {
+    entry.streak = 0;
+  }
+
+  await upsertEntity(TABLES.TRIVIA_LEADERBOARD, entry);
 }
 
-// Format round for API response
-function formatRound(round, hideAnswer) {
-  const responses = JSON.parse(round.responses || "{}");
-  const answers = JSON.parse(round.answers || "[]");
-
+function formatRound(round) {
   return {
-    id: round.id,
-    state: round.state,
+    id: round.id || round.rowKey,
+    status: round.status,
     category: round.category,
-    eventId: round.eventId,
-    initiatedBy: round.initiatedBy,
     question: round.question,
-    answers,
-    correctIndex: hideAnswer ? null : round.correctIndex,
-    createdAt: round.createdAt,
+    answers: JSON.parse(round.answers || "[]"),
+    startedAt: round.startedAt,
     countdownEndsAt: round.countdownEndsAt,
-    activeEndsAt: round.activeEndsAt,
-    totalParticipants: round.totalParticipants || Object.keys(responses).length,
-    responses: hideAnswer ? {} : responses
+    questionEndsAt: round.questionEndsAt,
+    responses: JSON.parse(round.responses || "[]").length
   };
 }
