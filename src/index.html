@@ -3907,6 +3907,10 @@
         grantAccess(currentTripId, enteredCode);
         hideLockScreen();
         errorEl.textContent = '';
+        // Reload photos now that we have the access code
+        if (typeof loadTripPhotos === 'function') {
+          loadTripPhotos();
+        }
       } else {
         // Wrong code
         input.classList.add('error');
