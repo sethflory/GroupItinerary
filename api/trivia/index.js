@@ -80,7 +80,17 @@ async function getActiveRound(context, tripId, headers) {
 async function startRound(context, tripId, body, auth, headers) {
   const { category, eventContext } = body || {};
 
-  const rounds = await queryByPartition(TABLES.TRIVIA_ROUNDS, tripId);
+  console.log("[Trivia] Starting round for trip:", tripId, "category:", category);
+
+  let rounds = [];
+  try {
+    rounds = await queryByPartition(TABLES.TRIVIA_ROUNDS, tripId);
+    console.log("[Trivia] Found", rounds.length, "existing rounds");
+  } catch (err) {
+    console.error("[Trivia] Error querying rounds:", err);
+    // Continue with empty rounds array - table might not exist yet
+  }
+
   let activeRound = rounds.find(r => r.status === "active" || r.status === "countdown");
 
   // Auto-complete expired rounds (including old "countdown" status rounds)
@@ -88,8 +98,13 @@ async function startRound(context, tripId, body, auth, headers) {
     const now = new Date();
     const questionEnd = new Date(activeRound.questionEndsAt);
     if (now > questionEnd) {
+      console.log("[Trivia] Auto-completing expired round:", activeRound.rowKey);
       activeRound.status = "completed";
-      await upsertEntity(TABLES.TRIVIA_ROUNDS, activeRound);
+      try {
+        await upsertEntity(TABLES.TRIVIA_ROUNDS, activeRound);
+      } catch (err) {
+        console.error("[Trivia] Error completing expired round:", err);
+      }
       activeRound = null;
     }
   }
@@ -99,7 +114,10 @@ async function startRound(context, tripId, body, auth, headers) {
     return;
   }
 
+  console.log("[Trivia] Generating question...");
   const question = await generateTriviaQuestion(category, eventContext);
+  console.log("[Trivia] Question generated:", question ? "success" : "failed");
+
   if (!question) {
     sendError(context, "Failed to generate question", 500, headers);
     return;
@@ -126,7 +144,16 @@ async function startRound(context, tripId, body, auth, headers) {
     responses: JSON.stringify([])
   };
 
-  await upsertEntity(TABLES.TRIVIA_ROUNDS, round);
+  console.log("[Trivia] Saving round:", roundId);
+  try {
+    await upsertEntity(TABLES.TRIVIA_ROUNDS, round);
+    console.log("[Trivia] Round saved successfully");
+  } catch (err) {
+    console.error("[Trivia] Error saving round:", err);
+    sendError(context, "Failed to save round: " + err.message, 500, headers);
+    return;
+  }
+
   sendSuccess(context, { round: formatRound(round), countdownMs: 3000 }, 201, headers);
 }
 
