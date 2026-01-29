@@ -4,7 +4,7 @@
 
 import { API_BASE } from '../config.js';
 import { currentTripId } from '../state.js';
-import { getStoredAccessCode } from '../auth.js';
+import { getStoredAccessCode, getCurrentTravelerId } from '../auth.js';
 
 let extractedEvents = [];
 let existingEvents = [];
@@ -473,12 +473,12 @@ function renderExtractedEvent(event, index) {
     const matchLabel = getMatchLabel(event.matchType, event.matchedEvent);
     matchBadge = `
       <div class="match-indicator">
-        <span class="material-symbols-outlined">link</span>
+        <span class="material-symbols-outlined">group</span>
         <span class="match-label">Matches: ${escapeHtml(matchLabel)}</span>
         <select id="match-action-${index}" class="match-action-select" onchange="setMatchAction(${index}, this.value)">
-          <option value="update">Update existing</option>
-          <option value="create">Create new</option>
-          <option value="skip">Skip</option>
+          <option value="join">Join activity</option>
+          <option value="create">Add separate</option>
+          <option value="skip">Cancel</option>
         </select>
       </div>
     `;
@@ -579,66 +579,80 @@ async function saveExtractedEvents() {
 
   try {
     const accessCode = getStoredAccessCode(currentTripId);
+    const currentUserId = getCurrentTravelerId();
     let savedCount = 0;
-    let updatedCount = 0;
+    let joinedCount = 0;
 
     for (const event of selectedEvents) {
-      // Determine if we should update an existing event or create new
-      const shouldUpdate = event.matchedEvent && event.matchAction !== 'create';
-      const existingId = shouldUpdate ? event.matchedEvent.id : null;
+      // Determine action: join existing, create new, or skip
+      const shouldJoin = event.matchedEvent && event.matchAction === 'join';
+      const existingEvent = event.matchedEvent;
 
-      // Convert to our event format
-      // API requires: date, time, type, title
-      const eventData = {
-        date: event.date || new Date().toISOString().split('T')[0], // Default to today if missing
-        time: event.time || event.departureTime || '09:00', // Default time if missing
-        endTime: event.endTime || event.arrivalTime || null,
-        type: event.type || 'activity',
-        title: event.title,
-        subtitle: event.details || null,
-        where: event.location || null,
-        status: 'confirmed',
-        travelers: ['all'],
-        isUserGenerated: true,
-        // Flight-specific fields
-        flightCode: event.flightCode || null,
-        airline: event.airline || null,
-        from: event.from || null,
-        to: event.to || null,
-        // Hotel-specific fields
-        address: event.address || null
-      };
+      if (shouldJoin && existingEvent) {
+        // Join existing activity - add current user to travelers list
+        const existingTravelers = existingEvent.travelers || ['all'];
 
-      let url, method;
-      if (shouldUpdate && existingId) {
-        // Update existing event
-        url = `${API_BASE}/trips/${encodeURIComponent(currentTripId)}/events/${encodeURIComponent(existingId)}?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
-        method = 'PUT';
-      } else {
-        // Create new event
-        url = `${API_BASE}/trips/${encodeURIComponent(currentTripId)}/events?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
-        method = 'POST';
-      }
+        // If already includes 'all' or this user, no update needed
+        if (existingTravelers.includes('all') || existingTravelers.includes(currentUserId)) {
+          joinedCount++;
+          continue;
+        }
 
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(eventData)
-      });
+        // Add current user to the travelers list
+        const updatedTravelers = [...existingTravelers, currentUserId];
 
-      if (response.ok) {
-        if (shouldUpdate) {
-          updatedCount++;
+        const url = `${API_BASE}/trips/${encodeURIComponent(currentTripId)}/events/${encodeURIComponent(existingEvent.id)}?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+        const response = await fetch(url, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ travelers: updatedTravelers })
+        });
+
+        if (response.ok) {
+          joinedCount++;
         } else {
-          savedCount++;
+          const errorData = await response.json().catch(() => ({}));
+          console.error('Failed to join event:', event.title, 'Error:', errorData.error || response.status);
         }
       } else {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Failed to save event:', event.title, 'Error:', errorData.error || response.status);
+        // Create new event
+        const eventData = {
+          date: event.date || new Date().toISOString().split('T')[0],
+          time: event.time || event.departureTime || '09:00',
+          endTime: event.endTime || event.arrivalTime || null,
+          type: event.type || 'activity',
+          title: event.title,
+          subtitle: event.details || null,
+          where: event.location || null,
+          status: 'confirmed',
+          travelers: currentUserId ? [currentUserId] : ['all'],
+          isUserGenerated: true,
+          flightCode: event.flightCode || null,
+          airline: event.airline || null,
+          from: event.from || null,
+          to: event.to || null,
+          address: event.address || null
+        };
+
+        const url = `${API_BASE}/trips/${encodeURIComponent(currentTripId)}/events?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(eventData)
+        });
+
+        if (response.ok) {
+          savedCount++;
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('Failed to save event:', event.title, 'Error:', errorData.error || response.status);
+        }
       }
     }
 
-    showSuccessStep(savedCount, updatedCount);
+    showSuccessStep(savedCount, joinedCount);
 
   } catch (err) {
     console.error('[ReceiptUpload] Save error:', err);
@@ -654,15 +668,15 @@ async function saveExtractedEvents() {
 // SUCCESS STEP
 // ========================================
 
-function showSuccessStep(createdCount, updatedCount = 0) {
+function showSuccessStep(createdCount, joinedCount = 0) {
   const body = document.getElementById('receiptUploadBody');
-  const total = createdCount + updatedCount;
+  const total = createdCount + joinedCount;
 
   let message = '';
-  if (createdCount > 0 && updatedCount > 0) {
-    message = `Added ${createdCount} new event${createdCount > 1 ? 's' : ''} and updated ${updatedCount} existing event${updatedCount > 1 ? 's' : ''}!`;
-  } else if (updatedCount > 0) {
-    message = `Updated ${updatedCount} event${updatedCount > 1 ? 's' : ''}!`;
+  if (createdCount > 0 && joinedCount > 0) {
+    message = `Added ${createdCount} new event${createdCount > 1 ? 's' : ''} and joined ${joinedCount} existing event${joinedCount > 1 ? 's' : ''}!`;
+  } else if (joinedCount > 0) {
+    message = `Joined ${joinedCount} existing event${joinedCount > 1 ? 's' : ''}!`;
   } else {
     message = `Added ${createdCount} event${createdCount > 1 ? 's' : ''}!`;
   }
