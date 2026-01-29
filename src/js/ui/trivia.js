@@ -126,8 +126,10 @@ export async function startTriviaRound() {
 
   try {
     const result = await fetchTrivia('rounds', 'POST', { category });
+    console.log('[Trivia] Start round result:', result);
 
     if (result.round) {
+      console.log('[Trivia] Round started with ID:', result.round.id);
       currentRound = result.round;
       hasAnswered = false;
       selectedAnswer = null;
@@ -295,12 +297,21 @@ export function selectTriviaAnswer(index) {
 export async function submitTriviaAnswer() {
   if (hasAnswered || selectedAnswer === null) return;
 
+  // Validate round exists
+  if (!currentRound || !currentRound.id) {
+    console.error('No current round or round ID:', currentRound);
+    alert('No active round. Please start a new round.');
+    return;
+  }
+
   hasAnswered = true;
   const submitBtn = document.querySelector('.trivia-submit-btn');
   if (submitBtn) {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="material-symbols-outlined spinning">progress_activity</span> Submitting...';
   }
+
+  console.log('[Trivia] Submitting answer for round:', currentRound.id);
 
   try {
     const result = await fetchTrivia('answer', 'POST', {
