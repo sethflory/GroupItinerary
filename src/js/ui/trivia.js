@@ -259,7 +259,8 @@ function startTimer() {
     if (remaining <= 0) {
       clearInterval(triviaInterval);
       if (!hasAnswered) {
-        showResults();
+        // Check for scoring UI when time runs out
+        checkForActiveRound();
       }
     }
   };
@@ -335,7 +336,8 @@ function showAnswerResult(result) {
   submitSection.style.display = 'flex';
 
   setTimeout(() => {
-    showResults();
+    // Check for scoring UI (shows if round just ended and has travelers to score)
+    checkForActiveRound();
     loadLeaderboard();
   }, 2000);
 }
