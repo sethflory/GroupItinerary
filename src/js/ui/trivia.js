@@ -335,13 +335,18 @@ export async function submitTriviaAnswer() {
 function showAnswerResult(result) {
   clearInterval(triviaInterval);
 
-  console.log('[Trivia] Answer result:', result);
-  const correctIdx = parseInt(result.correctIndex, 10);
-  console.log('[Trivia] Correct index:', correctIdx, 'Selected:', selectedAnswer);
+  console.log('[Trivia] Answer result:', JSON.stringify(result));
+
+  // Handle correctIndex - might be missing, string, or number
+  let correctIdx = -1;
+  if (result.correctIndex !== undefined && result.correctIndex !== null) {
+    correctIdx = Number(result.correctIndex);
+  }
+  console.log('[Trivia] Correct index:', correctIdx, 'Selected:', selectedAnswer, 'isNaN:', isNaN(correctIdx));
 
   document.querySelectorAll('.trivia-answer-btn').forEach((btn, i) => {
     btn.disabled = true;
-    if (i === correctIdx) {
+    if (!isNaN(correctIdx) && i === correctIdx) {
       btn.classList.add('correct');
     } else if (i === selectedAnswer && !result.correct) {
       btn.classList.add('incorrect');

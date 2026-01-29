@@ -226,7 +226,12 @@ async function submitAnswer(context, tripId, body, auth, headers) {
   const timeElapsed = answerTime - questionStart;
   const totalTime = questionEnd - questionStart;
 
-  const isCorrect = answerIndex === round.correctIndex;
+  // Ensure numeric comparison (table storage might return different types)
+  const correctIdx = Number(round.correctIndex);
+  const submittedIdx = Number(answerIndex);
+  console.log("[Trivia] Comparing answer:", submittedIdx, "vs correct:", correctIdx);
+
+  const isCorrect = submittedIdx === correctIdx;
   let points = 0;
 
   if (isCorrect) {
@@ -247,7 +252,7 @@ async function submitAnswer(context, tripId, body, auth, headers) {
   await upsertEntity(TABLES.TRIVIA_ROUNDS, round);
   await updateLeaderboard(tripId, travelerId, points, isCorrect);
 
-  sendSuccess(context, { correct: isCorrect, points, correctIndex: round.correctIndex }, 200, headers);
+  sendSuccess(context, { correct: isCorrect, points, correctIndex: correctIdx }, 200, headers);
 }
 
 async function manualScore(context, tripId, body, auth, headers) {
