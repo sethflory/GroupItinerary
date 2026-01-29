@@ -1,7 +1,12 @@
-// Simplest possible Azure Function - no dependencies, no env vars
+// Layer 3: Test reading environment variable
 module.exports = function (context, req) {
+  const tripCodes = process.env.TRIP_ACCESS_CODES || "NOT_SET";
   context.res = {
-    body: "hello"
+    headers: { "Content-Type": "application/json" },
+    body: {
+      message: "hello",
+      envTest: tripCodes !== "NOT_SET" ? "TRIP_ACCESS_CODES is set" : "TRIP_ACCESS_CODES not found"
+    }
   };
   context.done();
 };
