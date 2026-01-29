@@ -28,7 +28,7 @@ module.exports = async function (context, req) {
   const headers = {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type"
   };
 
@@ -87,6 +87,17 @@ module.exports = async function (context, req) {
       });
 
       context.res = { status: 201, headers, body: { success: true, url: blockBlobClient.url } };
+
+    } else if (req.method === "DELETE") {
+      const blobName = req.query.name || req.body?.name;
+      if (!blobName) {
+        context.res = { status: 400, headers, body: { error: "Missing blob name" } };
+        return;
+      }
+
+      const blobClient = containerClient.getBlobClient(blobName);
+      await blobClient.deleteIfExists();
+      context.res = { status: 200, headers, body: { success: true, deleted: blobName } };
 
     } else {
       context.res = { status: 405, headers, body: { error: "Method not allowed" } };
