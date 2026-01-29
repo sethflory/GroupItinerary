@@ -256,6 +256,8 @@ window.closeTriviaModal = trivia.closeTriviaModal;
 window.startTriviaRound = trivia.startTriviaRound;
 window.selectTriviaAnswer = trivia.selectTriviaAnswer;
 window.submitTriviaAnswer = trivia.submitTriviaAnswer;
+window.addManualScore = trivia.addManualScore;
+window.finishScoring = trivia.finishScoring;
 
 // ========================================
 // DEPENDENCY INJECTION

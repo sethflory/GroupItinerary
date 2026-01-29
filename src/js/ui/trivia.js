@@ -165,6 +165,9 @@ async function checkForActiveRound() {
       } else {
         showResults();
       }
+    } else if (result.recentRound) {
+      // Show scoring UI for recently completed round
+      showScoringUI(result.recentRound);
     }
   } catch (err) {
     console.error('Check active round error:', err);
@@ -373,6 +376,128 @@ function showResults() {
   `;
 
   currentRound = null;
+  loadLeaderboard();
+}
+
+// ========================================
+// MANUAL SCORING
+// ========================================
+
+function showScoringUI(round) {
+  clearInterval(triviaInterval);
+  clearInterval(countdownInterval);
+
+  const content = document.getElementById('triviaContent');
+  const correctAnswer = round.answers[round.correctIndex];
+  const respondedIds = round.responses.map(r => r.travelerId);
+
+  // Get all travelers from global state
+  const allTravelers = window.TRAVELERS || [];
+  const notResponded = allTravelers.filter(t => !respondedIds.includes(t.id));
+
+  content.innerHTML = `
+    <div class="trivia-scoring">
+      <div class="scoring-header">
+        <h4>Round Complete - Manual Scoring</h4>
+        <p class="scoring-question">${round.question}</p>
+        <p class="scoring-answer">
+          <span class="material-symbols-outlined">check_circle</span>
+          Correct: <strong>${correctAnswer}</strong>
+        </p>
+      </div>
+
+      <div class="scoring-responses">
+        <h5>Digital Responses (${round.responses.length})</h5>
+        ${round.responses.length > 0 ? `
+          <div class="response-list">
+            ${round.responses.map(r => `
+              <div class="response-item ${r.isCorrect ? 'correct' : 'incorrect'}">
+                <span class="responder-name">${r.travelerName || r.travelerId}</span>
+                <span class="responder-result">
+                  ${r.isCorrect ? `<span class="material-symbols-outlined">check</span> +${r.points}` : '<span class="material-symbols-outlined">close</span> 0'}
+                  ${r.manual ? ' (manual)' : ''}
+                </span>
+              </div>
+            `).join('')}
+          </div>
+        ` : '<p class="no-responses">No digital responses</p>'}
+      </div>
+
+      ${notResponded.length > 0 ? `
+        <div class="scoring-manual">
+          <h5>Add Verbal Answers</h5>
+          <div class="manual-score-list" id="manualScoreList">
+            ${notResponded.map(t => `
+              <div class="manual-score-item" data-traveler-id="${t.id}" data-traveler-name="${t.name}">
+                <span class="traveler-name">${t.name}</span>
+                <div class="score-buttons">
+                  <button class="score-btn correct" onclick="addManualScore('${round.id}', '${t.id}', '${t.name}', true)">
+                    <span class="material-symbols-outlined">check</span> Correct
+                  </button>
+                  <button class="score-btn incorrect" onclick="addManualScore('${round.id}', '${t.id}', '${t.name}', false)">
+                    <span class="material-symbols-outlined">close</span> Wrong
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      <div class="scoring-actions">
+        <button class="trivia-done-btn" onclick="finishScoring()">
+          <span class="material-symbols-outlined">done_all</span>
+          Done Scoring
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Store round for manual scoring
+  currentRound = round;
+}
+
+export async function addManualScore(roundId, travelerId, travelerName, isCorrect) {
+  const btn = event.target.closest('.score-btn');
+  const item = document.querySelector(`.manual-score-item[data-traveler-id="${travelerId}"]`);
+
+  if (!item) return;
+
+  // Disable buttons while processing
+  item.querySelectorAll('.score-btn').forEach(b => b.disabled = true);
+
+  try {
+    const result = await fetchTrivia('score', 'POST', {
+      roundId,
+      travelerId,
+      travelerName,
+      isCorrect
+    });
+
+    if (result.success) {
+      // Update UI to show scored
+      item.innerHTML = `
+        <span class="traveler-name">${travelerName}</span>
+        <span class="score-result ${isCorrect ? 'correct' : 'incorrect'}">
+          ${isCorrect ? `<span class="material-symbols-outlined">check</span> +${result.points}` : '<span class="material-symbols-outlined">close</span> 0'}
+          (manual)
+        </span>
+      `;
+      item.classList.add('scored', isCorrect ? 'correct' : 'incorrect');
+    } else {
+      alert(result.error || 'Failed to add score');
+      item.querySelectorAll('.score-btn').forEach(b => b.disabled = false);
+    }
+  } catch (err) {
+    console.error('Manual score error:', err);
+    alert('Failed to add score');
+    item.querySelectorAll('.score-btn').forEach(b => b.disabled = false);
+  }
+}
+
+export function finishScoring() {
+  currentRound = null;
+  showResults();
   loadLeaderboard();
 }
 

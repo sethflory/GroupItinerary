@@ -40,6 +40,9 @@ module.exports = async function (context, req) {
       case "answer":
         if (req.method === "POST") return await submitAnswer(context, tripId, req.body, auth, headers);
         break;
+      case "score":
+        if (req.method === "POST") return await manualScore(context, tripId, req.body, auth, headers);
+        break;
       case "leaderboard":
         if (req.method === "GET") return await getLeaderboard(context, tripId, headers);
         break;
@@ -59,6 +62,23 @@ async function getActiveRound(context, tripId, headers) {
   const activeRound = rounds.find(r => r.status === "active" || r.status === "countdown");
 
   if (!activeRound) {
+    // Check for recently completed round (within last 5 minutes) for manual scoring
+    const recentRound = rounds
+      .filter(r => r.status === "completed")
+      .sort((a, b) => new Date(b.questionEndsAt) - new Date(a.questionEndsAt))[0];
+
+    if (recentRound) {
+      const completedAt = new Date(recentRound.questionEndsAt);
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+      if (completedAt > fiveMinutesAgo) {
+        sendSuccess(context, {
+          active: false,
+          recentRound: formatRound(recentRound, true)
+        }, 200, headers);
+        return;
+      }
+    }
+
     sendSuccess(context, { active: false }, 200, headers);
     return;
   }
@@ -70,7 +90,11 @@ async function getActiveRound(context, tripId, headers) {
   if (now > questionEnd) {
     activeRound.status = "completed";
     await upsertEntity(TABLES.TRIVIA_ROUNDS, activeRound);
-    sendSuccess(context, { active: false }, 200, headers);
+    // Return the completed round for manual scoring
+    sendSuccess(context, {
+      active: false,
+      recentRound: formatRound(activeRound, true)
+    }, 200, headers);
     return;
   }
 
@@ -226,6 +250,56 @@ async function submitAnswer(context, tripId, body, auth, headers) {
   sendSuccess(context, { correct: isCorrect, points, correctIndex: round.correctIndex }, 200, headers);
 }
 
+async function manualScore(context, tripId, body, auth, headers) {
+  const { roundId, travelerId, travelerName, isCorrect } = body || {};
+
+  if (!roundId || !travelerId) {
+    sendError(context, "Missing roundId or travelerId", 400, headers);
+    return;
+  }
+
+  const round = await getEntity(TABLES.TRIVIA_ROUNDS, tripId, roundId);
+  if (!round) {
+    sendError(context, "Round not found", 404, headers);
+    return;
+  }
+
+  // Only allow manual scoring by the person who started the round
+  const startedBy = round.startedBy;
+  const currentUser = auth.travelerId || auth.userId;
+  if (startedBy !== currentUser) {
+    sendError(context, "Only the round starter can add manual scores", 403, headers);
+    return;
+  }
+
+  const responses = JSON.parse(round.responses || "[]");
+
+  // Check if this traveler already has a response
+  if (responses.find(r => r.travelerId === travelerId)) {
+    sendError(context, "This traveler already has a response", 400, headers);
+    return;
+  }
+
+  // Award base points for correct answers (no speed bonus for manual)
+  const points = isCorrect ? 10 : 0;
+
+  responses.push({
+    travelerId,
+    travelerName: travelerName || travelerId,
+    answerIndex: -1, // Manual entry
+    isCorrect,
+    points,
+    answeredAt: new Date().toISOString(),
+    manual: true
+  });
+
+  round.responses = JSON.stringify(responses);
+  await upsertEntity(TABLES.TRIVIA_ROUNDS, round);
+  await updateLeaderboard(tripId, travelerId, points, isCorrect, travelerName);
+
+  sendSuccess(context, { success: true, points }, 200, headers);
+}
+
 async function getLeaderboard(context, tripId, headers) {
   const entries = await queryByPartition(TABLES.TRIVIA_LEADERBOARD, tripId);
   const sorted = entries
@@ -339,18 +413,24 @@ Rules:
   }
 }
 
-async function updateLeaderboard(tripId, travelerId, points, isCorrect) {
+async function updateLeaderboard(tripId, travelerId, points, isCorrect, displayName = null) {
   let entry = await getEntity(TABLES.TRIVIA_LEADERBOARD, tripId, travelerId);
 
   if (!entry) {
     entry = {
       partitionKey: tripId,
       rowKey: travelerId,
+      displayName: displayName || travelerId,
       totalPoints: 0,
       correctAnswers: 0,
       totalAnswers: 0,
       streak: 0
     };
+  }
+
+  // Update display name if provided
+  if (displayName) {
+    entry.displayName = displayName;
   }
 
   entry.totalPoints = (entry.totalPoints || 0) + points;
@@ -366,8 +446,9 @@ async function updateLeaderboard(tripId, travelerId, points, isCorrect) {
   await upsertEntity(TABLES.TRIVIA_LEADERBOARD, entry);
 }
 
-function formatRound(round) {
-  return {
+function formatRound(round, includeAnswers = false) {
+  const responses = JSON.parse(round.responses || "[]");
+  const result = {
     id: round.id || round.rowKey,
     status: round.status,
     category: round.category,
@@ -376,6 +457,21 @@ function formatRound(round) {
     startedAt: round.startedAt,
     countdownEndsAt: round.countdownEndsAt,
     questionEndsAt: round.questionEndsAt,
-    responses: JSON.parse(round.responses || "[]").length
+    startedBy: round.startedBy,
+    responseCount: responses.length,
+    responses: responses.map(r => ({
+      travelerId: r.travelerId,
+      travelerName: r.travelerName,
+      isCorrect: r.isCorrect,
+      points: r.points,
+      manual: r.manual || false
+    }))
   };
+
+  // Include correct answer index after round ends or for the starter
+  if (includeAnswers || round.status === "completed") {
+    result.correctIndex = round.correctIndex;
+  }
+
+  return result;
 }

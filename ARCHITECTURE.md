@@ -433,3 +433,158 @@ POST   /api/ai/trivia             # Generate trivia question
 5. **Location markers are trip-scoped** - Pre-configured per destination during setup
 6. **Share links are configurable** - Creator controls what viewers see
 7. **Progressive profiles** - Start basic, prompt for more over time
+
+---
+
+## Scaling & Viral Preparedness
+
+### Overview
+
+If the word-of-mouth loop goes viral, these pre-emptive changes will help the application handle increased load gracefully.
+
+### Current Scaling Bottlenecks
+
+| Issue | Impact | Severity |
+|-------|--------|----------|
+| N+1 queries in contextBuilder.js | 100+ Table Storage queries per trip load | Critical |
+| New TableClient per request | Connection exhaustion under load | Critical |
+| Sync endpoint polling (2-15s) | 100 users = 4,000-30,000 req/min | High |
+| No API response caching | Every page load = full DB scan | High |
+| Base64 photo uploads | 33% larger payloads, no chunking | Medium |
+| Access codes in URLs | Security/logging concerns | Medium |
+| AI API calls unbounded | Could hit Anthropic rate limits | Medium |
+
+### Pre-Viral Changes (Priority Order)
+
+#### 1. Add Caching Layer (Biggest Win)
+```javascript
+// api/shared/cache.js
+const cache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+export function getCached(key) {
+  const entry = cache.get(key);
+  if (entry && Date.now() < entry.expiry) {
+    return entry.value;
+  }
+  cache.delete(key);
+  return null;
+}
+
+export function setCached(key, value, ttl = CACHE_TTL) {
+  cache.set(key, { value, expiry: Date.now() + ttl });
+}
+
+// Usage in trip endpoints
+const cached = getCached(`trip:${tripId}`);
+if (cached) return cached;
+```
+
+**Production upgrade**: Replace in-memory Map with Azure Redis Cache.
+
+#### 2. Connection Pooling for Table Storage
+```javascript
+// api/shared/tableStorage.js - singleton pattern
+const tableClients = new Map();
+
+export function getTableClient(tableName) {
+  if (!tableClients.has(tableName)) {
+    tableClients.set(tableName, new TableClient(connectionString, tableName));
+  }
+  return tableClients.get(tableName);
+}
+```
+
+#### 3. Rate Limiting on Sync Endpoint
+```javascript
+// Simple in-memory rate limiter
+const requestCounts = new Map();
+const RATE_LIMIT = 10; // requests per minute per trip
+const WINDOW_MS = 60000;
+
+export function checkRateLimit(tripId) {
+  const now = Date.now();
+  const key = `sync:${tripId}`;
+  const entry = requestCounts.get(key) || { count: 0, windowStart: now };
+
+  if (now - entry.windowStart > WINDOW_MS) {
+    entry.count = 1;
+    entry.windowStart = now;
+  } else {
+    entry.count++;
+  }
+
+  requestCounts.set(key, entry);
+  return entry.count <= RATE_LIMIT;
+}
+```
+
+#### 4. Move Access Codes to Headers
+```javascript
+// Frontend: api.js
+headers: {
+  'Content-Type': 'application/json',
+  'X-Trip-Access-Code': getAccessCode(tripId)
+}
+
+// Backend: validate from header instead of URL
+const accessCode = req.headers['x-trip-access-code'];
+```
+
+#### 5. Photo Upload Optimization
+- [ ] Client-side compression before upload (use browser Canvas API)
+- [ ] Generate thumbnails server-side on upload
+- [ ] Consider direct-to-blob SAS URL uploads (bypass Function)
+
+### Quick Wins (< 1 hour each)
+
+| Change | Implementation | Benefit |
+|--------|----------------|---------|
+| Add Cache-Control headers | `res.setHeader('Cache-Control', 'max-age=3600')` on trip data | Reduces repeat fetches |
+| Lazy-load photos | Only fetch visible photos in ribbon | Faster initial load |
+| Increase default sync interval | Change 15s → 30s in sync.js | 50% fewer API calls |
+| Add Application Insights | Azure portal + npm package | Visibility into issues |
+
+### Emergency "It's Viral Right Now" Playbook
+
+If viral growth happens before optimizations are in place:
+
+| Time | Action | Command/Change |
+|------|--------|----------------|
+| Immediately | Increase sync poll interval | Set `SYNC_INTERVAL_MS=60000` |
+| Hour 1 | Add caching to `/api/trips/{id}/full` | Deploy cache.js changes |
+| Hour 2 | Disable AI features temporarily | Set `FEATURE_FLAGS.AI_CHAT=false` |
+| Hour 3 | Scale Azure Functions | Portal → Scale Out → increase instances |
+| Day 1 | Deploy connection pooling | Prevents connection exhaustion |
+
+### Scaling Thresholds
+
+| Metric | Comfortable | Warning | Critical |
+|--------|-------------|---------|----------|
+| Concurrent users | < 50 | 50-200 | > 200 |
+| Sync requests/min | < 500 | 500-2000 | > 2000 |
+| Table Storage RU/s | < 1000 | 1000-5000 | > 5000 |
+| Photo uploads/hour | < 100 | 100-500 | > 500 |
+| AI API calls/hour | < 500 | 500-1000 | > 1000 |
+
+### What NOT to Pre-Optimize
+
+These can wait until actually needed:
+- Database sharding (Table Storage scales well initially)
+- CDN setup (Azure SWA has built-in CDN)
+- Code splitting (JS is only ~2,500 lines)
+- Geographic replication (single region is fine to start)
+- WebSocket/SignalR (polling is simpler to debug)
+
+### Monitoring Checklist
+
+Before beta testing, enable:
+- [ ] Azure Application Insights on Functions
+- [ ] Table Storage metrics in Azure portal
+- [ ] Blob Storage metrics
+- [ ] Set up alerts for:
+  - Function execution time > 5s
+  - Function failure rate > 5%
+  - Table Storage throttling (429 responses)
+
+---
