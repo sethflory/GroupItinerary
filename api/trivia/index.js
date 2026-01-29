@@ -197,10 +197,9 @@ async function submitAnswer(context, tripId, body, auth, headers) {
     return;
   }
 
-  const now = new Date(answeredAt || Date.now());
+  const answerTime = new Date(answeredAt || Date.now());
   const questionStart = new Date(round.countdownEndsAt);
-  const questionEnd = new Date(round.questionEndsAt);
-  const timeElapsed = now - questionStart;
+  const timeElapsed = answerTime - questionStart;
   const totalTime = questionEnd - questionStart;
 
   const isCorrect = answerIndex === round.correctIndex;
@@ -216,7 +215,7 @@ async function submitAnswer(context, tripId, body, auth, headers) {
     answerIndex,
     isCorrect,
     points,
-    answeredAt: now.toISOString(),
+    answeredAt: answerTime.toISOString(),
     timeMs: timeElapsed
   });
 
