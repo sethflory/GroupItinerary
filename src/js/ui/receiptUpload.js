@@ -307,7 +307,7 @@ async function fetchExistingEvents() {
   try {
     const accessCode = getStoredAccessCode(currentTripId);
     const response = await fetch(
-      `${API_BASE}/events?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`
+      `${API_BASE}/trips/${encodeURIComponent(currentTripId)}/events?accessCode=${encodeURIComponent(accessCode)}`
     );
 
     if (response.ok) {
@@ -612,11 +612,11 @@ async function saveExtractedEvents() {
       let url, method;
       if (shouldUpdate && existingId) {
         // Update existing event
-        url = `${API_BASE}/events/${existingId}?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+        url = `${API_BASE}/trips/${encodeURIComponent(currentTripId)}/events/${encodeURIComponent(existingId)}?accessCode=${encodeURIComponent(accessCode)}`;
         method = 'PUT';
       } else {
         // Create new event
-        url = `${API_BASE}/events?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+        url = `${API_BASE}/trips/${encodeURIComponent(currentTripId)}/events?accessCode=${encodeURIComponent(accessCode)}`;
         method = 'POST';
       }
 
