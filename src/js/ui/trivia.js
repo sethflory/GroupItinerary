@@ -30,6 +30,17 @@ async function fetchTrivia(action, method = 'GET', body = null) {
   }
 
   const response = await fetch(url, options);
+
+  if (!response.ok) {
+    const text = await response.text();
+    console.error(`Trivia API error (${response.status}):`, text);
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { error: `API error: ${response.status} - ${text.substring(0, 100)}` };
+    }
+  }
+
   return response.json();
 }
 
