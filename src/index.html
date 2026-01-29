@@ -3782,32 +3782,6 @@
       </div>
     </div>
 
-    <!-- Trip Photos Section -->
-    <div class="trip-photos-section" id="tripPhotosSection">
-      <div class="trip-photos-header">
-        <h2 class="trip-photos-title">
-          <span class="material-symbols-outlined">photo_library</span>
-          Trip Memories
-        </h2>
-        <button class="upload-btn" onclick="openUploadModal()">
-          <span class="material-symbols-outlined">add_photo_alternate</span>
-          Add Photo
-        </button>
-      </div>
-      <div class="photos-loading" id="photosLoading">
-        <span class="material-symbols-outlined">hourglass_empty</span>
-        <p>Loading photos...</p>
-      </div>
-      <div class="photos-empty" id="photosEmpty" style="display: none;">
-        <span class="material-symbols-outlined">add_a_photo</span>
-        <p>No photos yet!</p>
-        <p>Be the first to share a memory from the trip.</p>
-      </div>
-      <div class="photos-grid" id="photosGrid" style="display: none;">
-        <!-- Photos loaded dynamically -->
-      </div>
-    </div>
-
     <!-- FEATURE: User Profiles (STUB) -->
     <div class="user-profiles-section" id="userProfilesSection">
       <div class="trip-photos-header">
@@ -6524,10 +6498,6 @@
     const PLACEHOLDER_COUNT = 6; // Empty slots to encourage uploads
 
     async function loadTripPhotos() {
-      const loadingEl = document.getElementById('photosLoading');
-      const emptyEl = document.getElementById('photosEmpty');
-      const gridEl = document.getElementById('photosGrid');
-
       try {
         // Include trip prefix and access code in API call for trip-specific photos
         const prefix = getCurrentPhotoPrefix();
@@ -6537,26 +6507,12 @@
 
         const data = await response.json();
         tripPhotosCache = data.photos || [];
-        loadingEl.style.display = 'none';
 
-        // Update ribbon
+        // Update ribbon (the main photo display)
         renderPhotoRibbon(tripPhotosCache);
 
-        if (tripPhotosCache.length > 0) {
-          emptyEl.style.display = 'none';
-          gridEl.style.display = 'grid';
-          renderPhotos(tripPhotosCache);
-        } else {
-          emptyEl.style.display = 'block';
-          gridEl.style.display = 'none';
-        }
       } catch (error) {
         console.log('Photos API not available:', error.message);
-        loadingEl.innerHTML = `
-          <span class="material-symbols-outlined">cloud_off</span>
-          <p>Photo sharing available when hosted on Azure</p>
-          <p style="font-size: 0.8rem;">The static version works offline!</p>
-        `;
         // Show ribbon with placeholders only
         renderPhotoRibbon([]);
       }
@@ -6680,6 +6636,7 @@
 
     function renderPhotos(photos) {
       const gridEl = document.getElementById('photosGrid');
+      if (!gridEl) return; // Grid removed, only using ribbon now
       gridEl.innerHTML = photos.map(photo => `
         <div class="photo-card" onclick="openLightbox('${photo.url}', '${photo.metadata?.caption || ''}', '${photo.metadata?.uploadedBy || ''}')">
           <img src="${photo.url}" alt="${photo.metadata?.caption || 'Trip photo'}" loading="lazy">
