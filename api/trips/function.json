@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "req",
       "methods": ["get", "put", "options"],
-      "route": "trips/{tripId?}/{resource?}/{resourceId?}"
+      "route": "trips/{tripId}/{resource?}/{resourceId?}"
     },
     {
       "type": "http",

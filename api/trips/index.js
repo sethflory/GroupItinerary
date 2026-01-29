@@ -39,6 +39,14 @@ module.exports = async function (context, req) {
 
   try {
     // Route handling
+    // Forward trivia requests to trivia handler (route overlap workaround)
+    if (resource === "trivia") {
+      const triviaHandler = require("../trivia/index.js");
+      // Set up bindingData for trivia handler
+      context.bindingData.action = resourceId;
+      return await triviaHandler(context, req);
+    }
+
     if (!resource) {
       // GET /api/trips/{tripId} - Get trip details
       if (req.method === "GET") {

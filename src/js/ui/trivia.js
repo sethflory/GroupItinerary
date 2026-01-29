@@ -342,9 +342,14 @@ function showAnswerResult(result) {
   `;
   submitSection.style.display = 'flex';
 
-  setTimeout(() => {
-    // Check for scoring UI (shows if round just ended and has travelers to score)
-    checkForActiveRound();
+  setTimeout(async () => {
+    try {
+      // Check for scoring UI (shows if round just ended and has travelers to score)
+      await checkForActiveRound();
+    } catch (err) {
+      console.error('Error after answer:', err);
+      showResults();
+    }
     loadLeaderboard();
   }, 2000);
 }
@@ -398,15 +403,22 @@ function showScoringUI(round) {
 
   console.log('[Trivia] showScoringUI round:', round);
 
-  const content = document.getElementById('triviaContent');
-  const correctAnswer = round.answers[round.correctIndex];
-  const respondedIds = round.responses.map(r => r.travelerId);
+  try {
+    const content = document.getElementById('triviaContent');
+    if (!content) {
+      console.error('[Trivia] triviaContent not found');
+      return;
+    }
 
-  // Get all travelers from global state
-  const allTravelers = window.TRAVELERS || [];
-  const notResponded = allTravelers.filter(t => !respondedIds.includes(t.id));
+    const correctAnswer = round.answers?.[round.correctIndex] || 'Unknown';
+    const responses = round.responses || [];
+    const respondedIds = responses.map(r => r.travelerId);
 
-  console.log('[Trivia] respondedIds:', respondedIds);
+    // Get all travelers from global state
+    const allTravelers = window.TRAVELERS || [];
+    const notResponded = allTravelers.filter(t => !respondedIds.includes(t.id));
+
+    console.log('[Trivia] respondedIds:', respondedIds);
   console.log('[Trivia] allTravelers:', allTravelers);
   console.log('[Trivia] notResponded:', notResponded);
 
