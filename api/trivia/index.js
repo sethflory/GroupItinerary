@@ -215,11 +215,46 @@ async function getLeaderboard(context, tripId, headers) {
   sendSuccess(context, { leaderboard: sorted }, 200, headers);
 }
 
+// Fallback questions when AI is unavailable
+const FALLBACK_QUESTIONS = {
+  general: [
+    { question: "Which country has the most UNESCO World Heritage Sites?", answers: ["Italy", "China", "Spain", "France"], correctIndex: 0 },
+    { question: "What is the smallest country in the world?", answers: ["Monaco", "Vatican City", "San Marino", "Liechtenstein"], correctIndex: 1 },
+    { question: "Which city is known as the 'City of Light'?", answers: ["London", "New York", "Paris", "Tokyo"], correctIndex: 2 },
+    { question: "What is the longest river in the world?", answers: ["Amazon", "Nile", "Yangtze", "Mississippi"], correctIndex: 1 },
+  ],
+  funny: [
+    { question: "In Japan, it's considered good luck if a bird does what on you?", answers: ["Sings to you", "Lands on your head", "Poops on you", "Follows you"], correctIndex: 2 },
+    { question: "What unusual item is it illegal to carry in your suitcase in some US states?", answers: ["Cheese", "Ice cream cone in back pocket", "Rubber ducks", "Socks"], correctIndex: 1 },
+    { question: "In Switzerland, it's illegal to do what after 10pm?", answers: ["Yodel", "Flush the toilet", "Eat chocolate", "Walk loudly"], correctIndex: 1 },
+  ],
+  food: [
+    { question: "Which country invented pizza?", answers: ["United States", "Italy", "Greece", "France"], correctIndex: 1 },
+    { question: "What is the national dish of Spain?", answers: ["Tacos", "Paella", "Sushi", "Curry"], correctIndex: 1 },
+    { question: "In which country would you find the original croissant?", answers: ["France", "Austria", "Belgium", "Switzerland"], correctIndex: 1 },
+  ],
+  historical: [
+    { question: "Which ancient wonder was located in Alexandria, Egypt?", answers: ["Hanging Gardens", "Colossus", "Lighthouse", "Great Pyramid"], correctIndex: 2 },
+    { question: "The Silk Road connected China to which region?", answers: ["Africa", "Mediterranean", "Australia", "Americas"], correctIndex: 1 },
+    { question: "Which empire built Machu Picchu?", answers: ["Aztec", "Maya", "Inca", "Olmec"], correctIndex: 2 },
+  ],
+  expert: [
+    { question: "What is the driest place on Earth?", answers: ["Sahara Desert", "Atacama Desert", "McMurdo Dry Valleys", "Death Valley"], correctIndex: 2 },
+    { question: "Which airport has the code 'SIN'?", answers: ["Singapore Changi", "Sydney", "Shanghai", "Seoul Incheon"], correctIndex: 0 },
+    { question: "What is the only country to span both Europe and Asia with its largest city?", answers: ["Russia", "Turkey", "Kazakhstan", "Georgia"], correctIndex: 1 },
+  ]
+};
+
+function getRandomFallbackQuestion(category) {
+  const questions = FALLBACK_QUESTIONS[category] || FALLBACK_QUESTIONS.general;
+  return questions[Math.floor(Math.random() * questions.length)];
+}
+
 async function generateTriviaQuestion(category, eventContext) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    console.error("ANTHROPIC_API_KEY not configured");
-    return null;
+    console.log("ANTHROPIC_API_KEY not configured, using fallback question");
+    return getRandomFallbackQuestion(category);
   }
 
   const categoryPrompts = {
@@ -261,20 +296,20 @@ Rules:
     const data = await response.json();
     if (!response.ok) {
       console.error("AI API error:", data);
-      return null;
+      return getRandomFallbackQuestion(category);
     }
 
     const content = data.content[0]?.text || "";
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       console.error("Failed to parse AI response:", content);
-      return null;
+      return getRandomFallbackQuestion(category);
     }
 
     return JSON.parse(jsonMatch[0]);
   } catch (err) {
     console.error("Question generation error:", err);
-    return null;
+    return getRandomFallbackQuestion(category);
   }
 }
 
