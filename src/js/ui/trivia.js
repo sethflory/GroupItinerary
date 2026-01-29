@@ -493,6 +493,11 @@ function showScoringUI(round) {
 
   // Store round for manual scoring
   currentRound = round;
+
+  } catch (err) {
+    console.error('[Trivia] Error showing scoring UI:', err);
+    showResults();
+  }
 }
 
 export async function addManualScore(roundId, travelerId, travelerName, isCorrect) {
