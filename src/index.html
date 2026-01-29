@@ -6613,13 +6613,13 @@ Be helpful, friendly, and concise. Provide practical travel tips, cultural insig
         </div>
       `;
 
-      modal.classList.add('visible');
+      modal.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
 
     function closeAiInsights() {
       const modal = document.getElementById('aiInsightsModal');
-      modal.classList.remove('visible');
+      modal.classList.remove('active');
       document.body.style.overflow = '';
       currentInsightEvent = null;
     }
