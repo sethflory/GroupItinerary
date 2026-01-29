@@ -88,6 +88,10 @@ function createTripSetupModal() {
           <span class="material-symbols-outlined">key</span>
           Access Codes
         </button>
+        <button class="tab" data-tab="import" onclick="switchTripSetupTab('import')">
+          <span class="material-symbols-outlined">upload</span>
+          Import
+        </button>
       </div>
       <div class="modal-body" id="tripSetupBody">
         <div class="loading-spinner">Loading...</div>
@@ -153,8 +157,10 @@ function renderTabContent() {
 
   if (activeTab === 'travelers') {
     renderTravelersTab(body);
-  } else {
+  } else if (activeTab === 'codes') {
     renderCodesTab(body);
+  } else if (activeTab === 'import') {
+    renderImportTab(body);
   }
 }
 
@@ -217,6 +223,50 @@ function renderCodesTab(container) {
       <span class="material-symbols-outlined">info</span>
       Click a code to reveal it. Each traveler uses their personal code to access the trip.
     </p>
+  `;
+}
+
+function renderImportTab(container) {
+  container.innerHTML = `
+    <div class="import-section">
+      <div class="import-card" onclick="openReceiptUploadModal(); closeTripSetupModal();">
+        <div class="import-icon">
+          <span class="material-symbols-outlined">receipt_long</span>
+        </div>
+        <div class="import-info">
+          <h4>Import from Receipt</h4>
+          <p>Upload a flight confirmation, hotel booking, or restaurant reservation. AI will extract the details automatically.</p>
+        </div>
+        <span class="material-symbols-outlined import-arrow">chevron_right</span>
+      </div>
+
+      <div class="import-card disabled">
+        <div class="import-icon">
+          <span class="material-symbols-outlined">mail</span>
+        </div>
+        <div class="import-info">
+          <h4>Import from Email</h4>
+          <p>Forward confirmation emails to import travel details. Coming soon!</p>
+        </div>
+        <span class="badge coming-soon">Soon</span>
+      </div>
+
+      <div class="import-card disabled">
+        <div class="import-icon">
+          <span class="material-symbols-outlined">calendar_month</span>
+        </div>
+        <div class="import-info">
+          <h4>Import from Calendar</h4>
+          <p>Sync events from Google Calendar or Outlook. Coming soon!</p>
+        </div>
+        <span class="badge coming-soon">Soon</span>
+      </div>
+    </div>
+
+    <div class="import-help">
+      <span class="material-symbols-outlined">lightbulb</span>
+      <p>Tip: For best results, upload clear images of booking confirmations. Screenshots work great!</p>
+    </div>
   `;
 }
 

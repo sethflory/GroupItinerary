@@ -22,6 +22,7 @@ import * as countdown from './ui/countdown.js';
 import * as modals from './ui/modals.js';
 import * as trivia from './ui/trivia.js';
 import * as tripSetup from './ui/tripSetup.js';
+import * as receiptUpload from './ui/receiptUpload.js';
 
 // ========================================
 // GLOBAL STATE
@@ -277,6 +278,13 @@ window.confirmDeleteTraveler = tripSetup.confirmDeleteTraveler;
 window.toggleCodeVisibility = tripSetup.toggleCodeVisibility;
 window.copyAccessCode = tripSetup.copyAccessCode;
 window.regenerateCode = tripSetup.regenerateCode;
+
+// ========================================
+// RECEIPT UPLOAD EXPORTS
+// ========================================
+
+window.openReceiptUploadModal = receiptUpload.openReceiptUploadModal;
+window.closeReceiptUploadModal = receiptUpload.closeReceiptUploadModal;
 
 // ========================================
 // DEPENDENCY INJECTION

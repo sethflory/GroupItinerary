@@ -1,0 +1,480 @@
+// ========================================
+// RECEIPT UPLOAD & PARSING
+// ========================================
+
+import { API_BASE } from '../config.js';
+import { currentTripId } from '../state.js';
+import { getStoredAccessCode } from '../auth.js';
+
+let extractedEvents = [];
+let currentImage = null;
+
+// ========================================
+// MODAL MANAGEMENT
+// ========================================
+
+export function openReceiptUploadModal() {
+  let modal = document.getElementById('receiptUploadModal');
+  if (!modal) {
+    createReceiptUploadModal();
+    modal = document.getElementById('receiptUploadModal');
+  }
+  modal.classList.add('active');
+  resetState();
+  showUploadStep();
+}
+
+export function closeReceiptUploadModal() {
+  const modal = document.getElementById('receiptUploadModal');
+  if (modal) {
+    modal.classList.remove('active');
+  }
+  resetState();
+}
+
+function resetState() {
+  extractedEvents = [];
+  currentImage = null;
+}
+
+function createReceiptUploadModal() {
+  const modal = document.createElement('div');
+  modal.id = 'receiptUploadModal';
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal receipt-upload-modal">
+      <div class="modal-header">
+        <h3><span class="material-symbols-outlined">receipt_long</span> Add from Receipt</h3>
+        <button class="modal-close" onclick="closeReceiptUploadModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body" id="receiptUploadBody">
+        <!-- Content rendered dynamically -->
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeReceiptUploadModal();
+  });
+}
+
+// ========================================
+// STEP 1: UPLOAD
+// ========================================
+
+function showUploadStep() {
+  const body = document.getElementById('receiptUploadBody');
+  body.innerHTML = `
+    <div class="receipt-upload-step">
+      <div class="upload-zone" id="receiptDropZone">
+        <span class="material-symbols-outlined upload-icon">cloud_upload</span>
+        <p class="upload-title">Drop your receipt here</p>
+        <p class="upload-subtitle">or click to browse</p>
+        <p class="upload-formats">Supports: JPG, PNG, PDF</p>
+        <input type="file" id="receiptFileInput" accept="image/*,.pdf" style="display: none">
+      </div>
+      <div class="upload-examples">
+        <p>Works great with:</p>
+        <ul>
+          <li><span class="material-symbols-outlined">flight</span> Flight confirmations</li>
+          <li><span class="material-symbols-outlined">hotel</span> Hotel bookings</li>
+          <li><span class="material-symbols-outlined">restaurant</span> Restaurant reservations</li>
+          <li><span class="material-symbols-outlined">confirmation_number</span> Activity tickets</li>
+        </ul>
+      </div>
+    </div>
+  `;
+
+  setupDropZone();
+}
+
+function setupDropZone() {
+  const dropZone = document.getElementById('receiptDropZone');
+  const fileInput = document.getElementById('receiptFileInput');
+
+  // Click to browse
+  dropZone.addEventListener('click', () => fileInput.click());
+
+  // File selected
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      handleFile(e.target.files[0]);
+    }
+  });
+
+  // Drag and drop
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragover');
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length > 0) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  });
+}
+
+async function handleFile(file) {
+  // Validate file type
+  const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+  if (!validTypes.includes(file.type)) {
+    alert('Please upload an image (JPG, PNG) or PDF file.');
+    return;
+  }
+
+  // Validate file size (max 10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    alert('File is too large. Please upload a file under 10MB.');
+    return;
+  }
+
+  // Convert to base64
+  const base64 = await fileToBase64(file);
+  currentImage = {
+    data: base64,
+    type: file.type,
+    name: file.name
+  };
+
+  showProcessingStep();
+  await parseReceipt();
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      // Remove the data URL prefix to get just the base64 data
+      const base64 = reader.result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ========================================
+// STEP 2: PROCESSING
+// ========================================
+
+function showProcessingStep() {
+  const body = document.getElementById('receiptUploadBody');
+  body.innerHTML = `
+    <div class="receipt-processing-step">
+      <div class="processing-preview">
+        ${currentImage.type === 'application/pdf'
+          ? '<span class="material-symbols-outlined pdf-icon">picture_as_pdf</span>'
+          : `<img src="data:${currentImage.type};base64,${currentImage.data}" alt="Receipt preview">`
+        }
+      </div>
+      <div class="processing-status">
+        <span class="material-symbols-outlined spinning">progress_activity</span>
+        <p>Analyzing your receipt...</p>
+        <p class="processing-subtitle">Extracting travel details with AI</p>
+      </div>
+    </div>
+  `;
+}
+
+async function parseReceipt() {
+  try {
+    const accessCode = getStoredAccessCode(currentTripId);
+
+    const response = await fetch(`${API_BASE}/receipts/parse`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image: currentImage.data,
+        imageType: currentImage.type,
+        tripId: currentTripId,
+        accessCode
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || 'Failed to parse receipt');
+    }
+
+    extractedEvents = result.events || [];
+    showReviewStep(result);
+
+  } catch (err) {
+    console.error('[ReceiptUpload] Parse error:', err);
+    showErrorStep(err.message);
+  }
+}
+
+// ========================================
+// STEP 3: REVIEW
+// ========================================
+
+function showReviewStep(result) {
+  const body = document.getElementById('receiptUploadBody');
+
+  if (extractedEvents.length === 0) {
+    body.innerHTML = `
+      <div class="receipt-review-step">
+        <div class="review-empty">
+          <span class="material-symbols-outlined">search_off</span>
+          <h4>No events found</h4>
+          <p>${result.notes || "We couldn't extract any travel events from this image."}</p>
+          <button class="btn secondary" onclick="showUploadStep()">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Try another image
+          </button>
+        </div>
+      </div>
+    `;
+    // Re-expose showUploadStep to window for onclick
+    window.showUploadStep = showUploadStep;
+    return;
+  }
+
+  body.innerHTML = `
+    <div class="receipt-review-step">
+      <div class="review-header">
+        <span class="material-symbols-outlined success-icon">check_circle</span>
+        <div>
+          <h4>Found ${extractedEvents.length} event${extractedEvents.length > 1 ? 's' : ''}</h4>
+          <p class="confidence-badge ${result.confidence}">Confidence: ${result.confidence}</p>
+        </div>
+      </div>
+
+      <div class="extracted-events-list">
+        ${extractedEvents.map((event, i) => renderExtractedEvent(event, i)).join('')}
+      </div>
+
+      ${result.notes ? `<p class="review-notes"><span class="material-symbols-outlined">info</span> ${result.notes}</p>` : ''}
+
+      <div class="review-actions">
+        <button class="btn secondary" onclick="showUploadStep()">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Back
+        </button>
+        <button class="btn primary" onclick="saveExtractedEvents()">
+          <span class="material-symbols-outlined">add</span>
+          Add ${extractedEvents.length} Event${extractedEvents.length > 1 ? 's' : ''}
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Expose functions to window for onclick handlers
+  window.showUploadStep = showUploadStep;
+  window.saveExtractedEvents = saveExtractedEvents;
+  window.toggleEventSelection = toggleEventSelection;
+  window.editExtractedEvent = editExtractedEvent;
+}
+
+function renderExtractedEvent(event, index) {
+  const icon = getEventIcon(event.type);
+  const dateStr = event.date ? formatDate(event.date) : 'Date TBD';
+  const timeStr = event.time || '';
+
+  return `
+    <div class="extracted-event-card" data-index="${index}">
+      <div class="event-checkbox">
+        <input type="checkbox" id="event-${index}" checked onchange="toggleEventSelection(${index})">
+      </div>
+      <div class="event-icon ${event.type}">
+        <span class="material-symbols-outlined">${icon}</span>
+      </div>
+      <div class="event-details">
+        <h5>${escapeHtml(event.title)}</h5>
+        <p class="event-meta">
+          <span class="material-symbols-outlined">calendar_today</span>
+          ${dateStr}
+          ${timeStr ? `<span class="material-symbols-outlined">schedule</span> ${timeStr}` : ''}
+        </p>
+        ${event.location ? `<p class="event-location"><span class="material-symbols-outlined">location_on</span> ${escapeHtml(event.location)}</p>` : ''}
+        ${event.flightCode ? `<p class="event-flight"><span class="material-symbols-outlined">flight</span> ${escapeHtml(event.flightCode)} &bull; ${escapeHtml(event.from)} → ${escapeHtml(event.to)}</p>` : ''}
+      </div>
+      <button class="edit-event-btn" onclick="editExtractedEvent(${index})" title="Edit">
+        <span class="material-symbols-outlined">edit</span>
+      </button>
+    </div>
+  `;
+}
+
+function toggleEventSelection(index) {
+  const checkbox = document.getElementById(`event-${index}`);
+  const card = document.querySelector(`.extracted-event-card[data-index="${index}"]`);
+  if (card) {
+    card.classList.toggle('deselected', !checkbox.checked);
+  }
+}
+
+function editExtractedEvent(index) {
+  // TODO: Implement inline editing
+  console.log('Edit event:', index, extractedEvents[index]);
+  alert('Event editing coming soon! For now, you can edit after adding.');
+}
+
+// ========================================
+// STEP 4: SAVE
+// ========================================
+
+async function saveExtractedEvents() {
+  // Get selected events
+  const selectedEvents = extractedEvents.filter((_, i) => {
+    const checkbox = document.getElementById(`event-${i}`);
+    return checkbox && checkbox.checked;
+  });
+
+  if (selectedEvents.length === 0) {
+    alert('Please select at least one event to add.');
+    return;
+  }
+
+  const btn = document.querySelector('.review-actions .btn.primary');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined spinning">progress_activity</span> Saving...';
+  }
+
+  try {
+    const accessCode = getStoredAccessCode(currentTripId);
+    let savedCount = 0;
+
+    for (const event of selectedEvents) {
+      // Convert to our event format
+      const eventData = {
+        date: event.date,
+        time: event.time || null,
+        endTime: event.endTime || null,
+        type: event.type || 'activity',
+        title: event.title,
+        subtitle: event.details || null,
+        where: event.location || null,
+        status: 'confirmed',
+        travelers: ['all'],
+        isUserGenerated: true,
+        // Flight-specific fields
+        flightCode: event.flightCode || null,
+        airline: event.airline || null,
+        from: event.from || null,
+        to: event.to || null,
+        // Hotel-specific fields
+        address: event.address || null
+      };
+
+      const response = await fetch(`${API_BASE}/events?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventData)
+      });
+
+      if (response.ok) {
+        savedCount++;
+      } else {
+        console.error('Failed to save event:', event.title);
+      }
+    }
+
+    showSuccessStep(savedCount);
+
+  } catch (err) {
+    console.error('[ReceiptUpload] Save error:', err);
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">add</span> Add Events';
+    }
+    alert('Failed to save events: ' + err.message);
+  }
+}
+
+// ========================================
+// SUCCESS STEP
+// ========================================
+
+function showSuccessStep(count) {
+  const body = document.getElementById('receiptUploadBody');
+  body.innerHTML = `
+    <div class="receipt-success-step">
+      <span class="material-symbols-outlined success-icon">celebration</span>
+      <h4>Added ${count} event${count > 1 ? 's' : ''}!</h4>
+      <p>Your itinerary has been updated.</p>
+      <div class="success-actions">
+        <button class="btn secondary" onclick="showUploadStep()">
+          <span class="material-symbols-outlined">add</span>
+          Add more
+        </button>
+        <button class="btn primary" onclick="closeReceiptUploadModal(); if(window.refreshTripData) window.refreshTripData();">
+          <span class="material-symbols-outlined">done</span>
+          Done
+        </button>
+      </div>
+    </div>
+  `;
+
+  window.showUploadStep = showUploadStep;
+}
+
+// ========================================
+// ERROR STEP
+// ========================================
+
+function showErrorStep(message) {
+  const body = document.getElementById('receiptUploadBody');
+  body.innerHTML = `
+    <div class="receipt-error-step">
+      <span class="material-symbols-outlined error-icon">error</span>
+      <h4>Something went wrong</h4>
+      <p>${escapeHtml(message)}</p>
+      <button class="btn secondary" onclick="showUploadStep()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Try again
+      </button>
+    </div>
+  `;
+
+  window.showUploadStep = showUploadStep;
+}
+
+// ========================================
+// HELPERS
+// ========================================
+
+function getEventIcon(type) {
+  const icons = {
+    flight: 'flight',
+    hotel: 'hotel',
+    activity: 'local_activity',
+    meal: 'restaurant',
+    transport: 'directions_car',
+    other: 'event'
+  };
+  return icons[type] || 'event';
+}
+
+function formatDate(dateStr) {
+  try {
+    const date = new Date(dateStr + 'T00:00:00');
+    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  } catch {
+    return dateStr;
+  }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[char]);
+}
