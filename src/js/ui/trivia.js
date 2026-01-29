@@ -335,9 +335,13 @@ export async function submitTriviaAnswer() {
 function showAnswerResult(result) {
   clearInterval(triviaInterval);
 
+  console.log('[Trivia] Answer result:', result);
+  const correctIdx = parseInt(result.correctIndex, 10);
+  console.log('[Trivia] Correct index:', correctIdx, 'Selected:', selectedAnswer);
+
   document.querySelectorAll('.trivia-answer-btn').forEach((btn, i) => {
     btn.disabled = true;
-    if (i === result.correctIndex) {
+    if (i === correctIdx) {
       btn.classList.add('correct');
     } else if (i === selectedAnswer && !result.correct) {
       btn.classList.add('incorrect');
