@@ -183,6 +183,7 @@ window.deleteEvent = events.deleteEvent;
 
 window.openShareModal = share.openShareModal;
 window.openStatsShareModal = share.openStatsShareModal;
+window.openMapShareModal = share.openMapShareModal;
 window.closeShareModal = share.closeShareModal;
 window.toggleEventPicker = share.toggleEventPicker;
 window.addShareEvent = share.addShareEvent;
@@ -191,6 +192,7 @@ window.regeneratePost = share.regeneratePost;
 window.shareToTwitter = share.shareToTwitter;
 window.shareToFacebook = share.shareToFacebook;
 window.copyToClipboard = share.copyToClipboard;
+window.setShareMapMode = share.setShareMapMode;
 
 // ========================================
 // AI EXPORTS

@@ -93,3 +93,9 @@ export const API_BASE = '/api';
 // Photo settings
 export const MAX_RIBBON_PHOTOS = 12;
 export const PLACEHOLDER_COUNT = 6;
+
+// Map settings (Mapbox Static Images API)
+// Token should be a public token with URL restrictions configured in Mapbox dashboard
+export const MAPBOX_TOKEN = 'pk.eyJ1IjoiZ3JvdXBpdGluZXJhcnkiLCJhIjoiY200ZXhhbXBsZSJ9.example';
+export const MAP_STYLE = 'mapbox/streets-v12';
+export const MAP_MARKER_COLOR = 'ff7e5f'; // Sunrise orange

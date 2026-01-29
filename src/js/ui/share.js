@@ -4,10 +4,13 @@
 
 import { currentTripId, getCurrentTrip } from '../state.js';
 import { escapeHtml } from '../utils.js';
+import { generateTripMapUrl, generateDayMapUrl, getTripMapSummary } from '../utils/map.js';
 
 let DAYS, TRAVELERS, DESTINATIONS;
 let selectedShareEvents = [];
 let currentPostStyle = 0;
+let shareMapMode = 'trip'; // 'trip' | 'today' | 'none'
+let currentMapUrl = null;
 
 const POST_STYLES = [
   { name: 'excited', prefix: '✈️ ', suffix: ' #TravelDreams #Wanderlust' },
@@ -161,6 +164,8 @@ export function openStatsShareModal() {
 export function closeShareModal() {
   // Reset stats mode
   window.statsShareMode = false;
+  shareMapMode = 'trip';
+  currentMapUrl = null;
   const addEventsEl = document.querySelector('.share-add-events');
   if (addEventsEl) addEventsEl.style.display = '';
 
@@ -169,9 +174,90 @@ export function closeShareModal() {
   selectedShareEvents = [];
 }
 
+// ========================================
+// MAP SHARING
+// ========================================
+
+export function setShareMapMode(mode) {
+  shareMapMode = mode;
+  updateMapPreview();
+
+  // Update toggle buttons
+  document.querySelectorAll('.map-mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+}
+
+function updateMapPreview() {
+  const previewEl = document.getElementById('shareMapPreview');
+  if (!previewEl) return;
+
+  if (shareMapMode === 'none') {
+    previewEl.innerHTML = '<div class="map-placeholder">No map</div>';
+    currentMapUrl = null;
+    return;
+  }
+
+  // Find today's day
+  const today = new Date().toISOString().split('T')[0];
+  const todayDay = DAYS.find(d => d.date === today);
+
+  if (shareMapMode === 'today' && todayDay) {
+    currentMapUrl = generateDayMapUrl(DESTINATIONS, todayDay);
+  } else {
+    currentMapUrl = generateTripMapUrl(DESTINATIONS, DAYS);
+  }
+
+  if (currentMapUrl) {
+    previewEl.innerHTML = `
+      <img src="${currentMapUrl}" alt="Trip map" class="share-map-img" onerror="this.parentElement.innerHTML='<div class=\\'map-placeholder\\'>Map unavailable</div>'">
+    `;
+  } else {
+    previewEl.innerHTML = '<div class="map-placeholder">Map unavailable</div>';
+  }
+}
+
+export function openMapShareModal() {
+  shareMapMode = 'trip';
+  selectedShareEvents = [];
+
+  // Generate map
+  updateMapPreview();
+
+  // Get trip summary
+  const summary = getTripMapSummary(DESTINATIONS, DAYS);
+  const trip = getCurrentTrip();
+
+  // Generate post with map
+  const mapPost = `🗺️ ${trip.name}\n\n` +
+    `📍 ${summary.cities.join(' → ')}\n` +
+    `🌍 ${summary.countries.length} ${summary.countries.length === 1 ? 'country' : 'countries'}\n` +
+    `📅 ${summary.totalDays} days of adventure\n\n` +
+    `#TravelMap #Wanderlust`;
+
+  document.getElementById('shareModal').classList.add('active');
+  document.getElementById('shareSelectedEvents').innerHTML = `
+    <span class="share-event-chip">
+      <span class="material-symbols-outlined">map</span>
+      Trip Map
+    </span>
+  `;
+  document.getElementById('shareEventPicker').classList.remove('active');
+  document.querySelector('.share-add-events').style.display = 'none';
+  document.getElementById('shareTextarea').value = mapPost;
+  updateCharCount();
+
+  // Show map controls
+  const mapControls = document.getElementById('shareMapControls');
+  if (mapControls) {
+    mapControls.style.display = 'flex';
+  }
+}
+
 function renderShareModal() {
   renderSelectedEvents();
   renderEventPicker();
+  updateMapPreview();
 }
 
 function renderSelectedEvents() {

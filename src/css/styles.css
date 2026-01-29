@@ -707,6 +707,8 @@
       border-top: 1px solid var(--color-border);
       display: flex;
       justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     .stats-share-btn {
@@ -722,6 +724,14 @@
       font-size: 0.9rem;
       font-weight: 500;
       transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stats-share-btn.map-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    .stats-share-btn.map-btn:hover {
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     }
 
     .stats-share-btn:hover {
@@ -2270,6 +2280,72 @@
     .share-regenerate:hover {
       border-color: var(--color-sunset);
       color: var(--color-sunset);
+    }
+
+    /* Share Map Section */
+    .share-map-section {
+      margin-bottom: 16px;
+    }
+
+    .share-map-controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .map-mode-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px 12px;
+      background: var(--color-cream);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--color-muted);
+      transition: all 0.2s;
+    }
+
+    .map-mode-btn:hover {
+      border-color: var(--color-sunset);
+      color: var(--color-sunset);
+    }
+
+    .map-mode-btn.active {
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      border-color: transparent;
+      color: white;
+    }
+
+    .map-mode-btn .material-symbols-outlined {
+      font-size: 16px;
+    }
+
+    .share-map-preview {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--color-cream);
+      min-height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .share-map-img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .map-placeholder {
+      color: var(--color-muted);
+      font-size: 0.9rem;
+      padding: 40px;
+      text-align: center;
     }
 
     /* Event Form Modal */

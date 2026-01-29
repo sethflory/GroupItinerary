@@ -115,7 +115,11 @@
     <div class="stats-share">
       <button class="stats-share-btn" onclick="openStatsShareModal()">
         <span class="material-symbols-outlined">share</span>
-        Share Trip Stats
+        Share Stats
+      </button>
+      <button class="stats-share-btn map-btn" onclick="openMapShareModal()">
+        <span class="material-symbols-outlined">map</span>
+        Share Map
       </button>
     </div>
     <div class="stats-detail">
@@ -402,6 +406,25 @@
             Add more moments to your post
           </button>
           <div class="share-event-picker" id="shareEventPicker"></div>
+        </div>
+
+        <!-- Map Preview Section -->
+        <div class="share-section share-map-section">
+          <div class="share-section-label">Trip Map</div>
+          <div class="share-map-controls" id="shareMapControls">
+            <button class="map-mode-btn active" data-mode="trip" onclick="setShareMapMode('trip')">
+              <span class="material-symbols-outlined">public</span> Full Trip
+            </button>
+            <button class="map-mode-btn" data-mode="today" onclick="setShareMapMode('today')">
+              <span class="material-symbols-outlined">today</span> Today
+            </button>
+            <button class="map-mode-btn" data-mode="none" onclick="setShareMapMode('none')">
+              <span class="material-symbols-outlined">hide_image</span> No Map
+            </button>
+          </div>
+          <div class="share-map-preview" id="shareMapPreview">
+            <div class="map-placeholder">Loading map...</div>
+          </div>
         </div>
 
         <div class="share-section">
