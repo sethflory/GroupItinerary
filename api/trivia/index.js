@@ -56,11 +56,24 @@ module.exports = async function (context, req) {
 
 async function getActiveRound(context, tripId, headers) {
   const rounds = await queryByPartition(TABLES.TRIVIA_ROUNDS, tripId);
-  const activeRound = rounds.find(r => r.status === "active" || r.status === "countdown");
+  const activeRound = rounds.find(r => r.status === "active");
+
   if (!activeRound) {
     sendSuccess(context, { active: false }, 200, headers);
     return;
   }
+
+  // Auto-complete expired rounds
+  const now = new Date();
+  const questionEnd = new Date(activeRound.questionEndsAt);
+
+  if (now > questionEnd) {
+    activeRound.status = "completed";
+    await upsertEntity(TABLES.TRIVIA_ROUNDS, activeRound);
+    sendSuccess(context, { active: false }, 200, headers);
+    return;
+  }
+
   sendSuccess(context, { active: true, round: formatRound(activeRound) }, 200, headers);
 }
 
@@ -68,7 +81,19 @@ async function startRound(context, tripId, body, auth, headers) {
   const { category, eventContext } = body || {};
 
   const rounds = await queryByPartition(TABLES.TRIVIA_ROUNDS, tripId);
-  const activeRound = rounds.find(r => r.status === "active" || r.status === "countdown");
+  let activeRound = rounds.find(r => r.status === "active");
+
+  // Auto-complete expired rounds
+  if (activeRound) {
+    const now = new Date();
+    const questionEnd = new Date(activeRound.questionEndsAt);
+    if (now > questionEnd) {
+      activeRound.status = "completed";
+      await upsertEntity(TABLES.TRIVIA_ROUNDS, activeRound);
+      activeRound = null;
+    }
+  }
+
   if (activeRound) {
     sendError(context, "A round is already in progress", 400, headers);
     return;
@@ -89,7 +114,7 @@ async function startRound(context, tripId, body, auth, headers) {
     partitionKey: tripId,
     rowKey: roundId,
     id: roundId,
-    status: "countdown",
+    status: "active",
     category: category || "general",
     question: question.question,
     answers: JSON.stringify(question.answers),
@@ -120,6 +145,20 @@ async function submitAnswer(context, tripId, body, auth, headers) {
   }
   if (round.status !== "active") {
     sendError(context, "Round is not active", 400, headers);
+    return;
+  }
+
+  // Validate timing - must be after countdown and before question ends
+  const now = new Date();
+  const countdownEnd = new Date(round.countdownEndsAt);
+  const questionEnd = new Date(round.questionEndsAt);
+
+  if (now < countdownEnd) {
+    sendError(context, "Round hasn't started yet", 400, headers);
+    return;
+  }
+  if (now > questionEnd) {
+    sendError(context, "Time's up!", 400, headers);
     return;
   }
 
