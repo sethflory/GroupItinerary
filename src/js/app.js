@@ -21,6 +21,7 @@ import * as stats from './ui/stats.js';
 import * as countdown from './ui/countdown.js';
 import * as modals from './ui/modals.js';
 import * as trivia from './ui/trivia.js';
+import * as tripSetup from './ui/tripSetup.js';
 
 // ========================================
 // GLOBAL STATE
@@ -260,6 +261,23 @@ window.addManualScore = trivia.addManualScore;
 window.finishScoring = trivia.finishScoring;
 
 // ========================================
+// TRIP SETUP EXPORTS
+// ========================================
+
+window.openTripSetupModal = tripSetup.openTripSetupModal;
+window.closeTripSetupModal = tripSetup.closeTripSetupModal;
+window.switchTripSetupTab = tripSetup.switchTripSetupTab;
+window.showAddTravelerForm = tripSetup.showAddTravelerForm;
+window.hideAddTravelerForm = tripSetup.hideAddTravelerForm;
+window.submitAddTraveler = tripSetup.submitAddTraveler;
+window.editTraveler = tripSetup.editTraveler;
+window.submitEditTraveler = tripSetup.submitEditTraveler;
+window.confirmDeleteTraveler = tripSetup.confirmDeleteTraveler;
+window.toggleCodeVisibility = tripSetup.toggleCodeVisibility;
+window.copyAccessCode = tripSetup.copyAccessCode;
+window.regenerateCode = tripSetup.regenerateCode;
+
+// ========================================
 // DEPENDENCY INJECTION
 // ========================================
 
@@ -402,6 +420,9 @@ function init() {
   auth.checkAccessOnLoad((session) => {
     // Callback when access is granted
     console.log('[App] Access granted, session:', session);
+
+    // Re-apply feature flags now that we know the user's role
+    applyFeatureFlags();
 
     // Load trip data from API if enabled
     if (isFeatureEnabled('USE_TABLE_STORAGE')) {

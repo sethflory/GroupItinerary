@@ -196,11 +196,10 @@ async function submitAnswer(context, tripId, body, auth, headers) {
     return;
   }
 
-  // Get traveler ID - for admin users without travelerId, use a generated ID
-  const travelerId = auth.travelerId || auth.userId || `admin_${Date.now()}`;
-  if (!auth.travelerId && !auth.userId) {
-    console.log("[Trivia] Admin user without travelerId, using:", travelerId);
-  }
+  // Get traveler ID - for admin users without travelerId, use stable "admin" ID
+  const travelerId = auth.travelerId || auth.userId || "admin";
+  const displayName = auth.isAdmin ? "Admin" : null;
+  console.log("[Trivia] Using travelerId:", travelerId, "isAdmin:", auth.isAdmin);
 
   console.log("[Trivia] Getting round from table storage:", tripId, roundId);
   const round = await getEntity(TABLES.TRIVIA_ROUNDS, tripId, roundId);
@@ -263,7 +262,7 @@ async function submitAnswer(context, tripId, body, auth, headers) {
 
   round.responses = JSON.stringify(responses);
   await upsertEntity(TABLES.TRIVIA_ROUNDS, round);
-  await updateLeaderboard(tripId, travelerId, points, isCorrect);
+  await updateLeaderboard(tripId, travelerId, points, isCorrect, displayName);
 
   sendSuccess(context, { correct: isCorrect, points, correctIndex: correctIdx }, 200, headers);
 }

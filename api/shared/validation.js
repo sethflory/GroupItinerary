@@ -43,7 +43,8 @@ function validateTripAccess(req) {
     return { valid: false, error: "Invalid access code", status: 403 };
   }
 
-  return { valid: true, tripId };
+  // Trip-level code = admin access
+  return { valid: true, tripId, isAdmin: true, userId: "admin", travelerId: null };
 }
 
 // Validate traveler-specific access (new pattern for per-traveler codes)

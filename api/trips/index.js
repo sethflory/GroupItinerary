@@ -3,7 +3,9 @@ const {
   getEntity,
   queryByPartition,
   queryEntities,
-  upsertEntity
+  upsertEntity,
+  deleteEntity,
+  generateRowKey
 } = require("../shared/tableStorage");
 const {
   getHeaders,
@@ -14,11 +16,11 @@ const {
 } = require("../shared/validation");
 
 module.exports = async function (context, req) {
-  const headers = getHeaders("GET, PUT, OPTIONS");
+  const headers = getHeaders("GET, POST, PUT, DELETE, OPTIONS");
 
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
-    handleOptions(context, "GET, PUT, OPTIONS");
+    handleOptions(context, "GET, POST, PUT, DELETE, OPTIONS");
     return;
   }
 
@@ -26,9 +28,10 @@ module.exports = async function (context, req) {
   const tripId = context.bindingData.tripId;
   const resource = context.bindingData.resource;
   const resourceId = context.bindingData.resourceId;
+  const subAction = context.bindingData.subAction;
 
   // Validate access
-  const auth = requireAuth(context, req, { methods: "GET, PUT, OPTIONS" });
+  const auth = requireAuth(context, req, { methods: "GET, POST, PUT, DELETE, OPTIONS" });
   if (!auth) return;
 
   // Verify tripId matches auth
@@ -67,6 +70,15 @@ module.exports = async function (context, req) {
         if (req.method === "GET") {
           return await getTravelers(context, auth.tripId, headers);
         }
+        // POST /api/trips/{tripId}/travelers - Create new traveler
+        if (req.method === "POST") {
+          return await createTraveler(context, auth.tripId, req.body, headers);
+        }
+      } else if (subAction === "code") {
+        // PUT /api/trips/{tripId}/travelers/{travelerId}/code - Regenerate access code
+        if (req.method === "PUT") {
+          return await regenerateAccessCode(context, auth.tripId, resourceId, headers);
+        }
       } else {
         // PUT /api/trips/{tripId}/travelers/{travelerId} - Update traveler
         if (req.method === "PUT") {
@@ -75,6 +87,10 @@ module.exports = async function (context, req) {
         // GET /api/trips/{tripId}/travelers/{travelerId} - Get single traveler
         if (req.method === "GET") {
           return await getTraveler(context, auth.tripId, resourceId, headers);
+        }
+        // DELETE /api/trips/{tripId}/travelers/{travelerId} - Delete traveler
+        if (req.method === "DELETE") {
+          return await deleteTraveler(context, auth.tripId, resourceId, headers);
         }
       }
     } else if (resource === "days") {
@@ -134,8 +150,8 @@ async function getTripDetails(context, tripId, headers) {
   }, 200, headers);
 }
 
-// Get all travelers for a trip
-async function getTravelers(context, tripId, headers) {
+// Get all travelers for a trip (includes access codes for admin view)
+async function getTravelers(context, tripId, headers, includeAccessCodes = true) {
   const entities = await queryByPartition(TABLES.TRAVELERS, tripId);
 
   const travelers = entities.map(e => ({
@@ -144,7 +160,9 @@ async function getTravelers(context, tripId, headers) {
     group: e.group,
     color: e.color,
     initials: e.initials,
-    triviaScore: e.triviaScore || 0
+    triviaScore: e.triviaScore || 0,
+    // Include access codes for Trip Setup management
+    accessCode: includeAccessCodes ? (e.accessCode || null) : undefined
   }));
 
   sendSuccess(context, { travelers }, 200, headers);
@@ -177,7 +195,7 @@ async function updateTraveler(context, tripId, travelerId, body, headers) {
   }
 
   // Only allow updating certain fields
-  const allowedFields = ["name", "color", "initials", "triviaScore"];
+  const allowedFields = ["name", "group", "color", "initials", "triviaScore"];
   const updates = {};
   for (const field of allowedFields) {
     if (body[field] !== undefined) {
@@ -444,4 +462,148 @@ async function getFullTrip(context, tripId, headers) {
     phases,
     carousels
   }, 200, headers);
+}
+
+// Create a new traveler
+async function createTraveler(context, tripId, body, headers) {
+  const { name, group, color } = body || {};
+
+  if (!name || name.trim().length < 1) {
+    sendError(context, "Name is required", 400, headers);
+    return;
+  }
+
+  // Generate initials from name
+  const nameParts = name.trim().split(/\s+/);
+  const initials = nameParts.length >= 2
+    ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+    : name.trim().substring(0, 2).toUpperCase();
+
+  // Generate a unique traveler ID
+  const travelerId = name.toLowerCase().replace(/[^a-z0-9]/g, "") + "_" + Date.now().toString(36);
+
+  // Generate access code: name + year or random
+  const accessCode = generateAccessCode(name);
+
+  const traveler = {
+    partitionKey: tripId,
+    rowKey: travelerId,
+    name: name.trim(),
+    group: group || "guest",
+    color: color || getDefaultColor(),
+    initials,
+    accessCode,
+    triviaScore: 0,
+    createdAt: new Date().toISOString()
+  };
+
+  await upsertEntity(TABLES.TRAVELERS, traveler);
+
+  sendSuccess(context, {
+    id: traveler.rowKey,
+    name: traveler.name,
+    group: traveler.group,
+    color: traveler.color,
+    initials: traveler.initials,
+    accessCode: traveler.accessCode,
+    triviaScore: 0
+  }, 201, headers);
+}
+
+// Delete a traveler
+async function deleteTraveler(context, tripId, travelerId, headers) {
+  // Check if traveler exists
+  const existing = await getEntity(TABLES.TRAVELERS, tripId, travelerId);
+  if (!existing) {
+    sendError(context, "Traveler not found", 404, headers);
+    return;
+  }
+
+  // Check if this is the last traveler
+  const allTravelers = await queryByPartition(TABLES.TRAVELERS, tripId);
+  if (allTravelers.length <= 1) {
+    sendError(context, "Cannot delete the last traveler", 400, headers);
+    return;
+  }
+
+  // Delete from Travelers table
+  await deleteEntity(TABLES.TRAVELERS, tripId, travelerId);
+
+  // Also try to delete from TripMembers if exists (new identity system)
+  try {
+    const members = await queryByPartition(TABLES.TRIP_MEMBERS, tripId);
+    const memberToDelete = members.find(m =>
+      m.legacyTravelerId === travelerId || m.rowKey === `member_${travelerId}`
+    );
+    if (memberToDelete) {
+      await deleteEntity(TABLES.TRIP_MEMBERS, tripId, memberToDelete.rowKey);
+    }
+  } catch (err) {
+    // Ignore errors from TripMembers cleanup
+    console.log("TripMembers cleanup skipped:", err.message);
+  }
+
+  sendSuccess(context, { success: true, deleted: travelerId }, 200, headers);
+}
+
+// Regenerate access code for a traveler
+async function regenerateAccessCode(context, tripId, travelerId, headers) {
+  const existing = await getEntity(TABLES.TRAVELERS, tripId, travelerId);
+  if (!existing) {
+    sendError(context, "Traveler not found", 404, headers);
+    return;
+  }
+
+  // Generate new access code
+  const newCode = generateAccessCode(existing.name);
+
+  const updated = {
+    ...existing,
+    partitionKey: tripId,
+    rowKey: travelerId,
+    accessCode: newCode,
+    codeUpdatedAt: new Date().toISOString()
+  };
+
+  await upsertEntity(TABLES.TRAVELERS, updated);
+
+  // Also update TripMembers if exists
+  try {
+    const members = await queryByPartition(TABLES.TRIP_MEMBERS, tripId);
+    const memberToUpdate = members.find(m =>
+      m.legacyTravelerId === travelerId || m.rowKey === `member_${travelerId}`
+    );
+    if (memberToUpdate) {
+      memberToUpdate.tripCode = newCode;
+      await upsertEntity(TABLES.TRIP_MEMBERS, memberToUpdate);
+    }
+  } catch (err) {
+    console.log("TripMembers code update skipped:", err.message);
+  }
+
+  sendSuccess(context, {
+    id: travelerId,
+    accessCode: newCode
+  }, 200, headers);
+}
+
+// Helper to generate access code
+function generateAccessCode(name) {
+  const year = new Date().getFullYear();
+  const cleanName = name.toLowerCase().replace(/[^a-z]/g, "");
+  const shortName = cleanName.substring(0, 6);
+  // Add random suffix for uniqueness
+  const suffix = Math.random().toString(36).substring(2, 5);
+  return `${shortName}${year}${suffix}`;
+}
+
+// Helper to get a default color
+function getDefaultColor() {
+  const colors = [
+    "#e91e63", "#9c27b0", "#673ab7", "#3f51b5",
+    "#2196f3", "#03a9f4", "#00bcd4", "#009688",
+    "#4caf50", "#8bc34a", "#cddc39", "#ffeb3b",
+    "#ffc107", "#ff9800", "#ff5722", "#795548"
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
 }

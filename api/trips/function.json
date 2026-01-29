@@ -5,8 +5,8 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["get", "put", "options"],
-      "route": "trips/{tripId}/{resource?}/{resourceId?}"
+      "methods": ["get", "post", "put", "delete", "options"],
+      "route": "trips/{tripId}/{resource?}/{resourceId?}/{subAction?}"
     },
     {
       "type": "http",

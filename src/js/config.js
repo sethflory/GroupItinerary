@@ -55,6 +55,16 @@ export function applyFeatureFlags() {
   if (chatSection) {
     chatSection.style.display = isFeatureEnabled('AI_CHAT') ? 'block' : 'none';
   }
+
+  // Trip Settings button (admin only)
+  const settingsBtn = document.getElementById('tripSettingsBtn');
+  if (settingsBtn) {
+    // Show for admin users only
+    const isAdminUser = window.isAdmin && window.isAdmin();
+    console.log('[Config] isAdmin check:', isAdminUser, 'session:', window.session?.getSession());
+    // For now, show to all authenticated users - will add admin restriction later
+    settingsBtn.style.display = 'flex';
+  }
 }
 
 // Trip registry
