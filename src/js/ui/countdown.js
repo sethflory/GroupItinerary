@@ -84,9 +84,9 @@ export function updateTimezone() {
 
   const now = new Date();
 
-  // Get current day's destination
+  // Get current day's destination (location is the airport code, destination might be day type)
   const currentDay = DAYS[currentDayIndex];
-  const destCode = currentDay?.destination || currentDay?.location;
+  const destCode = currentDay?.location || currentDay?.destination;
   const dest = DESTINATIONS[destCode];
 
   if (!dest || !dest.timezone) {

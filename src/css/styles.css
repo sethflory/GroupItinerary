@@ -46,7 +46,7 @@
       padding: 24px 20px 32px;
       color: white;
       position: relative;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .header::before {
