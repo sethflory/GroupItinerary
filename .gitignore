@@ -4,6 +4,8 @@ api/node_modules/
 
 # Local settings (contains secrets)
 api/local.settings.json
+api/.env
+.env
 
 # Build output
 dist/
