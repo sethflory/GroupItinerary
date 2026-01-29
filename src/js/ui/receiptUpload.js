@@ -73,8 +73,8 @@ function showUploadStep() {
         <span class="material-symbols-outlined upload-icon">cloud_upload</span>
         <p class="upload-title">Drop your receipt here</p>
         <p class="upload-subtitle">or click to browse</p>
-        <p class="upload-formats">Supports: JPG, PNG, PDF</p>
-        <input type="file" id="receiptFileInput" accept="image/*,.pdf" style="display: none">
+        <p class="upload-formats">Supports: JPG, PNG, GIF, WebP</p>
+        <input type="file" id="receiptFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display: none">
       </div>
       <div class="upload-examples">
         <p>Works great with:</p>
@@ -125,10 +125,10 @@ function setupDropZone() {
 }
 
 async function handleFile(file) {
-  // Validate file type
-  const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+  // Validate file type (Claude vision API only supports images, not PDFs)
+  const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
   if (!validTypes.includes(file.type)) {
-    alert('Please upload an image (JPG, PNG) or PDF file.');
+    alert('Please upload an image file (JPG, PNG, GIF, or WebP).');
     return;
   }
 
@@ -172,10 +172,7 @@ function showProcessingStep() {
   body.innerHTML = `
     <div class="receipt-processing-step">
       <div class="processing-preview">
-        ${currentImage.type === 'application/pdf'
-          ? '<span class="material-symbols-outlined pdf-icon">picture_as_pdf</span>'
-          : `<img src="data:${currentImage.type};base64,${currentImage.data}" alt="Receipt preview">`
-        }
+        <img src="data:${currentImage.type};base64,${currentImage.data}" alt="Receipt preview">
       </div>
       <div class="processing-status">
         <span class="material-symbols-outlined spinning">progress_activity</span>

@@ -51,6 +51,13 @@ async function parseReceipt(context, body, headers) {
   // Determine media type
   const mediaType = imageType || detectMediaType(image);
 
+  // Validate media type - Claude vision API only supports images, not PDFs
+  const supportedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+  if (!supportedTypes.includes(mediaType)) {
+    sendError(context, `Unsupported file type: ${mediaType}. Please upload a JPG, PNG, GIF, or WebP image.`, 400, headers);
+    return;
+  }
+
   // Build the prompt for extracting event data
   const systemPrompt = `You are an expert at extracting travel itinerary information from receipts, confirmations, and booking documents.
 
@@ -123,7 +130,7 @@ If you cannot extract any events, return:
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 2048,
         system: systemPrompt,
         messages: [
@@ -152,7 +159,8 @@ If you cannot extract any events, return:
 
     if (!response.ok) {
       console.error("[Receipts] Claude API error:", data);
-      sendError(context, "AI processing failed", response.status, headers);
+      const errorMsg = data.error?.message || data.message || "AI processing failed";
+      sendError(context, errorMsg, response.status, headers);
       return;
     }
 
