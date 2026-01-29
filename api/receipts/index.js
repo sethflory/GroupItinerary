@@ -53,7 +53,13 @@ async function parseReceipt(context, body, headers) {
   // Build the prompt for extracting event data
   const systemPrompt = `You are an expert at extracting travel itinerary information from receipts, confirmations, and booking documents.
 
-Extract all relevant travel events from the provided ${isTextMode ? 'text' : 'image'}. For each event found, extract:
+IMPORTANT: Extract ALL travel events from the provided ${isTextMode ? 'text' : 'image'}. A single document often contains MULTIPLE events:
+- Round-trip flights = 2 separate flight events (outbound + return)
+- Connecting flights = separate event for EACH leg
+- Multi-day hotel stays = 1 hotel event with check-in and check-out dates
+- Multiple reservations = separate event for each one
+
+For each event found, extract:
 - type: "flight", "hotel", "activity", "meal", "transport", or "other"
 - title: Brief description (e.g., "Flight to Athens", "Marriott Hotel Check-in")
 - date: In YYYY-MM-DD format
@@ -77,27 +83,42 @@ For HOTELS specifically, also extract:
 - checkOut: Check-out date
 - confirmationNumber: Booking reference if visible
 
-Return ONLY valid JSON in this exact format:
+Return ONLY valid JSON in this exact format (example shows a round-trip flight with 2 events):
 {
   "events": [
     {
       "type": "flight",
-      "title": "Flight to Athens",
+      "title": "Flight to Newark",
       "date": "2026-02-01",
       "time": "16:30",
-      "endTime": "08:45",
+      "endTime": "19:45",
       "location": "Columbus",
-      "details": "Economy class, Window seat",
-      "flightCode": "UA 123",
+      "details": "Economy class",
+      "flightCode": "UA 1234",
       "airline": "United Airlines",
       "from": "CMH",
-      "to": "ATH",
+      "to": "EWR",
       "departureTime": "16:30",
-      "arrivalTime": "08:45+1"
+      "arrivalTime": "19:45"
+    },
+    {
+      "type": "flight",
+      "title": "Return flight to Columbus",
+      "date": "2026-02-15",
+      "time": "08:00",
+      "endTime": "10:15",
+      "location": "Newark",
+      "details": "Economy class",
+      "flightCode": "UA 5678",
+      "airline": "United Airlines",
+      "from": "EWR",
+      "to": "CMH",
+      "departureTime": "08:00",
+      "arrivalTime": "10:15"
     }
   ],
   "confidence": "high",
-  "notes": "Any additional observations about the document"
+  "notes": "Round-trip booking with 2 flight segments"
 }
 
 If you cannot extract any events, return:
