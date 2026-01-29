@@ -7204,7 +7204,7 @@ Be helpful, friendly, and concise. Provide practical travel tips, cultural insig
       </div>
       <form class="event-form" id="eventForm" onsubmit="submitEventForm(event)">
         <input type="hidden" id="eventFormId" value="">
-        <input type="hidden" id="eventFormDate" value="">
+        <input type="hidden" id="eventFormOriginalDate" value="">
 
         <div class="event-form-section">
           <div class="event-form-row">
@@ -7219,6 +7219,15 @@ Be helpful, friendly, and concise. Provide practical travel tips, cultural insig
                 <option value="meal">Meal</option>
                 <option value="flight">Flight</option>
                 <option value="hotel">Hotel</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="event-form-row">
+            <div class="event-form-field">
+              <label class="event-form-label">Day *</label>
+              <select class="event-form-select" id="eventFormDate" required>
+                <!-- Populated by JS -->
               </select>
             </div>
           </div>
@@ -7725,6 +7734,13 @@ No external dependencies except Google Fonts.</div>
     let editingEventDate = null;
     let selectedEventTravelers = ['all'];
 
+    function populateDayDropdown(selectedDate) {
+      const select = document.getElementById('eventFormDate');
+      select.innerHTML = DAYS.map(d =>
+        `<option value="${d.date}" ${d.date === selectedDate ? 'selected' : ''}>${d.label} - ${d.theme}</option>`
+      ).join('');
+    }
+
     function openAddEventForm(date) {
       editingEventId = null;
       editingEventDate = date;
@@ -7736,7 +7752,10 @@ No external dependencies except Google Fonts.</div>
       document.getElementById('eventFormDeleteBtn').style.display = 'none';
       document.getElementById('eventForm').reset();
       document.getElementById('eventFormId').value = '';
-      document.getElementById('eventFormDate').value = date;
+      document.getElementById('eventFormOriginalDate').value = date;
+
+      // Populate day dropdown
+      populateDayDropdown(date);
 
       // Render traveler selection
       renderEventFormTravelers();
@@ -7761,7 +7780,7 @@ No external dependencies except Google Fonts.</div>
       document.getElementById('eventFormSubmitBtn').textContent = 'Save Changes';
       document.getElementById('eventFormDeleteBtn').style.display = 'block';
       document.getElementById('eventFormId').value = eventId;
-      document.getElementById('eventFormDate').value = day.date;
+      document.getElementById('eventFormOriginalDate').value = day.date;
       document.getElementById('eventFormTitleInput').value = event.title || '';
       document.getElementById('eventFormType').value = event.type || 'activity';
       document.getElementById('eventFormTime').value = event.time || '';
@@ -7770,6 +7789,9 @@ No external dependencies except Google Fonts.</div>
       document.getElementById('eventFormWhere').value = event.where || '';
       document.getElementById('eventFormStatus').value = event.status || 'confirmed';
       document.getElementById('eventFormDetails').value = event.details || '';
+
+      // Populate day dropdown
+      populateDayDropdown(day.date);
 
       // Render traveler selection
       renderEventFormTravelers();
@@ -7835,6 +7857,10 @@ No external dependencies except Google Fonts.</div>
     async function submitEventForm(e) {
       e.preventDefault();
 
+      const newDate = document.getElementById('eventFormDate').value;
+      const originalDate = document.getElementById('eventFormOriginalDate').value;
+      const dateChanged = editingEventId && newDate !== originalDate;
+
       const eventData = {
         title: document.getElementById('eventFormTitleInput').value,
         type: document.getElementById('eventFormType').value,
@@ -7845,7 +7871,7 @@ No external dependencies except Google Fonts.</div>
         status: document.getElementById('eventFormStatus').value,
         details: document.getElementById('eventFormDetails').value || null,
         travelers: selectedEventTravelers,
-        date: editingEventDate,
+        date: newDate,
         isUserGenerated: true
       };
 
@@ -7853,25 +7879,48 @@ No external dependencies except Google Fonts.</div>
       if (isFeatureEnabled('USE_TABLE_STORAGE')) {
         try {
           const accessCode = getStoredAccessCode(currentTripId);
-          const method = editingEventId ? 'PUT' : 'POST';
-          const url = editingEventId
-            ? `${API_BASE}/trips/${currentTripId}/events/${editingEventId}?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`
-            : `${API_BASE}/trips/${currentTripId}/events?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
 
-          const response = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(eventData)
-          });
+          // If date changed, we need to delete from old date and create on new date
+          if (dateChanged) {
+            // Delete from old date
+            const deleteUrl = `${API_BASE}/trips/${currentTripId}/events/${editingEventId}?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+            await fetch(deleteUrl, { method: 'DELETE' });
 
-          if (!response.ok) {
-            const err = await response.json();
-            alert('Failed to save event: ' + (err.error || 'Unknown error'));
-            return;
+            // Create on new date (POST, not PUT)
+            const createUrl = `${API_BASE}/trips/${currentTripId}/events?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+            const response = await fetch(createUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ...eventData, id: editingEventId })
+            });
+
+            if (!response.ok) {
+              const err = await response.json();
+              alert('Failed to move event: ' + (err.error || 'Unknown error'));
+              return;
+            }
+          } else {
+            // Normal create/update
+            const method = editingEventId ? 'PUT' : 'POST';
+            const url = editingEventId
+              ? `${API_BASE}/trips/${currentTripId}/events/${editingEventId}?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`
+              : `${API_BASE}/trips/${currentTripId}/events?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+            const response = await fetch(url, {
+              method,
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(eventData)
+            });
+
+            if (!response.ok) {
+              const err = await response.json();
+              alert('Failed to save event: ' + (err.error || 'Unknown error'));
+              return;
+            }
+
+            const savedEvent = await response.json();
+            console.log('[API] Event saved:', savedEvent);
           }
-
-          const savedEvent = await response.json();
-          console.log('[API] Event saved:', savedEvent);
 
         } catch (err) {
           console.error('[API] Error saving event:', err);
@@ -7881,23 +7930,39 @@ No external dependencies except Google Fonts.</div>
       }
 
       // Update local data
-      const day = DAYS.find(d => d.date === editingEventDate);
-      if (day) {
-        if (editingEventId) {
-          // Update existing event
-          const eventIndex = day.events.findIndex(e => e.id === editingEventId);
-          if (eventIndex >= 0) {
-            day.events[eventIndex] = { ...day.events[eventIndex], ...eventData };
+      if (dateChanged) {
+        // Remove from old day
+        const oldDay = DAYS.find(d => d.date === originalDate);
+        if (oldDay) {
+          const existingEvent = oldDay.events.find(e => e.id === editingEventId);
+          oldDay.events = oldDay.events.filter(e => e.id !== editingEventId);
+
+          // Add to new day
+          const newDay = DAYS.find(d => d.date === newDate);
+          if (newDay) {
+            newDay.events.push({ ...existingEvent, ...eventData });
+            newDay.events.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
           }
-        } else {
-          // Add new event
-          const newEvent = {
-            id: 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-            ...eventData
-          };
-          day.events.push(newEvent);
-          // Sort events by time
-          day.events.sort((a, b) => a.time.localeCompare(b.time));
+        }
+      } else {
+        const day = DAYS.find(d => d.date === newDate);
+        if (day) {
+          if (editingEventId) {
+            // Update existing event
+            const eventIndex = day.events.findIndex(e => e.id === editingEventId);
+            if (eventIndex >= 0) {
+              day.events[eventIndex] = { ...day.events[eventIndex], ...eventData };
+            }
+          } else {
+            // Add new event
+            const newEvent = {
+              id: 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+              ...eventData
+            };
+            day.events.push(newEvent);
+            // Sort events by time
+            day.events.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+          }
         }
       }
 
