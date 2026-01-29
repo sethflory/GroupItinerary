@@ -1,4 +1,35 @@
-const { BlobServiceClient } = require("@azure/storage-blob");
+const { BlobServiceClient, generateBlobSASQueryParameters, BlobSASPermissions, StorageSharedKeyCredential } = require("@azure/storage-blob");
+
+// Parse connection string to get account name and key for SAS generation
+function parseConnectionString(connStr) {
+  const parts = {};
+  connStr.split(";").forEach(part => {
+    const [key, ...valueParts] = part.split("=");
+    if (key && valueParts.length) {
+      parts[key] = valueParts.join("=");
+    }
+  });
+  return {
+    accountName: parts.AccountName,
+    accountKey: parts.AccountKey
+  };
+}
+
+// Generate a SAS URL for a blob (valid for 24 hours)
+function generateSasUrl(containerClient, blobName, accountName, accountKey) {
+  const blobClient = containerClient.getBlobClient(blobName);
+  const sharedKeyCredential = new StorageSharedKeyCredential(accountName, accountKey);
+
+  const sasToken = generateBlobSASQueryParameters({
+    containerName: containerClient.containerName,
+    blobName: blobName,
+    permissions: BlobSASPermissions.parse("r"), // Read only
+    startsOn: new Date(),
+    expiresOn: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+  }, sharedKeyCredential).toString();
+
+  return `${blobClient.url}?${sasToken}`;
+}
 
 function validateRequest(req) {
   const tripId = req.body?.tripId || req.query?.tripId;
@@ -47,6 +78,7 @@ module.exports = async function (context, req) {
 
   try {
     const connStr = process.env.AZURE_STORAGE_CONNECTION_STRING;
+    const { accountName, accountKey } = parseConnectionString(connStr);
     const blobService = BlobServiceClient.fromConnectionString(connStr);
     const containerClient = blobService.getContainerClient("trip-photos");
     await containerClient.createIfNotExists();
@@ -61,7 +93,7 @@ module.exports = async function (context, req) {
       for await (const blob of containerClient.listBlobsFlat(listOptions)) {
         photos.push({
           name: blob.name,
-          url: containerClient.getBlobClient(blob.name).url,
+          url: generateSasUrl(containerClient, blob.name, accountName, accountKey),
           metadata: blob.metadata || {},
           uploadedAt: blob.properties?.createdOn || blob.properties?.lastModified || new Date().toISOString()
         });
@@ -95,7 +127,9 @@ module.exports = async function (context, req) {
         metadata: { caption: caption || "", uploadedBy: uploadedBy || "anonymous", tripId: auth.tripId }
       });
 
-      context.res = { status: 201, headers, body: { success: true, url: blockBlobClient.url } };
+      // Return SAS URL for immediate display
+      const sasUrl = generateSasUrl(containerClient, blobName, accountName, accountKey);
+      context.res = { status: 201, headers, body: { success: true, url: sasUrl } };
 
     } else if (req.method === "DELETE") {
       const blobName = req.query.name || req.body?.name;
