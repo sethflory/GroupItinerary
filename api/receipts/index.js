@@ -156,7 +156,7 @@ If you cannot extract any events, return:
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-3-5-sonnet-latest",
         max_tokens: 2048,
         system: systemPrompt,
         messages: [
@@ -171,8 +171,9 @@ If you cannot extract any events, return:
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("[Receipts] Claude API error:", data);
-      const errorMsg = data.error?.message || data.message || "AI processing failed";
+      console.error("[Receipts] Claude API error - status:", response.status);
+      console.error("[Receipts] Claude API error - body:", JSON.stringify(data, null, 2));
+      const errorMsg = data.error?.message || (typeof data.error === 'string' ? data.error : null) || data.message || JSON.stringify(data) || "AI processing failed";
       sendError(context, errorMsg, response.status, headers);
       return;
     }
