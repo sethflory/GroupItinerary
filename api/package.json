@@ -1,16 +1,4 @@
 {
-  "name": "group-itinerary-api",
-  "version": "1.0.0",
-  "description": "Azure Functions API for Group Itinerary photo sharing",
-  "main": "index.js",
-  "scripts": {
-    "start": "func start",
-    "test": "echo \"No tests specified\" && exit 0"
-  },
-  "dependencies": {
-    "@azure/storage-blob": "^12.17.0"
-  },
-  "devDependencies": {
-    "azure-functions-core-tools": "^4.x"
-  }
+  "name": "api",
+  "version": "1.0.0"
 }
