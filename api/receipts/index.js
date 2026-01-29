@@ -14,20 +14,8 @@ module.exports = async function (context, req) {
     return;
   }
 
-  const action = context.bindingData.action || "parse";
-
-  // Auth is optional for receipt parsing (can be done pre-trip)
-  // But we'll still validate if credentials are provided
-  const tripId = req.body?.tripId || req.query?.tripId;
-  const accessCode = req.body?.accessCode || req.query?.accessCode;
-
   try {
-    switch (action) {
-      case "parse":
-        return await parseReceipt(context, req.body, headers);
-      default:
-        sendError(context, "Unknown action", 404, headers);
-    }
+    return await parseReceipt(context, req.body, headers);
   } catch (err) {
     console.error("Receipts API error:", err);
     sendError(context, err.message, 500, headers);
@@ -156,7 +144,7 @@ If you cannot extract any events, return:
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-3-5-sonnet-latest",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 2048,
         system: systemPrompt,
         messages: [

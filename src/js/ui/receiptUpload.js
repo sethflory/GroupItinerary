@@ -269,7 +269,7 @@ async function parseReceipt() {
       requestBody.text = currentText;
     }
 
-    const response = await fetch(`${API_BASE}/receipts/parse`, {
+    const response = await fetch(`${API_BASE}/receipts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody)

@@ -5,8 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["post", "options"],
-      "route": "receipts/{action?}"
+      "methods": ["post", "options"]
     },
     {
       "type": "http",
