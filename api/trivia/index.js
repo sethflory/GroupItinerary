@@ -24,13 +24,12 @@ module.exports = async function (context, req) {
   const tripId = context.bindingData.tripId;
   const action = context.bindingData.action;
 
+  // Inject tripId from URL path into request for auth validation
+  if (!req.query) req.query = {};
+  req.query.tripId = tripId;
+
   const auth = requireAuth(context, req, { methods: "GET, POST, PUT, OPTIONS" });
   if (!auth) return;
-
-  if (tripId !== auth.tripId) {
-    sendError(context, "Trip ID mismatch", 403, headers);
-    return;
-  }
 
   try {
     switch (action) {
