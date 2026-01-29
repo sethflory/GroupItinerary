@@ -4,17 +4,28 @@ const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
 
 // Table names as constants
 const TABLES = {
+  // Core identity tables
+  USERS: "Users",
+  TRIP_MEMBERS: "TripMembers",
+  SHARE_LINKS: "ShareLinks",
+
+  // Trip content tables
   TRIPS: "Trips",
-  TRAVELERS: "Travelers",
+  TRAVELERS: "Travelers",  // Legacy - migrate to TripMembers
   DAYS: "Days",
   EVENTS: "Events",
   DESTINATIONS: "Destinations",
   HOTELS: "Hotels",
+  LOCATION_MARKERS: "LocationMarkers",
+  PHOTOS: "Photos",
+
+  // Feature tables
   TRIVIA_QUESTIONS: "TriviaQuestions",
   TRIVIA_ROUNDS: "TriviaRounds",
   TRIVIA_LEADERBOARD: "TriviaLeaderboard",
   TRIVIA_POKES: "TriviaPokes",
-  TRAVELER_LOCATIONS: "TravelerLocations"
+  TRAVELER_LOCATIONS: "TravelerLocations",
+  NEWS_CACHE: "NewsCache"
 };
 
 // Create a TableClient for a specific table
