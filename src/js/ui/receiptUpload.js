@@ -424,10 +424,11 @@ async function saveExtractedEvents() {
 
     for (const event of selectedEvents) {
       // Convert to our event format
+      // API requires: date, time, type, title
       const eventData = {
-        date: event.date,
-        time: event.time || null,
-        endTime: event.endTime || null,
+        date: event.date || new Date().toISOString().split('T')[0], // Default to today if missing
+        time: event.time || event.departureTime || '09:00', // Default time if missing
+        endTime: event.endTime || event.arrivalTime || null,
         type: event.type || 'activity',
         title: event.title,
         subtitle: event.details || null,
@@ -453,7 +454,8 @@ async function saveExtractedEvents() {
       if (response.ok) {
         savedCount++;
       } else {
-        console.error('Failed to save event:', event.title);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Failed to save event:', event.title, 'Error:', errorData.error || response.status);
       }
     }
 
