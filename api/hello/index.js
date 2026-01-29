@@ -1,7 +1,7 @@
 // Simplest possible Azure Function - no dependencies, no env vars
-module.exports = async function (context, req) {
-  return {
-    status: 200,
+module.exports = function (context, req) {
+  context.res = {
     body: "hello"
   };
+  context.done();
 };
