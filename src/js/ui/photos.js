@@ -202,10 +202,13 @@ let currentLightboxPhoto = null;
 export function openLightbox(url, caption, uploadedBy, photoDate) {
   currentLightboxPhoto = { url, caption, uploadedBy, photoDate };
 
+  // Don't show "by Anonymous" - only show real uploader names
+  const showUploader = uploadedBy && uploadedBy.toLowerCase() !== 'anonymous';
+
   document.getElementById('lightboxImage').src = url;
   document.getElementById('lightboxCaption').innerHTML = `
     ${caption ? `<strong>${caption}</strong><br>` : ''}
-    ${uploadedBy ? `<span style="opacity: 0.7">by ${uploadedBy}</span>` : ''}
+    ${showUploader ? `<span style="opacity: 0.7">by ${uploadedBy}</span>` : ''}
   `;
   document.getElementById('photoLightbox').classList.add('visible');
   document.body.style.overflow = 'hidden';

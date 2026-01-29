@@ -233,12 +233,14 @@ export function renderCarousel(carouselId) {
   return `
     <div class="event-carousel" id="carousel-${carouselId}">
       <div class="carousel-track">
-        ${images.map((img, i) => `
-          <div class="carousel-slide ${i === 0 ? 'active' : ''}">
-            <img src="${img.url}" alt="${img.caption}" loading="lazy">
+        ${images.map((img, i) => {
+          const safeCaption = (img.caption || '').replace(/'/g, "\\'");
+          return `
+          <div class="carousel-slide ${i === 0 ? 'active' : ''}" onclick="openLightbox('${img.url}', '${safeCaption}', '', '')">
+            <img src="${img.url}" alt="${img.caption || ''}" loading="lazy">
             ${img.caption ? `<div class="carousel-caption">${img.caption}</div>` : ''}
           </div>
-        `).join('')}
+        `}).join('')}
       </div>
       ${images.length > 1 ? `
         <div class="carousel-nav">
