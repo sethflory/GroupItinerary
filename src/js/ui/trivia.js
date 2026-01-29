@@ -149,6 +149,8 @@ export async function startTriviaRound() {
 async function checkForActiveRound() {
   try {
     const result = await fetchTrivia('rounds', 'GET');
+    console.log('[Trivia] checkForActiveRound result:', result);
+
     if (result.active && result.round) {
       currentRound = result.round;
       hasAnswered = false;
@@ -167,10 +169,15 @@ async function checkForActiveRound() {
       }
     } else if (result.recentRound) {
       // Show scoring UI for recently completed round
+      console.log('[Trivia] Showing scoring UI, travelers:', window.TRAVELERS);
       showScoringUI(result.recentRound);
+    } else {
+      // No active or recent round, show lobby
+      showResults();
     }
   } catch (err) {
     console.error('Check active round error:', err);
+    showResults();
   }
 }
 
@@ -389,6 +396,8 @@ function showScoringUI(round) {
   clearInterval(triviaInterval);
   clearInterval(countdownInterval);
 
+  console.log('[Trivia] showScoringUI round:', round);
+
   const content = document.getElementById('triviaContent');
   const correctAnswer = round.answers[round.correctIndex];
   const respondedIds = round.responses.map(r => r.travelerId);
@@ -396,6 +405,10 @@ function showScoringUI(round) {
   // Get all travelers from global state
   const allTravelers = window.TRAVELERS || [];
   const notResponded = allTravelers.filter(t => !respondedIds.includes(t.id));
+
+  console.log('[Trivia] respondedIds:', respondedIds);
+  console.log('[Trivia] allTravelers:', allTravelers);
+  console.log('[Trivia] notResponded:', notResponded);
 
   content.innerHTML = `
     <div class="trivia-scoring">
