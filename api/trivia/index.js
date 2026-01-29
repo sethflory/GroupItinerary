@@ -56,14 +56,14 @@ module.exports = async function (context, req) {
 
 async function getActiveRound(context, tripId, headers) {
   const rounds = await queryByPartition(TABLES.TRIVIA_ROUNDS, tripId);
-  const activeRound = rounds.find(r => r.status === "active");
+  const activeRound = rounds.find(r => r.status === "active" || r.status === "countdown");
 
   if (!activeRound) {
     sendSuccess(context, { active: false }, 200, headers);
     return;
   }
 
-  // Auto-complete expired rounds
+  // Auto-complete expired rounds (including old "countdown" status rounds)
   const now = new Date();
   const questionEnd = new Date(activeRound.questionEndsAt);
 
@@ -81,9 +81,9 @@ async function startRound(context, tripId, body, auth, headers) {
   const { category, eventContext } = body || {};
 
   const rounds = await queryByPartition(TABLES.TRIVIA_ROUNDS, tripId);
-  let activeRound = rounds.find(r => r.status === "active");
+  let activeRound = rounds.find(r => r.status === "active" || r.status === "countdown");
 
-  // Auto-complete expired rounds
+  // Auto-complete expired rounds (including old "countdown" status rounds)
   if (activeRound) {
     const now = new Date();
     const questionEnd = new Date(activeRound.questionEndsAt);
