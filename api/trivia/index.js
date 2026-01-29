@@ -16,6 +16,8 @@ const {
 module.exports = async function (context, req) {
   const headers = getHeaders("GET, POST, PUT, OPTIONS");
 
+  console.log("[Trivia] Handler called - method:", req.method, "body:", JSON.stringify(req.body));
+
   if (req.method === "OPTIONS") {
     handleOptions(context, "GET, POST, PUT, OPTIONS");
     return;
@@ -23,6 +25,7 @@ module.exports = async function (context, req) {
 
   const tripId = context.bindingData.tripId;
   const action = context.bindingData.action;
+  console.log("[Trivia] tripId:", tripId, "action:", action);
 
   // Inject tripId from URL path into request for auth validation
   if (!req.query) req.query = {};
@@ -186,10 +189,17 @@ async function submitAnswer(context, tripId, body, auth, headers) {
   const { roundId, answerIndex, answeredAt } = body || {};
 
   console.log("[Trivia] Extracted roundId:", roundId, "type:", typeof roundId);
+  console.log("[Trivia] Auth:", JSON.stringify(auth));
 
   if (!roundId || roundId === "undefined" || answerIndex === undefined) {
     sendError(context, "Missing roundId or answerIndex. roundId=" + roundId, 400, headers);
     return;
+  }
+
+  // Get traveler ID - for admin users without travelerId, use a generated ID
+  const travelerId = auth.travelerId || auth.userId || `admin_${Date.now()}`;
+  if (!auth.travelerId && !auth.userId) {
+    console.log("[Trivia] Admin user without travelerId, using:", travelerId);
   }
 
   console.log("[Trivia] Getting round from table storage:", tripId, roundId);
@@ -218,7 +228,6 @@ async function submitAnswer(context, tripId, body, auth, headers) {
   }
 
   const responses = JSON.parse(round.responses || "[]");
-  const travelerId = auth.travelerId || auth.userId;
 
   if (responses.find(r => r.travelerId === travelerId)) {
     sendError(context, "Already answered this round", 400, headers);
