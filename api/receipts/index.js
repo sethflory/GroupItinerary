@@ -35,10 +35,11 @@ module.exports = async function (context, req) {
 };
 
 async function parseReceipt(context, body, headers) {
-  const { image, imageType, tripContext } = body || {};
+  const { image, imageType, text, tripContext } = body || {};
 
-  if (!image) {
-    sendError(context, "Missing image data", 400, headers);
+  // Require either image or text
+  if (!image && !text) {
+    sendError(context, "Missing image or text data", 400, headers);
     return;
   }
 
@@ -48,20 +49,23 @@ async function parseReceipt(context, body, headers) {
     return;
   }
 
-  // Determine media type
-  const mediaType = imageType || detectMediaType(image);
-
-  // Validate media type - Claude vision API only supports images, not PDFs
-  const supportedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-  if (!supportedTypes.includes(mediaType)) {
-    sendError(context, `Unsupported file type: ${mediaType}. Please upload a JPG, PNG, GIF, or WebP image.`, 400, headers);
-    return;
+  // For image input, validate media type
+  let mediaType = null;
+  if (image) {
+    mediaType = imageType || detectMediaType(image);
+    const supportedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!supportedTypes.includes(mediaType)) {
+      sendError(context, `Unsupported file type: ${mediaType}. Please upload a JPG, PNG, GIF, or WebP image.`, 400, headers);
+      return;
+    }
   }
+
+  const isTextMode = !image && text;
 
   // Build the prompt for extracting event data
   const systemPrompt = `You are an expert at extracting travel itinerary information from receipts, confirmations, and booking documents.
 
-Extract all relevant travel events from the provided image. For each event found, extract:
+Extract all relevant travel events from the provided ${isTextMode ? 'text' : 'image'}. For each event found, extract:
 - type: "flight", "hotel", "activity", "meal", "transport", or "other"
 - title: Brief description (e.g., "Flight to Athens", "Marriott Hotel Check-in")
 - date: In YYYY-MM-DD format
@@ -115,12 +119,34 @@ If you cannot extract any events, return:
   "notes": "Explanation of why no events could be extracted"
 }`;
 
-  const userMessage = tripContext
-    ? `Extract travel events from this receipt/confirmation. Trip context: ${tripContext}`
-    : "Extract all travel events from this receipt or confirmation document.";
+  let userMessage;
+  if (isTextMode) {
+    userMessage = tripContext
+      ? `Extract travel events from this confirmation text. Trip context: ${tripContext}\n\nText to analyze:\n${text}`
+      : `Extract all travel events from this confirmation text:\n\n${text}`;
+  } else {
+    userMessage = tripContext
+      ? `Extract travel events from this receipt/confirmation. Trip context: ${tripContext}`
+      : "Extract all travel events from this receipt or confirmation document.";
+  }
 
   try {
-    console.log("[Receipts] Sending image to Claude for parsing...");
+    console.log(`[Receipts] Sending ${isTextMode ? 'text' : 'image'} to Claude for parsing...`);
+
+    // Build message content based on input type
+    const messageContent = isTextMode
+      ? [{ type: "text", text: userMessage }]
+      : [
+          {
+            type: "image",
+            source: {
+              type: "base64",
+              media_type: mediaType,
+              data: image.replace(/^data:image\/\w+;base64,/, "") // Strip data URL prefix if present
+            }
+          },
+          { type: "text", text: userMessage }
+        ];
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -136,20 +162,7 @@ If you cannot extract any events, return:
         messages: [
           {
             role: "user",
-            content: [
-              {
-                type: "image",
-                source: {
-                  type: "base64",
-                  media_type: mediaType,
-                  data: image.replace(/^data:image\/\w+;base64,/, "") // Strip data URL prefix if present
-                }
-              },
-              {
-                type: "text",
-                text: userMessage
-              }
-            ]
+            content: messageContent
           }
         ]
       })

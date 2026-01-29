@@ -4966,6 +4966,109 @@
       text-align: center;
     }
 
+    /* Input Mode Toggle */
+    .input-mode-toggle {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 10px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #64748b;
+      transition: all 0.2s;
+    }
+
+    .mode-btn:hover {
+      color: #334155;
+    }
+
+    .mode-btn.active {
+      background: white;
+      color: var(--color-charcoal);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .mode-btn .material-symbols-outlined {
+      font-size: 1.2rem;
+    }
+
+    /* Paste Zone */
+    .paste-zone {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .paste-zone textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 16px;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      font-family: inherit;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      resize: vertical;
+      background: #fafbfc;
+      transition: border-color 0.2s;
+    }
+
+    .paste-zone textarea:focus {
+      outline: none;
+      border-color: var(--color-sunrise);
+      background: white;
+    }
+
+    .paste-zone textarea::placeholder {
+      color: #94a3b8;
+    }
+
+    .paste-zone .btn {
+      align-self: flex-end;
+    }
+
+    /* Text Preview in Processing Step */
+    .text-preview {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      background: #f8fafc;
+      border-radius: var(--radius-md);
+      text-align: left;
+      max-height: 120px;
+      overflow: hidden;
+    }
+
+    .text-preview .material-symbols-outlined {
+      font-size: 2rem;
+      color: var(--color-sunrise);
+      flex-shrink: 0;
+    }
+
+    .text-preview p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #64748b;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
     .upload-zone {
       border: 2px dashed var(--color-border);
       border-radius: var(--radius-lg);

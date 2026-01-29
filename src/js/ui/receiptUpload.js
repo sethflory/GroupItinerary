@@ -8,6 +8,7 @@ import { getStoredAccessCode } from '../auth.js';
 
 let extractedEvents = [];
 let currentImage = null;
+let currentText = null;
 
 // ========================================
 // MODAL MANAGEMENT
@@ -35,6 +36,7 @@ export function closeReceiptUploadModal() {
 function resetState() {
   extractedEvents = [];
   currentImage = null;
+  currentText = null;
 }
 
 function createReceiptUploadModal() {
@@ -65,17 +67,47 @@ function createReceiptUploadModal() {
 // STEP 1: UPLOAD
 // ========================================
 
+let inputMode = 'image'; // 'image' or 'text'
+
 function showUploadStep() {
   const body = document.getElementById('receiptUploadBody');
   body.innerHTML = `
     <div class="receipt-upload-step">
-      <div class="upload-zone" id="receiptDropZone">
-        <span class="material-symbols-outlined upload-icon">cloud_upload</span>
-        <p class="upload-title">Drop your receipt here</p>
-        <p class="upload-subtitle">or click to browse</p>
-        <p class="upload-formats">Supports: JPG, PNG, GIF, WebP</p>
-        <input type="file" id="receiptFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display: none">
+      <div class="input-mode-toggle">
+        <button class="mode-btn ${inputMode === 'image' ? 'active' : ''}" onclick="setInputMode('image')">
+          <span class="material-symbols-outlined">image</span>
+          Upload Image
+        </button>
+        <button class="mode-btn ${inputMode === 'text' ? 'active' : ''}" onclick="setInputMode('text')">
+          <span class="material-symbols-outlined">content_paste</span>
+          Paste Text
+        </button>
       </div>
+
+      ${inputMode === 'image' ? `
+        <div class="upload-zone" id="receiptDropZone">
+          <span class="material-symbols-outlined upload-icon">cloud_upload</span>
+          <p class="upload-title">Drop your receipt here</p>
+          <p class="upload-subtitle">or click to browse</p>
+          <p class="upload-formats">Supports: JPG, PNG, GIF, WebP</p>
+          <input type="file" id="receiptFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display: none">
+        </div>
+      ` : `
+        <div class="paste-zone">
+          <textarea id="receiptTextInput" placeholder="Paste your confirmation email or booking details here...
+
+Example:
+- Flight confirmation from airline
+- Hotel booking confirmation
+- Restaurant reservation details
+- Activity/tour tickets"></textarea>
+          <button class="btn primary" onclick="handleTextInput()">
+            <span class="material-symbols-outlined">auto_awesome</span>
+            Extract Events
+          </button>
+        </div>
+      `}
+
       <div class="upload-examples">
         <p>Works great with:</p>
         <ul>
@@ -88,7 +120,18 @@ function showUploadStep() {
     </div>
   `;
 
-  setupDropZone();
+  // Expose functions for onclick handlers
+  window.setInputMode = setInputMode;
+  window.handleTextInput = handleTextInput;
+
+  if (inputMode === 'image') {
+    setupDropZone();
+  }
+}
+
+function setInputMode(mode) {
+  inputMode = mode;
+  showUploadStep();
 }
 
 function setupDropZone() {
@@ -150,6 +193,27 @@ async function handleFile(file) {
   await parseReceipt();
 }
 
+async function handleTextInput() {
+  const textarea = document.getElementById('receiptTextInput');
+  const text = textarea?.value?.trim();
+
+  if (!text) {
+    alert('Please paste some text to analyze.');
+    return;
+  }
+
+  if (text.length < 20) {
+    alert('Please paste more details. The text seems too short to extract travel information.');
+    return;
+  }
+
+  currentText = text;
+  currentImage = null;
+
+  showProcessingStep();
+  await parseReceipt();
+}
+
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -169,14 +233,19 @@ function fileToBase64(file) {
 
 function showProcessingStep() {
   const body = document.getElementById('receiptUploadBody');
+
+  const previewContent = currentImage
+    ? `<img src="data:${currentImage.type};base64,${currentImage.data}" alt="Receipt preview">`
+    : `<div class="text-preview"><span class="material-symbols-outlined">description</span><p>${escapeHtml(currentText.substring(0, 100))}${currentText.length > 100 ? '...' : ''}</p></div>`;
+
   body.innerHTML = `
     <div class="receipt-processing-step">
       <div class="processing-preview">
-        <img src="data:${currentImage.type};base64,${currentImage.data}" alt="Receipt preview">
+        ${previewContent}
       </div>
       <div class="processing-status">
         <span class="material-symbols-outlined spinning">progress_activity</span>
-        <p>Analyzing your receipt...</p>
+        <p>Analyzing your ${currentImage ? 'receipt' : 'text'}...</p>
         <p class="processing-subtitle">Extracting travel details with AI</p>
       </div>
     </div>
@@ -187,15 +256,23 @@ async function parseReceipt() {
   try {
     const accessCode = getStoredAccessCode(currentTripId);
 
+    // Build request body based on input type
+    const requestBody = {
+      tripId: currentTripId,
+      accessCode
+    };
+
+    if (currentImage) {
+      requestBody.image = currentImage.data;
+      requestBody.imageType = currentImage.type;
+    } else if (currentText) {
+      requestBody.text = currentText;
+    }
+
     const response = await fetch(`${API_BASE}/receipts/parse`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        image: currentImage.data,
-        imageType: currentImage.type,
-        tripId: currentTripId,
-        accessCode
-      })
+      body: JSON.stringify(requestBody)
     });
 
     const result = await response.json();
