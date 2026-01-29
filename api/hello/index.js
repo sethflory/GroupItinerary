@@ -15,7 +15,7 @@ module.exports = async function (context, req) {
     } else {
       const blobService = BlobServiceClient.fromConnectionString(connStr);
       const containerClient = blobService.getContainerClient("trip-photos");
-      await containerClient.createIfNotExists({ access: "blob" });
+      await containerClient.createIfNotExists();
       results.storageTest = "Connected - container ready";
     }
   } catch (err) {
