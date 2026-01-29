@@ -38,13 +38,22 @@ module.exports = async function (context, req) {
   }
 
   try {
+    console.log("[Trips] Route handling - resource:", resource, "resourceId:", resourceId);
+
     // Route handling
     // Forward trivia requests to trivia handler (route overlap workaround)
     if (resource === "trivia") {
-      const triviaHandler = require("../trivia/index.js");
-      // Set up bindingData for trivia handler
-      context.bindingData.action = resourceId;
-      return await triviaHandler(context, req);
+      console.log("[Trips] Forwarding to trivia handler, action:", resourceId);
+      try {
+        const triviaHandler = require("../trivia/index.js");
+        // Set up bindingData for trivia handler
+        context.bindingData.action = resourceId;
+        return await triviaHandler(context, req);
+      } catch (triviaErr) {
+        console.error("[Trips] Error forwarding to trivia:", triviaErr);
+        sendError(context, "Trivia handler error: " + triviaErr.message, 500, headers);
+        return;
+      }
     }
 
     if (!resource) {
