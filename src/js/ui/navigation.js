@@ -4,7 +4,7 @@
 
 import { currentTripId, getCurrentTrip, setCurrentTripId } from '../state.js';
 import { TRIPS, isFeatureEnabled } from '../config.js';
-import { revokeAccess, isAccessGranted, showLockScreen } from '../auth.js';
+import { revokeAccess, isAccessGranted, showLockScreen, getCurrentTravelerId } from '../auth.js';
 
 let TRAVELERS, PHASES, DAYS;
 let currentTravelerFilter = 'all';
@@ -34,26 +34,77 @@ export function renderTravelerToggle() {
   const container = document.getElementById('travelerToggle');
   if (!container) return;
 
+  const currentUserId = getCurrentTravelerId();
+  const currentUser = TRAVELERS.find(t => t.id === currentUserId);
+  const otherTravelers = TRAVELERS.filter(t => t.id !== currentUserId);
+
+  // Check if current filter is "other" (not all and not me)
+  const isOtherSelected = currentTravelerFilter !== 'all' && currentTravelerFilter !== currentUserId;
+  const selectedOther = isOtherSelected ? TRAVELERS.find(t => t.id === currentTravelerFilter) : null;
+
+  // All button
   const allBtn = `
     <button class="traveler-btn ${currentTravelerFilter === 'all' ? 'active' : ''}"
             onclick="setTravelerFilter('all')">
+      <span class="material-symbols-outlined">group</span>
       All
     </button>
   `;
 
-  const travelerBtns = TRAVELERS.map(t => `
-    <button class="traveler-btn ${currentTravelerFilter === t.id ? 'active' : ''}"
-            onclick="setTravelerFilter('${t.id}')">
-      <span class="dot" style="background: ${t.color}"></span>
-      ${t.name}
+  // Me button (only if user is a traveler, not admin)
+  const meBtn = currentUser ? `
+    <button class="traveler-btn ${currentTravelerFilter === currentUserId ? 'active' : ''}"
+            onclick="setTravelerFilter('${currentUserId}')">
+      <span class="dot" style="background: ${currentUser.color}"></span>
+      Me
     </button>
-  `).join('');
+  ` : '';
 
-  container.innerHTML = allBtn + travelerBtns;
+  // Others dropdown (only if there are other travelers)
+  const othersBtn = otherTravelers.length > 0 ? `
+    <div class="traveler-dropdown-wrapper">
+      <button class="traveler-btn ${isOtherSelected ? 'active' : ''}"
+              onclick="toggleTravelerDropdown(event)">
+        ${selectedOther ? `<span class="dot" style="background: ${selectedOther.color}"></span>${selectedOther.name}` : '<span class="material-symbols-outlined">person</span>Other'}
+        <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
+      </button>
+      <div class="traveler-dropdown" id="travelerDropdown">
+        ${otherTravelers.map(t => `
+          <div class="traveler-dropdown-item ${currentTravelerFilter === t.id ? 'active' : ''}"
+               onclick="setTravelerFilter('${t.id}')">
+            <span class="dot" style="background: ${t.color}"></span>
+            ${t.name}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : '';
+
+  container.innerHTML = allBtn + meBtn + othersBtn;
 }
+
+export function toggleTravelerDropdown(event) {
+  event.stopPropagation();
+  const dropdown = document.getElementById('travelerDropdown');
+  if (dropdown) {
+    dropdown.classList.toggle('visible');
+  }
+}
+
+// Close traveler dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  const wrapper = document.querySelector('.traveler-dropdown-wrapper');
+  const dropdown = document.getElementById('travelerDropdown');
+  if (wrapper && dropdown && !wrapper.contains(e.target)) {
+    dropdown.classList.remove('visible');
+  }
+});
 
 export function setTravelerFilter(filter) {
   currentTravelerFilter = filter;
+  // Close dropdown if open
+  const dropdown = document.getElementById('travelerDropdown');
+  if (dropdown) dropdown.classList.remove('visible');
   renderTravelerToggle();
   if (onFilterChange) onFilterChange(filter);
 }

@@ -212,6 +212,7 @@ window.getInsight = ai.getInsight;
 
 window.setTravelerFilter = navigation.setTravelerFilter;
 window.getTravelerFilter = navigation.getTravelerFilter;
+window.toggleTravelerDropdown = navigation.toggleTravelerDropdown;
 window.setPhase = navigation.setPhase;
 window.getPhase = navigation.getPhase;
 window.setView = navigation.setView;
