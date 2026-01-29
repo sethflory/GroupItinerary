@@ -2280,6 +2280,220 @@
       color: var(--color-sunset);
     }
 
+    /* Event Form Modal */
+    .event-form-modal {
+      max-width: 520px;
+    }
+
+    .event-form-modal .share-modal-body {
+      padding: 0;
+    }
+
+    .event-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .event-form-section {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .event-form-section:last-child {
+      border-bottom: none;
+    }
+
+    .event-form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .event-form-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .event-form-field {
+      flex: 1;
+    }
+
+    .event-form-field.small {
+      flex: 0 0 100px;
+    }
+
+    .event-form-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-muted);
+      margin-bottom: 6px;
+    }
+
+    .event-form-input,
+    .event-form-select,
+    .event-form-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .event-form-input:focus,
+    .event-form-select:focus,
+    .event-form-textarea:focus {
+      outline: none;
+      border-color: var(--color-sunset);
+      box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+    }
+
+    .event-form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .event-form-travelers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .event-form-traveler {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--color-cream);
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .event-form-traveler:hover {
+      border-color: var(--color-sunset);
+    }
+
+    .event-form-traveler.selected {
+      background: var(--color-sunset);
+      color: white;
+      border-color: var(--color-sunset);
+    }
+
+    .event-form-actions {
+      padding: 16px 20px;
+      background: var(--color-cream);
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .event-form-btn {
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .event-form-btn.primary {
+      background: var(--color-sunset);
+      color: white;
+      border: none;
+    }
+
+    .event-form-btn.primary:hover {
+      background: #e85a5a;
+    }
+
+    .event-form-btn.secondary {
+      background: white;
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+    }
+
+    .event-form-btn.secondary:hover {
+      background: var(--color-cream);
+    }
+
+    .event-form-btn.danger {
+      background: white;
+      color: #d32f2f;
+      border: 1px solid #d32f2f;
+    }
+
+    .event-form-btn.danger:hover {
+      background: #ffebee;
+    }
+
+    /* Add Event Button */
+    .add-event-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: white;
+      border: 2px dashed var(--color-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--color-muted);
+      transition: all 0.2s;
+      margin-top: 16px;
+    }
+
+    .add-event-btn:hover {
+      border-color: var(--color-sunset);
+      color: var(--color-sunset);
+      background: rgba(255, 107, 107, 0.05);
+    }
+
+    .add-event-btn .material-symbols-outlined {
+      font-size: 20px;
+    }
+
+    /* Event card edit/delete buttons */
+    .event-edit-btn,
+    .event-delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.5;
+      transition: opacity 0.2s, background 0.2s;
+    }
+
+    .event-edit-btn:hover {
+      opacity: 1;
+      background: var(--color-cream);
+    }
+
+    .event-delete-btn:hover {
+      opacity: 1;
+      background: #ffebee;
+    }
+
+    .event-edit-btn .material-symbols-outlined,
+    .event-delete-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    .event-delete-btn .material-symbols-outlined {
+      color: #d32f2f;
+    }
+
     .event-actions {
       display: flex;
       gap: 4px;
@@ -3769,6 +3983,9 @@
       // In development - set to true to enable
       USER_PROFILES: false,          // User profiles with social media connections
       GPS_PHOTO_OPS: false,          // GPS-triggered notifications for famous photo spots
+
+      // Database migration - set to true to load from Azure Table Storage
+      USE_TABLE_STORAGE: true,      // Load trip data from API instead of hardcoded
     };
 
     // Feature flag helper
@@ -3908,6 +4125,10 @@
         if (typeof loadTripPhotos === 'function') {
           loadTripPhotos();
         }
+        // Load trip data from API if feature enabled
+        if (typeof refreshTripData === 'function' && isFeatureEnabled('USE_TABLE_STORAGE')) {
+          refreshTripData();
+        }
       } else {
         // Wrong code
         input.classList.add('error');
@@ -3941,6 +4162,10 @@
         showLockScreen();
       } else {
         hideLockScreen();
+        // Load photos if already authenticated
+        if (typeof loadTripPhotos === 'function') {
+          setTimeout(() => loadTripPhotos(), 100);
+        }
       }
     }
 
@@ -5451,6 +5676,10 @@
             </div>
             ${otherEvents.map(e => renderEventCard(e, true)).join('')}
           ` : ''}
+          <button class="add-event-btn" onclick="openAddEventForm('${day.date}')">
+            <span class="material-symbols-outlined">add_circle</span>
+            Add Event or Moment
+          </button>
         </div>
 
         ${renderDayNavigation()}
@@ -5598,6 +5827,9 @@
                 </button>
                 <button class="event-share-btn" onclick="openShareModal('${e.id}')" title="Create post">
                   <span class="material-symbols-outlined">share</span>
+                </button>
+                <button class="event-edit-btn" onclick="openEditEventForm('${e.id}')" title="Edit event">
+                  <span class="material-symbols-outlined">edit</span>
                 </button>
               </div>
             </div>
@@ -6063,10 +6295,168 @@
       }
     });
 
-    function init() {
+    // ========================================
+    // API DATA LOADING (Table Storage)
+    // ========================================
+
+    const API_BASE = '/api';
+
+    // Load trip data from API or fall back to hardcoded data
+    async function loadTripDataFromAPI(tripId) {
+      if (!isFeatureEnabled('USE_TABLE_STORAGE')) {
+        console.log('[API] Table Storage disabled, using hardcoded data');
+        return null;
+      }
+
+      const accessCode = getStoredAccessCode(tripId);
+      if (!accessCode) {
+        console.log('[API] No access code stored, cannot load from API');
+        return null;
+      }
+
+      try {
+        console.log('[API] Loading trip data from Table Storage...');
+        const url = `${API_BASE}/trips/${tripId}/full?tripId=${encodeURIComponent(tripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          console.warn('[API] Failed to load trip data:', response.status);
+          return null;
+        }
+
+        const data = await response.json();
+        console.log('[API] Loaded trip data:', {
+          trip: data.trip?.name,
+          travelers: data.travelers?.length,
+          days: data.days?.length,
+          destinations: Object.keys(data.destinations || {}).length
+        });
+
+        return data;
+
+      } catch (err) {
+        console.error('[API] Error loading trip data:', err);
+        return null;
+      }
+    }
+
+    // Load events for a specific date from API
+    async function loadEventsFromAPI(tripId, date) {
+      if (!isFeatureEnabled('USE_TABLE_STORAGE')) {
+        return null;
+      }
+
+      const accessCode = getStoredAccessCode(tripId);
+      if (!accessCode) return null;
+
+      try {
+        const url = `${API_BASE}/trips/${tripId}/events?date=${date}&tripId=${encodeURIComponent(tripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+        const response = await fetch(url);
+
+        if (!response.ok) return null;
+
+        const data = await response.json();
+        return data.events;
+
+      } catch (err) {
+        console.error('[API] Error loading events:', err);
+        return null;
+      }
+    }
+
+    // Apply loaded API data to global variables
+    function applyAPIData(apiData) {
+      if (!apiData) return false;
+
+      // Update TRAVELERS
+      if (apiData.travelers && apiData.travelers.length > 0) {
+        TRAVELERS = apiData.travelers;
+        TRAVELER_ORDER = TRAVELERS.map(t => t.id);
+        TRAVELER_INITIALS = Object.fromEntries(TRAVELERS.map(t => [t.id, t.initials]));
+      }
+
+      // Update HOTEL
+      if (apiData.hotel) {
+        HOTEL = apiData.hotel;
+      }
+
+      // Update DESTINATIONS (merge with existing to preserve any client-side additions)
+      if (apiData.destinations) {
+        Object.assign(DESTINATIONS, apiData.destinations);
+      }
+
+      // Update PHASES
+      if (apiData.phases) {
+        PHASES = apiData.phases;
+      }
+
+      // Update CAROUSELS
+      if (apiData.carousels) {
+        Object.assign(CAROUSELS, apiData.carousels);
+      }
+
+      // Update DAYS with events from API
+      if (apiData.days && apiData.days.length > 0) {
+        const isTest = currentTripId === 'test-trip';
+        const currentDays = isTest ? TEST_TRIP_DATA.days : PRODUCTION_DAYS;
+
+        // Match API days to existing days by date and update with API data including events
+        for (const apiDay of apiData.days) {
+          const existingDay = currentDays.find(d => d.date === apiDay.date);
+          if (existingDay) {
+            // Update metadata and events from API
+            Object.assign(existingDay, {
+              dayNum: apiDay.dayNum,
+              label: apiDay.label,
+              location: apiDay.location,
+              theme: apiDay.theme,
+              destination: apiDay.destination,
+              destinationInfo: apiDay.destinationInfo,
+              estimatedSteps: apiDay.estimatedSteps,
+              events: apiDay.events || existingDay.events || []
+            });
+          }
+        }
+      }
+
+      console.log('[API] Applied API data to global variables');
+      return true;
+    }
+
+    // Refresh current trip data from API
+    async function refreshTripData() {
+      const apiData = await loadTripDataFromAPI(currentTripId);
+      if (apiData) {
+        applyAPIData(apiData);
+        // Re-render UI
+        renderTravelerToggle();
+        renderPhaseTabs();
+        renderDayList();
+        renderDayDetail();
+        renderListView();
+      }
+    }
+
+    // ========================================
+    // INITIALIZATION
+    // ========================================
+
+    async function init() {
       // Initialize trip selector and traveler toggle
       renderTripSelector();
       renderTravelerToggle();
+
+      // Try loading data from API if enabled (non-blocking)
+      if (isFeatureEnabled('USE_TABLE_STORAGE') && isAccessGranted(currentTripId)) {
+        try {
+          const apiData = await loadTripDataFromAPI(currentTripId);
+          if (apiData) {
+            applyAPIData(apiData);
+          }
+        } catch (err) {
+          console.warn('[API] Failed to load from Table Storage, using hardcoded data:', err);
+        }
+      }
 
       renderStats();
       renderPhaseTabs();
@@ -6123,7 +6513,6 @@
     // TRIP PHOTOS
     // ========================================
 
-    const API_BASE = '/api';
     let selectedFile = null;
     let selectedFileData = null;
     let ribbonPaused = false;
@@ -6801,6 +7190,94 @@ Be helpful, friendly, and concise. Provide practical travel tips, cultural insig
     </div>
   </div>
 
+  <!-- Event Form Modal (Add/Edit) -->
+  <div class="share-modal-overlay" id="eventFormModal">
+    <div class="share-modal event-form-modal">
+      <div class="share-modal-header">
+        <h3 id="eventFormTitle"><span class="material-symbols-outlined">add_circle</span> Add Event</h3>
+        <button class="share-modal-close" onclick="closeEventForm()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form class="event-form" id="eventForm" onsubmit="submitEventForm(event)">
+        <input type="hidden" id="eventFormId" value="">
+        <input type="hidden" id="eventFormDate" value="">
+
+        <div class="event-form-section">
+          <div class="event-form-row">
+            <div class="event-form-field">
+              <label class="event-form-label">Title *</label>
+              <input type="text" class="event-form-input" id="eventFormTitleInput" placeholder="Event name" required>
+            </div>
+            <div class="event-form-field small">
+              <label class="event-form-label">Type *</label>
+              <select class="event-form-select" id="eventFormType" required>
+                <option value="activity">Activity</option>
+                <option value="meal">Meal</option>
+                <option value="flight">Flight</option>
+                <option value="hotel">Hotel</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="event-form-row">
+            <div class="event-form-field small">
+              <label class="event-form-label">Start Time *</label>
+              <input type="time" class="event-form-input" id="eventFormTime" required>
+            </div>
+            <div class="event-form-field small">
+              <label class="event-form-label">End Time</label>
+              <input type="time" class="event-form-input" id="eventFormEndTime">
+            </div>
+            <div class="event-form-field">
+              <label class="event-form-label">Subtitle</label>
+              <input type="text" class="event-form-input" id="eventFormSubtitle" placeholder="Brief description">
+            </div>
+          </div>
+        </div>
+
+        <div class="event-form-section">
+          <div class="event-form-row">
+            <div class="event-form-field">
+              <label class="event-form-label">Location</label>
+              <input type="text" class="event-form-input" id="eventFormWhere" placeholder="Where is this happening?">
+            </div>
+            <div class="event-form-field small">
+              <label class="event-form-label">Status</label>
+              <select class="event-form-select" id="eventFormStatus">
+                <option value="confirmed">Confirmed</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="event-form-row">
+            <div class="event-form-field">
+              <label class="event-form-label">Details</label>
+              <textarea class="event-form-textarea" id="eventFormDetails" placeholder="Additional information..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="event-form-section">
+          <label class="event-form-label">Who's Going?</label>
+          <div class="event-form-travelers" id="eventFormTravelers">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="event-form-actions">
+          <button type="button" class="event-form-btn danger" id="eventFormDeleteBtn" onclick="deleteEventFromForm()" style="display: none; margin-right: auto;">
+            <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 4px;">delete</span>
+            Delete
+          </button>
+          <button type="button" class="event-form-btn secondary" onclick="closeEventForm()">Cancel</button>
+          <button type="submit" class="event-form-btn primary" id="eventFormSubmitBtn">Add Event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- How It Works Modal -->
   <div class="share-modal-overlay" id="hiwModal">
     <div class="share-modal hiw-modal">
@@ -7234,6 +7711,245 @@ No external dependencies except Google Fonts.</div>
       const addBtn = e.target.closest('.share-add-btn');
       if (!addBtn && !e.target.closest('.share-event-picker')) {
         picker.classList.remove('active');
+      }
+    });
+
+    // ========================================
+    // EVENT FORM (ADD/EDIT/DELETE)
+    // ========================================
+
+    let editingEventId = null;
+    let editingEventDate = null;
+    let selectedEventTravelers = ['all'];
+
+    function openAddEventForm(date) {
+      editingEventId = null;
+      editingEventDate = date;
+      selectedEventTravelers = ['all'];
+
+      // Reset form
+      document.getElementById('eventFormTitle').innerHTML = '<span class="material-symbols-outlined">add_circle</span> Add Event';
+      document.getElementById('eventFormSubmitBtn').textContent = 'Add Event';
+      document.getElementById('eventFormDeleteBtn').style.display = 'none';
+      document.getElementById('eventForm').reset();
+      document.getElementById('eventFormId').value = '';
+      document.getElementById('eventFormDate').value = date;
+
+      // Render traveler selection
+      renderEventFormTravelers();
+
+      // Show modal
+      document.getElementById('eventFormModal').classList.add('active');
+    }
+
+    function openEditEventForm(eventId) {
+      // Find the event
+      const day = DAYS.find(d => d.events.some(e => e.id === eventId));
+      if (!day) return;
+      const event = day.events.find(e => e.id === eventId);
+      if (!event) return;
+
+      editingEventId = eventId;
+      editingEventDate = day.date;
+      selectedEventTravelers = Array.isArray(event.travelers) ? [...event.travelers] : ['all'];
+
+      // Populate form
+      document.getElementById('eventFormTitle').innerHTML = '<span class="material-symbols-outlined">edit</span> Edit Event';
+      document.getElementById('eventFormSubmitBtn').textContent = 'Save Changes';
+      document.getElementById('eventFormDeleteBtn').style.display = 'block';
+      document.getElementById('eventFormId').value = eventId;
+      document.getElementById('eventFormDate').value = day.date;
+      document.getElementById('eventFormTitleInput').value = event.title || '';
+      document.getElementById('eventFormType').value = event.type || 'activity';
+      document.getElementById('eventFormTime').value = event.time || '';
+      document.getElementById('eventFormEndTime').value = event.endTime || '';
+      document.getElementById('eventFormSubtitle').value = event.subtitle || '';
+      document.getElementById('eventFormWhere').value = event.where || '';
+      document.getElementById('eventFormStatus').value = event.status || 'confirmed';
+      document.getElementById('eventFormDetails').value = event.details || '';
+
+      // Render traveler selection
+      renderEventFormTravelers();
+
+      // Show modal
+      document.getElementById('eventFormModal').classList.add('active');
+    }
+
+    function closeEventForm() {
+      document.getElementById('eventFormModal').classList.remove('active');
+      editingEventId = null;
+      editingEventDate = null;
+    }
+
+    function renderEventFormTravelers() {
+      const container = document.getElementById('eventFormTravelers');
+      const options = [
+        { id: 'all', label: 'Everyone' },
+        ...TRAVELERS.map(t => ({ id: t.id, label: t.name }))
+      ];
+
+      container.innerHTML = options.map(opt => `
+        <div class="event-form-traveler ${selectedEventTravelers.includes(opt.id) ? 'selected' : ''}"
+             onclick="toggleEventTraveler('${opt.id}')">
+          ${opt.label}
+        </div>
+      `).join('');
+    }
+
+    function toggleEventTraveler(id) {
+      if (id === 'all') {
+        // Toggle "all" - if selected, deselect; if not, select only "all"
+        if (selectedEventTravelers.includes('all')) {
+          selectedEventTravelers = [];
+        } else {
+          selectedEventTravelers = ['all'];
+        }
+      } else {
+        // Toggle individual traveler
+        // Remove "all" if selecting individuals
+        selectedEventTravelers = selectedEventTravelers.filter(t => t !== 'all');
+
+        if (selectedEventTravelers.includes(id)) {
+          selectedEventTravelers = selectedEventTravelers.filter(t => t !== id);
+        } else {
+          selectedEventTravelers.push(id);
+        }
+
+        // If no one selected, default to "all"
+        if (selectedEventTravelers.length === 0) {
+          selectedEventTravelers = ['all'];
+        }
+
+        // If all individuals selected, switch to "all"
+        if (selectedEventTravelers.length === TRAVELERS.length) {
+          selectedEventTravelers = ['all'];
+        }
+      }
+
+      renderEventFormTravelers();
+    }
+
+    async function submitEventForm(e) {
+      e.preventDefault();
+
+      const eventData = {
+        title: document.getElementById('eventFormTitleInput').value,
+        type: document.getElementById('eventFormType').value,
+        time: document.getElementById('eventFormTime').value,
+        endTime: document.getElementById('eventFormEndTime').value || null,
+        subtitle: document.getElementById('eventFormSubtitle').value || null,
+        where: document.getElementById('eventFormWhere').value || null,
+        status: document.getElementById('eventFormStatus').value,
+        details: document.getElementById('eventFormDetails').value || null,
+        travelers: selectedEventTravelers,
+        date: editingEventDate,
+        isUserGenerated: true
+      };
+
+      // If API is enabled, save to server
+      if (isFeatureEnabled('USE_TABLE_STORAGE')) {
+        try {
+          const accessCode = getStoredAccessCode(currentTripId);
+          const method = editingEventId ? 'PUT' : 'POST';
+          const url = editingEventId
+            ? `${API_BASE}/trips/${currentTripId}/events/${editingEventId}?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`
+            : `${API_BASE}/trips/${currentTripId}/events?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+          const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(eventData)
+          });
+
+          if (!response.ok) {
+            const err = await response.json();
+            alert('Failed to save event: ' + (err.error || 'Unknown error'));
+            return;
+          }
+
+          const savedEvent = await response.json();
+          console.log('[API] Event saved:', savedEvent);
+
+        } catch (err) {
+          console.error('[API] Error saving event:', err);
+          alert('Failed to save event: ' + err.message);
+          return;
+        }
+      }
+
+      // Update local data
+      const day = DAYS.find(d => d.date === editingEventDate);
+      if (day) {
+        if (editingEventId) {
+          // Update existing event
+          const eventIndex = day.events.findIndex(e => e.id === editingEventId);
+          if (eventIndex >= 0) {
+            day.events[eventIndex] = { ...day.events[eventIndex], ...eventData };
+          }
+        } else {
+          // Add new event
+          const newEvent = {
+            id: 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+            ...eventData
+          };
+          day.events.push(newEvent);
+          // Sort events by time
+          day.events.sort((a, b) => a.time.localeCompare(b.time));
+        }
+      }
+
+      // Close modal and refresh UI
+      closeEventForm();
+      renderDayDetail();
+      renderListView();
+    }
+
+    async function deleteEventFromForm() {
+      if (!editingEventId) return;
+
+      if (!confirm('Are you sure you want to delete this event?')) {
+        return;
+      }
+
+      // If API is enabled, delete from server
+      if (isFeatureEnabled('USE_TABLE_STORAGE')) {
+        try {
+          const accessCode = getStoredAccessCode(currentTripId);
+          const url = `${API_BASE}/trips/${currentTripId}/events/${editingEventId}?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+          const response = await fetch(url, { method: 'DELETE' });
+
+          if (!response.ok) {
+            const err = await response.json();
+            alert('Failed to delete event: ' + (err.error || 'Unknown error'));
+            return;
+          }
+
+          console.log('[API] Event deleted');
+
+        } catch (err) {
+          console.error('[API] Error deleting event:', err);
+          alert('Failed to delete event: ' + err.message);
+          return;
+        }
+      }
+
+      // Remove from local data
+      const day = DAYS.find(d => d.date === editingEventDate);
+      if (day) {
+        day.events = day.events.filter(e => e.id !== editingEventId);
+      }
+
+      // Close modal and refresh UI
+      closeEventForm();
+      renderDayDetail();
+      renderListView();
+    }
+
+    // Close modal on overlay click
+    document.getElementById('eventFormModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'eventFormModal') {
+        closeEventForm();
       }
     });
 
