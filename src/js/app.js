@@ -73,6 +73,25 @@ window.showLockScreen = auth.showLockScreen;
 window.hideLockScreen = auth.hideLockScreen;
 window.checkAccessOnLoad = auth.checkAccessOnLoad;
 
+// Registration modal exports
+window.showRegistrationModal = auth.showRegistrationModal;
+window.hideRegistrationModal = auth.hideRegistrationModal;
+window.submitRegistration = auth.submitRegistration;
+
+// Identity exports
+window.getCurrentUserId = auth.getCurrentUserId;
+window.getCurrentTravelerId = auth.getCurrentTravelerId;
+window.getDisplayName = auth.getDisplayName;
+window.isAdmin = auth.isAdmin;
+
+// Google auth exports
+window.redirectToGoogleLogin = auth.redirectToGoogleLogin;
+window.checkGoogleAuthStatus = auth.checkGoogleAuthStatus;
+window.linkGoogleAccount = auth.linkGoogleAccount;
+
+// Session module for direct access
+window.session = auth.session;
+
 // ========================================
 // API EXPORTS
 // ========================================
@@ -323,6 +342,30 @@ async function refreshTripData() {
 window.refreshTripData = refreshTripData;
 
 // ========================================
+// REGISTRATION COMPLETE CALLBACK
+// ========================================
+
+function onRegistrationComplete(result) {
+  console.log('[App] Registration complete:', result);
+
+  // Refresh trip data with new user context
+  refreshTripData();
+
+  // Load photos
+  photos.loadTripPhotos();
+
+  // Re-render UI
+  renderAll();
+
+  // Show welcome toast (could be enhanced with actual toast UI)
+  const displayName = auth.getDisplayName();
+  console.log(`[App] Welcome, ${displayName}!`);
+}
+
+// Expose to window for auth module
+window.onRegistrationComplete = onRegistrationComplete;
+
+// ========================================
 // INITIALIZATION
 // ========================================
 
@@ -339,24 +382,25 @@ function init() {
   share.initShareListeners();
   modals.initModalListeners();
 
-  // Check access
-  auth.checkAccessOnLoad();
+  // Check access (will show lock screen or registration modal if needed)
+  auth.checkAccessOnLoad((session) => {
+    // Callback when access is granted
+    console.log('[App] Access granted, session:', session);
+
+    // Load trip data from API if enabled
+    if (isFeatureEnabled('USE_TABLE_STORAGE')) {
+      refreshTripData();
+    }
+
+    // Load photos
+    photos.loadTripPhotos();
+  });
 
   // Initial render
   renderAll();
 
   // Start timers
   countdown.startTimers();
-
-  // Load trip data from API if enabled
-  if (isFeatureEnabled('USE_TABLE_STORAGE') && auth.isAccessGranted(state.currentTripId)) {
-    refreshTripData();
-  }
-
-  // Load photos if authenticated
-  if (auth.isAccessGranted(state.currentTripId)) {
-    photos.loadTripPhotos();
-  }
 
   console.log('[App] Initialized');
 }

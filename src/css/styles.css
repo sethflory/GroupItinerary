@@ -3589,3 +3589,162 @@
       font-size: 0.8rem;
       color: var(--color-text-muted);
     }
+
+    /* ========================================
+       REGISTRATION MODAL
+       ======================================== */
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1100;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: white;
+      border-radius: var(--radius-lg);
+      width: 90%;
+      max-width: 420px;
+      overflow: hidden;
+      transform: translateY(20px) scale(0.95);
+      transition: transform 0.3s;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .modal-overlay.active .modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .modal-header h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--color-text);
+    }
+
+    .modal-header h3 .material-symbols-outlined {
+      color: var(--color-sunrise);
+    }
+
+    .modal-body {
+      padding: 20px 24px;
+    }
+
+    .modal-footer {
+      padding: 16px 24px 24px;
+    }
+
+    /* Registration-specific styles */
+    .registration-modal .reg-welcome {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--color-text);
+      margin: 0 0 4px 0;
+    }
+
+    .registration-modal .reg-subtitle {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      margin: 0 0 20px 0;
+    }
+
+    .registration-modal .form-group {
+      margin-bottom: 16px;
+    }
+
+    .registration-modal .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 6px;
+    }
+
+    .registration-modal .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .registration-modal .form-group input:focus {
+      outline: none;
+      border-color: var(--color-sunrise);
+      box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.15);
+    }
+
+    .registration-modal .form-group input::placeholder {
+      color: var(--color-text-muted);
+    }
+
+    .registration-modal .form-hint {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+    }
+
+    .registration-modal .form-error {
+      color: var(--color-sunrise);
+      font-size: 0.85rem;
+      min-height: 20px;
+      margin-top: 8px;
+    }
+
+    .registration-modal .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .registration-modal .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 126, 95, 0.4);
+    }
+
+    .registration-modal .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    /* Spinning icon for loading states */
+    .spinning {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
