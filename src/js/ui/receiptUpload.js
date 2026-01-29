@@ -7,6 +7,7 @@ import { currentTripId } from '../state.js';
 import { getStoredAccessCode } from '../auth.js';
 
 let extractedEvents = [];
+let existingEvents = [];
 let currentImage = null;
 let currentText = null;
 
@@ -35,6 +36,7 @@ export function closeReceiptUploadModal() {
 
 function resetState() {
   extractedEvents = [];
+  existingEvents = [];
   currentImage = null;
   currentText = null;
 }
@@ -282,12 +284,118 @@ async function parseReceipt() {
     }
 
     extractedEvents = result.events || [];
+
+    // Fetch existing events to find potential matches
+    await fetchExistingEvents();
+
+    // Find matches between extracted and existing events
+    matchEventsWithExisting();
+
     showReviewStep(result);
 
   } catch (err) {
     console.error('[ReceiptUpload] Parse error:', err);
     showErrorStep(err.message);
   }
+}
+
+// ========================================
+// EVENT MATCHING
+// ========================================
+
+async function fetchExistingEvents() {
+  try {
+    const accessCode = getStoredAccessCode(currentTripId);
+    const response = await fetch(
+      `${API_BASE}/events?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      existingEvents = data.events || [];
+      console.log('[ReceiptUpload] Fetched', existingEvents.length, 'existing events');
+    }
+  } catch (err) {
+    console.error('[ReceiptUpload] Failed to fetch existing events:', err);
+    existingEvents = [];
+  }
+}
+
+function matchEventsWithExisting() {
+  for (const extracted of extractedEvents) {
+    extracted.matchedEvent = null;
+    extracted.matchType = null;
+
+    for (const existing of existingEvents) {
+      const match = checkEventMatch(extracted, existing);
+      if (match) {
+        extracted.matchedEvent = existing;
+        extracted.matchType = match;
+        break;
+      }
+    }
+  }
+}
+
+function checkEventMatch(extracted, existing) {
+  // Must be same type
+  if (extracted.type !== existing.type) return null;
+
+  // Check date match (same date or within 1 day for multi-day events)
+  const dateMatch = extracted.date === existing.date;
+
+  // Flight matching: check flight code, or from/to airports
+  if (extracted.type === 'flight') {
+    // Exact flight code match
+    if (extracted.flightCode && existing.flightCode) {
+      const extractedCode = extracted.flightCode.replace(/\s+/g, '').toUpperCase();
+      const existingCode = existing.flightCode.replace(/\s+/g, '').toUpperCase();
+      if (extractedCode === existingCode) {
+        return 'exact';
+      }
+    }
+
+    // Same route on same date
+    if (dateMatch && extracted.from && extracted.to && existing.from && existing.to) {
+      const sameRoute =
+        extracted.from.toUpperCase() === existing.from.toUpperCase() &&
+        extracted.to.toUpperCase() === existing.to.toUpperCase();
+      if (sameRoute) {
+        return 'route';
+      }
+    }
+  }
+
+  // Hotel matching: check hotel name or check-in date
+  if (extracted.type === 'hotel') {
+    if (extracted.hotelName && existing.title) {
+      const extractedName = extracted.hotelName.toLowerCase();
+      const existingName = existing.title.toLowerCase();
+      if (extractedName.includes(existingName) || existingName.includes(extractedName)) {
+        return 'name';
+      }
+    }
+    if (dateMatch) {
+      return 'date';
+    }
+  }
+
+  // Activity/meal matching: same date and similar title
+  if (dateMatch && extracted.title && existing.title) {
+    const extractedTitle = extracted.title.toLowerCase();
+    const existingTitle = existing.title.toLowerCase();
+
+    // Check for significant word overlap
+    const extractedWords = extractedTitle.split(/\s+/).filter(w => w.length > 3);
+    const existingWords = existingTitle.split(/\s+/).filter(w => w.length > 3);
+
+    const overlap = extractedWords.filter(w => existingWords.some(ew => ew.includes(w) || w.includes(ew)));
+    if (overlap.length >= 1) {
+      return 'title';
+    }
+  }
+
+  return null;
 }
 
 // ========================================
@@ -350,15 +458,34 @@ function showReviewStep(result) {
   window.saveExtractedEvents = saveExtractedEvents;
   window.toggleEventSelection = toggleEventSelection;
   window.editExtractedEvent = editExtractedEvent;
+  window.setMatchAction = setMatchAction;
 }
 
 function renderExtractedEvent(event, index) {
   const icon = getEventIcon(event.type);
   const dateStr = event.date ? formatDate(event.date) : 'Date TBD';
   const timeStr = event.time || '';
+  const hasMatch = event.matchedEvent;
+
+  // Build match badge if there's a matching existing event
+  let matchBadge = '';
+  if (hasMatch) {
+    const matchLabel = getMatchLabel(event.matchType, event.matchedEvent);
+    matchBadge = `
+      <div class="match-indicator">
+        <span class="material-symbols-outlined">link</span>
+        <span class="match-label">Matches: ${escapeHtml(matchLabel)}</span>
+        <select id="match-action-${index}" class="match-action-select" onchange="setMatchAction(${index}, this.value)">
+          <option value="update">Update existing</option>
+          <option value="create">Create new</option>
+          <option value="skip">Skip</option>
+        </select>
+      </div>
+    `;
+  }
 
   return `
-    <div class="extracted-event-card" data-index="${index}">
+    <div class="extracted-event-card ${hasMatch ? 'has-match' : ''}" data-index="${index}">
       <div class="event-checkbox">
         <input type="checkbox" id="event-${index}" checked onchange="toggleEventSelection(${index})">
       </div>
@@ -374,12 +501,44 @@ function renderExtractedEvent(event, index) {
         </p>
         ${event.location ? `<p class="event-location"><span class="material-symbols-outlined">location_on</span> ${escapeHtml(event.location)}</p>` : ''}
         ${event.flightCode ? `<p class="event-flight"><span class="material-symbols-outlined">flight</span> ${escapeHtml(event.flightCode)} &bull; ${escapeHtml(event.from)} → ${escapeHtml(event.to)}</p>` : ''}
+        ${matchBadge}
       </div>
       <button class="edit-event-btn" onclick="editExtractedEvent(${index})" title="Edit">
         <span class="material-symbols-outlined">edit</span>
       </button>
     </div>
   `;
+}
+
+function getMatchLabel(matchType, matchedEvent) {
+  const title = matchedEvent.title || 'Existing event';
+  switch (matchType) {
+    case 'exact':
+      return `${title} (exact match)`;
+    case 'route':
+      return `${title} (same route)`;
+    case 'name':
+      return `${title} (same name)`;
+    case 'date':
+    case 'title':
+      return title;
+    default:
+      return title;
+  }
+}
+
+function setMatchAction(index, action) {
+  extractedEvents[index].matchAction = action;
+  const card = document.querySelector(`.extracted-event-card[data-index="${index}"]`);
+  const checkbox = document.getElementById(`event-${index}`);
+
+  if (action === 'skip') {
+    card.classList.add('deselected');
+    checkbox.checked = false;
+  } else {
+    card.classList.remove('deselected');
+    checkbox.checked = true;
+  }
 }
 
 function toggleEventSelection(index) {
@@ -421,8 +580,13 @@ async function saveExtractedEvents() {
   try {
     const accessCode = getStoredAccessCode(currentTripId);
     let savedCount = 0;
+    let updatedCount = 0;
 
     for (const event of selectedEvents) {
+      // Determine if we should update an existing event or create new
+      const shouldUpdate = event.matchedEvent && event.matchAction !== 'create';
+      const existingId = shouldUpdate ? event.matchedEvent.id : null;
+
       // Convert to our event format
       // API requires: date, time, type, title
       const eventData = {
@@ -445,21 +609,36 @@ async function saveExtractedEvents() {
         address: event.address || null
       };
 
-      const response = await fetch(`${API_BASE}/events?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`, {
-        method: 'POST',
+      let url, method;
+      if (shouldUpdate && existingId) {
+        // Update existing event
+        url = `${API_BASE}/events/${existingId}?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+        method = 'PUT';
+      } else {
+        // Create new event
+        url = `${API_BASE}/events?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+        method = 'POST';
+      }
+
+      const response = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(eventData)
       });
 
       if (response.ok) {
-        savedCount++;
+        if (shouldUpdate) {
+          updatedCount++;
+        } else {
+          savedCount++;
+        }
       } else {
         const errorData = await response.json().catch(() => ({}));
         console.error('Failed to save event:', event.title, 'Error:', errorData.error || response.status);
       }
     }
 
-    showSuccessStep(savedCount);
+    showSuccessStep(savedCount, updatedCount);
 
   } catch (err) {
     console.error('[ReceiptUpload] Save error:', err);
@@ -475,12 +654,23 @@ async function saveExtractedEvents() {
 // SUCCESS STEP
 // ========================================
 
-function showSuccessStep(count) {
+function showSuccessStep(createdCount, updatedCount = 0) {
   const body = document.getElementById('receiptUploadBody');
+  const total = createdCount + updatedCount;
+
+  let message = '';
+  if (createdCount > 0 && updatedCount > 0) {
+    message = `Added ${createdCount} new event${createdCount > 1 ? 's' : ''} and updated ${updatedCount} existing event${updatedCount > 1 ? 's' : ''}!`;
+  } else if (updatedCount > 0) {
+    message = `Updated ${updatedCount} event${updatedCount > 1 ? 's' : ''}!`;
+  } else {
+    message = `Added ${createdCount} event${createdCount > 1 ? 's' : ''}!`;
+  }
+
   body.innerHTML = `
     <div class="receipt-success-step">
       <span class="material-symbols-outlined success-icon">celebration</span>
-      <h4>Added ${count} event${count > 1 ? 's' : ''}!</h4>
+      <h4>${message}</h4>
       <p>Your itinerary has been updated.</p>
       <div class="success-actions">
         <button class="btn secondary" onclick="showUploadStep()">
