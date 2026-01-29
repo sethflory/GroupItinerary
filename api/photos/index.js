@@ -55,12 +55,21 @@ module.exports = async function (context, req) {
 
     if (req.method === "GET") {
       const photos = [];
-      for await (const blob of containerClient.listBlobsFlat(prefix ? { prefix } : {})) {
+      const listOptions = { includeMetadata: true };
+      if (prefix) listOptions.prefix = prefix;
+
+      for await (const blob of containerClient.listBlobsFlat(listOptions)) {
         photos.push({
           name: blob.name,
-          url: containerClient.getBlobClient(blob.name).url
+          url: containerClient.getBlobClient(blob.name).url,
+          metadata: blob.metadata || {},
+          uploadedAt: blob.properties?.createdOn || blob.properties?.lastModified || new Date().toISOString()
         });
       }
+
+      // Sort by upload date, newest first
+      photos.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+
       context.res = { status: 200, headers, body: { photos, count: photos.length } };
 
     } else if (req.method === "POST") {
