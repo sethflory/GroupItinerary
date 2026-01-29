@@ -182,13 +182,17 @@ async function startRound(context, tripId, body, auth, headers) {
 }
 
 async function submitAnswer(context, tripId, body, auth, headers) {
+  console.log("[Trivia] submitAnswer called with body:", JSON.stringify(body));
   const { roundId, answerIndex, answeredAt } = body || {};
 
-  if (roundId === undefined || answerIndex === undefined) {
-    sendError(context, "Missing roundId or answerIndex", 400, headers);
+  console.log("[Trivia] Extracted roundId:", roundId, "type:", typeof roundId);
+
+  if (!roundId || roundId === "undefined" || answerIndex === undefined) {
+    sendError(context, "Missing roundId or answerIndex. roundId=" + roundId, 400, headers);
     return;
   }
 
+  console.log("[Trivia] Getting round from table storage:", tripId, roundId);
   const round = await getEntity(TABLES.TRIVIA_ROUNDS, tripId, roundId);
   if (!round) {
     sendError(context, "Round not found", 404, headers);
