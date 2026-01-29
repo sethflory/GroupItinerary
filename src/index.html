@@ -3872,18 +3872,28 @@
       return `tripAccess_${tripId}`;
     }
 
+    function getAccessCodeKey(tripId) {
+      return `tripCode_${tripId}`;
+    }
+
     function isAccessGranted(tripId) {
       const trip = TRIPS[tripId];
       if (!trip || !trip.accessCode) return true; // No code required
       return localStorage.getItem(getAccessKey(tripId)) === 'granted';
     }
 
-    function grantAccess(tripId) {
+    function getStoredAccessCode(tripId) {
+      return localStorage.getItem(getAccessCodeKey(tripId)) || '';
+    }
+
+    function grantAccess(tripId, accessCode) {
       localStorage.setItem(getAccessKey(tripId), 'granted');
+      localStorage.setItem(getAccessCodeKey(tripId), accessCode);
     }
 
     function revokeAccess(tripId) {
       localStorage.removeItem(getAccessKey(tripId));
+      localStorage.removeItem(getAccessCodeKey(tripId));
     }
 
     function verifyAccessCode() {
@@ -3893,8 +3903,8 @@
       const trip = getCurrentTrip();
 
       if (enteredCode === trip.accessCode.toLowerCase()) {
-        // Correct code
-        grantAccess(currentTripId);
+        // Correct code - store both grant status and the actual code for API calls
+        grantAccess(currentTripId, enteredCode);
         hideLockScreen();
         errorEl.textContent = '';
       } else {
@@ -6126,9 +6136,10 @@
       const gridEl = document.getElementById('photosGrid');
 
       try {
-        // Include trip prefix in API call for trip-specific photos
+        // Include trip prefix and access code in API call for trip-specific photos
         const prefix = getCurrentPhotoPrefix();
-        const response = await fetch(`${API_BASE}/photos?tripId=${currentTripId}&prefix=${encodeURIComponent(prefix)}`);
+        const accessCode = getStoredAccessCode(currentTripId);
+        const response = await fetch(`${API_BASE}/photos?tripId=${currentTripId}&prefix=${encodeURIComponent(prefix)}&accessCode=${encodeURIComponent(accessCode)}`);
         if (!response.ok) throw new Error('Failed to load photos');
 
         const data = await response.json();
@@ -6370,8 +6381,9 @@
       submitBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">hourglass_empty</span> Uploading...';
 
       try {
-        // Include trip prefix for trip-specific photo storage
+        // Include trip prefix and access code for trip-specific photo storage
         const prefix = getCurrentPhotoPrefix();
+        const accessCode = getStoredAccessCode(currentTripId);
         const response = await fetch(`${API_BASE}/photos`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -6381,6 +6393,7 @@
             caption: document.getElementById('photoCaption').value,
             uploadedBy: document.getElementById('uploadedBy').value || 'Anonymous',
             tripId: currentTripId,
+            accessCode: accessCode,
             prefix: prefix
           })
         });
@@ -6484,12 +6497,15 @@ Be helpful, friendly, and concise. Provide practical travel tips, cultural insig
       chatHistory.push({ role: 'user', content: message });
 
       try {
+        const accessCode = getStoredAccessCode(currentTripId);
         const response = await fetch('/api/ai', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
+            tripId: currentTripId,
+            accessCode: accessCode,
             system: getTripContext(),
             messages: chatHistory,
             max_tokens: 1024

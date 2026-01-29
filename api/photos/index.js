@@ -1,4 +1,5 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
+const { validateRequest } = require('../shared/tripAuth');
 
 const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
 const containerName = process.env.PHOTOS_CONTAINER_NAME || 'trip-photos';
@@ -20,6 +21,19 @@ module.exports = async function (context, req) {
     return;
   }
 
+  // Validate trip access before any operation
+  const authResult = validateRequest(req);
+  if (!authResult.valid) {
+    const status = authResult.error === 'Trip not found' ? 404 :
+                   authResult.error === 'Invalid access code' ? 403 : 401;
+    context.res = {
+      status,
+      headers,
+      body: { error: authResult.error }
+    };
+    return;
+  }
+
   try {
     const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
     const containerClient = blobServiceClient.getContainerClient(containerName);
@@ -28,8 +42,8 @@ module.exports = async function (context, req) {
     await containerClient.createIfNotExists({ access: 'blob' });
 
     // Get trip prefix from query params (for multi-trip support)
-    const prefix = req.query.prefix || '';
-    const tripId = req.query.tripId || 'default';
+    const prefix = req.query.prefix || req.body?.prefix || '';
+    const tripId = authResult.tripId;
 
     if (req.method === 'GET') {
       // List photos, optionally filtered by prefix
