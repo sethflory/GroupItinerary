@@ -876,14 +876,27 @@ body.theme-transitioning .day-detail {
   margin-right: 8px;
 }
 
-/* AI suggest button in image search */
+/* AI suggest button in image search - green badge style */
 .ai-suggest-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
+  padding: 6px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.ai-suggest-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(19, 78, 94, 0.3);
 }
 
 .ai-suggest-btn .ai-key-icon {
   margin: 0;
+  width: 18px;
+  height: 18px;
+  filter: brightness(1.1);
 }
