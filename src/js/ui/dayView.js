@@ -167,8 +167,6 @@ export function renderDayDetail() {
       </button>
     </div>
 
-    ${renderDayNavigation()}
-
     ${dayBg?.credit ? `
       <div class="unsplash-attribution">
         Photo by <a href="${dayBg.creditUrl}?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">${dayBg.credit}</a> on <a href="https://unsplash.com?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>
