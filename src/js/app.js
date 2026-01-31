@@ -31,6 +31,8 @@ import * as contextBar from './ui/contextBar.js';
 import * as activityPills from './ui/activityPills.js';
 import * as scoreboard from './ui/scoreboard.js';
 import * as timezoneClocks from './ui/timezoneClocks.js';
+import * as aiAssist from './ui/aiAssist.js';
+import * as themeManager from './ui/themeManager.js';
 
 // ========================================
 // GLOBAL STATE
@@ -344,6 +346,7 @@ window.openShareMap = menu.openShareMap;
 window.openTrivia = menu.openTrivia;
 window.openSwitchTrip = menu.openSwitchTrip;
 window.openTripSettings = menu.openTripSettings;
+window.openAiAssist = menu.openAiAssist;
 
 // ========================================
 // CONTEXT BAR EXPORTS
@@ -371,6 +374,25 @@ window.showDemoPills = activityPills.showDemoPills;
 window.openScoreboard = scoreboard.openScoreboard;
 window.closeScoreboard = scoreboard.closeScoreboard;
 window.shareScoreboard = scoreboard.shareScoreboard;
+
+// ========================================
+// AI ASSIST EXPORTS
+// ========================================
+
+window.runAiAssist = aiAssist.runAiAssist;
+window.openAiAssistModal = aiAssist.openAiAssistModal;
+window.closeAiAssistModal = aiAssist.closeAiAssistModal;
+window.openThemeSelector = aiAssist.openThemeSelector;
+window.closeThemeSelector = aiAssist.closeThemeSelector;
+
+// ========================================
+// THEME MANAGER EXPORTS
+// ========================================
+
+window.applyTheme = themeManager.applyTheme;
+window.previewTheme = themeManager.previewTheme;
+window.revertThemePreview = themeManager.revertThemePreview;
+window.initTheme = themeManager.initTheme;
 
 // ========================================
 // DEPENDENCY INJECTION
@@ -464,6 +486,11 @@ async function refreshTripData() {
       if (apiData.travelers) {
         TRAVELERS = apiData.travelers;
         window.TRAVELERS = TRAVELERS;
+      }
+
+      // Load personalization from trip data if available
+      if (apiData.trip) {
+        themeManager.loadPersonalizationFromTrip(apiData.trip);
       }
 
       // Re-inject dependencies with new data

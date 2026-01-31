@@ -28,7 +28,10 @@ const TABLES = {
   NEWS_CACHE: "NewsCache",
   DINNER_POLLS: "DinnerPolls",
   SAW_IT_GAMES: "SawItGames",
-  SAW_IT_LISTS: "SawItLists"
+  SAW_IT_LISTS: "SawItLists",
+
+  // System tables
+  RATE_LIMITS: "RateLimits"
 };
 
 // Create a TableClient for a specific table

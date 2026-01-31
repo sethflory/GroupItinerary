@@ -18,6 +18,7 @@
 @import url('components/menu.css');
 @import url('components/activity-pills.css');
 @import url('components/scoreboard.css');
+@import url('components/ai-assist.css');
 
 /* Features - Day/List Views */
 @import url('features/day-view.css');

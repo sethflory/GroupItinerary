@@ -162,6 +162,13 @@ export function openTripSettings() {
   }
 }
 
+export function openAiAssist() {
+  closeMenu();
+  if (typeof window.openAiAssistModal === 'function') {
+    window.openAiAssistModal();
+  }
+}
+
 // ========================================
 // INITIALIZATION
 // ========================================
