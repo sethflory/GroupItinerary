@@ -111,18 +111,24 @@ function getTimeInTimezone(timezone) {
     const now = new Date();
     const options = { timeZone: timezone, hour: 'numeric', minute: 'numeric', hour12: false };
     const timeStr = now.toLocaleTimeString('en-US', options);
-    const [hours, minutes] = timeStr.split(':').map(Number);
-    return { hours: hours % 12, minutes };
+    const [hours24, minutes] = timeStr.split(':').map(Number);
+    return { hours: hours24 % 12, minutes, hours24 };
   } catch (e) {
-    return { hours: 0, minutes: 0 };
+    return { hours: 0, minutes: 0, hours24: 12 };
   }
 }
 
+function isDaytime(hours24) {
+  // Day is 6 AM to 8 PM (6-20)
+  return hours24 >= 6 && hours24 < 20;
+}
+
 function updateClockHands(clockId, timezone) {
-  const { hours, minutes } = getTimeInTimezone(timezone);
+  const { hours, minutes, hours24 } = getTimeInTimezone(timezone);
 
   const hourHand = document.getElementById(`tzHour${clockId}`);
   const minuteHand = document.getElementById(`tzMinute${clockId}`);
+  const sunMoon = document.getElementById(`tzSunMoon${clockId}`);
 
   if (hourHand) {
     const hourDeg = (hours * 30) + (minutes * 0.5);
@@ -132,6 +138,10 @@ function updateClockHands(clockId, timezone) {
   if (minuteHand) {
     const minuteDeg = minutes * 6;
     minuteHand.style.transform = `rotate(${minuteDeg}deg)`;
+  }
+
+  if (sunMoon) {
+    sunMoon.textContent = isDaytime(hours24) ? '☀️' : '🌙';
   }
 }
 
@@ -262,6 +272,7 @@ export function selectTimezone(timezone, city) {
         <div class="clock-face">
           <div class="clock-hand hour" id="tzHour3"></div>
           <div class="clock-hand minute" id="tzMinute3"></div>
+          <span class="sun-moon" id="tzSunMoon3">☀️</span>
         </div>
         <span class="clock-city" id="tzCity3">${city}</span>
       `;

@@ -48,8 +48,37 @@
   </header>
 
   <!-- Context Bar - Trip Phase Aware -->
-  <div class="context-bar-wrapper" id="contextBar">
-    <!-- Rendered by contextBar.js -->
+  <div class="context-bar-wrapper">
+    <div class="context-bar-content">
+      <div id="contextBar">
+        <!-- Rendered by contextBar.js -->
+      </div>
+      <!-- Timezone Clocks Widget -->
+      <div class="timezone-clocks" id="timezoneClocks">
+        <div class="tz-clock" id="tzClock1" data-timezone="America/Chicago" data-city="Home">
+          <div class="clock-face">
+            <div class="clock-hand hour" id="tzHour1"></div>
+            <div class="clock-hand minute" id="tzMinute1"></div>
+            <span class="sun-moon" id="tzSunMoon1">☀️</span>
+          </div>
+          <span class="clock-city" id="tzCity1">Home</span>
+        </div>
+        <div class="tz-clock" id="tzClock2" data-timezone="Europe/Athens" data-city="Athens">
+          <div class="clock-face">
+            <div class="clock-hand hour" id="tzHour2"></div>
+            <div class="clock-hand minute" id="tzMinute2"></div>
+            <span class="sun-moon" id="tzSunMoon2">☀️</span>
+          </div>
+          <span class="clock-city" id="tzCity2">Athens</span>
+        </div>
+        <div class="tz-clock tz-clock-add" id="tzClock3" onclick="addTimezone()" title="Add timezone">
+          <div class="clock-face clock-face-add">
+            <span class="material-symbols-outlined">add</span>
+          </div>
+          <span class="clock-city">Add</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Activity Pills - Active Games & Polls -->
@@ -85,30 +114,6 @@
       </button>
 
       <div class="action-spacer"></div>
-
-      <!-- Timezone Clocks Widget -->
-      <div class="timezone-clocks" id="timezoneClocks">
-        <div class="tz-clock" id="tzClock1" data-timezone="America/Chicago" data-city="Home">
-          <div class="clock-face">
-            <div class="clock-hand hour" id="tzHour1"></div>
-            <div class="clock-hand minute" id="tzMinute1"></div>
-          </div>
-          <span class="clock-city" id="tzCity1">Home</span>
-        </div>
-        <div class="tz-clock" id="tzClock2" data-timezone="Europe/Athens" data-city="Athens">
-          <div class="clock-face">
-            <div class="clock-hand hour" id="tzHour2"></div>
-            <div class="clock-hand minute" id="tzMinute2"></div>
-          </div>
-          <span class="clock-city" id="tzCity2">Athens</span>
-        </div>
-        <div class="tz-clock tz-clock-add" id="tzClock3" onclick="addTimezone()" title="Add timezone">
-          <div class="clock-face clock-face-add">
-            <span class="material-symbols-outlined">add</span>
-          </div>
-          <span class="clock-city">Add</span>
-        </div>
-      </div>
 
       <div class="view-toggle-mini" id="viewToggleMini">
         <button class="view-btn-mini active" data-view="journey" title="Journey View">

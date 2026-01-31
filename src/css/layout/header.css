@@ -62,13 +62,22 @@
       border-bottom: 1px solid var(--color-border);
     }
 
+    .context-bar-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+      gap: 16px;
+    }
+
     .context-bar {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 16px;
-      max-width: 1200px;
-      margin: 0 auto;
+      flex: 1;
+      min-width: 0;
     }
 
     .context-icon {
@@ -393,6 +402,15 @@
       height: 11px;
       margin-left: -0.75px;
       background: var(--color-text-muted);
+    }
+
+    .sun-moon {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      font-size: 10px;
+      line-height: 1;
+      z-index: 5;
     }
 
     .clock-city {
