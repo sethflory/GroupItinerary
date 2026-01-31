@@ -97,7 +97,17 @@ export function renderDayDetail() {
   // Get personalization data if available
   const personalization = window.tripPersonalization;
   const dayNickname = personalization?.dayNicknames?.[day.dayNum] || day.theme;
-  const dayBg = personalization?.dayBackgrounds?.[day.dayNum];
+  let dayBg = personalization?.dayBackgrounds?.[day.dayNum];
+
+  // DEMO MODE: Show sample Unsplash image for API approval screenshot
+  // TODO: Remove this after Unsplash approval
+  if (!dayBg && window.UNSPLASH_DEMO_MODE) {
+    dayBg = {
+      url: 'https://images.unsplash.com/photo-1603565816030-6b389eeb23cb?w=1200&q=80',
+      credit: 'Konstantinos Papaioannou',
+      creditUrl: 'https://unsplash.com/@konsn'
+    };
+  }
 
   // Separate events by type
   const flights = events.filter(e => e.type === 'flight');

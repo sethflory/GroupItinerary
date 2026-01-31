@@ -48,6 +48,10 @@ let PHASES = PRODUCTION_PHASES;
 window.TRAVELERS = TRAVELERS;
 window.HOTEL = HOTEL;
 window.DAYS = DAYS;
+
+// DEMO MODE: Enable Unsplash demo for API approval screenshot
+// TODO: Set to false after Unsplash approval
+window.UNSPLASH_DEMO_MODE = true;
 window.PHASES = PHASES;
 window.DESTINATIONS = DESTINATIONS;
 window.CAROUSELS = CAROUSELS;
