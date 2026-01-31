@@ -36,7 +36,8 @@ const TABLES = {
   // System tables
   RATE_LIMITS: "RateLimits",
   DEBUG: "Debug",
-  LOGS: "Logs"
+  LOGS: "Logs",
+  IMAGE_CACHE: "ImageCache"
 };
 
 // Create a TableClient for a specific table

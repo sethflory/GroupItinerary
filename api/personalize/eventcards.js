@@ -142,19 +142,33 @@ Return JSON mapping event IDs to {style, queries}.`;
  * Generate configs and resolve images from Unsplash
  */
 async function generateEventCards(tripData) {
-  // Check Unsplash key upfront
-  const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
-  await logger.info("eventcards", `Unsplash key: ${!!unsplashKey}, length: ${unsplashKey?.length || 0}`);
+  // TEMPORARY: Skip Unsplash until production API access approved
+  const SKIP_UNSPLASH = true;
 
   // Get AI-generated configs
   const configs = await generateEventCardConfigs(tripData);
   await logger.info("eventcards", `Got ${Object.keys(configs).length} event configs from Claude`);
 
+  // Build event cards (styles only, no images for now)
+  const eventCards = {};
+
+  if (SKIP_UNSPLASH) {
+    await logger.info("eventcards", "Unsplash disabled - returning styles only");
+    for (const [eventId, config] of Object.entries(configs)) {
+      eventCards[eventId] = {
+        cardStyle: config.style || "minimal",
+        images: [],
+        queries: config.queries || []  // Save queries for when images are enabled
+      };
+    }
+    await logger.flush();
+    return eventCards;
+  }
+
   // Reset image tracking
   resetImageTracking();
 
   // Resolve images for each event
-  const eventCards = {};
   let totalQueries = 0;
   let resolvedImages = 0;
 

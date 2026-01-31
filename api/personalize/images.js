@@ -3,11 +3,14 @@
  *
  * Fetches images based on AI-generated search queries.
  * Validates URLs and extracts color metadata.
+ * Caches results in Azure Table Storage to avoid rate limits.
  */
 
 const UNSPLASH_API = "https://api.unsplash.com";
 const REQUEST_TIMEOUT = 10000; // 10 seconds per request
+const CACHE_TTL_HOURS = 24; // Cache images for 24 hours
 const logger = require("../shared/logger");
+const { TABLES, getEntity, upsertEntity } = require("../shared/tableStorage");
 
 // Allowed image hosts (security)
 const ALLOWED_HOSTS = [
@@ -45,7 +48,55 @@ function validateImageUrl(url) {
 const usedImageIds = new Set();
 
 /**
- * Search Unsplash for images (with deduplication)
+ * Generate cache key from query (normalize for consistency)
+ */
+function getCacheKey(query, orientation) {
+  return `${query.toLowerCase().trim().replace(/\s+/g, "-")}_${orientation}`;
+}
+
+/**
+ * Check cache for an image query
+ */
+async function checkCache(query, orientation) {
+  const cacheKey = getCacheKey(query, orientation);
+  try {
+    const cached = await getEntity(TABLES.IMAGE_CACHE, "unsplash", cacheKey);
+    if (cached) {
+      // Check if cache is still valid
+      const cacheAge = Date.now() - new Date(cached.timestamp).getTime();
+      const maxAge = CACHE_TTL_HOURS * 60 * 60 * 1000;
+      if (cacheAge < maxAge) {
+        return JSON.parse(cached.imageData);
+      }
+    }
+  } catch (err) {
+    // Cache miss or error, continue to API
+  }
+  return null;
+}
+
+/**
+ * Store image in cache
+ */
+async function storeInCache(query, orientation, imageData) {
+  const cacheKey = getCacheKey(query, orientation);
+  try {
+    await upsertEntity(TABLES.IMAGE_CACHE, {
+      partitionKey: "unsplash",
+      rowKey: cacheKey,
+      query,
+      orientation,
+      imageData: JSON.stringify(imageData),
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    // Cache write failure is non-fatal
+    console.warn("[Images] Cache write failed:", err.message);
+  }
+}
+
+/**
+ * Search Unsplash for images (with caching and deduplication)
  */
 async function searchUnsplash(query, options = {}) {
   const accessKey = process.env.UNSPLASH_ACCESS_KEY;
@@ -57,8 +108,19 @@ async function searchUnsplash(query, options = {}) {
   const {
     orientation = "landscape",
     perPage = 5,  // Fetch more to allow deduplication
-    excludeIds = usedImageIds
+    excludeIds = usedImageIds,
+    skipCache = false
   } = options;
+
+  // Check cache first (unless skipped)
+  if (!skipCache) {
+    const cached = await checkCache(query, orientation);
+    if (cached) {
+      await logger.info("unsplash", `Cache hit: ${query}`);
+      usedImageIds.add(cached.id);
+      return cached;
+    }
+  }
 
   const params = new URLSearchParams({
     query,
@@ -106,7 +168,7 @@ async function searchUnsplash(query, options = {}) {
       triggerDownload(downloadLocation, accessKey).catch(() => {});
     }
 
-    return {
+    const imageData = {
       id: photo.id,
       url: validateImageUrl(photo.urls?.regular),
       thumb: validateImageUrl(photo.urls?.thumb),
@@ -117,6 +179,12 @@ async function searchUnsplash(query, options = {}) {
       blurHash: photo.blur_hash || null,
       description: photo.description || photo.alt_description || null
     };
+
+    // Store in cache for future use
+    await storeInCache(query, orientation, imageData);
+    await logger.info("unsplash", `Fetched & cached: ${query}`);
+
+    return imageData;
 
   } catch (err) {
     clearTimeout(timeout);
