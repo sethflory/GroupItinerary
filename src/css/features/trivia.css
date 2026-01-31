@@ -7,7 +7,7 @@
 }
 
 .trivia-modal .modal-header h3 {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -65,7 +65,7 @@
 
 .leaderboard-entry .points {
   font-weight: 600;
-  color: var(--color-sunset);
+  color: var(--color-primary);
 }
 
 .leaderboard-entry .streak {
@@ -110,7 +110,7 @@
   align-items: center;
   gap: 8px;
   padding: 14px 28px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
   color: white;
   border: none;
   border-radius: var(--radius-lg);
@@ -122,7 +122,7 @@
 
 .trivia-start-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 16px rgba(19, 78, 94, 0.4);
 }
 
 .trivia-start-btn:disabled {
@@ -139,7 +139,7 @@
 .countdown-number {
   font-size: 6rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -172,7 +172,7 @@
 
 .timer-bar {
   height: 100%;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
   transition: width 0.1s linear;
 }
 
@@ -214,13 +214,13 @@
 }
 
 .trivia-answer-btn:hover:not(:disabled) {
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.05);
+  border-color: var(--color-primary);
+  background: rgba(19, 78, 94, 0.05);
 }
 
 .trivia-answer-btn.selected {
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.1);
+  border-color: var(--color-primary);
+  background: rgba(19, 78, 94, 0.1);
 }
 
 .trivia-answer-btn.correct {
@@ -256,7 +256,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
   color: white;
   border: none;
   border-radius: var(--radius-lg);
@@ -268,7 +268,7 @@
 
 .trivia-submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 126, 95, 0.4);
+  box-shadow: 0 4px 12px rgba(19, 78, 94, 0.4);
 }
 
 .trivia-submit-btn:disabled {
@@ -297,11 +297,11 @@
 
 /* Trivia button in stats */
 .stats-share-btn.trivia-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
 }
 
 .stats-share-btn.trivia-btn:hover {
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(19, 78, 94, 0.4);
 }
 
 /* Trivia Scoring UI */
@@ -476,7 +476,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
   color: white;
   border: none;
   border-radius: var(--radius-lg);
@@ -488,5 +488,5 @@
 
 .trivia-done-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(19, 78, 94, 0.4);
 }

@@ -140,7 +140,7 @@ export function renderDayDetail() {
           <span class="day-header-label">${day.label}</span>
         </div>
         <h2 class="day-header-title">${dayNickname}</h2>
-        ${renderDinnerPollButton(day.date)}
+        ${renderDinnerPollButton(day)}
       </div>
       <button class="day-nav-arrow ${isLast ? 'disabled' : ''}" onclick="goToNextDay()" ${isLast ? 'disabled' : ''} title="Next Day">
         <span class="material-symbols-outlined">chevron_right</span>
@@ -461,9 +461,31 @@ export function goToSlide(carouselId, index) {
 }
 
 // Render dinner poll button with active indicator
-function renderDinnerPollButton(date) {
+// Hides button if there's already a dinner event on this day
+function renderDinnerPollButton(day) {
+  // Check if there's already a dinner event on this day
+  // Dinner = meal event with time >= 17:00 or title contains "dinner"
+  const events = day.events || [];
+  const hasDinner = events.some(e => {
+    if (e.type !== 'meal') return false;
+    // Check if it's a dinner time (5pm or later)
+    const timeMatch = e.time?.match(/^(\d{1,2}):(\d{2})/);
+    if (timeMatch) {
+      const hour = parseInt(timeMatch[1], 10);
+      if (hour >= 17) return true;
+    }
+    // Or if the title contains "dinner"
+    if (e.title?.toLowerCase().includes('dinner')) return true;
+    return false;
+  });
+
+  // Don't show button if there's already a dinner planned
+  if (hasDinner) {
+    return '';
+  }
+
   // Check if there's an active poll for this date
-  const activePoll = window.getActivePollForDate ? window.getActivePollForDate(date) : null;
+  const activePoll = window.getActivePollForDate ? window.getActivePollForDate(day.date) : null;
 
   if (activePoll) {
     return `

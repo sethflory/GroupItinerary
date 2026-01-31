@@ -128,12 +128,12 @@
 }
 
 .active-poll-btn:hover {
-  border-color: var(--color-sunrise);
+  border-color: var(--color-primary);
   background: #fff;
 }
 
 .active-poll-btn .material-symbols-outlined:first-child {
-  color: var(--color-sunrise);
+  color: var(--color-primary);
 }
 
 .active-poll-btn .poll-info {
@@ -179,12 +179,12 @@
 }
 
 .dinner-day-option input:checked + .day-option-content {
-  border-color: var(--color-sunrise);
-  background: rgba(255, 107, 53, 0.08);
+  border-color: var(--color-primary);
+  background: rgba(19, 78, 94, 0.08);
 }
 
 .dinner-day-option:not(.has-poll):hover .day-option-content {
-  border-color: var(--color-sunrise);
+  border-color: var(--color-primary);
 }
 
 .dinner-day-option.has-poll {
@@ -198,7 +198,7 @@
 .day-option-num {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--color-sunrise);
+  color: var(--color-primary);
   text-transform: uppercase;
 }
 
@@ -266,18 +266,18 @@
 }
 
 .filter-chip:hover {
-  border-color: var(--color-sunrise);
+  border-color: var(--color-primary);
 }
 
 .filter-chip.active {
-  background: var(--color-sunrise);
-  border-color: var(--color-sunrise);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   color: white;
 }
 
 .option-slider {
   width: 100%;
-  accent-color: var(--color-sunrise);
+  accent-color: var(--color-primary);
 }
 
 /* Options Preview */
@@ -323,8 +323,8 @@
 }
 
 .option-checkbox input:checked + .checkmark {
-  background: var(--color-sunrise);
-  border-color: var(--color-sunrise);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 .option-checkbox input:checked + .checkmark::after {
@@ -358,7 +358,7 @@
 
 .option-price {
   font-weight: 700;
-  color: var(--color-sunset);
+  color: var(--color-primary);
   flex-shrink: 0;
 }
 
@@ -693,7 +693,7 @@
 .reservation-icon {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -756,13 +756,13 @@
 }
 
 .reservation-btn:hover {
-  border-color: var(--color-sunrise);
+  border-color: var(--color-primary);
   background: #fff;
 }
 
 .reservation-btn .material-symbols-outlined {
   font-size: 1.5rem;
-  color: var(--color-sunrise);
+  color: var(--color-primary);
 }
 
 .reservation-skip {
@@ -910,7 +910,7 @@
 
 .confirm-icon .material-symbols-outlined {
   font-size: 1.75rem;
-  color: var(--color-sunrise);
+  color: var(--color-primary);
 }
 
 .dinner-confirm-modal h4 {
