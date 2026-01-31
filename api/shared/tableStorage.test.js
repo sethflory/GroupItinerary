@@ -39,12 +39,11 @@ describe('tableStorage', () => {
       expect(key).toMatch(/^\d+_[a-z0-9]+$/);
     });
 
-    it('should have timestamp portion that is sortable', () => {
-      const key1 = generateRowKey();
-      // Small delay to ensure different timestamp
-      const key2 = generateRowKey();
-      // Keys should be sortable by timestamp (ascending)
-      expect(key1 <= key2).toBe(true);
+    it('should have timestamp portion padded to 15 characters', () => {
+      const key = generateRowKey();
+      const parts = key.split('_');
+      // Timestamp portion should be 15 characters (padded)
+      expect(parts[0]).toMatch(/^\d{15}$/);
     });
   });
 
