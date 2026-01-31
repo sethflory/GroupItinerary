@@ -148,14 +148,22 @@ export function closeUploadModal() {
 function resetUploadForm() {
   selectedFile = null;
   selectedFileData = null;
-  document.getElementById('fileInput').value = '';
-  document.getElementById('uploadPreview').classList.remove('visible');
-  document.getElementById('previewImage').src = '';
-  document.getElementById('photoCaption').value = '';
-  document.getElementById('uploaderName').value = localStorage.getItem('uploaderName') || '';
+  const fileInput = document.getElementById('fileInput');
+  const uploadPreview = document.getElementById('uploadPreview');
+  const previewImage = document.getElementById('previewImage');
+  const photoCaption = document.getElementById('photoCaption');
+  const uploaderName = document.getElementById('uploaderName');
   const submitBtn = document.getElementById('uploadSubmitBtn');
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">upload</span> Upload';
+
+  if (fileInput) fileInput.value = '';
+  if (uploadPreview) uploadPreview.classList.remove('visible');
+  if (previewImage) previewImage.src = '';
+  if (photoCaption) photoCaption.value = '';
+  if (uploaderName) uploaderName.value = localStorage.getItem('uploaderName') || '';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">upload</span> Upload';
+  }
 }
 
 export function handleFileSelect(event) {
