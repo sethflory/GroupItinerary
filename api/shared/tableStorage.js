@@ -35,7 +35,8 @@ const TABLES = {
 
   // System tables
   RATE_LIMITS: "RateLimits",
-  DEBUG: "Debug"
+  DEBUG: "Debug",
+  LOGS: "Logs"
 };
 
 // Create a TableClient for a specific table

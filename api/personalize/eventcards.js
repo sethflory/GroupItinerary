@@ -6,6 +6,7 @@
 
 const { TABLES, upsertEntity } = require("../shared/tableStorage");
 const { searchUnsplash, resetImageTracking } = require("./images");
+const logger = require("../shared/logger");
 
 const AI_TIMEOUT = 45000;
 
@@ -141,16 +142,19 @@ Return JSON mapping event IDs to {style, queries}.`;
 async function generateEventCards(tripData) {
   // Check Unsplash key upfront
   const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
-  console.log(`[EventCards] Unsplash key available: ${!!unsplashKey}, length: ${unsplashKey?.length || 0}`);
+  await logger.info("eventcards", `Unsplash key: ${!!unsplashKey}, length: ${unsplashKey?.length || 0}`);
 
   // Get AI-generated configs
   const configs = await generateEventCardConfigs(tripData);
+  await logger.info("eventcards", `Got ${Object.keys(configs).length} event configs from Claude`);
 
   // Reset image tracking
   resetImageTracking();
 
   // Resolve images for each event
   const eventCards = {};
+  let totalQueries = 0;
+  let resolvedImages = 0;
 
   for (const [eventId, config] of Object.entries(configs)) {
     const style = config.style || "minimal";
@@ -161,14 +165,13 @@ async function generateEventCards(tripData) {
       continue;
     }
 
-    console.log(`[EventCards] Resolving ${eventId}: ${style} with ${queries.length} queries`);
-
     const images = [];
     for (const query of queries.slice(0, 4)) {
+      totalQueries++;
       try {
         const image = await searchUnsplash(query, { orientation: "landscape" });
-        console.log(`[EventCards] Query "${query.slice(0, 30)}..." -> ${image ? 'found' : 'null'}`);
         if (image) {
+          resolvedImages++;
           images.push({
             query,
             url: image.url,
@@ -177,15 +180,20 @@ async function generateEventCards(tripData) {
             creditUrl: image.creditUrl,
             color: image.color
           });
+        } else {
+          await logger.warn("eventcards", `No image for: ${query.slice(0, 50)}`);
         }
       } catch (imgErr) {
-        console.error(`[EventCards] Image error for "${query}":`, imgErr.message);
+        await logger.error("eventcards", `Image error: ${imgErr.message}`, { query });
       }
-      await new Promise(r => setTimeout(r, 200)); // Increase delay to avoid rate limits
+      await new Promise(r => setTimeout(r, 200));
     }
 
     eventCards[eventId] = { style, images };
   }
+
+  await logger.info("eventcards", `Done: ${totalQueries} queries, ${resolvedImages} images resolved`);
+  await logger.flush();
 
   return eventCards;
 }

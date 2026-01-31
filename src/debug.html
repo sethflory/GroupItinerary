@@ -176,6 +176,7 @@
     <button class="tab" data-partition="nicknames">Nicknames</button>
     <button class="tab" data-partition="eventcards">Event Cards</button>
     <button class="tab" data-partition="narrative">Narrative (old)</button>
+    <button class="tab" data-type="logs" data-source="eventcards" style="background:#4a3a2a;">Logs</button>
   </div>
 
   <div class="status" id="status">Select a partition above</div>
@@ -209,6 +210,8 @@
       : '/api';
 
     let currentPartition = 'backgrounds';
+    let currentType = 'debug';
+    let currentSource = 'eventcards';
     let currentData = null;
     let selectedEntry = null;
 
@@ -217,7 +220,9 @@
       tab.addEventListener('click', () => {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        currentPartition = tab.dataset.partition;
+        currentType = tab.dataset.type || 'debug';
+        currentPartition = tab.dataset.partition || 'backgrounds';
+        currentSource = tab.dataset.source || 'eventcards';
         loadData();
       });
     });
@@ -226,11 +231,21 @@
       const status = document.getElementById('status');
       const entries = document.getElementById('entries');
       const contentBox = document.getElementById('contentBox');
+      const systemPromptBox = document.getElementById('systemPromptBox');
+      const userPromptBox = document.getElementById('userPromptBox');
 
       status.className = 'status loading';
-      status.textContent = `Loading ${currentPartition}...`;
+      status.textContent = `Loading...`;
       entries.innerHTML = '';
       contentBox.style.display = 'none';
+      systemPromptBox.style.display = 'none';
+      userPromptBox.style.display = 'none';
+
+      // Handle logs differently
+      if (currentType === 'logs') {
+        await loadLogs();
+        return;
+      }
 
       try {
         const res = await fetch(`${API_BASE}/debug?partition=${currentPartition}`);
@@ -348,6 +363,46 @@
         .replace(/\b(true|false)\b/g, '<span class="json-bool">$1</span>')
         .replace(/\bnull\b/g, '<span class="json-null">null</span>')
         .replace(/\b(-?\d+\.?\d*)\b/g, '<span class="json-number">$1</span>');
+    }
+
+    async function loadLogs() {
+      const status = document.getElementById('status');
+      const entries = document.getElementById('entries');
+      const contentBox = document.getElementById('contentBox');
+      const contentEl = document.getElementById('content');
+
+      try {
+        const res = await fetch(`${API_BASE}/debug?type=logs&source=${currentSource}`);
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || `HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        status.className = 'status';
+        status.textContent = `Logs: ${data.source} | ${data.count} entries`;
+
+        if (data.logs && data.logs.length > 0) {
+          contentBox.style.display = 'block';
+          document.querySelector('#contentBox h3').textContent = 'Function Logs';
+
+          const logsHtml = data.logs.map(log => {
+            const levelColor = log.level === 'error' ? '#ff6b6b' : log.level === 'warn' ? '#ffd93d' : '#6bcb77';
+            const dataStr = log.data ? `\n    ${JSON.stringify(log.data)}` : '';
+            return `<span style="color:#666">${log.timestamp?.slice(11, 19) || '??:??:??'}</span> <span style="color:${levelColor}">[${log.level}]</span> ${log.message}${dataStr}`;
+          }).join('\n');
+
+          contentEl.innerHTML = logsHtml;
+        } else {
+          status.textContent = 'No logs found. Run Event Cards to generate logs.';
+        }
+
+      } catch (err) {
+        status.className = 'status error';
+        status.textContent = `Error: ${err.message}`;
+      }
     }
 
     // Load initial data

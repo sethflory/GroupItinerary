@@ -1,5 +1,5 @@
 /**
- * Debug API - Read latest AI responses for debugging
+ * Debug API - Read latest AI responses and logs for debugging
  */
 
 const { TABLES, queryByPartition } = require("../shared/tableStorage");
@@ -11,7 +11,32 @@ module.exports = async function (context, req) {
   };
 
   try {
-    // Get partition from query param, default to "narrative"
+    // Check if requesting logs
+    const type = req.query.type || "debug";
+
+    if (type === "logs") {
+      const source = req.query.source || "eventcards";
+      const logs = await queryByPartition(TABLES.LOGS, source);
+      logs.sort((a, b) => b.rowKey.localeCompare(a.rowKey));
+
+      context.res = {
+        status: 200,
+        headers,
+        body: JSON.stringify({
+          source,
+          count: logs.length,
+          logs: logs.slice(0, 100).map(l => ({
+            timestamp: l.timestamp,
+            level: l.level,
+            message: l.message,
+            data: l.data ? JSON.parse(l.data) : null
+          }))
+        }, null, 2)
+      };
+      return;
+    }
+
+    // Get partition from query param, default to "backgrounds"
     const partition = req.query.partition || "backgrounds";
 
     // Get all debug entries for this partition
