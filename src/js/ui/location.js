@@ -102,12 +102,29 @@ export async function updateMyLocation() {
 
 function getCurrentPosition() {
   return new Promise((resolve, reject) => {
+    // First try high accuracy with longer timeout
     navigator.geolocation.getCurrentPosition(
       resolve,
-      reject,
+      (error) => {
+        // If high accuracy fails, try low accuracy as fallback
+        if (error.code === error.TIMEOUT) {
+          console.log('[Location] High accuracy timed out, trying low accuracy');
+          navigator.geolocation.getCurrentPosition(
+            resolve,
+            reject,
+            {
+              enableHighAccuracy: false,
+              timeout: 15000,
+              maximumAge: 300000 // Accept cached position up to 5 minutes old
+            }
+          );
+        } else {
+          reject(error);
+        }
+      },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 20000,
         maximumAge: 60000 // Accept cached position up to 1 minute old
       }
     );
