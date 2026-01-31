@@ -853,6 +853,51 @@
   color: white;
 }
 
+/* Hotel marker */
+.treasure-marker.hotel .treasure-marker-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+  border-color: #1e3a8a;
+  border-radius: 8px;
+  transform: none;
+}
+
+.treasure-marker.hotel .treasure-marker-icon span {
+  transform: none;
+  font-size: 20px;
+}
+
+/* Legend hotel marker */
+.hunt-legend-marker.hotel {
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border: 2px solid #1e3a8a;
+  border-radius: 3px;
+}
+
+/* Hotel popup styling */
+.hotel-popup .leaflet-popup-content-wrapper {
+  background: linear-gradient(to bottom, #dbeafe, #bfdbfe);
+  border-color: #1d4ed8;
+}
+
+.hotel-popup .leaflet-popup-tip {
+  background: #bfdbfe;
+  border-color: #1d4ed8;
+}
+
+.treasure-popup-content.hotel-popup h4 {
+  color: #1e40af;
+}
+
+.hotel-neighborhood {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 4px 0 0;
+}
+
 /* Marker popup styling */
 .treasure-popup .leaflet-popup-content-wrapper {
   background: linear-gradient(to bottom, #f4e4bc, #e4d4ac);

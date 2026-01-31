@@ -26,10 +26,19 @@ module.exports = async function (context, req) {
   }
 
   // Extract path parameters
-  const action = context.bindingData.action;
-  const huntId = context.bindingData.huntId;
-  const subAction = context.bindingData.subAction;
-  const itemId = context.bindingData.itemId;
+  let action = context.bindingData.action;
+  let huntId = context.bindingData.huntId;
+  let subAction = context.bindingData.subAction;
+  let itemId = context.bindingData.itemId;
+
+  // Handle case where huntId is passed as first parameter (e.g., /hunts/hunt_xxx)
+  if (action && action.startsWith("hunt_")) {
+    // Shift parameters: action is actually huntId
+    itemId = subAction;
+    subAction = huntId;
+    huntId = action;
+    action = null;
+  }
 
   // Validate access
   const auth = await requireTravelerAuth(context, req, { methods: "GET, POST, PUT, DELETE, OPTIONS" });
@@ -267,11 +276,7 @@ async function updateHunt(context, tripId, huntId, body, auth, headers) {
 
   // End the hunt
   if (action === "end") {
-    // Check permission - only creator or admin can end
-    if (hunt.createdBy !== auth.travelerId && !auth.isAdmin) {
-      sendError(context, "Only hunt creator or admin can end the hunt", 403, headers);
-      return;
-    }
+    // Any authenticated trip member can end a hunt
 
     hunt.status = "completed";
     hunt.completedAt = new Date().toISOString();
@@ -317,11 +322,7 @@ async function deleteHunt(context, tripId, huntId, auth, headers) {
     return;
   }
 
-  // Check permission
-  if (hunt.createdBy !== auth.travelerId && !auth.isAdmin) {
-    sendError(context, "Only hunt creator or admin can delete", 403, headers);
-    return;
-  }
+  // Any authenticated trip member can delete a hunt
 
   // Delete all items first
   const items = await getHuntItemsInternal(tripId, huntId);

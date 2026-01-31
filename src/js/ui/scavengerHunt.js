@@ -11,12 +11,13 @@ let currentItems = [];
 let isModalOpen = false;
 
 // Dependencies injected from app.js
-let DAYS, TRAVELERS, DESTINATIONS;
+let DAYS, TRAVELERS, DESTINATIONS, HOTEL;
 
 export function setScavengerHuntDeps(deps) {
   DAYS = deps.DAYS;
   TRAVELERS = deps.TRAVELERS;
   DESTINATIONS = deps.DESTINATIONS;
+  HOTEL = deps.HOTEL;
 }
 
 // ========================================
@@ -975,6 +976,7 @@ let treasureMap = null;
 let mapMarkers = [];
 
 function openTreasureMap() {
+  console.log('[TreasureMap] openTreasureMap() called');
   // Remove existing modal to refresh with current data
   const existingModal = document.getElementById('treasureMapModal');
   if (existingModal) {
@@ -1035,6 +1037,10 @@ function createTreasureMapModal() {
           <div class="hunt-legend-marker found"></div>
           <span>Found</span>
         </div>
+        <div class="hunt-legend-item">
+          <div class="hunt-legend-marker hotel"></div>
+          <span>Our Hotel</span>
+        </div>
       </div>
     </div>
   `;
@@ -1052,6 +1058,11 @@ function createTreasureMapModal() {
 }
 
 function initTreasureMap() {
+  console.log('[TreasureMap] initTreasureMap called');
+  console.log('[TreasureMap] currentHunt:', currentHunt);
+  console.log('[TreasureMap] HOTEL module var:', HOTEL);
+  console.log('[TreasureMap] window.HOTEL:', window.HOTEL);
+
   const container = document.getElementById('treasureMapLeaflet');
   if (!container) return;
 
@@ -1114,6 +1125,51 @@ function updateTreasureMarkers() {
   }
   const baseLat = huntDest.lat || 37.9838;
   const baseLon = huntDest.lon || 23.7275;
+
+  // Add hotel marker - always show if hotel has coordinates and hunt has a specific location
+  const huntLocation = currentHunt?.location;
+
+  // Always add hotel marker for Athens hunts (Fresh Hotel is in Athens)
+  if (huntLocation === 'ATH') {
+    const hotelLat = 37.9844;
+    const hotelLon = 23.7283;
+    const hotelName = 'Fresh Hotel Athens';
+    const hotelAddress = '26 Sofokleous & Klisthenous Street';
+
+    console.log('[TreasureMap] Adding Fresh Hotel marker for Athens hunt');
+
+    const hotelMarkerHtml = `
+      <div class="treasure-marker hotel">
+        <div class="treasure-marker-icon">
+          <span>🏨</span>
+        </div>
+      </div>
+    `;
+
+    const hotelIcon = L.divIcon({
+      html: hotelMarkerHtml,
+      className: 'treasure-marker-container',
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40]
+    });
+
+    const hotelMarker = L.marker([hotelLat, hotelLon], { icon: hotelIcon }).addTo(treasureMap);
+
+    hotelMarker.bindPopup(`
+      <div class="treasure-popup-content hotel-popup">
+        <h4>🏨 ${hotelName}</h4>
+        <p>${hotelAddress}</p>
+        <p class="hotel-neighborhood">Near Omonia Square</p>
+      </div>
+    `, {
+      className: 'treasure-popup hotel-popup',
+      maxWidth: 250
+    });
+
+    mapMarkers.push(hotelMarker);
+    console.log('[TreasureMap] Hotel marker added at:', hotelLat, hotelLon);
+  }
 
   currentItems.forEach((item, index) => {
     // Use item's lat/lon or scatter around the destination

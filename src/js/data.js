@@ -19,7 +19,9 @@ export const PRODUCTION_HOTEL = {
   checkIn: "2026-02-02",
   checkOut: "2026-02-06",
   nights: 4,
-  highlights: "Rooftop pool with Acropolis views, Design Hotels member"
+  highlights: "Rooftop pool with Acropolis views, Design Hotels member",
+  lat: 37.9844,
+  lon: 23.7283
 };
 
 export const DESTINATIONS = {
