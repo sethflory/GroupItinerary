@@ -1,12 +1,15 @@
 /**
- * Image Resolution via Unsplash API
+ * Image Resolution via Google Places & Unsplash APIs
  *
- * Fetches images based on AI-generated search queries.
+ * - Google Places: For venue/location photos (restaurants, hotels, attractions)
+ * - Unsplash: For scenic/mood backgrounds (day headers)
+ *
  * Validates URLs and extracts color metadata.
  * Caches results in Azure Table Storage to avoid rate limits.
  */
 
 const UNSPLASH_API = "https://api.unsplash.com";
+const PLACES_API = "https://places.googleapis.com/v1/places";
 const REQUEST_TIMEOUT = 10000; // 10 seconds per request
 const CACHE_TTL_HOURS = 24; // Cache images for 24 hours
 const logger = require("../shared/logger");
@@ -15,7 +18,8 @@ const { TABLES, getEntity, upsertEntity } = require("../shared/tableStorage");
 // Allowed image hosts (security)
 const ALLOWED_HOSTS = [
   "images.unsplash.com",
-  "plus.unsplash.com"
+  "plus.unsplash.com",
+  "places.googleapis.com"
 ];
 
 /**
@@ -199,6 +203,105 @@ async function searchUnsplash(query, options = {}) {
 }
 
 /**
+ * Search Google Places for venue photos
+ * Better for restaurants, hotels, attractions with real photos
+ */
+async function searchGooglePlaces(query, options = {}) {
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  if (!apiKey) {
+    console.warn("[Images] Google Places not configured, falling back to Unsplash");
+    return searchUnsplash(query, options);
+  }
+
+  const { maxPhotos = 4, skipCache = false } = options;
+
+  // Check cache first
+  if (!skipCache) {
+    const cached = await checkCache(query, "places");
+    if (cached) {
+      await logger.info("places", `Cache hit: ${query}`);
+      return cached;
+    }
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
+  try {
+    // Step 1: Text search to find the place
+    const searchResponse = await fetch(`${PLACES_API}:searchText`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": apiKey,
+        "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.photos"
+      },
+      body: JSON.stringify({
+        textQuery: query,
+        maxResultCount: 1
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    if (!searchResponse.ok) {
+      const errorText = await searchResponse.text().catch(() => "");
+      await logger.error("places", `API error ${searchResponse.status}: ${errorText.slice(0, 200)}`, { query });
+      // Fall back to Unsplash
+      return searchUnsplash(query, options);
+    }
+
+    const searchData = await searchResponse.json();
+    const place = searchData.places?.[0];
+
+    if (!place || !place.photos || place.photos.length === 0) {
+      await logger.warn("places", `No photos for: ${query}`);
+      // Fall back to Unsplash
+      return searchUnsplash(query, options);
+    }
+
+    // Get photo URLs
+    const photos = place.photos.slice(0, maxPhotos).map(photoRef => {
+      const photoUrl = `https://places.googleapis.com/v1/${photoRef.name}/media?maxHeightPx=800&maxWidthPx=1200&key=${apiKey}`;
+      const thumbUrl = `https://places.googleapis.com/v1/${photoRef.name}/media?maxHeightPx=400&maxWidthPx=600&key=${apiKey}`;
+
+      return {
+        id: photoRef.name,
+        url: photoUrl,
+        thumb: thumbUrl,
+        small: thumbUrl,
+        credit: photoRef.authorAttributions?.[0]?.displayName || place.displayName?.text || "Google",
+        creditUrl: photoRef.authorAttributions?.[0]?.uri || null,
+        color: null,
+        description: place.displayName?.text || query
+      };
+    });
+
+    // Return first image (for single image requests) or array
+    const imageData = photos[0];
+    imageData.allPhotos = photos; // Include all photos for carousel
+
+    // Store in cache
+    await storeInCache(query, "places", imageData);
+    await logger.info("places", `Fetched ${photos.length} photos for: ${query}`);
+
+    return imageData;
+
+  } catch (err) {
+    clearTimeout(timeout);
+
+    if (err.name === "AbortError") {
+      await logger.error("places", `Timeout for: ${query}`);
+    } else {
+      await logger.error("places", `Request failed: ${err.message}`, { query });
+    }
+    // Fall back to Unsplash
+    return searchUnsplash(query, options);
+  }
+}
+
+/**
  * Reset used image tracking (call at start of personalization)
  */
 function resetImageTracking() {
@@ -247,7 +350,7 @@ async function resolveImages(narrative) {
     });
   }
 
-  // Resolve event images based on card style
+  // Resolve event images using Google Places (better for venues)
   const events = narrative.events || [];
 
   for (const event of events) {
@@ -264,29 +367,32 @@ async function resolveImages(narrative) {
       continue;
     }
 
-    await sleep(150);
+    await sleep(200); // Slightly longer delay for Places API
 
     if (cardStyle === "carousel") {
-      // Fetch multiple images for carousel
-      const images = [];
-      for (const query of queries.slice(0, 4)) {  // Max 4 images per carousel
-        await sleep(100);
-        const image = await searchUnsplash(query, { orientation: "landscape" });
-        if (image) {
-          images.push(image);
+      // Use Google Places - it returns multiple photos for a single venue
+      const placeResult = await searchGooglePlaces(queries[0], { maxPhotos: 4 });
+      const images = placeResult?.allPhotos || (placeResult ? [placeResult] : []);
+
+      // If Places didn't return enough, try additional queries with Unsplash
+      if (images.length < 2 && queries.length > 1) {
+        for (const query of queries.slice(1, 4)) {
+          await sleep(100);
+          const image = await searchUnsplash(query, { orientation: "landscape" });
+          if (image) {
+            images.push(image);
+          }
         }
       }
 
       resolved.events.push({
         eventId: event.eventId,
         cardStyle: "carousel",
-        images: images
+        images: images.slice(0, 4) // Max 4 images
       });
     } else {
-      // Single image for hero or accent
-      const image = await searchUnsplash(queries[0], {
-        orientation: "landscape"
-      });
+      // Single image for hero or accent - use Google Places
+      const image = await searchGooglePlaces(queries[0], { maxPhotos: 1 });
 
       resolved.events.push({
         eventId: event.eventId,
@@ -440,6 +546,7 @@ function sleep(ms) {
 
 module.exports = {
   searchUnsplash,
+  searchGooglePlaces,
   resolveImages,
   analyzeColors,
   validateImageUrl,

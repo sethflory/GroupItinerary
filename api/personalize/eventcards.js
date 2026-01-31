@@ -5,7 +5,7 @@
  */
 
 const { TABLES, upsertEntity } = require("../shared/tableStorage");
-const { searchUnsplash, resetImageTracking } = require("./images");
+const { searchGooglePlaces, resetImageTracking } = require("./images");
 const logger = require("../shared/logger");
 
 const AI_TIMEOUT = 45000;
@@ -13,27 +13,29 @@ const AI_TIMEOUT = 45000;
 const SYSTEM_PROMPT = `You design event cards for a travel itinerary app. Each event gets a card style and optional image queries.
 
 Card Styles:
-- "hero": Large dramatic image - major attractions, landmarks
-- "carousel": 3-4 swipeable images - walking tours, explorations
-- "accent": Small thumbnail - restaurants, minor activities
+- "hero": Large dramatic image - major attractions, landmarks, signature restaurants
+- "carousel": 3-4 swipeable images - walking tours, explorations, multi-venue outings
+- "accent": Small thumbnail - minor activities
 - "minimal": No image - flights, transfers, check-ins
 
 Guidelines:
 - Flights, transfers, check-ins → minimal
-- Major landmarks → hero
-- Walking tours → carousel
-- Restaurants → accent or minimal
-- Only 30-40% of events should have images
+- Major landmarks (Acropolis, museums, temples) → hero
+- Walking tours, market visits → carousel
+- Named restaurants, rooftop bars → hero (Google Places has photos!)
+- Generic meals ("lunch", "dinner TBD") → minimal
+- Only 40-50% of events should have images
 
-IMPORTANT - Image Query Rules:
-- Keep queries SHORT: 2-4 words max
-- Use generic travel terms that Unsplash will have
-- Good: "acropolis sunset", "greek taverna", "bangalore palace"
-- Bad: "acropolis parthenon golden hour marble columns ancient greece" (too long!)
-- Bad: "spondi restaurant athens" (too specific, won't match)
+IMPORTANT - Image Query Rules for Google Places:
+- Use FULL venue names with city for best results
+- Good: "Acropolis Museum Athens", "Spondi Restaurant Athens", "Bangalore Palace"
+- Good: "Plaka District Athens", "Acropolis Athens Greece"
+- Bad: "greek food" (too generic - no specific place)
+- Bad: "sunset" (scenic, not a venue)
+- For walking tours, use the neighborhood/area name
 
 Return JSON mapping event IDs to config:
-{"evt-001": {"style": "minimal", "queries": []}, "evt-002": {"style": "hero", "queries": ["acropolis sunset"]}, "evt-003": {"style": "carousel", "queries": ["plaka street", "athens market", "greek cafe"]}}`;
+{"evt-001": {"style": "minimal", "queries": []}, "evt-002": {"style": "hero", "queries": ["Acropolis Athens Greece"]}, "evt-003": {"style": "carousel", "queries": ["Plaka District Athens", "Monastiraki Square Athens", "Ancient Agora Athens"]}}`;
 
 async function generateEventCardConfigs(tripData) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -139,36 +141,18 @@ Return JSON mapping event IDs to {style, queries}.`;
 }
 
 /**
- * Generate configs and resolve images from Unsplash
+ * Generate configs and resolve images from Google Places
  */
 async function generateEventCards(tripData) {
-  // TEMPORARY: Skip Unsplash until production API access approved
-  const SKIP_UNSPLASH = true;
-
   // Get AI-generated configs
   const configs = await generateEventCardConfigs(tripData);
   await logger.info("eventcards", `Got ${Object.keys(configs).length} event configs from Claude`);
 
-  // Build event cards (styles only, no images for now)
-  const eventCards = {};
-
-  if (SKIP_UNSPLASH) {
-    await logger.info("eventcards", "Unsplash disabled - returning styles only");
-    for (const [eventId, config] of Object.entries(configs)) {
-      eventCards[eventId] = {
-        cardStyle: config.style || "minimal",
-        images: [],
-        queries: config.queries || []  // Save queries for when images are enabled
-      };
-    }
-    await logger.flush();
-    return eventCards;
-  }
-
   // Reset image tracking
   resetImageTracking();
 
-  // Resolve images for each event
+  // Build event cards with images from Google Places
+  const eventCards = {};
   let totalQueries = 0;
   let resolvedImages = 0;
 
@@ -182,18 +166,69 @@ async function generateEventCards(tripData) {
     }
 
     const images = [];
-    for (const query of queries.slice(0, 4)) {
+
+    // For carousel, we want multiple images - Google Places returns multiple for one venue
+    if (style === "carousel" && queries.length > 0) {
+      // Search first query with multiple photos
       totalQueries++;
       try {
-        const image = await searchUnsplash(query, { orientation: "landscape" });
+        const result = await searchGooglePlaces(queries[0], { maxPhotos: 4 });
+        if (result) {
+          // Use all photos from the place
+          const allPhotos = result.allPhotos || [result];
+          for (const photo of allPhotos) {
+            resolvedImages++;
+            images.push({
+              query: queries[0],
+              url: photo.url,
+              thumb: photo.thumb,
+              credit: photo.credit,
+              creditUrl: photo.creditUrl,
+              color: photo.color
+            });
+          }
+          await logger.info("eventcards", `Found ${allPhotos.length} photos for: ${queries[0].slice(0, 40)}`);
+        }
+      } catch (imgErr) {
+        await logger.error("eventcards", `Image error: ${imgErr.message}`, { query: queries[0] });
+      }
+
+      // If we need more images, search additional queries
+      if (images.length < 3 && queries.length > 1) {
+        for (const query of queries.slice(1, 3)) {
+          totalQueries++;
+          try {
+            const image = await searchGooglePlaces(query, { maxPhotos: 1 });
+            if (image) {
+              resolvedImages++;
+              images.push({
+                query,
+                url: image.url,
+                thumb: image.thumb,
+                credit: image.credit,
+                creditUrl: image.creditUrl,
+                color: image.color
+              });
+            }
+          } catch (imgErr) {
+            await logger.error("eventcards", `Image error: ${imgErr.message}`, { query });
+          }
+          await new Promise(r => setTimeout(r, 200));
+        }
+      }
+    } else {
+      // Hero/accent - single query, single image
+      totalQueries++;
+      try {
+        const image = await searchGooglePlaces(queries[0], { maxPhotos: 1 });
         if (image) {
           resolvedImages++;
-          await logger.info("eventcards", `Found image for: ${query.slice(0, 40)}`, {
+          await logger.info("eventcards", `Found image for: ${queries[0].slice(0, 40)}`, {
             url: image.url?.slice(0, 60),
             credit: image.credit
           });
           images.push({
-            query,
+            query: queries[0],
             url: image.url,
             thumb: image.thumb,
             credit: image.credit,
@@ -201,13 +236,14 @@ async function generateEventCards(tripData) {
             color: image.color
           });
         } else {
-          await logger.warn("eventcards", `No image for: ${query.slice(0, 50)}`);
+          await logger.warn("eventcards", `No image for: ${queries[0].slice(0, 50)}`);
         }
       } catch (imgErr) {
-        await logger.error("eventcards", `Image error: ${imgErr.message}`, { query });
+        await logger.error("eventcards", `Image error: ${imgErr.message}`, { query: queries[0] });
       }
-      await new Promise(r => setTimeout(r, 200));
     }
+
+    await new Promise(r => setTimeout(r, 200)); // Rate limiting between events
 
     eventCards[eventId] = { cardStyle: style, images };
   }
