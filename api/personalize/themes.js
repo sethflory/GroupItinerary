@@ -19,6 +19,7 @@ Generate 3-4 theme options that:
 2. Feel distinct from each other (give real choice)
 3. Match the trip's emotional journey
 4. Work well for UI (readable text, accessible contrast)
+5. Include a complementary font style for personality
 
 ## Theme Types to Consider
 
@@ -29,11 +30,20 @@ Generate 3-4 theme options that:
 - **Minimal/Clean**: Modern cities, architecture-focused
 - **Romantic/Soft**: Honeymoons, couples trips
 
+## Font Styles (choose one per theme)
+
+- **modern**: Clean sans-serif (Inter) - tech hubs, modern cities, minimalist trips
+- **classic**: Elegant serif (Georgia) - cultural trips, historic destinations, refined travel
+- **playful**: Rounded friendly (Nunito) - family trips, adventure, casual getaways
+- **elegant**: Stylish italic serif (Playfair) - romantic trips, luxury travel, Europe
+- **adventure**: Bold uppercase (Bebas Neue) - outdoor adventures, road trips, extreme sports
+
 ## Rules
 
 - Primary color should relate to the trip's dominant image colors
 - Ensure 4.5:1 contrast ratio for text on background
 - Each theme needs: primary, secondary, accent, background, surface, text, textMuted
+- Each theme needs a fontStyle that complements the mood
 - Names should be evocative (2-3 words max)
 - Descriptions should be one line, sensory language
 - Mark ONE theme as "recommended: true" (best match for the images)
@@ -48,6 +58,7 @@ Return valid JSON array:
     "emoji": "☀️",
     "description": "Sun-warmed ruins and Mediterranean warmth",
     "recommended": true,
+    "fontStyle": "classic",
     "palette": {
       "primary": "#c9a227",
       "secondary": "#1e3a5f",
@@ -189,6 +200,7 @@ function getDefaultThemes() {
       emoji: "🌍",
       description: "Timeless elegance for any adventure",
       recommended: true,
+      fontStyle: "classic",
       palette: {
         primary: "#4a5568",
         secondary: "#2d3748",
@@ -206,6 +218,7 @@ function getDefaultThemes() {
       emoji: "☀️",
       description: "Warm sunset tones and golden light",
       recommended: false,
+      fontStyle: "elegant",
       palette: {
         primary: "#c9a227",
         secondary: "#8b6914",
@@ -223,6 +236,7 @@ function getDefaultThemes() {
       emoji: "🌊",
       description: "Cool blues and coastal calm",
       recommended: false,
+      fontStyle: "modern",
       palette: {
         primary: "#3182ce",
         secondary: "#2c5282",
@@ -240,6 +254,7 @@ function getDefaultThemes() {
       emoji: "🌿",
       description: "Earthy greens and natural textures",
       recommended: false,
+      fontStyle: "adventure",
       palette: {
         primary: "#38a169",
         secondary: "#276749",

@@ -40,8 +40,11 @@ function validateImageUrl(url) {
   }
 }
 
+// Track used image IDs to prevent duplicates
+const usedImageIds = new Set();
+
 /**
- * Search Unsplash for images
+ * Search Unsplash for images (with deduplication)
  */
 async function searchUnsplash(query, options = {}) {
   const accessKey = process.env.UNSPLASH_ACCESS_KEY;
@@ -52,7 +55,8 @@ async function searchUnsplash(query, options = {}) {
 
   const {
     orientation = "landscape",
-    perPage = 1
+    perPage = 5,  // Fetch more to allow deduplication
+    excludeIds = usedImageIds
   } = options;
 
   const params = new URLSearchParams({
@@ -88,17 +92,20 @@ async function searchUnsplash(query, options = {}) {
       return null;
     }
 
-    // Return first result
-    const photo = results[0];
+    // Find first unused image
+    const photo = results.find(p => !excludeIds.has(p.id)) || results[0];
+
+    // Track this image as used
+    usedImageIds.add(photo.id);
 
     // Trigger download endpoint per Unsplash API guidelines
-    // This notifies Unsplash that the image is being "used"
     const downloadLocation = photo.links?.download_location;
     if (downloadLocation) {
       triggerDownload(downloadLocation, accessKey).catch(() => {});
     }
 
     return {
+      id: photo.id,
       url: validateImageUrl(photo.urls?.regular),
       thumb: validateImageUrl(photo.urls?.thumb),
       small: validateImageUrl(photo.urls?.small),
@@ -122,12 +129,22 @@ async function searchUnsplash(query, options = {}) {
 }
 
 /**
+ * Reset used image tracking (call at start of personalization)
+ */
+function resetImageTracking() {
+  usedImageIds.clear();
+}
+
+/**
  * Resolve images for all days and events in the narrative
  */
 async function resolveImages(narrative) {
   if (!narrative || !narrative.days) {
     return { days: [], events: [] };
   }
+
+  // Reset tracking at start of each personalization
+  resetImageTracking();
 
   const resolved = {
     days: [],
@@ -145,7 +162,7 @@ async function resolveImages(narrative) {
     }
 
     // Add small delay between requests to avoid rate limiting
-    await sleep(100);
+    await sleep(150);
 
     const image = await searchUnsplash(day.bgQuery, {
       orientation: "landscape"
@@ -153,28 +170,58 @@ async function resolveImages(narrative) {
 
     resolved.days.push({
       dayNum: day.dayNum,
-      bgImage: image
+      bgImage: image,
+      nickname: day.nickname,
+      bgMood: day.bgMood,
+      colorAccent: day.colorAccent
     });
   }
 
-  // Resolve event images (limit to avoid too many requests)
-  const events = (narrative.events || []).slice(0, 10);
+  // Resolve event images based on card style
+  const events = narrative.events || [];
 
   for (const event of events) {
-    if (!event.cardQuery) {
+    const cardStyle = event.cardStyle || "accent";
+    const queries = event.cardQueries || (event.cardQuery ? [event.cardQuery] : []);
+
+    // Skip minimal cards - no images needed
+    if (cardStyle === "minimal" || queries.length === 0) {
+      resolved.events.push({
+        eventId: event.eventId,
+        cardStyle: "minimal",
+        images: []
+      });
       continue;
     }
 
-    await sleep(100);
+    await sleep(150);
 
-    const image = await searchUnsplash(event.cardQuery, {
-      orientation: "landscape"
-    });
+    if (cardStyle === "carousel") {
+      // Fetch multiple images for carousel
+      const images = [];
+      for (const query of queries.slice(0, 4)) {  // Max 4 images per carousel
+        await sleep(100);
+        const image = await searchUnsplash(query, { orientation: "landscape" });
+        if (image) {
+          images.push(image);
+        }
+      }
 
-    if (image) {
       resolved.events.push({
         eventId: event.eventId,
-        cardImage: image
+        cardStyle: "carousel",
+        images: images
+      });
+    } else {
+      // Single image for hero or accent
+      const image = await searchUnsplash(queries[0], {
+        orientation: "landscape"
+      });
+
+      resolved.events.push({
+        eventId: event.eventId,
+        cardStyle: cardStyle,
+        images: image ? [image] : []
       });
     }
   }
@@ -325,5 +372,6 @@ module.exports = {
   searchUnsplash,
   resolveImages,
   analyzeColors,
-  validateImageUrl
+  validateImageUrl,
+  resetImageTracking
 };

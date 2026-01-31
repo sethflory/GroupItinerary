@@ -179,12 +179,29 @@ module.exports = async function (context, req) {
         })
       ),
 
-      eventImages: Object.fromEntries(
+      eventCards: Object.fromEntries(
         (resolvedImages.events || []).map(e => [e.eventId, {
-          url: e.cardImage?.url || null,
-          thumb: e.cardImage?.thumb || null,
-          credit: e.cardImage?.credit || null
+          cardStyle: e.cardStyle || "minimal",
+          images: (e.images || []).map(img => ({
+            url: img?.url || null,
+            thumb: img?.thumb || null,
+            small: img?.small || null,
+            credit: img?.credit || null,
+            creditUrl: img?.creditUrl || null,
+            color: img?.color || null
+          }))
         }])
+      ),
+
+      // Legacy format for backwards compatibility
+      eventImages: Object.fromEntries(
+        (resolvedImages.events || [])
+          .filter(e => e.images && e.images.length > 0)
+          .map(e => [e.eventId, {
+            url: e.images[0]?.url || null,
+            thumb: e.images[0]?.thumb || null,
+            credit: e.images[0]?.credit || null
+          }])
       ),
 
       colorAnalysis,

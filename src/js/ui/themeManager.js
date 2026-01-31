@@ -15,6 +15,7 @@ let isTransitioning = false;
 const DEFAULT_THEME = {
   id: 'default',
   name: 'Default',
+  fontStyle: 'modern',
   palette: {
     primary: '#667eea',
     secondary: '#764ba2',
@@ -26,6 +27,9 @@ const DEFAULT_THEME = {
   },
   headerGradient: ['#667eea', '#764ba2']
 };
+
+// Valid font styles
+const FONT_STYLES = ['modern', 'classic', 'playful', 'elegant', 'adventure'];
 
 // ========================================
 // THEME APPLICATION
@@ -71,6 +75,9 @@ export async function applyTheme(theme, options = {}) {
     root.style.setProperty('--header-gradient-start', theme.headerGradient[0]);
     root.style.setProperty('--header-gradient-end', theme.headerGradient[1]);
   }
+
+  // Apply font style
+  applyFontStyle(theme.fontStyle || 'modern');
 
   // Store current theme
   currentTheme = theme;
@@ -172,6 +179,25 @@ export function loadPersonalizationFromTrip(trip) {
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Apply a font style to the document body
+ * @param {string} fontStyle - One of: modern, classic, playful, elegant, adventure
+ */
+function applyFontStyle(fontStyle) {
+  // Remove all existing font style classes
+  FONT_STYLES.forEach(style => {
+    document.body.classList.remove(`font-style-${style}`);
+  });
+
+  // Apply the new font style if valid
+  if (fontStyle && FONT_STYLES.includes(fontStyle)) {
+    document.body.classList.add(`font-style-${fontStyle}`);
+  } else {
+    // Default to modern
+    document.body.classList.add('font-style-modern');
+  }
 }
 
 // ========================================

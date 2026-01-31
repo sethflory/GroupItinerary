@@ -53,7 +53,7 @@ window.DAYS = DAYS;
 
 // DEMO MODE: Enable Unsplash demo for API approval screenshot
 // TODO: Set to false after Unsplash approval
-window.UNSPLASH_DEMO_MODE = true;
+window.UNSPLASH_DEMO_MODE = false;
 window.PHASES = PHASES;
 window.DESTINATIONS = DESTINATIONS;
 window.CAROUSELS = CAROUSELS;

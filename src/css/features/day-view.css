@@ -648,3 +648,294 @@
       color: var(--color-text);
     }
 
+    /* ============================================
+       EVENT CARD STYLE VARIATIONS
+       Created by AI personalization for visual variety
+       ============================================ */
+
+    /* Card Style: Hero - Large dramatic image */
+    .event-card.card-style-hero .event-image,
+    .event-card.card-style-hero .event-carousel {
+      margin: -12px -12px 12px -12px;
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+    }
+
+    .event-card.card-style-hero .event-image img,
+    .event-card.card-style-hero .hero-image {
+      height: 200px;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    /* Card Style: Accent - Small thumbnail */
+    .event-card.card-style-accent .event-image {
+      width: 80px;
+      height: 80px;
+      float: right;
+      margin: 0 0 8px 12px;
+      border-radius: var(--radius-sm);
+    }
+
+    .event-card.card-style-accent .event-image img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+    }
+
+    .event-card.card-style-accent .event-content {
+      overflow: hidden;
+    }
+
+    /* Card Style: Minimal - Text focused, no image */
+    .event-card.card-style-minimal {
+      border-left: 3px solid var(--color-accent, var(--color-primary));
+    }
+
+    .event-card.card-style-minimal .event-image,
+    .event-card.card-style-minimal .event-carousel {
+      display: none;
+    }
+
+    /* ============================================
+       EVENT CAROUSEL
+       Swipeable image gallery for multi-image events
+       ============================================ */
+
+    .event-carousel {
+      position: relative;
+      margin: -12px -12px 12px -12px;
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+      overflow: hidden;
+      background: var(--color-surface-dark, #1a1a2e);
+    }
+
+    .event-carousel-track {
+      position: relative;
+      width: 100%;
+      height: 180px;
+    }
+
+    .event-carousel-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+
+    .event-carousel-slide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .event-carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .event-carousel .event-image-attribution {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 8px 6px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.8);
+      text-align: right;
+      z-index: 5;
+    }
+
+    .event-carousel .event-image-attribution a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: underline;
+    }
+
+    /* Carousel Navigation Dots */
+    .event-carousel-dots {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .carousel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .carousel-dot:hover {
+      background: rgba(255,255,255,0.7);
+      transform: scale(1.2);
+    }
+
+    .carousel-dot.active {
+      background: white;
+      transform: scale(1.1);
+      box-shadow: 0 0 6px rgba(255,255,255,0.5);
+    }
+
+    /* Carousel Arrow Buttons */
+    .carousel-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease, background 0.2s ease;
+      z-index: 10;
+    }
+
+    .event-carousel:hover .carousel-arrow {
+      opacity: 1;
+    }
+
+    .carousel-arrow:hover {
+      background: rgba(0,0,0,0.8);
+    }
+
+    .carousel-arrow.prev {
+      left: 8px;
+    }
+
+    .carousel-arrow.next {
+      right: 8px;
+    }
+
+    .carousel-arrow .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    /* Swipe hint animation on first carousel */
+    @keyframes swipeHint {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(-10px); }
+    }
+
+    .event-carousel.show-hint .event-carousel-track {
+      animation: swipeHint 1s ease-in-out 2;
+    }
+
+    /* ============================================
+       PERSONALIZED TYPOGRAPHY
+       Font variations applied by theme
+       ============================================ */
+
+    /* Font pairing: Modern - Clean tech-forward look */
+    .font-style-modern .event-title,
+    .font-style-modern .day-nickname {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    /* Font pairing: Classic - Timeless elegance */
+    .font-style-classic .event-title,
+    .font-style-classic .day-nickname {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    /* Font pairing: Playful - Friendly and fun */
+    .font-style-playful .event-title,
+    .font-style-playful .day-nickname {
+      font-family: 'Nunito', 'Comic Neue', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    /* Font pairing: Elegant - Sophisticated italic */
+    .font-style-elegant .event-title,
+    .font-style-elegant .day-nickname {
+      font-family: 'Playfair Display', 'Didot', serif;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      font-style: italic;
+    }
+
+    /* Font pairing: Adventure - Bold and exciting */
+    .font-style-adventure .event-title,
+    .font-style-adventure .day-nickname {
+      font-family: 'Bebas Neue', 'Impact', sans-serif;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 1.1em;
+    }
+
+    /* ============================================
+       AI-ENHANCED INDICATOR
+       Subtle sparkle on personalized cards
+       ============================================ */
+
+    .event-card.ai-enhanced::after {
+      content: '✦';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 10px;
+      color: var(--ai-emerald-mid, #2d7a6d);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .event-card.card-style-hero.ai-enhanced::after,
+    .event-card.card-style-carousel.ai-enhanced::after {
+      top: auto;
+      bottom: 8px;
+      right: 12px;
+      color: rgba(255,255,255,0.7);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    /* Mobile responsive carousel */
+    @media (max-width: 480px) {
+      .event-carousel-slide img {
+        height: 150px;
+      }
+
+      .carousel-arrow {
+        width: 28px;
+        height: 28px;
+        opacity: 0.7;
+      }
+
+      .event-carousel:hover .carousel-arrow {
+        opacity: 0.9;
+      }
+
+      .event-card.card-style-accent .event-image {
+        width: 60px;
+        height: 60px;
+      }
+
+      .event-card.card-style-accent .event-image img {
+        width: 60px;
+        height: 60px;
+      }
+    }
+

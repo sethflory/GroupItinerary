@@ -179,12 +179,16 @@ export function renderEventCard(e, notMine = false) {
   const isNotMine = notMine || (currentTravelerFilter !== 'all' && !isForTraveler(e.travelers, currentTravelerFilter));
   const iconName = getEventIcon(e.type);
 
-  // Get event image from personalization
+  // Get event card config from personalization (new format)
   const personalization = window.tripPersonalization;
-  let eventImage = personalization?.eventImages?.[e.id];
+  const eventCard = personalization?.eventCards?.[e.id];
+  const cardStyle = eventCard?.cardStyle || 'minimal';
+  const cardImages = eventCard?.images || [];
+
+  // Fallback to legacy eventImages format
+  let eventImage = cardImages[0] || personalization?.eventImages?.[e.id];
 
   // DEMO MODE: Show sample event image for first activity
-  // TODO: Remove after Unsplash approval
   if (!eventImage && window.UNSPLASH_DEMO_MODE && e.type === 'activity') {
     eventImage = {
       url: 'https://images.unsplash.com/photo-1555993539-1732b0258235?w=800&q=80',
@@ -194,11 +198,12 @@ export function renderEventCard(e, notMine = false) {
     };
   }
 
-  // Check if this card has AI-enhanced content (personalized image, not demo)
-  const isAiEnhanced = personalization?.eventImages?.[e.id] != null;
+  // Check if this card has AI-enhanced content
+  const isAiEnhanced = eventCard != null || personalization?.eventImages?.[e.id] != null;
+  const hasImage = cardStyle !== 'minimal' && (eventImage?.url || cardImages.length > 0);
 
   return `
-    <div class="event-card ${e.type} ${isNotMine ? 'not-mine' : ''} ${eventImage ? 'has-image' : ''} ${isAiEnhanced ? 'ai-enhanced' : ''}">
+    <div class="event-card ${e.type} ${isNotMine ? 'not-mine' : ''} ${hasImage ? 'has-image' : ''} ${isAiEnhanced ? 'ai-enhanced' : ''} card-style-${cardStyle}">
       <div class="event-main">
         <div class="event-header">
           <div class="event-icon ${e.type}">
@@ -235,14 +240,7 @@ export function renderEventCard(e, notMine = false) {
           </div>
         </div>
       </div>
-      ${eventImage?.url ? `
-        <div class="event-image">
-          <img src="${eventImage.url}" alt="${e.title}" loading="lazy">
-          <div class="event-image-attribution">
-            Photo by <a href="${eventImage.creditUrl}?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">${eventImage.credit}</a> on <a href="https://unsplash.com?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>
-          </div>
-        </div>
-      ` : ''}
+      ${renderEventMedia(e.id, cardStyle, cardImages, eventImage, e.title)}
       ${e.details ? `<div class="event-details"><p>${e.details}</p></div>` : ''}
       ${e.carousel && CAROUSELS[e.carousel] ? renderCarousel(e.carousel) : ''}
       ${e.mapsLink || e.where ? `
@@ -254,6 +252,91 @@ export function renderEventCard(e, notMine = false) {
     </div>
   `;
 }
+
+function renderEventMedia(eventId, cardStyle, images, fallbackImage, title) {
+  // Minimal cards have no media
+  if (cardStyle === 'minimal' || (!images.length && !fallbackImage?.url)) {
+    return '';
+  }
+
+  // Carousel: multiple images to swipe through
+  if (cardStyle === 'carousel' && images.length > 1) {
+    return `
+      <div class="event-carousel" data-event-id="${eventId}">
+        <div class="event-carousel-track">
+          ${images.map((img, idx) => `
+            <div class="event-carousel-slide ${idx === 0 ? 'active' : ''}">
+              <img src="${img.url}" alt="${title}" loading="lazy">
+            </div>
+          `).join('')}
+        </div>
+        <div class="event-carousel-dots">
+          ${images.map((_, idx) => `
+            <button class="carousel-dot ${idx === 0 ? 'active' : ''}" onclick="slideEventCarousel('${eventId}', ${idx})"></button>
+          `).join('')}
+        </div>
+        <button class="carousel-arrow prev" onclick="slideEventCarousel('${eventId}', 'prev')">
+          <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <button class="carousel-arrow next" onclick="slideEventCarousel('${eventId}', 'next')">
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+        ${renderImageAttribution(images[0])}
+      </div>
+    `;
+  }
+
+  // Hero or Accent: single image
+  const img = images[0] || fallbackImage;
+  if (img?.url) {
+    return `
+      <div class="event-image ${cardStyle === 'hero' ? 'hero-image' : ''}">
+        <img src="${img.url}" alt="${title}" loading="lazy">
+        ${renderImageAttribution(img)}
+      </div>
+    `;
+  }
+
+  return '';
+}
+
+function renderImageAttribution(img) {
+  if (!img?.credit) return '';
+  return `
+    <div class="event-image-attribution">
+      Photo by <a href="${img.creditUrl || '#'}?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">${img.credit}</a> on <a href="https://unsplash.com?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>
+    </div>
+  `;
+}
+
+// Carousel navigation for event cards
+window.slideEventCarousel = function(eventId, direction) {
+  const carousel = document.querySelector(`.event-carousel[data-event-id="${eventId}"]`);
+  if (!carousel) return;
+
+  const slides = carousel.querySelectorAll('.event-carousel-slide');
+  const dots = carousel.querySelectorAll('.carousel-dot');
+  let currentIndex = Array.from(slides).findIndex(s => s.classList.contains('active'));
+
+  if (direction === 'prev') {
+    currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+  } else if (direction === 'next') {
+    currentIndex = (currentIndex + 1) % slides.length;
+  } else if (typeof direction === 'number') {
+    currentIndex = direction;
+  }
+
+  slides.forEach((s, i) => s.classList.toggle('active', i === currentIndex));
+  dots.forEach((d, i) => d.classList.toggle('active', i === currentIndex));
+
+  // Update attribution for current slide
+  const eventCard = window.tripPersonalization?.eventCards?.[eventId];
+  const currentImg = eventCard?.images?.[currentIndex];
+  const attribution = carousel.querySelector('.event-image-attribution');
+  if (attribution && currentImg?.credit) {
+    attribution.innerHTML = `Photo by <a href="${currentImg.creditUrl || '#'}?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">${currentImg.credit}</a> on <a href="https://unsplash.com?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`;
+  }
+};
 
 export function renderCarousel(carouselId) {
   const carousel = CAROUSELS[carouselId];

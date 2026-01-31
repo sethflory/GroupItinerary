@@ -136,6 +136,9 @@ function validateNarrativeOutput(output) {
   return true;
 }
 
+// Valid font styles for personalization
+const VALID_FONT_STYLES = ["modern", "classic", "playful", "elegant", "adventure"];
+
 /**
  * Validate theme output structure
  */
@@ -163,6 +166,11 @@ function validateThemeOutput(themes) {
       if (!colorRegex.test(value)) {
         throw new Error(`Invalid theme: palette.${key} is not a valid hex color`);
       }
+    }
+
+    // Validate fontStyle if present (optional, defaults to 'modern')
+    if (theme.fontStyle && !VALID_FONT_STYLES.includes(theme.fontStyle)) {
+      theme.fontStyle = "modern"; // Default to modern if invalid
     }
   }
 
