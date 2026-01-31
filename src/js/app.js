@@ -25,6 +25,7 @@ import * as tripSetup from './ui/tripSetup.js';
 import * as receiptUpload from './ui/receiptUpload.js';
 import * as onboarding from './ui/onboarding.js';
 import * as dinnerPoll from './ui/dinnerPoll.js';
+import * as sawIt from './ui/sawIt.js';
 
 // ========================================
 // GLOBAL STATE
@@ -306,6 +307,13 @@ window.getActivePolls = dinnerPoll.getActivePolls;
 window.refreshActivePolls = dinnerPoll.refreshActivePolls;
 
 // ========================================
+// SAW IT EXPORTS
+// ========================================
+
+window.openWhatsYouWillSee = sawIt.openWhatsYouWillSee;
+window.closeSawItModal = sawIt.closeSawItModal;
+
+// ========================================
 // DEPENDENCY INJECTION
 // ========================================
 
@@ -329,6 +337,7 @@ function injectDependencies() {
   stats.setStatsDeps(deps);
   countdown.setCountdownDeps(deps);
   dinnerPoll.setDinnerPollDeps(deps);
+  sawIt.setSawItDeps(deps);
 }
 
 // ========================================

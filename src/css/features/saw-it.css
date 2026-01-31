@@ -1,0 +1,1038 @@
+/* ========================================
+   SAW IT! - "What You'll See" Game
+   ======================================== */
+
+/* Modal */
+.saw-it-modal {
+  max-width: 540px;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.saw-it-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.saw-it-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.saw-it-header .material-symbols-outlined {
+  color: var(--color-sky);
+}
+
+.saw-it-content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.saw-it-step h4 {
+  font-size: 1.1rem;
+  margin: 0 0 0.25rem;
+}
+
+.saw-it-subtitle {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0 0 1rem;
+}
+
+.saw-it-step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.saw-it-back-btn {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: #666;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+
+.saw-it-back-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--color-charcoal);
+}
+
+/* Event "What You'll See" Button */
+.event-see-btn {
+  background: none;
+  border: none;
+  padding: 0.35rem;
+  cursor: pointer;
+  color: #666;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+
+.event-see-btn:hover {
+  background: rgba(79, 172, 254, 0.1);
+  color: var(--color-sky);
+}
+
+/* Origin Selection */
+.saw-it-origin-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.saw-it-origin-option {
+  position: relative;
+  cursor: pointer;
+}
+
+.saw-it-origin-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.origin-option-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--color-cream);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+}
+
+.saw-it-origin-option input:checked + .origin-option-content {
+  border-color: var(--color-sky);
+  background: rgba(79, 172, 254, 0.08);
+}
+
+.saw-it-origin-option:hover .origin-option-content {
+  border-color: var(--color-sky);
+}
+
+.saw-it-origin-option.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.saw-it-origin-option.disabled:hover .origin-option-content {
+  border-color: var(--color-border);
+}
+
+.origin-option-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--color-sky);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.origin-option-icon .material-symbols-outlined {
+  color: white;
+  font-size: 1.25rem;
+}
+
+.origin-option-details {
+  flex: 1;
+}
+
+.origin-option-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.origin-option-name {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Transport Mode Toggle */
+.saw-it-transport {
+  margin-bottom: 1.5rem;
+}
+
+.saw-it-transport label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.transport-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.transport-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-cream);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.transport-btn:hover {
+  border-color: var(--color-sky);
+}
+
+.transport-btn.active {
+  border-color: var(--color-sky);
+  background: rgba(79, 172, 254, 0.08);
+  color: var(--color-sky);
+}
+
+.transport-btn .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+/* Preview Items List */
+.saw-it-items-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.saw-it-item-preview {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+}
+
+.item-order {
+  width: 32px;
+  height: 32px;
+  background: var(--color-sky);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.item-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.item-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.item-category {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.125rem 0.5rem;
+  background: var(--color-cream);
+  color: #666;
+  border-radius: 10px;
+}
+
+.item-category.landmark { background: #fef3c7; color: #92400e; }
+.item-category.architecture { background: #e0e7ff; color: #3730a3; }
+.item-category.street_art { background: #fce7f3; color: #9d174d; }
+.item-category.nature { background: #d1fae5; color: #065f46; }
+.item-category.food { background: #ffedd5; color: #9a3412; }
+.item-category.culture { background: #f3e8ff; color: #6b21a8; }
+.item-category.view { background: #dbeafe; color: #1e40af; }
+
+.item-description {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.item-look-for {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(79, 172, 254, 0.1);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.item-look-for .material-symbols-outlined {
+  font-size: 1rem;
+  color: var(--color-sky);
+  flex-shrink: 0;
+}
+
+/* Game View Items */
+.saw-it-game-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.saw-it-game-item {
+  padding: 1rem;
+  background: white;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+}
+
+.saw-it-game-item.spotted {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.saw-it-game-item.my-spot {
+  border-color: var(--color-sky);
+  background: rgba(79, 172, 254, 0.08);
+}
+
+.game-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.game-item-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.game-item-order {
+  width: 28px;
+  height: 28px;
+  background: var(--color-sky);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.saw-it-game-item.spotted .game-item-order {
+  background: #22c55e;
+}
+
+.game-item-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.game-item-status {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.game-item-status .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+.game-item-status.complete {
+  color: #22c55e;
+}
+
+.game-item-first-spotter {
+  font-size: 0.8rem;
+  color: #666;
+  margin-left: 3.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.game-item-first-spotter .trophy {
+  color: #eab308;
+}
+
+.game-item-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: 3.25rem;
+}
+
+.saw-it-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-sky);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.saw-it-btn:hover {
+  background: var(--color-ocean);
+}
+
+.saw-it-btn.with-photo {
+  background: linear-gradient(135deg, var(--color-sky), var(--color-ocean));
+}
+
+.saw-it-btn.no-photo {
+  background: var(--color-cream);
+  color: #666;
+  border: 1px solid var(--color-border);
+}
+
+.saw-it-btn.no-photo:hover {
+  background: #eee;
+}
+
+.saw-it-btn.spotted {
+  background: #22c55e;
+  pointer-events: none;
+}
+
+.saw-it-btn .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+/* Points Display */
+.saw-it-points-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, var(--color-sky), var(--color-ocean));
+  color: white;
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+}
+
+.points-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.points-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Leaderboard */
+.saw-it-leaderboard {
+  margin-bottom: 1.5rem;
+}
+
+.saw-it-leaderboard h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.saw-it-leaderboard h4 .material-symbols-outlined {
+  color: #eab308;
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.leaderboard-entry {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.leaderboard-entry.winner {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-color: #eab308;
+}
+
+.leaderboard-entry.me {
+  border-color: var(--color-sky);
+  background: rgba(79, 172, 254, 0.08);
+}
+
+.leaderboard-rank {
+  width: 28px;
+  height: 28px;
+  background: var(--color-cream);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.leaderboard-entry.winner .leaderboard-rank {
+  background: #eab308;
+  color: white;
+}
+
+.leaderboard-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.leaderboard-points {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-sky);
+}
+
+.leaderboard-entry.winner .leaderboard-points {
+  color: #92400e;
+}
+
+/* Photo Gallery */
+.saw-it-photos {
+  margin-bottom: 1.5rem;
+}
+
+.saw-it-photos h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.saw-it-photos h4 .material-symbols-outlined {
+  color: var(--color-sunrise);
+}
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.5rem;
+}
+
+.photo-thumb {
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+}
+
+.photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s;
+}
+
+.photo-thumb:hover img {
+  transform: scale(1.05);
+}
+
+.photo-thumb-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.25rem 0.5rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* Social Share Prompt */
+.social-share-prompt {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+}
+
+.share-prompt-content {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+}
+
+.share-prompt-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.share-prompt-icon .material-symbols-outlined {
+  font-size: 2rem;
+  color: white;
+}
+
+.share-prompt-content h4 {
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem;
+}
+
+.share-prompt-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  margin: 1rem auto;
+  border: 3px solid var(--color-border);
+}
+
+.share-prompt-content p {
+  color: #666;
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+
+.share-prompt-points {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(34, 197, 94, 0.1);
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.share-prompt-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.share-prompt-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.share-prompt-btn.primary {
+  background: var(--color-sky);
+  color: white;
+}
+
+.share-prompt-btn.primary:hover {
+  background: var(--color-ocean);
+}
+
+.share-prompt-btn.secondary {
+  background: var(--color-cream);
+  color: #666;
+}
+
+.share-prompt-btn.secondary:hover {
+  background: #eee;
+}
+
+/* Action Buttons */
+.saw-it-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.saw-it-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.saw-it-action-btn.primary {
+  background: linear-gradient(135deg, var(--color-sky), var(--color-ocean));
+  color: white;
+}
+
+.saw-it-action-btn.primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+}
+
+.saw-it-action-btn.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.saw-it-action-btn.secondary {
+  background: var(--color-cream);
+  color: var(--color-charcoal);
+  border: 1px solid var(--color-border);
+}
+
+.saw-it-action-btn.secondary:hover {
+  background: #eee;
+}
+
+.saw-it-action-btn.game {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.saw-it-action-btn.game:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* Loading / Error States */
+.saw-it-loading {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.saw-it-loading .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-cream);
+  border-top-color: var(--color-sky);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+.saw-it-error {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.saw-it-error .material-symbols-outlined {
+  font-size: 3rem;
+  color: #ef4444;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+/* Active Game Badge */
+.saw-it-active-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #22c55e;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 10px;
+  animation: pulse-glow-green 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-green {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+}
+
+/* Existing Game Banner */
+.saw-it-existing-game {
+  padding: 1rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid #22c55e;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+}
+
+.existing-game-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.existing-game-header .material-symbols-outlined {
+  color: #22c55e;
+}
+
+.existing-game-header span {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.existing-game-info {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.75rem;
+}
+
+.join-game-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #22c55e;
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.join-game-btn:hover {
+  background: #16a34a;
+}
+
+/* Toast Notification (reuse dinner toast pattern) */
+.saw-it-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: #333;
+  color: white;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 1300;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.saw-it-toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.saw-it-toast.success {
+  background: #22c55e;
+}
+
+.saw-it-toast.error {
+  background: #ef4444;
+}
+
+.saw-it-toast .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+/* Map Picker (Simple) */
+.saw-it-map-picker {
+  width: 100%;
+  height: 200px;
+  background: var(--color-cream);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  color: #666;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Confirm Modal (reuse pattern) */
+.saw-it-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 1rem;
+}
+
+.saw-it-confirm-modal {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  max-width: 320px;
+  width: 100%;
+  text-align: center;
+}
+
+.confirm-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--color-cream);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.confirm-icon .material-symbols-outlined {
+  font-size: 1.75rem;
+  color: var(--color-sky);
+}
+
+.saw-it-confirm-modal h4 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+}
+
+.saw-it-confirm-modal p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0 0 1.25rem;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.confirm-actions .saw-it-action-btn {
+  flex: 1;
+  justify-content: center;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .saw-it-modal {
+    max-height: 90vh;
+    margin: 5vh 0;
+    width: 95vw;
+  }
+
+  .saw-it-content {
+    padding: 1rem;
+  }
+
+  .saw-it-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .saw-it-action-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.875rem 1rem;
+  }
+
+  .saw-it-item-preview {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .item-order {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  .game-item-actions {
+    flex-direction: column;
+    margin-left: 0;
+    margin-top: 0.75rem;
+  }
+
+  .saw-it-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .share-prompt-actions {
+    flex-direction: column;
+  }
+
+  .saw-it-toast {
+    left: 1rem;
+    right: 1rem;
+    transform: translateY(100px);
+    width: auto;
+  }
+
+  .saw-it-toast.show {
+    transform: translateY(0);
+  }
+
+  .transport-toggle {
+    flex-direction: column;
+  }
+
+  .photos-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

@@ -26,7 +26,8 @@ const TABLES = {
   TRIVIA_POKES: "TriviaPokes",
   TRAVELER_LOCATIONS: "TravelerLocations",
   NEWS_CACHE: "NewsCache",
-  DINNER_POLLS: "DinnerPolls"
+  DINNER_POLLS: "DinnerPolls",
+  SAW_IT_GAMES: "SawItGames"
 };
 
 // Create a TableClient for a specific table

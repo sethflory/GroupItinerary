@@ -201,6 +201,11 @@ export function renderEventCard(e, notMine = false) {
                 <span class="material-symbols-outlined">smart_toy</span>
               </button>
             ` : ''}
+            ${(e.type === 'activity' || e.type === 'meal') ? `
+              <button class="event-see-btn" onclick="openWhatsYouWillSee('${e.id}')" title="What you'll see">
+                <span class="material-symbols-outlined">visibility</span>
+              </button>
+            ` : ''}
             <button class="event-share-btn" onclick="openShareModal('${e.id}')" title="Create post">
               <span class="material-symbols-outlined">share</span>
             </button>
