@@ -4,7 +4,12 @@
 
 import { getCurrentTrip } from '../state.js';
 
+let DAYS = [];
 let clockInterval = null;
+
+// Stored preferences
+let homeTimezone = localStorage.getItem('homeTimezone') || 'America/Chicago';
+let homeCity = localStorage.getItem('homeCity') || 'Home';
 let customTimezone = localStorage.getItem('customTimezone') || null;
 let customCity = localStorage.getItem('customCity') || null;
 
@@ -23,6 +28,79 @@ const TIMEZONE_OPTIONS = [
   { tz: 'Asia/Tokyo', city: 'Tokyo' },
   { tz: 'Australia/Sydney', city: 'Sydney' }
 ];
+
+// Location to timezone mapping
+const LOCATION_TIMEZONES = {
+  'athens': { tz: 'Europe/Athens', city: 'Athens' },
+  'greece': { tz: 'Europe/Athens', city: 'Athens' },
+  'santorini': { tz: 'Europe/Athens', city: 'Santorini' },
+  'bangalore': { tz: 'Asia/Kolkata', city: 'Bangalore' },
+  'india': { tz: 'Asia/Kolkata', city: 'India' },
+  'delhi': { tz: 'Asia/Kolkata', city: 'Delhi' },
+  'mumbai': { tz: 'Asia/Kolkata', city: 'Mumbai' },
+  'london': { tz: 'Europe/London', city: 'London' },
+  'paris': { tz: 'Europe/Paris', city: 'Paris' },
+  'rome': { tz: 'Europe/Rome', city: 'Rome' },
+  'tokyo': { tz: 'Asia/Tokyo', city: 'Tokyo' },
+  'sydney': { tz: 'Australia/Sydney', city: 'Sydney' },
+  'new york': { tz: 'America/New_York', city: 'New York' },
+  'chicago': { tz: 'America/Chicago', city: 'Chicago' },
+  'los angeles': { tz: 'America/Los_Angeles', city: 'LA' },
+  'dubai': { tz: 'Asia/Dubai', city: 'Dubai' },
+  'singapore': { tz: 'Asia/Singapore', city: 'Singapore' }
+};
+
+export function setTimezoneClocksDeps(deps) {
+  DAYS = deps.DAYS || [];
+}
+
+// ========================================
+// CURRENT LOCATION DETECTION
+// ========================================
+
+function getCurrentDayIndex() {
+  const trip = getCurrentTrip();
+  if (!trip || !DAYS.length) return 0;
+
+  const now = new Date();
+  const startDate = new Date(trip.startDate);
+
+  if (now < startDate) return 0;
+
+  const diffTime = now - startDate;
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  return Math.max(0, Math.min(diffDays, DAYS.length - 1));
+}
+
+function getCurrentLocationTimezone() {
+  const dayIndex = getCurrentDayIndex();
+  const currentDay = DAYS[dayIndex];
+
+  if (!currentDay) {
+    return { tz: 'Europe/Athens', city: 'Destination' };
+  }
+
+  const location = (currentDay.location || '').toLowerCase();
+
+  for (const [key, value] of Object.entries(LOCATION_TIMEZONES)) {
+    if (location.includes(key)) {
+      return value;
+    }
+  }
+
+  // Fallback: try to detect from trip name
+  const trip = getCurrentTrip();
+  const tripName = (trip?.name || '').toLowerCase();
+
+  for (const [key, value] of Object.entries(LOCATION_TIMEZONES)) {
+    if (tripName.includes(key)) {
+      return value;
+    }
+  }
+
+  return { tz: 'Europe/Athens', city: 'Destination' };
+}
 
 // ========================================
 // CLOCK UPDATES
@@ -47,29 +125,33 @@ function updateClockHands(clockId, timezone) {
   const minuteHand = document.getElementById(`tzMinute${clockId}`);
 
   if (hourHand) {
-    const hourDeg = (hours * 30) + (minutes * 0.5); // 30 degrees per hour + minute offset
+    const hourDeg = (hours * 30) + (minutes * 0.5);
     hourHand.style.transform = `rotate(${hourDeg}deg)`;
   }
 
   if (minuteHand) {
-    const minuteDeg = minutes * 6; // 6 degrees per minute
+    const minuteDeg = minutes * 6;
     minuteHand.style.transform = `rotate(${minuteDeg}deg)`;
   }
 }
 
 function updateAllClocks() {
   // Clock 1 - Home timezone
-  const clock1 = document.getElementById('tzClock1');
-  if (clock1) {
-    const tz1 = clock1.dataset.timezone || 'America/Chicago';
-    updateClockHands('1', tz1);
-  }
+  updateClockHands('1', homeTimezone);
+  const cityLabel1 = document.getElementById('tzCity1');
+  if (cityLabel1) cityLabel1.textContent = homeCity;
 
-  // Clock 2 - Destination timezone
+  // Clock 2 - Current destination (auto-detected)
+  const currentLoc = getCurrentLocationTimezone();
+  updateClockHands('2', currentLoc.tz);
+  const cityLabel2 = document.getElementById('tzCity2');
+  if (cityLabel2) cityLabel2.textContent = currentLoc.city;
+
+  // Update clock 2 data attributes
   const clock2 = document.getElementById('tzClock2');
   if (clock2) {
-    const tz2 = clock2.dataset.timezone || 'Europe/Athens';
-    updateClockHands('2', tz2);
+    clock2.dataset.timezone = currentLoc.tz;
+    clock2.dataset.city = currentLoc.city;
   }
 
   // Clock 3 - Custom timezone (if set)
@@ -82,45 +164,22 @@ function updateAllClocks() {
 }
 
 // ========================================
-// TIMEZONE CONFIGURATION
+// TIMEZONE PICKER
 // ========================================
 
-export function setDestinationTimezone(timezone, city) {
-  const clock2 = document.getElementById('tzClock2');
-  const cityLabel = document.getElementById('tzCity2');
+let currentPickerTarget = null; // 'home' or 'custom'
 
-  if (clock2) {
-    clock2.dataset.timezone = timezone;
-    clock2.dataset.city = city;
-  }
-  if (cityLabel) {
-    cityLabel.textContent = city;
-  }
-
-  updateAllClocks();
+export function changeHomeTimezone() {
+  currentPickerTarget = 'home';
+  showTimezonePicker('Change Home Timezone', true);
 }
-
-export function setHomeTimezone(timezone, city) {
-  const clock1 = document.getElementById('tzClock1');
-  const cityLabel = document.getElementById('tzCity1');
-
-  if (clock1) {
-    clock1.dataset.timezone = timezone;
-    clock1.dataset.city = city;
-  }
-  if (cityLabel) {
-    cityLabel.textContent = city;
-  }
-
-  updateAllClocks();
-}
-
-// ========================================
-// ADD CUSTOM TIMEZONE
-// ========================================
 
 export function addTimezone() {
-  // Create a simple timezone picker modal
+  currentPickerTarget = 'custom';
+  showTimezonePicker('Add Timezone', !!customTimezone);
+}
+
+function showTimezonePicker(title, showRemove) {
   const existingModal = document.getElementById('tzPickerModal');
   if (existingModal) {
     existingModal.remove();
@@ -132,7 +191,7 @@ export function addTimezone() {
   modal.innerHTML = `
     <div class="tz-picker-content">
       <div class="tz-picker-header">
-        <h4>Add Timezone</h4>
+        <h4>${title}</h4>
         <button class="tz-picker-close" onclick="closeTimezonePicker()">
           <span class="material-symbols-outlined">close</span>
         </button>
@@ -144,11 +203,11 @@ export function addTimezone() {
           </button>
         `).join('')}
       </div>
-      ${customTimezone ? `
+      ${showRemove && currentPickerTarget === 'custom' ? `
         <div class="tz-picker-footer">
           <button class="tz-picker-remove" onclick="removeCustomTimezone()">
             <span class="material-symbols-outlined">delete</span>
-            Remove custom timezone
+            Remove timezone
           </button>
         </div>
       ` : ''}
@@ -157,7 +216,6 @@ export function addTimezone() {
 
   document.body.appendChild(modal);
 
-  // Close on backdrop click
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
       closeTimezonePicker();
@@ -170,28 +228,44 @@ export function closeTimezonePicker() {
   if (modal) {
     modal.remove();
   }
+  currentPickerTarget = null;
 }
 
 export function selectTimezone(timezone, city) {
-  customTimezone = timezone;
-  customCity = city;
-  localStorage.setItem('customTimezone', timezone);
-  localStorage.setItem('customCity', city);
+  if (currentPickerTarget === 'home') {
+    // Update home timezone
+    homeTimezone = timezone;
+    homeCity = city;
+    localStorage.setItem('homeTimezone', timezone);
+    localStorage.setItem('homeCity', city);
 
-  // Transform the add button into a real clock
-  const clock3 = document.getElementById('tzClock3');
-  if (clock3) {
-    clock3.classList.remove('tz-clock-add');
-    clock3.classList.add('tz-clock-custom');
-    clock3.onclick = addTimezone; // Click to change
-    clock3.title = 'Change timezone';
-    clock3.innerHTML = `
-      <div class="clock-face">
-        <div class="clock-hand hour" id="tzHour3"></div>
-        <div class="clock-hand minute" id="tzMinute3"></div>
-      </div>
-      <span class="clock-city" id="tzCity3">${city}</span>
-    `;
+    const clock1 = document.getElementById('tzClock1');
+    if (clock1) {
+      clock1.dataset.timezone = timezone;
+      clock1.dataset.city = city;
+    }
+  } else {
+    // Update custom timezone
+    customTimezone = timezone;
+    customCity = city;
+    localStorage.setItem('customTimezone', timezone);
+    localStorage.setItem('customCity', city);
+
+    // Transform the add button into a real clock
+    const clock3 = document.getElementById('tzClock3');
+    if (clock3) {
+      clock3.classList.remove('tz-clock-add');
+      clock3.classList.add('tz-clock-custom');
+      clock3.onclick = addTimezone;
+      clock3.title = 'Change timezone';
+      clock3.innerHTML = `
+        <div class="clock-face">
+          <div class="clock-hand hour" id="tzHour3"></div>
+          <div class="clock-hand minute" id="tzMinute3"></div>
+        </div>
+        <span class="clock-city" id="tzCity3">${city}</span>
+      `;
+    }
   }
 
   closeTimezonePicker();
@@ -227,29 +301,20 @@ export function removeCustomTimezone() {
 // ========================================
 
 export function initTimezoneClocks() {
-  // Set destination timezone based on current trip
-  const trip = getCurrentTrip();
-  if (trip) {
-    // Map trip destinations to timezones
-    const destTimezones = {
-      'athens': { tz: 'Europe/Athens', city: 'Athens' },
-      'greece': { tz: 'Europe/Athens', city: 'Athens' },
-      'bangalore': { tz: 'Asia/Kolkata', city: 'India' },
-      'india': { tz: 'Asia/Kolkata', city: 'India' }
-    };
-
-    const tripName = trip.name?.toLowerCase() || '';
-    for (const [key, value] of Object.entries(destTimezones)) {
-      if (tripName.includes(key)) {
-        setDestinationTimezone(value.tz, value.city);
-        break;
-      }
-    }
+  // Set up home clock as clickable
+  const clock1 = document.getElementById('tzClock1');
+  if (clock1) {
+    clock1.style.cursor = 'pointer';
+    clock1.onclick = changeHomeTimezone;
+    clock1.title = 'Change home timezone';
+    clock1.dataset.timezone = homeTimezone;
+    clock1.dataset.city = homeCity;
   }
 
   // Restore custom timezone if saved
   if (customTimezone && customCity) {
     selectTimezone(customTimezone, customCity);
+    currentPickerTarget = null; // Reset after restore
   }
 
   // Initial update
@@ -260,6 +325,9 @@ export function initTimezoneClocks() {
     clearInterval(clockInterval);
   }
   clockInterval = setInterval(updateAllClocks, 60000);
+
+  // Listen for day changes to update current destination
+  window.addEventListener('dayChanged', updateAllClocks);
 }
 
 // ========================================
@@ -267,6 +335,7 @@ export function initTimezoneClocks() {
 // ========================================
 
 window.addTimezone = addTimezone;
+window.changeHomeTimezone = changeHomeTimezone;
 window.closeTimezonePicker = closeTimezonePicker;
 window.selectTimezone = selectTimezone;
 window.removeCustomTimezone = removeCustomTimezone;

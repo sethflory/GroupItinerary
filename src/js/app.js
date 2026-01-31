@@ -401,6 +401,7 @@ function injectDependencies() {
   contextBar.setContextBarDeps(deps);
   activityPills.setActivityPillsDeps(deps);
   scoreboard.setScoreboardDeps(deps);
+  timezoneClocks.setTimezoneClocksDeps(deps);
 }
 
 // ========================================
