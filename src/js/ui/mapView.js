@@ -48,9 +48,17 @@ export async function showMapView() {
     await initializeMap();
   }
 
-  // Start refreshing locations
-  refreshLocations();
+  // Clear existing markers and force fresh fetch every time map is shown
+  clearAllMarkers();
+  await refreshLocations();
   startLocationRefresh();
+}
+
+function clearAllMarkers() {
+  Object.values(markers).forEach(marker => {
+    if (map) map.removeLayer(marker);
+  });
+  markers = {};
 }
 
 export function hideMapView() {
