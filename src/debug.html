@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Debug Console</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+    h1 {
+      color: #71b280;
+      margin: 0 0 20px;
+      font-size: 1.5rem;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 10px 20px;
+      background: #2d2d44;
+      border: none;
+      border-radius: 8px;
+      color: #a0a0a0;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .tab:hover {
+      background: #3d3d54;
+    }
+    .tab.active {
+      background: #71b280;
+      color: white;
+    }
+    .status {
+      padding: 12px 16px;
+      background: #2d2d44;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+    }
+    .status.error {
+      background: #4a2020;
+      color: #ff8080;
+    }
+    .status.loading {
+      color: #71b280;
+    }
+    .entries {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .entry-btn {
+      padding: 12px 16px;
+      background: #2d2d44;
+      border: 1px solid #3d3d54;
+      border-radius: 8px;
+      color: #e0e0e0;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .entry-btn:hover {
+      border-color: #71b280;
+    }
+    .entry-btn.active {
+      border-color: #71b280;
+      background: #2d3d44;
+    }
+    .entry-time {
+      font-size: 0.8rem;
+      color: #71b280;
+    }
+    .entry-size {
+      font-size: 0.75rem;
+      color: #808080;
+      margin-top: 4px;
+    }
+    .content-box {
+      background: #0d0d1a;
+      border: 1px solid #2d2d44;
+      border-radius: 8px;
+      padding: 16px;
+      overflow: auto;
+      max-height: 60vh;
+    }
+    .content-box h3 {
+      margin: 0 0 12px;
+      color: #71b280;
+      font-size: 0.9rem;
+    }
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+    .json-key { color: #f08080; }
+    .json-string { color: #98c379; }
+    .json-number { color: #d19a66; }
+    .json-bool { color: #56b6c2; }
+    .json-null { color: #808080; }
+    .raw-toggle {
+      margin-bottom: 12px;
+    }
+    .raw-toggle label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #a0a0a0;
+    }
+    .refresh-btn {
+      padding: 8px 16px;
+      background: #71b280;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-left: auto;
+    }
+    .refresh-btn:hover {
+      background: #5a9a6a;
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .header-row h1 {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-row">
+    <h1>AI Debug Console</h1>
+    <button class="refresh-btn" onclick="loadData()">Refresh</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-partition="backgrounds">Backgrounds</button>
+    <button class="tab" data-partition="nicknames">Nicknames</button>
+    <button class="tab" data-partition="narrative">Narrative</button>
+  </div>
+
+  <div class="status" id="status">Select a partition above</div>
+
+  <div class="entries" id="entries"></div>
+
+  <div class="content-box" id="contentBox" style="display:none;">
+    <h3>Response Content</h3>
+    <div class="raw-toggle">
+      <label>
+        <input type="checkbox" id="rawToggle" onchange="renderContent()">
+        Show raw (no formatting)
+      </label>
+    </div>
+    <pre id="content"></pre>
+  </div>
+
+  <script>
+    const API_BASE = window.location.hostname === 'localhost'
+      ? 'http://localhost:7071/api'
+      : '/api';
+
+    let currentPartition = 'backgrounds';
+    let currentData = null;
+    let selectedEntry = null;
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentPartition = tab.dataset.partition;
+        loadData();
+      });
+    });
+
+    async function loadData() {
+      const status = document.getElementById('status');
+      const entries = document.getElementById('entries');
+      const contentBox = document.getElementById('contentBox');
+
+      status.className = 'status loading';
+      status.textContent = `Loading ${currentPartition}...`;
+      entries.innerHTML = '';
+      contentBox.style.display = 'none';
+
+      try {
+        const res = await fetch(`${API_BASE}/debug?partition=${currentPartition}`);
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || `HTTP ${res.status}`);
+        }
+
+        currentData = await res.json();
+
+        status.className = 'status';
+        status.textContent = `Partition: ${currentPartition} | Latest: ${currentData.timestamp || 'N/A'} | Size: ${currentData.contentLength || 0} chars`;
+
+        // Show entries list
+        if (currentData.recentEntries && currentData.recentEntries.length > 0) {
+          entries.innerHTML = currentData.recentEntries.map((entry, idx) => `
+            <button class="entry-btn ${idx === 0 ? 'active' : ''}" data-idx="${idx}">
+              <div class="entry-time">${entry.timestamp || entry.rowKey}</div>
+              <div class="entry-size">${entry.contentLength || 0} characters</div>
+            </button>
+          `).join('');
+
+          // Entry click handlers
+          entries.querySelectorAll('.entry-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              entries.querySelectorAll('.entry-btn').forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+              selectedEntry = parseInt(btn.dataset.idx);
+              renderContent();
+            });
+          });
+
+          // Show first entry
+          selectedEntry = 0;
+          renderContent();
+        }
+
+      } catch (err) {
+        status.className = 'status error';
+        status.textContent = `Error: ${err.message}`;
+      }
+    }
+
+    function renderContent() {
+      const contentBox = document.getElementById('contentBox');
+      const contentEl = document.getElementById('content');
+      const rawToggle = document.getElementById('rawToggle');
+
+      if (!currentData || !currentData.content) {
+        contentBox.style.display = 'none';
+        return;
+      }
+
+      contentBox.style.display = 'block';
+      const content = currentData.content;
+
+      if (rawToggle.checked) {
+        contentEl.textContent = content;
+      } else {
+        // Try to parse and format as JSON
+        try {
+          // Extract JSON from content
+          let jsonStr = content;
+          const jsonStart = content.indexOf('{');
+          const jsonEnd = content.lastIndexOf('}');
+          if (jsonStart !== -1 && jsonEnd > jsonStart) {
+            jsonStr = content.slice(jsonStart, jsonEnd + 1);
+          }
+
+          const parsed = JSON.parse(jsonStr);
+          contentEl.innerHTML = syntaxHighlight(JSON.stringify(parsed, null, 2));
+        } catch (e) {
+          // Not valid JSON, show as-is
+          contentEl.textContent = content;
+        }
+      }
+    }
+
+    function syntaxHighlight(json) {
+      return json
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?)/g, match => {
+          let cls = 'json-string';
+          if (/:$/.test(match)) {
+            cls = 'json-key';
+            match = match.slice(0, -1) + '</span>:';
+            return '<span class="' + cls + '">' + match;
+          }
+          return '<span class="' + cls + '">' + match + '</span>';
+        })
+        .replace(/\b(true|false)\b/g, '<span class="json-bool">$1</span>')
+        .replace(/\bnull\b/g, '<span class="json-null">null</span>')
+        .replace(/\b(-?\d+\.?\d*)\b/g, '<span class="json-number">$1</span>');
+    }
+
+    // Load initial data
+    loadData();
+  </script>
+</body>
+</html>
