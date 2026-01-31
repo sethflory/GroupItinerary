@@ -1,0 +1,17 @@
+/* ========================================
+   Reset & Base Styles
+   ======================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, var(--color-cream) 0%, var(--color-warm-white) 100%);
+  color: var(--color-text);
+  min-height: 100vh;
+  line-height: 1.5;
+}

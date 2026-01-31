@@ -1,0 +1,599 @@
+    /* Share Post Modal */
+    .share-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .share-modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .share-modal {
+      background: white;
+      border-radius: var(--radius-lg);
+      width: 90%;
+      max-width: 500px;
+      max-height: 85vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(20px);
+      transition: transform 0.3s;
+    }
+
+    .share-modal-overlay.active .share-modal {
+      transform: translateY(0);
+    }
+
+    .share-modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .share-modal-header h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .share-modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .share-modal-close:hover {
+      background: var(--color-border);
+    }
+
+    .share-modal-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .share-section {
+      margin-bottom: 16px;
+    }
+
+    .share-section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .share-selected-events {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .share-event-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: var(--color-cream);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      border: 1px solid var(--color-border);
+    }
+
+    .share-event-chip .material-symbols-outlined {
+      font-size: 14px;
+    }
+
+    .share-event-chip .remove-event {
+      cursor: pointer;
+      opacity: 0.6;
+      margin-left: 2px;
+    }
+
+    .share-event-chip .remove-event:hover {
+      opacity: 1;
+    }
+
+    .share-add-events {
+      position: relative;
+    }
+
+    .share-add-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: white;
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--color-muted);
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .share-add-btn:hover {
+      border-color: var(--color-sunset);
+      color: var(--color-sunset);
+    }
+
+    .share-event-picker {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+
+    .share-event-picker.active {
+      display: block;
+    }
+
+    .share-event-option {
+      padding: 10px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .share-event-option:last-child {
+      border-bottom: none;
+    }
+
+    .share-event-option:hover {
+      background: var(--color-cream);
+    }
+
+    .share-event-option.selected {
+      background: #e8f5e9;
+    }
+
+    .share-event-option .event-day {
+      font-size: 0.7rem;
+      color: var(--color-muted);
+      background: var(--color-border);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .share-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.9rem;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .share-textarea:focus {
+      outline: none;
+      border-color: var(--color-sunset);
+    }
+
+    .share-char-count {
+      text-align: right;
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      margin-top: 4px;
+    }
+
+    .share-char-count.over {
+      color: #d32f2f;
+    }
+
+    .share-platforms {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .share-platform-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .share-platform-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .share-platform-btn.twitter {
+      background: #1DA1F2;
+      color: white;
+    }
+
+    .share-platform-btn.facebook {
+      background: #1877F2;
+      color: white;
+    }
+
+    .share-platform-btn.copy {
+      background: var(--color-text);
+      color: white;
+    }
+
+    .share-platform-btn.copy.copied {
+      background: #4caf50;
+    }
+
+    .share-regenerate {
+      background: none;
+      border: 1px solid var(--color-border);
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      color: var(--color-muted);
+    }
+
+    .share-regenerate:hover {
+      border-color: var(--color-sunset);
+      color: var(--color-sunset);
+    }
+
+    /* Share Map Section */
+    .share-map-section {
+      margin-bottom: 16px;
+    }
+
+    .share-map-controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .map-mode-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px 12px;
+      background: var(--color-cream);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--color-muted);
+      transition: all 0.2s;
+    }
+
+    .map-mode-btn:hover {
+      border-color: var(--color-sunset);
+      color: var(--color-sunset);
+    }
+
+    .map-mode-btn.active {
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      border-color: transparent;
+      color: white;
+    }
+
+    .map-mode-btn .material-symbols-outlined {
+      font-size: 16px;
+    }
+
+    .share-map-preview {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--color-cream);
+      min-height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .share-map-img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .map-placeholder {
+      color: var(--color-muted);
+      font-size: 0.9rem;
+      padding: 40px;
+      text-align: center;
+    }
+
+    /* Event Form Modal */
+    .event-form-modal {
+      max-width: 520px;
+    }
+
+    .event-form-modal .share-modal-body {
+      padding: 0;
+    }
+
+    .event-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .event-form-section {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .event-form-section:last-child {
+      border-bottom: none;
+    }
+
+    .event-form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .event-form-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .event-form-field {
+      flex: 1;
+    }
+
+    .event-form-field.small {
+      flex: 0 0 100px;
+    }
+
+    .event-form-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-muted);
+      margin-bottom: 6px;
+    }
+
+    .event-form-input,
+    .event-form-select,
+    .event-form-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .event-form-input:focus,
+    .event-form-select:focus,
+    .event-form-textarea:focus {
+      outline: none;
+      border-color: var(--color-sunset);
+      box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+    }
+
+    .event-form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .event-form-travelers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .event-form-traveler {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--color-cream);
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .event-form-traveler:hover {
+      border-color: var(--color-sunset);
+    }
+
+    .event-form-traveler.selected {
+      background: var(--color-sunset);
+      color: white;
+      border-color: var(--color-sunset);
+    }
+
+    .event-form-actions {
+      padding: 16px 20px;
+      background: var(--color-cream);
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .event-form-btn {
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .event-form-btn.primary {
+      background: var(--color-sunset);
+      color: white;
+      border: none;
+    }
+
+    .event-form-btn.primary:hover {
+      background: #e85a5a;
+    }
+
+    .event-form-btn.secondary {
+      background: white;
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+    }
+
+    .event-form-btn.secondary:hover {
+      background: var(--color-cream);
+    }
+
+    .event-form-btn.danger {
+      background: white;
+      color: #d32f2f;
+      border: 1px solid #d32f2f;
+    }
+
+    .event-form-btn.danger:hover {
+      background: #ffebee;
+    }
+
+    /* Add Event Button */
+    .add-event-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: white;
+      border: 2px dashed var(--color-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--color-muted);
+      transition: all 0.2s;
+      margin-top: 16px;
+    }
+
+    .add-event-btn:hover {
+      border-color: var(--color-sunset);
+      color: var(--color-sunset);
+      background: rgba(255, 107, 107, 0.05);
+    }
+
+    .add-event-btn .material-symbols-outlined {
+      font-size: 20px;
+    }
+
+    /* Event card edit/delete buttons */
+    .event-edit-btn,
+    .event-delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.5;
+      transition: opacity 0.2s, background 0.2s;
+    }
+
+    .event-edit-btn:hover {
+      opacity: 1;
+      background: var(--color-cream);
+    }
+
+    .event-delete-btn:hover {
+      opacity: 1;
+      background: #ffebee;
+    }
+
+    .event-edit-btn .material-symbols-outlined,
+    .event-delete-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    .event-delete-btn .material-symbols-outlined {
+      color: #d32f2f;
+    }
+
+    .event-actions {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .event-share-btn,
+    .event-card .ai-insights-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.5;
+      transition: opacity 0.2s, background 0.2s, transform 0.2s;
+    }
+
+    .event-share-btn:hover,
+    .event-card .ai-insights-btn:hover {
+      opacity: 1;
+      background: var(--color-cream);
+    }
+
+    .event-card .ai-insights-btn:hover {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+    }
+
+    .event-card .ai-insights-btn .material-symbols-outlined {
+      font-size: 18px;
+      color: #667eea;
+    }
+
+    .event-share-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+

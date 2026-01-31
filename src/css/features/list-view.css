@@ -1,0 +1,292 @@
+    /* Day Navigation */
+    .day-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+      margin-top: 16px;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .day-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: var(--color-sky);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .day-nav-btn:hover {
+      background: var(--color-ocean);
+      transform: translateY(-1px);
+    }
+
+    .day-nav-btn.prev {
+      background: var(--color-cream);
+      color: var(--color-text);
+    }
+
+    .day-nav-btn.prev:hover {
+      background: var(--color-border);
+    }
+
+    .day-nav-btn .material-symbols-outlined {
+      font-size: 20px;
+    }
+
+    .day-nav-placeholder {
+      width: 140px;
+    }
+
+    /* List View */
+    .list-view {
+      display: none;
+    }
+
+    .list-view.visible {
+      display: block;
+    }
+
+    .list-day {
+      margin-bottom: 12px;
+      background: white;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      overflow: hidden;
+    }
+
+    .list-day-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s ease;
+    }
+
+    .list-day-header:hover {
+      background: rgba(0,0,0,0.02);
+    }
+
+    .list-day-badge {
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      color: white;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+
+    .list-day-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      flex: 1;
+    }
+
+    .list-day-weather {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      min-width: 60px;
+    }
+
+    .list-day-weather:empty {
+      display: none;
+    }
+
+    .list-day-weather .weather-emoji {
+      font-size: 1rem;
+    }
+
+    .list-day-location {
+      color: var(--color-text-muted);
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .list-day-location .material-symbols-outlined {
+      font-size: 14px;
+    }
+
+    .list-day-toggle {
+      color: var(--color-text-muted);
+      transition: transform 0.2s ease;
+    }
+
+    .list-day.expanded .list-day-toggle {
+      transform: rotate(180deg);
+    }
+
+    .list-day-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .list-day.expanded .list-day-content {
+      max-height: 2000px;
+    }
+
+    .list-day-events {
+      padding: 0 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .list-day-summary {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .list-day-summary .material-symbols-outlined {
+      font-size: 14px;
+    }
+
+    .list-controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .list-control-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      border: 1px solid var(--color-border);
+      background: white;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .list-control-btn:hover {
+      border-color: var(--color-sunrise);
+      color: var(--color-text);
+    }
+
+    .list-control-btn .material-symbols-outlined {
+      font-size: 16px;
+    }
+
+    .list-days {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Image Carousel */
+    .image-carousel {
+      position: relative;
+      width: 100%;
+      height: 160px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-top: 12px;
+      background: var(--color-border);
+    }
+
+    .carousel-slides {
+      display: flex;
+      height: 100%;
+      transition: transform 0.4s ease;
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    .carousel-nav {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+    }
+
+    .carousel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0;
+    }
+
+    .carousel-dot.active {
+      background: white;
+      transform: scale(1.2);
+    }
+
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .image-carousel:hover .carousel-btn {
+      opacity: 1;
+    }
+
+    .carousel-btn:hover {
+      background: white;
+    }
+
+    .carousel-btn.prev { left: 8px; }
+    .carousel-btn.next { right: 8px; }
+
+    .carousel-btn .material-symbols-outlined {
+      font-size: 18px;
+      color: var(--color-text);
+    }
+
+    .carousel-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 24px 12px 8px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.6));
+      color: white;
+      font-size: 0.75rem;
+      text-align: center;
+    }
+

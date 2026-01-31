@@ -1,0 +1,12 @@
+/* Print Styles */
+@media print {
+  .header {
+    background: #f5f5f5 !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+  }
+  .traveler-toggle, .view-toggle, .stats-banner { display: none; }
+  .journey-ribbon { display: none; }
+  .list-view { display: block !important; }
+  .event-card { break-inside: avoid; }
+}

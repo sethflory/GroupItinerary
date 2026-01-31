@@ -1,0 +1,241 @@
+    /* Mobile Adjustments */
+    @media (max-width: 640px) {
+      .header {
+        padding: 16px 16px 24px;
+      }
+
+      .trip-title {
+        font-size: 1.5rem;
+      }
+
+      .header-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .traveler-toggle {
+        overflow-x: auto;
+        justify-content: flex-start;
+      }
+
+      .view-toggle {
+        margin-left: 0;
+        align-self: flex-start;
+      }
+
+      .stats-summary {
+        gap: 12px;
+      }
+
+      .main-content {
+        padding: 16px;
+      }
+
+      .day-header {
+        flex-direction: column;
+      }
+
+      .day-meta-cards {
+        width: 100%;
+      }
+
+      .day-meta-card {
+        flex: 1;
+        min-width: calc(50% - 6px);
+      }
+    }
+
+    /* Mobile-specific optimizations (phones) */
+    @media (max-width: 480px) {
+      /* Header compacting */
+      .header {
+        padding: 12px 12px 20px;
+      }
+
+      .trip-title {
+        font-size: 1.3rem;
+      }
+
+      .trip-dates {
+        font-size: 0.8rem;
+      }
+
+      /* Stack header widgets vertically */
+      .header-widgets {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .countdown-widget, .timezone-widget {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .countdown-unit span {
+        font-size: 1.2rem;
+      }
+
+      .tz-time {
+        font-size: 1rem;
+      }
+
+      .tz-helper-text {
+        font-size: 0.65rem;
+      }
+
+      /* Traveler pills - horizontal scroll */
+      .traveler-toggle {
+        padding-bottom: 8px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .traveler-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+      }
+
+      /* Day items - compact chips for mobile */
+      .day-item {
+        min-width: auto;
+        max-width: none;
+        padding: 6px 10px;
+      }
+
+      .day-item-num {
+        font-size: 0.6rem;
+        padding: 2px 5px;
+      }
+
+      .day-item-date {
+        font-size: 0.6rem;
+      }
+
+      /* Event cards */
+      .event-card {
+        margin-bottom: 12px;
+      }
+
+      .event-title {
+        font-size: 1rem;
+      }
+
+      .event-links {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      /* Hover images - tap to show on mobile */
+      .event-hover-image .hover-preview {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 85vw;
+        height: auto;
+        max-height: 60vh;
+        z-index: 1000;
+      }
+
+      .event-hover-image .hover-preview img {
+        height: auto;
+        max-height: 60vh;
+      }
+
+      /* Day navigation - full width buttons */
+      .day-navigation {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .day-nav-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .day-nav-placeholder {
+        display: none;
+      }
+
+      /* Carousels - touch friendly */
+      .carousel-container {
+        margin: 0 -12px;
+        padding: 0 12px;
+      }
+
+      .carousel-btn {
+        width: 36px;
+        height: 36px;
+        opacity: 0.9;
+      }
+
+      /* Modals - nearly full screen */
+      .share-modal {
+        width: 95vw;
+        max-width: none;
+        max-height: 90vh;
+        margin: 5vh auto;
+      }
+
+      .hiw-modal {
+        max-width: 95vw;
+      }
+
+      .hiw-code {
+        font-size: 0.7rem;
+      }
+
+      /* Stats dropdown */
+      .stats-dropdown {
+        min-width: 280px;
+        right: -50px;
+      }
+
+      /* Phase tabs */
+      .phase-tab {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+      }
+    }
+
+    /* Touch device adjustments */
+    @media (hover: none) and (pointer: coarse) {
+      /* Make tap targets larger */
+      .traveler-btn, .view-btn, .phase-tab, .day-nav-btn {
+        min-height: 44px;
+      }
+
+      /* Carousel dots larger for touch */
+      .carousel-dot {
+        width: 10px;
+        height: 10px;
+      }
+
+      /* Hover image shows on tap (handled via JS) */
+      .event-hover-image {
+        cursor: pointer;
+      }
+
+      /* Remove hover effects that don't work on touch */
+      .day-item:hover {
+        transform: none;
+      }
+
+      .event-card:hover {
+        transform: none;
+      }
+    }
+
+    /* iOS Safari fixes */
+    @supports (-webkit-touch-callout: none) {
+      /* Fix for iOS viewport height */
+      .share-modal-overlay {
+        height: -webkit-fill-available;
+      }
+
+      /* Prevent zoom on input focus */
+      input, select, textarea {
+        font-size: 16px;
+      }
+    }
+

@@ -1,0 +1,1026 @@
+/* ========================================
+   DINNER POLL - What's for Dinner?
+   ======================================== */
+
+/* Modal */
+.dinner-poll-modal {
+  max-width: 540px;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dinner-poll-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.dinner-poll-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.dinner-poll-header .material-symbols-outlined {
+  color: var(--color-sunrise);
+}
+
+.dinner-poll-content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.dinner-step h4 {
+  font-size: 1.1rem;
+  margin: 0 0 0.25rem;
+}
+
+.dinner-subtitle {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0 0 1rem;
+}
+
+.dinner-step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.dinner-back-btn {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: #666;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+
+.dinner-back-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--color-charcoal);
+}
+
+/* Active Polls Section */
+.dinner-active-polls {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.dinner-active-polls h4 {
+  margin-bottom: 0.75rem;
+}
+
+.active-polls-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.active-poll-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--color-cream);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.active-poll-btn:hover {
+  border-color: var(--color-sunrise);
+  background: #fff;
+}
+
+.active-poll-btn .material-symbols-outlined:first-child {
+  color: var(--color-sunrise);
+}
+
+.active-poll-btn .poll-info {
+  flex: 1;
+}
+
+.active-poll-btn .poll-date {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.active-poll-btn .poll-votes {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Day Selection Grid */
+.dinner-days-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.dinner-day-option {
+  position: relative;
+  cursor: pointer;
+}
+
+.dinner-day-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.day-option-content {
+  padding: 1rem;
+  background: var(--color-cream);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.dinner-day-option input:checked + .day-option-content {
+  border-color: var(--color-sunrise);
+  background: rgba(255, 107, 53, 0.08);
+}
+
+.dinner-day-option:not(.has-poll):hover .day-option-content {
+  border-color: var(--color-sunrise);
+}
+
+.dinner-day-option.has-poll {
+  cursor: not-allowed;
+}
+
+.dinner-day-option.has-poll .day-option-content {
+  opacity: 0.6;
+}
+
+.day-option-num {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-sunrise);
+  text-transform: uppercase;
+}
+
+.day-option-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin: 0.25rem 0;
+}
+
+.day-option-location {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.poll-active-badge {
+  font-size: 0.7rem;
+  color: var(--color-sky);
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.no-days-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.no-days-message .material-symbols-outlined {
+  font-size: 2.5rem;
+  color: #22c55e;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Filter Controls */
+.dinner-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-group label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-chip {
+  padding: 0.5rem 1rem;
+  background: var(--color-cream);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-chip:hover {
+  border-color: var(--color-sunrise);
+}
+
+.filter-chip.active {
+  background: var(--color-sunrise);
+  border-color: var(--color-sunrise);
+  color: white;
+}
+
+.option-slider {
+  width: 100%;
+  accent-color: var(--color-sunrise);
+}
+
+/* Options Preview */
+.dinner-options-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dinner-option-preview {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--color-cream);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+}
+
+.dinner-option-preview.excluded {
+  opacity: 0.5;
+}
+
+.option-checkbox {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 0.25rem;
+}
+
+.option-checkbox input {
+  position: absolute;
+  opacity: 0;
+}
+
+.option-checkbox .checkmark {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border);
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.option-checkbox input:checked + .checkmark {
+  background: var(--color-sunrise);
+  border-color: var(--color-sunrise);
+}
+
+.option-checkbox input:checked + .checkmark::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.option-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.option-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.option-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.option-price {
+  font-weight: 700;
+  color: var(--color-sunset);
+  flex-shrink: 0;
+}
+
+.option-cuisine {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.option-description {
+  font-size: 0.9rem;
+  color: #444;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+.option-reason {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 193, 7, 0.1);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.option-reason .material-symbols-outlined {
+  font-size: 1rem;
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+/* Vote Cards */
+.dinner-vote-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.dinner-vote-card {
+  padding: 1rem;
+  background: white;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dinner-vote-card:hover {
+  border-color: var(--color-sky);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.dinner-vote-card.my-vote {
+  border-color: var(--color-sky);
+  background: rgba(79, 172, 254, 0.05);
+}
+
+.vote-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.vote-card-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.vote-card-meta {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.vote-card-count {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-sky);
+  min-width: 30px;
+  text-align: right;
+}
+
+.vote-bar {
+  height: 6px;
+  background: var(--color-cream);
+  border-radius: 3px;
+  margin: 0.5rem 0;
+  overflow: hidden;
+}
+
+.vote-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-sky), var(--color-ocean));
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.vote-card-desc {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+.my-vote-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-sky);
+}
+
+.my-vote-badge .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+/* Results */
+.dinner-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.dinner-result-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.dinner-result-card.winner {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.dinner-result-card.selected {
+  border-color: var(--color-sky);
+}
+
+.result-rank {
+  width: 32px;
+  height: 32px;
+  background: var(--color-cream);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.dinner-result-card.winner .result-rank {
+  background: #22c55e;
+  color: white;
+}
+
+.result-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.result-name {
+  font-weight: 600;
+}
+
+.winner-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: white;
+  background: #22c55e;
+  padding: 0.125rem 0.5rem;
+  border-radius: 10px;
+}
+
+.result-meta {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.result-votes {
+  font-size: 0.85rem;
+  color: #444;
+  margin-top: 0.25rem;
+}
+
+.add-to-itinerary-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-sky);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.add-to-itinerary-btn:hover {
+  background: var(--color-ocean);
+}
+
+.add-to-itinerary-btn .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+.selected-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-sky);
+}
+
+/* Action Buttons */
+.dinner-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.dinner-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dinner-btn.primary {
+  background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+  color: white;
+}
+
+.dinner-btn.primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.dinner-btn.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dinner-btn.secondary {
+  background: var(--color-cream);
+  color: var(--color-charcoal);
+  border: 1px solid var(--color-border);
+}
+
+.dinner-btn.secondary:hover {
+  background: #eee;
+}
+
+/* Loading / Error States */
+.dinner-loading {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.dinner-loading .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-cream);
+  border-top-color: var(--color-sunrise);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+.dinner-error {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.dinner-error .material-symbols-outlined {
+  font-size: 3rem;
+  color: #ef4444;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+/* Reservation Prompt */
+.reservation-prompt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+}
+
+.reservation-prompt {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+}
+
+.reservation-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.reservation-icon .material-symbols-outlined {
+  font-size: 2rem;
+  color: white;
+}
+
+.reservation-prompt h4 {
+  font-size: 1.25rem;
+  margin: 0 0 1rem;
+}
+
+.reservation-restaurant {
+  background: var(--color-cream);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+}
+
+.reservation-restaurant strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.reservation-restaurant span {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.reservation-prompt p {
+  color: #666;
+  margin: 0 0 1rem;
+}
+
+.reservation-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.reservation-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: var(--color-cream);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.reservation-btn:hover {
+  border-color: var(--color-sunrise);
+  background: #fff;
+}
+
+.reservation-btn .material-symbols-outlined {
+  font-size: 1.5rem;
+  color: var(--color-sunrise);
+}
+
+.reservation-skip {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.reservation-skip:hover {
+  color: var(--color-charcoal);
+}
+
+/* Day View Button */
+.dinner-poll-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-top: 0.75rem;
+  background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dinner-poll-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.dinner-poll-btn .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+/* Active Poll Button State */
+.dinner-poll-btn.has-active-poll {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  animation: pulse-glow 2s ease-in-out infinite;
+  position: relative;
+}
+
+.dinner-poll-btn.has-active-poll:hover {
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.poll-indicator {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  background: #ef4444;
+  border-radius: 50%;
+  border: 2px solid white;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+/* Historical Votes Badge */
+.historical-votes {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 10px;
+}
+
+.historical-votes .material-symbols-outlined {
+  font-size: 0.85rem;
+}
+
+/* New Option Badge */
+.new-option-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  background: var(--color-sky);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 10px;
+}
+
+/* Option with history styling */
+.dinner-option-preview.has-history {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+
+/* Custom Confirm Modal */
+.dinner-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 1rem;
+}
+
+.dinner-confirm-modal {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  max-width: 320px;
+  width: 100%;
+  text-align: center;
+}
+
+.confirm-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--color-cream);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.confirm-icon .material-symbols-outlined {
+  font-size: 1.75rem;
+  color: var(--color-sunrise);
+}
+
+.dinner-confirm-modal h4 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
+}
+
+.dinner-confirm-modal p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0 0 1.25rem;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.confirm-actions .dinner-btn {
+  flex: 1;
+  justify-content: center;
+}
+
+/* Toast Notification */
+.dinner-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: #333;
+  color: white;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 1300;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.dinner-toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.dinner-toast.success {
+  background: #22c55e;
+}
+
+.dinner-toast.error {
+  background: #ef4444;
+}
+
+.dinner-toast .material-symbols-outlined {
+  font-size: 1.25rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .dinner-poll-modal {
+    max-height: 90vh;
+    margin: 5vh 0;
+    width: 95vw;
+  }
+
+  .dinner-poll-content {
+    padding: 1rem;
+  }
+
+  .dinner-days-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .day-option-content {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .reservation-options {
+    grid-template-columns: 1fr;
+  }
+
+  .dinner-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .dinner-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.875rem 1rem;
+  }
+
+  .dinner-option-preview {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .option-checkbox {
+    align-self: flex-start;
+  }
+
+  .confirm-actions {
+    flex-direction: column;
+  }
+
+  .dinner-toast {
+    left: 1rem;
+    right: 1rem;
+    transform: translateY(100px);
+    width: auto;
+  }
+
+  .dinner-toast.show {
+    transform: translateY(0);
+  }
+
+  .filter-chips {
+    gap: 0.375rem;
+  }
+
+  .filter-chip {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .dinner-vote-card {
+    padding: 0.875rem;
+  }
+
+  .vote-card-name {
+    font-size: 0.95rem;
+  }
+}

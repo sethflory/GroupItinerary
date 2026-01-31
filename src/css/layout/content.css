@@ -1,0 +1,458 @@
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Journey View */
+    .journey-view {
+      display: block;
+    }
+
+    .journey-view.hidden {
+      display: none;
+    }
+
+    /* Photo Ribbon (Scrolling Thumbnails) */
+    .photo-ribbon {
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, rgba(79,172,254,0.1) 0%, rgba(0,242,254,0.1) 100%);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .photo-ribbon-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .photo-ribbon-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .photo-ribbon-title .material-symbols-outlined {
+      font-size: 18px;
+      color: var(--color-sky);
+    }
+
+    .photo-ribbon-count {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      background: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+
+    .photo-ribbon-track {
+      position: relative;
+      overflow: hidden;
+      height: 80px;
+    }
+
+    .photo-ribbon-scroll {
+      display: flex;
+      gap: 12px;
+      animation: scrollPhotos 30s linear infinite;
+      width: max-content;
+    }
+
+    .photo-ribbon-scroll.paused {
+      animation-play-state: paused;
+    }
+
+    @keyframes scrollPhotos {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .ribbon-thumbnail {
+      width: 100px;
+      height: 70px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: transform 0.2s;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .ribbon-thumbnail:hover {
+      transform: scale(1.05);
+    }
+
+    .ribbon-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .ribbon-placeholder {
+      width: 100px;
+      height: 70px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--color-cream) 0%, white 100%);
+      border: 2px dashed var(--color-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ribbon-placeholder:hover {
+      border-color: var(--color-sky);
+      background: white;
+    }
+
+    .ribbon-placeholder .material-symbols-outlined {
+      font-size: 24px;
+      color: var(--color-text-muted);
+      opacity: 0.5;
+    }
+
+    .ribbon-placeholder span:last-child {
+      font-size: 0.6rem;
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+
+    .photo-ribbon-controls {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .ribbon-control-btn {
+      padding: 6px 14px;
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+
+    .ribbon-control-btn:hover {
+      border-color: var(--color-sky);
+      color: var(--color-sky);
+    }
+
+    .ribbon-control-btn .material-symbols-outlined {
+      font-size: 14px;
+    }
+
+    .photo-ribbon-empty {
+      text-align: center;
+      padding: 20px;
+      color: var(--color-text-muted);
+    }
+
+    .photo-ribbon-empty .material-symbols-outlined {
+      font-size: 32px;
+      opacity: 0.4;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 480px) {
+      .ribbon-thumbnail, .ribbon-placeholder {
+        width: 80px;
+        height: 56px;
+      }
+
+      .photo-ribbon-track {
+        height: 64px;
+      }
+    }
+
+    /* Phase Tabs */
+    .phase-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid var(--color-border);
+      padding-bottom: 12px;
+    }
+
+    .phase-tab {
+      padding: 10px 20px;
+      border: none;
+      background: white;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--color-text-muted);
+      border: 2px solid var(--color-border);
+    }
+
+    .phase-tab:hover {
+      border-color: var(--color-sunrise);
+      color: var(--color-text);
+    }
+
+    .phase-tab.active {
+      background: linear-gradient(135deg, var(--color-sunrise) 0%, var(--color-sunset) 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .phase-tab.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Today Button */
+    .today-btn {
+      display: none;
+      padding: 10px 16px;
+      border: none;
+      background: var(--color-sky);
+      color: white;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+    }
+
+    .today-btn:hover {
+      background: var(--color-ocean);
+      transform: translateY(-1px);
+    }
+
+    .today-btn.visible {
+      display: flex;
+    }
+
+    .today-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    .phase-tab .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    .phase-tab-dates {
+      font-size: 0.75rem;
+      font-weight: 400;
+      opacity: 0.8;
+    }
+
+    /* Journey Layout - Sidebar + Content */
+    .journey-layout {
+      display: flex;
+      gap: 20px;
+    }
+
+    /* Vertical Day List (Sidebar) */
+    .day-list {
+      width: 200px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: calc(100vh - 300px);
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    .day-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .day-list::-webkit-scrollbar-track {
+      background: var(--color-border);
+      border-radius: 2px;
+    }
+
+    .day-list::-webkit-scrollbar-thumb {
+      background: var(--color-sunrise);
+      border-radius: 2px;
+    }
+
+    .day-item {
+      background: white;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .day-item:hover {
+      border-color: var(--color-sunrise);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .day-item.active {
+      border-color: var(--color-sunrise);
+      background: linear-gradient(135deg, #fff5f2 0%, #fff 100%);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .day-item.not-mine {
+      opacity: 0.5;
+    }
+
+    .day-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .day-item-date {
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .day-item-num {
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: var(--color-sunrise);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+
+    .day-item-title {
+      font-weight: 600;
+      font-size: 0.85rem;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+
+    .day-item-location {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .day-item-location .material-symbols-outlined {
+      font-size: 12px;
+    }
+
+    .day-item-pills {
+      display: flex;
+      gap: 2px;
+      margin-top: 6px;
+    }
+
+    .day-item-pills .traveler-pill {
+      width: 18px;
+      height: 18px;
+      font-size: 0.6rem;
+      border-radius: 4px;
+    }
+
+    /* Day Content Area */
+    .day-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Mobile: Stack layout */
+    @media (max-width: 768px) {
+      .phase-tabs {
+        flex-wrap: wrap;
+      }
+
+      .phase-tab {
+        flex: 1;
+        min-width: calc(50% - 4px);
+        justify-content: center;
+        padding: 12px 16px;
+      }
+
+      .phase-tab-dates {
+        display: none;
+      }
+
+      .journey-layout {
+        flex-direction: column;
+      }
+
+      .day-list {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        max-height: none;
+        overflow-x: auto;
+        overflow-y: visible;
+        padding-right: 0;
+        padding-bottom: 8px;
+        gap: 6px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+      }
+
+      .day-list::-webkit-scrollbar {
+        height: 4px;
+      }
+
+      .day-item {
+        flex: 0 0 auto;
+        min-width: auto;
+        max-width: none;
+        padding: 8px 12px;
+        text-align: center;
+      }
+
+      .day-item-header {
+        flex-direction: column;
+        gap: 2px;
+        margin-bottom: 0;
+      }
+
+      .day-item-num {
+        font-size: 0.65rem;
+        padding: 2px 6px;
+      }
+
+      .day-item-date {
+        font-size: 0.65rem;
+        order: 1;
+      }
+
+      .day-item-title {
+        display: none;
+      }
+
+      .day-item-location {
+        display: none;
+      }
+
+      .day-item-pills {
+        display: none;
+      }
+    }
+

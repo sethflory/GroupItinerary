@@ -1,0 +1,38 @@
+/* ========================================
+   CSS Variables / Design Tokens
+   ======================================== */
+
+:root {
+  /* Brand Colors */
+  --color-sunrise: #ff7e5f;
+  --color-sunset: #feb47b;
+  --color-sky: #4facfe;
+  --color-ocean: #00f2fe;
+  --color-forest: #38ef7d;
+  --color-earth: #8b7355;
+  --color-night: #1a1a2e;
+  --color-cream: #faf8f5;
+  --color-warm-white: #fff9f0;
+  --color-charcoal: #2d2d2d;
+
+  /* Text Colors */
+  --color-text: #2d2d2d;
+  --color-text-muted: #6b6b6b;
+  --color-border: #e8e4df;
+
+  /* Group Colors */
+  --group-all: #4facfe;
+  --group-guys: #38ef7d;
+  --group-girls: #feb47b;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  /* Shadows */
+  --shadow-soft: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-card: 0 4px 20px rgba(0,0,0,0.1);
+  --shadow-elevated: 0 8px 32px rgba(0,0,0,0.12);
+}

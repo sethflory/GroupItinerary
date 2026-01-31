@@ -1,0 +1,798 @@
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--color-sunrise) 0%, var(--color-sunset) 50%, var(--color-sky) 100%);
+      padding: 24px 20px 32px;
+      color: white;
+      position: relative;
+      overflow: visible;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 80 Q25 60 50 70 T100 60 V100 H0Z' fill='rgba(255,255,255,0.1)'/%3E%3C/svg%3E") bottom/cover no-repeat;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .trip-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .how-it-works-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      backdrop-filter: blur(10px);
+    }
+
+    .how-it-works-btn:hover {
+      background: rgba(255,255,255,0.4);
+      transform: scale(1.1);
+    }
+
+    .how-it-works-btn .material-symbols-outlined {
+      font-size: 18px;
+      color: white;
+    }
+
+    /* Trip Selector */
+    .trip-selector-wrapper {
+      position: relative;
+      margin-left: auto;
+    }
+
+    .trip-selector-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: var(--radius-md);
+      color: white;
+      font-size: 0.75rem;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: all 0.2s;
+    }
+
+    .trip-selector-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .trip-selector-btn .material-symbols-outlined {
+      font-size: 16px;
+    }
+
+    .trip-selector-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 250px;
+      background: white;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-elevated);
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    .trip-selector-dropdown.visible {
+      display: block;
+    }
+
+    .trip-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .trip-option:last-child {
+      border-bottom: none;
+    }
+
+    .trip-option:hover {
+      background: var(--color-cream);
+    }
+
+    .trip-option.active {
+      background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.1));
+    }
+
+    .trip-option-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .trip-option-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .trip-option-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .trip-option-dates {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    .trip-option-badge {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .trip-option-badge.production {
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      color: white;
+    }
+
+    .trip-option-badge.test {
+      background: #e8e4df;
+      color: var(--color-text-muted);
+    }
+
+    /* How It Works Modal */
+    .hiw-modal {
+      max-width: 700px;
+      max-height: 90vh;
+    }
+
+    .hiw-content {
+      padding: 20px;
+      overflow-y: auto;
+      max-height: calc(90vh - 60px);
+    }
+
+    .hiw-section {
+      margin-bottom: 20px;
+    }
+
+    .hiw-section h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--color-sunset);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hiw-section p {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .hiw-code {
+      background: #1a1a2e;
+      color: #e8e8e8;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.75rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .hiw-copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--color-sunset);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-top: 12px;
+    }
+
+    .hiw-copy-btn:hover {
+      background: var(--color-sunrise);
+    }
+
+    .hiw-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      color: white;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .trip-dates {
+      font-size: 0.95rem;
+      opacity: 0.95;
+      font-weight: 500;
+    }
+
+    /* Countdown Timer */
+    .countdown-widget {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius-lg);
+      width: fit-content;
+    }
+
+    .countdown-widget.trip-active {
+      background: rgba(56, 239, 125, 0.2);
+    }
+
+    .countdown-widget.trip-active .countdown-label {
+      color: #1a5c2e;
+    }
+
+    .countdown-widget.trip-ended {
+      background: rgba(255,126,95,0.2);
+    }
+
+    .countdown-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.9;
+    }
+
+    .countdown-timer {
+      display: flex;
+      gap: 8px;
+    }
+
+    .countdown-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 36px;
+    }
+
+    .countdown-unit span {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .countdown-unit small {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      opacity: 0.7;
+      letter-spacing: 0.5px;
+    }
+
+    /* Header Widgets Container */
+    .header-widgets {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    /* Timezone Widget */
+    .timezone-widget {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius-lg);
+    }
+
+    .tz-clocks {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tz-clock {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tz-flag {
+      font-size: 1.3rem;
+    }
+
+    .tz-time-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tz-time {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .tz-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      opacity: 0.8;
+      letter-spacing: 0.3px;
+    }
+
+    .tz-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 4px;
+    }
+
+    .tz-offset {
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.3);
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+
+    .tz-helper {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 6px;
+    }
+
+    .tz-helper-text {
+      font-size: 0.7rem;
+      opacity: 0.9;
+      font-style: italic;
+    }
+
+    /* Weather Widget */
+    .weather-meta {
+      min-width: 80px;
+    }
+
+    .weather-meta:empty {
+      display: none;
+    }
+
+    .weather-widget {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .weather-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .weather-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .weather-temp {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .weather-desc {
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* Traveler Toggle */
+    .traveler-toggle {
+      display: flex;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-lg);
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .traveler-btn {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .traveler-btn:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    .traveler-btn.active {
+      background: white;
+      color: var(--color-text);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .traveler-btn .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .traveler-btn .material-symbols-outlined {
+      font-size: 18px;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+
+    .traveler-btn .dropdown-arrow {
+      font-size: 16px;
+      margin-left: 2px;
+      margin-right: 0;
+      transition: transform 0.2s;
+    }
+
+    /* Traveler Dropdown */
+    .traveler-dropdown-wrapper {
+      position: relative;
+      z-index: 1000;
+    }
+
+    .traveler-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      min-width: 160px;
+      background: white;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s ease;
+      z-index: 1001;
+      overflow: hidden;
+    }
+
+    .traveler-dropdown.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .traveler-dropdown-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      cursor: pointer;
+      color: var(--color-text);
+      font-size: 0.9rem;
+      transition: background 0.15s;
+    }
+
+    .traveler-dropdown-item:hover {
+      background: var(--color-cream);
+    }
+
+    .traveler-dropdown-item.active {
+      background: rgba(102, 126, 234, 0.1);
+      color: var(--color-sunrise);
+      font-weight: 500;
+    }
+
+    .traveler-dropdown-item .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    /* View Toggle */
+    .view-toggle {
+      display: flex;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      margin-left: auto;
+    }
+
+    .view-btn {
+      padding: 8px 12px;
+      border: none;
+      background: transparent;
+      color: white;
+      font-size: 0.875rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .view-btn:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    .view-btn.active {
+      background: white;
+      color: var(--color-text);
+    }
+
+    .view-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    /* Trivia Header Button */
+    .trivia-header-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .trivia-header-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .trivia-header-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    /* Stats Banner */
+    .stats-banner {
+      background: white;
+      border-bottom: 1px solid var(--color-border);
+      overflow: hidden;
+    }
+
+    .stats-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .stats-toggle:hover {
+      background: rgba(0,0,0,0.02);
+    }
+
+    .stats-summary {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .stat-mini {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+    }
+
+    .stat-mini strong {
+      color: var(--color-text);
+      font-weight: 600;
+    }
+
+    .stat-mini .material-symbols-outlined {
+      font-size: 18px;
+      color: var(--color-sunrise);
+    }
+
+    .stats-expand-icon {
+      transition: transform 0.2s ease;
+    }
+
+    .stats-banner.expanded .stats-expand-icon {
+      transform: rotate(180deg);
+    }
+
+    .stats-detail {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .stats-banner.expanded .stats-detail {
+      max-height: 600px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      padding: 0 20px 20px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #f8f7f5 0%, #fff 100%);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      border: 1px solid var(--color-border);
+    }
+
+    .stat-card-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-card-value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .stat-card-sub {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+    }
+
+    .traveler-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 0 20px 20px;
+    }
+
+    .traveler-stat {
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .traveler-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: white;
+    }
+
+    .traveler-stat-info {
+      flex: 1;
+    }
+
+    .traveler-stat-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .traveler-stat-detail {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    .stats-share {
+      padding: 16px 20px;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .stats-share-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      color: white;
+      border: none;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stats-share-btn.map-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    .stats-share-btn.map-btn:hover {
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .stats-share-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 126, 95, 0.4);
+    }
+
+    .stats-share-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
