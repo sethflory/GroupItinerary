@@ -1016,7 +1016,7 @@ export function renderPersonalizeContent(container) {
 
       <div class="personalize-main-action">
         <button class="ai-full-btn" onclick="runAiAssist('auto')">
-          <span class="material-symbols-outlined">auto_awesome</span>
+          <img src="images/keys.png" alt="AI" class="ai-key-icon">
           <div class="ai-full-btn-content">
             <span class="ai-full-btn-title">Full Personalization</span>
             <span class="ai-full-btn-desc">Day nicknames, backgrounds, event cards, and theme</span>

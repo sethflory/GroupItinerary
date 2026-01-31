@@ -753,6 +753,29 @@
   height: 48px;
 }
 
+/* AI key icon in tabs */
+.modal-tabs .tab .ai-key-icon.tab-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* AI key icon in full personalization button */
+.ai-full-btn .ai-key-icon {
+  width: 28px;
+  height: 28px;
+  margin-right: 0;
+  flex-shrink: 0;
+}
+
+/* AI key icon in welcome features */
+.welcome-feature .ai-key-icon.small {
+  width: 20px;
+  height: 20px;
+  margin-right: 0;
+}
+
 .personalize-intro h4 {
   margin: 0 0 8px 0;
   font-size: 1.1rem;

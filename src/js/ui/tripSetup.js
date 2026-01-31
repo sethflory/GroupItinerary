@@ -203,7 +203,7 @@ function renderWelcomeStep(container) {
           <span>Add your fellow travelers</span>
         </div>
         <div class="welcome-feature">
-          <span class="material-symbols-outlined">auto_awesome</span>
+          <img src="images/keys.png" alt="AI" class="ai-key-icon small">
           <span>Personalize with AI magic</span>
         </div>
         <div class="welcome-feature">
@@ -353,7 +353,7 @@ function renderTabbedContent(container) {
   container.innerHTML = `
     <div class="modal-tabs">
       <button class="tab ${activeTab === 'personalize' ? 'active' : ''}" data-tab="personalize" onclick="switchTripSetupTab('personalize')">
-        <span class="material-symbols-outlined">auto_awesome</span>
+        <img src="images/keys.png" alt="AI" class="ai-key-icon tab-icon">
         Personalize
       </button>
       <button class="tab ${activeTab === 'travelers' ? 'active' : ''}" data-tab="travelers" onclick="switchTripSetupTab('travelers')">
