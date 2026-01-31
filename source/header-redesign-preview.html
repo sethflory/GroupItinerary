@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Header Redesign Preview - GroupItinerary</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  <style>
+    :root {
+      --color-sunrise: #ff7e5f;
+      --color-sunset: #feb47b;
+      --color-sky: #4facfe;
+      --color-cream: #faf8f5;
+      --color-text: #2d2d2d;
+      --color-text-muted: #6b6b6b;
+      --color-border: #e8e4df;
+      --color-success: #38ef7d;
+      --color-warning: #ffc107;
+      --ai-emerald-dark: #134e5e;
+      --ai-emerald-light: #71b280;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0f0f0;
+      color: var(--color-text);
+      line-height: 1.5;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--color-text-muted);
+      margin-bottom: 30px;
+    }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      max-width: 1400px;
+      margin: 0 auto 40px;
+    }
+
+    @media (max-width: 900px) {
+      .comparison { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: white;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .panel-title {
+      padding: 16px 20px;
+      background: var(--color-cream);
+      border-bottom: 1px solid var(--color-border);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-title.bad { background: #fee; }
+    .panel-title.good { background: #efe; }
+
+    .panel-content {
+      padding: 0;
+    }
+
+    /* ========== CURRENT (BAD) DESIGN ========== */
+    .current-header {
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset), var(--color-sky));
+      padding: 16px;
+      color: white;
+    }
+
+    .current-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .current-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+    }
+
+    .current-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      color: white;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .current-dates {
+      font-size: 0.8rem;
+      opacity: 0.9;
+      margin-bottom: 12px;
+    }
+
+    .current-widgets {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .current-widget {
+      background: rgba(255,255,255,0.2);
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      font-size: 0.75rem;
+    }
+
+    .current-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .current-toggle {
+      display: flex;
+      background: rgba(255,255,255,0.2);
+      border-radius: var(--radius-md);
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .current-toggle-btn {
+      padding: 6px 10px;
+      border: none;
+      background: transparent;
+      color: white;
+      font-size: 0.75rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .current-toggle-btn.active {
+      background: white;
+      color: var(--color-text);
+    }
+
+    .current-trivia-btn {
+      padding: 6px 12px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.75rem;
+    }
+
+    .current-stats-banner {
+      background: white;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+
+    /* ========== NEW DESIGN ========== */
+    .new-header {
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      padding: 12px 16px;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .new-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .new-menu-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: var(--radius-sm);
+      width: 36px;
+      height: 36px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .new-context-bar {
+      background: rgba(0,0,0,0.05);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .context-icon {
+      font-size: 1.5rem;
+    }
+
+    .context-main {
+      flex: 1;
+    }
+
+    .context-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .context-sub {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+
+    .new-activity-bar {
+      background: linear-gradient(90deg, #fff3cd, #ffeeba);
+      padding: 10px 16px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #ffc107;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+    }
+
+    .activity-badge {
+      background: var(--color-warning);
+      color: #856404;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .activity-cta {
+      background: #856404;
+      color: white;
+      border: none;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .new-action-bar {
+      background: white;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .action-dropdown {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      background: var(--color-cream);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .action-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--color-border);
+    }
+
+    .action-icon-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: var(--color-cream);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--color-text-muted);
+    }
+
+    .action-icon-btn.highlight {
+      background: linear-gradient(135deg, #ffd700, #ffb347);
+      color: #5c4a00;
+    }
+
+    .action-spacer { flex: 1; }
+
+    .view-toggle {
+      display: flex;
+      background: var(--color-cream);
+      border-radius: var(--radius-sm);
+      padding: 2px;
+    }
+
+    .view-toggle button {
+      padding: 6px 10px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 4px;
+      color: var(--color-text-muted);
+    }
+
+    .view-toggle button.active {
+      background: white;
+      color: var(--color-text);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* Weather inline */
+    .weather-inline {
+      background: rgba(255,255,255,0.3);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      margin-right: 6px;
+    }
+
+    /* Floating Activity Pills (Option B) */
+    .floating-pills {
+      display: flex;
+      gap: 8px;
+      padding: 8px 16px;
+      flex-wrap: wrap;
+      background: transparent;
+    }
+
+    .activity-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: none;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .activity-pill.game {
+      background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+      color: #2e7d32;
+    }
+
+    .activity-pill.game:hover {
+      background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+      transform: translateY(-1px);
+    }
+
+    .activity-pill.poll {
+      background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+      color: #e65100;
+    }
+
+    .activity-pill.poll:hover {
+      background: linear-gradient(135deg, #ffe0b2, #ffcc80);
+      transform: translateY(-1px);
+    }
+
+    .pill-badge {
+      background: rgba(0,0,0,0.15);
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+    }
+
+    /* Content placeholder */
+    .content-placeholder {
+      padding: 20px;
+      background: var(--color-cream);
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* ========== REFERENCE SECTION ========== */
+    .references {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .ref-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .ref-card {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .ref-card h3 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ref-card p {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin-bottom: 8px;
+    }
+
+    .ref-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      background: var(--color-cream);
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      margin-right: 4px;
+    }
+
+    /* ========== MOBILE PREVIEW ========== */
+    .mobile-preview {
+      max-width: 375px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 30px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      border: 8px solid #1a1a1a;
+    }
+
+    .mobile-notch {
+      background: #1a1a1a;
+      height: 30px;
+      border-radius: 0 0 15px 15px;
+      margin: 0 80px;
+    }
+
+    /* Scoreboard Modal Preview */
+    .scoreboard-preview {
+      max-width: 400px;
+      margin: 40px auto;
+      background: white;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+
+    .scoreboard-header {
+      background: linear-gradient(135deg, #ffd700, #ffb347);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #5c4a00;
+    }
+
+    .scoreboard-header h3 {
+      flex: 1;
+      font-size: 1.1rem;
+    }
+
+    .scoreboard-list {
+      padding: 16px 20px;
+    }
+
+    .score-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .score-row:last-child { border-bottom: none; }
+
+    .score-rank {
+      font-size: 1.2rem;
+      width: 30px;
+      text-align: center;
+    }
+
+    .score-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .score-name { flex: 1; font-weight: 500; }
+
+    .score-points {
+      font-weight: 700;
+      color: var(--color-sunrise);
+    }
+
+    .score-activity {
+      padding: 16px 20px;
+      background: var(--color-cream);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .score-activity h4 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: 8px;
+    }
+
+    .activity-log {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+
+    .activity-log div {
+      padding: 4px 0;
+    }
+
+    /* Menu preview */
+    .menu-preview {
+      max-width: 280px;
+      margin: 40px auto;
+      background: white;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+
+    .menu-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+    }
+
+    .menu-section {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .menu-item:hover {
+      background: var(--color-cream);
+    }
+
+    .menu-item .material-symbols-outlined {
+      font-size: 20px;
+      color: var(--color-text-muted);
+    }
+
+    .menu-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      font-size: 0.9rem;
+    }
+
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: var(--color-success);
+      border-radius: 12px;
+      position: relative;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      right: 2px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .toggle-switch.off {
+      background: #ccc;
+    }
+
+    .toggle-switch.off::after {
+      right: auto;
+      left: 2px;
+    }
+
+    .menu-footer {
+      padding: 16px 20px;
+      background: var(--color-cream);
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+
+    .menu-footer div {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+    }
+
+    .section-title {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      margin: 40px 0 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Header Redesign Preview</h1>
+  <p class="subtitle">Comparing current vs. proposed design</p>
+
+  <div class="comparison">
+    <!-- CURRENT DESIGN -->
+    <div class="panel">
+      <div class="panel-title bad">
+        <span class="material-symbols-outlined">warning</span>
+        Current Design (Too Busy)
+      </div>
+      <div class="panel-content">
+        <div class="current-header">
+          <div class="current-title-row">
+            <span class="current-title">Athens & Bangalore 2026</span>
+            <button class="current-btn"><span class="material-symbols-outlined" style="font-size:16px">magic_button</span></button>
+            <button class="current-btn"><span class="material-symbols-outlined" style="font-size:16px">swap_horiz</span></button>
+            <button class="current-btn"><span class="material-symbols-outlined" style="font-size:16px">settings</span></button>
+          </div>
+          <div class="current-dates">February 1 - 12, 2026</div>
+          <div class="current-widgets">
+            <div class="current-widget">
+              <strong>42</strong> days <strong>6</strong> hrs <strong>23</strong> min <strong>15</strong> sec
+            </div>
+            <div class="current-widget">
+              🇬🇷 Athens 2:45 PM | 🏠 Home 7:45 AM
+            </div>
+          </div>
+          <div class="current-controls">
+            <div class="current-toggle">
+              <button class="current-toggle-btn active">Everyone</button>
+              <button class="current-toggle-btn">Guys</button>
+              <button class="current-toggle-btn">Girls</button>
+            </div>
+            <div class="current-toggle">
+              <button class="current-toggle-btn active">Journey</button>
+              <button class="current-toggle-btn">List</button>
+            </div>
+            <button class="current-trivia-btn">🎯 Trivia</button>
+          </div>
+        </div>
+        <div class="current-stats-banner">
+          📊 12 days • 4 flights • 8 hotels • <u>expand</u>
+        </div>
+        <div class="content-placeholder">
+          Photo ribbon, phase tabs, itinerary content...
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW DESIGN -->
+    <div class="panel">
+      <div class="panel-title good">
+        <span class="material-symbols-outlined">check_circle</span>
+        Proposed Design (Clean & Focused)
+      </div>
+      <div class="panel-content">
+        <div class="new-header">
+          <div class="new-title">
+            <span>🇬🇷</span>
+            Athens & Bangalore 2026
+          </div>
+          <button class="new-menu-btn">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+        </div>
+        <div class="new-context-bar">
+          <span class="context-icon">📍</span>
+          <div class="context-main">
+            <div class="context-title">Day 3 of 12 • Athens • 2:45 PM</div>
+            <div class="context-sub">
+              <span class="weather-inline">☀️ 22°C</span>
+              Up next: Lunch at Monastiraki (12:30 PM)
+            </div>
+          </div>
+        </div>
+        <div class="floating-pills">
+          <button class="activity-pill game">🎮 Acropolis Walk <span class="pill-badge">3</span></button>
+          <button class="activity-pill game">🎮 Plaka Hunt <span class="pill-badge">2</span></button>
+          <button class="activity-pill poll">🗳️ Dinner <span class="pill-badge">2/4</span></button>
+        </div>
+        <div class="new-action-bar">
+          <button class="action-dropdown">
+            <span>📅</span> Day 3
+            <span class="material-symbols-outlined" style="font-size:16px">expand_more</span>
+          </button>
+          <div class="action-divider"></div>
+          <button class="action-icon-btn">
+            <span class="material-symbols-outlined">photo_library</span>
+          </button>
+          <button class="action-icon-btn">
+            <span class="material-symbols-outlined">add_photo_alternate</span>
+          </button>
+          <button class="action-icon-btn highlight">
+            <span class="material-symbols-outlined">emoji_events</span>
+          </button>
+          <div class="action-spacer"></div>
+          <div class="view-toggle">
+            <button class="active"><span class="material-symbols-outlined" style="font-size:18px">timeline</span></button>
+            <button><span class="material-symbols-outlined" style="font-size:18px">list</span></button>
+          </div>
+        </div>
+        <div class="content-placeholder">
+          Itinerary content starts immediately!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Component Previews</h2>
+
+  <div style="display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; margin-bottom: 40px;">
+    <!-- Scoreboard Modal -->
+    <div class="scoreboard-preview">
+      <div class="scoreboard-header">
+        <span class="material-symbols-outlined">emoji_events</span>
+        <h3>Trip Scoreboard</h3>
+        <span class="material-symbols-outlined">close</span>
+      </div>
+      <div class="scoreboard-list">
+        <div class="score-row">
+          <span class="score-rank">🥇</span>
+          <div class="score-avatar">S</div>
+          <span class="score-name">Seth</span>
+          <span class="score-points">47 pts</span>
+        </div>
+        <div class="score-row">
+          <span class="score-rank">🥈</span>
+          <div class="score-avatar">K</div>
+          <span class="score-name">Katrina</span>
+          <span class="score-points">38 pts</span>
+        </div>
+        <div class="score-row">
+          <span class="score-rank">🥉</span>
+          <div class="score-avatar">M</div>
+          <span class="score-name">Mike</span>
+          <span class="score-points">31 pts</span>
+        </div>
+        <div class="score-row">
+          <span class="score-rank">4</span>
+          <div class="score-avatar">L</div>
+          <span class="score-name">Lisa</span>
+          <span class="score-points">28 pts</span>
+        </div>
+      </div>
+      <div class="score-activity">
+        <h4>Recent Activity</h4>
+        <div class="activity-log">
+          <div>• Seth spotted "Hadrian's Arch" (+4 pts)</div>
+          <div>• Katrina won Trivia Round 3 (+10 pts)</div>
+          <div>• Mike spotted "Street Art Alley" (+3 pts)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu Preview -->
+    <div class="menu-preview">
+      <div class="menu-header">
+        <span>Trip Menu</span>
+        <span class="material-symbols-outlined">close</span>
+      </div>
+      <div class="menu-section">
+        <div class="menu-item">
+          <span class="material-symbols-outlined">person</span>
+          My Profile
+        </div>
+        <div class="menu-item">
+          <span class="material-symbols-outlined">swap_horiz</span>
+          Switch Trip
+        </div>
+        <div class="menu-item">
+          <span class="material-symbols-outlined">settings</span>
+          Trip Settings
+        </div>
+      </div>
+      <div class="menu-section">
+        <div class="menu-item">
+          <span class="material-symbols-outlined">bar_chart</span>
+          Trip Stats
+        </div>
+        <div class="menu-item">
+          <span class="material-symbols-outlined">map</span>
+          Share Map
+        </div>
+        <div class="menu-item">
+          <span class="material-symbols-outlined">quiz</span>
+          Trip Trivia
+        </div>
+        <div class="menu-item">
+          <span class="material-symbols-outlined">help</span>
+          How It Works
+        </div>
+      </div>
+      <div class="menu-section">
+        <div class="menu-toggle">
+          <span>👥 Show Everyone's Events</span>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="menu-toggle">
+          <span>📋 List View</span>
+          <div class="toggle-switch off"></div>
+        </div>
+      </div>
+      <div class="menu-footer">
+        <div>🕐 Athens: 2:45 PM</div>
+        <div>🏠 Home: 7:45 AM (+7h)</div>
+        <div>☀️ 22°C Sunny</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Real-World References</h2>
+
+  <div class="references">
+    <div class="ref-grid">
+      <div class="ref-card">
+        <h3>🦉 Duolingo</h3>
+        <p><strong>Leaderboard pattern:</strong> Weekly leagues with 10-15 competitors at similar level. Small groups feel achievable, not overwhelming.</p>
+        <p><strong>What we're borrowing:</strong> Trip scoreboard with ranked travelers, recent activity feed, share to social.</p>
+        <span class="ref-tag">Gamification</span>
+        <span class="ref-tag">Leaderboard</span>
+        <span class="ref-tag">Badges</span>
+      </div>
+
+      <div class="ref-card">
+        <h3>💬 Slack / Discord</h3>
+        <p><strong>Activity indicators:</strong> Unread badges, "typing..." indicators, active call banners that surface what needs attention.</p>
+        <p><strong>What we're borrowing:</strong> Activity bar showing active games and open polls with quick-join CTAs.</p>
+        <span class="ref-tag">Real-time</span>
+        <span class="ref-tag">Notifications</span>
+        <span class="ref-tag">Quick Actions</span>
+      </div>
+
+      <div class="ref-card">
+        <h3>🗺️ Wanderlog</h3>
+        <p><strong>Clean itinerary:</strong> Day-by-day layout, map integration, visually appealing without clutter. Rated 10/10 for UX.</p>
+        <p><strong>What we're borrowing:</strong> Simplified header, content-first approach, day quick-jump navigation.</p>
+        <span class="ref-tag">Travel App</span>
+        <span class="ref-tag">Clean UI</span>
+        <span class="ref-tag">Maps</span>
+      </div>
+
+      <div class="ref-card">
+        <h3>✈️ Flighty</h3>
+        <p><strong>Contextual status:</strong> Shows different info pre-flight vs during vs after. "Now" focused with live updates.</p>
+        <p><strong>What we're borrowing:</strong> Context bar that adapts to trip phase (countdown → live status → memories).</p>
+        <span class="ref-tag">Status Bar</span>
+        <span class="ref-tag">Live Updates</span>
+        <span class="ref-tag">Phase Aware</span>
+      </div>
+
+      <div class="ref-card">
+        <h3>📱 iOS/Android Settings</h3>
+        <p><strong>Slide-out menu:</strong> Organized sections, toggles for preferences, info at bottom. Familiar pattern.</p>
+        <p><strong>What we're borrowing:</strong> Menu drawer with sections, photo ribbon toggle, quick info footer.</p>
+        <span class="ref-tag">Navigation</span>
+        <span class="ref-tag">Settings</span>
+        <span class="ref-tag">Toggles</span>
+      </div>
+
+      <div class="ref-card">
+        <h3>🏃 Strava</h3>
+        <p><strong>Social competition:</strong> Segment leaderboards, kudos, activity feed. Makes exercise social and competitive.</p>
+        <p><strong>What we're borrowing:</strong> Points from activities, friendly competition, share achievements.</p>
+        <span class="ref-tag">Social</span>
+        <span class="ref-tag">Competition</span>
+        <span class="ref-tag">Activity Feed</span>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Alternative Widget Options</h2>
+
+  <div class="references">
+    <div class="ref-grid">
+      <div class="ref-card">
+        <h3>Option A: Minimal Activity Bar</h3>
+        <p>Just icons with badges, no text. Cleaner but less discoverable.</p>
+        <div style="margin-top:12px; display:flex; gap:16px;">
+          <span style="position:relative">🎮<span style="position:absolute;top:-5px;right:-8px;background:#ffc107;border-radius:50%;width:16px;height:16px;font-size:10px;display:flex;align-items:center;justify-content:center">3</span></span>
+          <span style="position:relative">🗳️<span style="position:absolute;top:-5px;right:-8px;background:#ffc107;border-radius:50%;width:16px;height:16px;font-size:10px;display:flex;align-items:center;justify-content:center">!</span></span>
+        </div>
+      </div>
+
+      <div class="ref-card">
+        <h3>Option B: Floating Activity Pills</h3>
+        <p>Overlay pills instead of dedicated bar. Saves vertical space.</p>
+        <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+          <span style="background:#fff3cd;padding:4px 12px;border-radius:20px;font-size:0.8rem">🎮 3 playing</span>
+          <span style="background:#fff3cd;padding:4px 12px;border-radius:20px;font-size:0.8rem">🗳️ Vote now</span>
+        </div>
+      </div>
+
+      <div class="ref-card">
+        <h3>Option C: Combined Context + Activity</h3>
+        <p>Merge context bar and activity bar into one adaptive row.</p>
+        <div style="margin-top:12px;background:#f5f5f5;padding:10px;border-radius:8px;font-size:0.85rem">
+          📍 Day 3 • Athens • <span style="color:#856404">🎮 Game active</span> • <span style="color:#856404">🗳️ Poll open</span>
+        </div>
+      </div>
+
+      <div class="ref-card">
+        <h3>Option D: Bottom Action Bar (Mobile)</h3>
+        <p>Move action bar to bottom for thumb-friendly access on mobile.</p>
+        <div style="margin-top:12px;background:#fff;border:1px solid #ddd;padding:8px;border-radius:8px;display:flex;justify-content:space-around;font-size:0.8rem">
+          <span>👥</span>
+          <span>📅</span>
+          <span>📷</span>
+          <span>🏆</span>
+          <span>☰</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

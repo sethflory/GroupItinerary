@@ -91,6 +91,13 @@ async function searchUnsplash(query, options = {}) {
     // Return first result
     const photo = results[0];
 
+    // Trigger download endpoint per Unsplash API guidelines
+    // This notifies Unsplash that the image is being "used"
+    const downloadLocation = photo.links?.download_location;
+    if (downloadLocation) {
+      triggerDownload(downloadLocation, accessKey).catch(() => {});
+    }
+
     return {
       url: validateImageUrl(photo.urls?.regular),
       thumb: validateImageUrl(photo.urls?.thumb),
@@ -288,6 +295,23 @@ function hexToHSL(hex) {
     s: Math.round(s * 100),
     l: Math.round(l * 100)
   };
+}
+
+/**
+ * Trigger Unsplash download endpoint (API compliance)
+ * This notifies Unsplash when an image is "used" in the app
+ */
+async function triggerDownload(downloadLocation, accessKey) {
+  try {
+    await fetch(downloadLocation, {
+      headers: {
+        Authorization: `Client-ID ${accessKey}`
+      }
+    });
+    console.log("[Images] Download tracked for Unsplash");
+  } catch (err) {
+    console.warn("[Images] Failed to track download:", err.message);
+  }
 }
 
 /**

@@ -592,3 +592,22 @@
       font-size: 16px;
     }
 
+    /* Unsplash Attribution (API compliance) */
+    .unsplash-attribution {
+      margin-top: 24px;
+      padding: 8px 12px;
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+      text-align: center;
+      opacity: 0.7;
+    }
+
+    .unsplash-attribution a {
+      color: var(--color-text-muted);
+      text-decoration: underline;
+    }
+
+    .unsplash-attribution a:hover {
+      color: var(--color-text);
+    }
+
