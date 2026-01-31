@@ -84,6 +84,7 @@ function sanitizeTripForAI(tripData) {
       theme: sanitizeText(day.theme, 100),
       destination: sanitizeText(day.destination, 30),
       events: (day.events || []).slice(0, 20).map(e => ({
+        id: sanitizeText(e.id, 50),
         type: sanitizeEventType(e.type),
         title: sanitizeText(e.title, 100),
         where: sanitizeText(e.where, 50)

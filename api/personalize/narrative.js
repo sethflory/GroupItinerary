@@ -51,43 +51,19 @@ const SYSTEM_PROMPT = `You are a travel storyteller and visual curator. Given an
 
 ## Output Format
 
-Return valid JSON:
-{
-  "narrativeArc": {
-    "theme": "string - overall trip theme/tagline",
-    "chapters": ["departure", "exploration", "adventure", "return"]
-  },
-  "days": [
-    {
-      "dayNum": 1,
-      "nickname": "The Journey Begins",
-      "bgQuery": "airplane window clouds sunrise travel",
-      "bgMood": "anticipation",
-      "colorAccent": "#5da9e9"
-    }
-  ],
-  "events": [
-    {
-      "eventId": "event-id-here",
-      "cardStyle": "hero",
-      "cardQueries": ["acropolis parthenon golden hour athens marble columns"]
-    },
-    {
-      "eventId": "walking-tour-id",
-      "cardStyle": "carousel",
-      "cardQueries": [
-        "plaka neighborhood athens cobblestone street bougainvillea",
-        "monastiraki flea market colorful stalls athens",
-        "anafiotika whitewashed houses athens cycladic"
-      ]
-    },
-    {
-      "eventId": "hotel-checkin-id",
-      "cardStyle": "minimal",
-      "cardQueries": []
-    }
-  ]
-}`;
+Return ONLY valid JSON (no markdown, no explanation). Example structure:
+
+{"narrativeArc":{"theme":"A Mediterranean Odyssey","chapters":["departure","exploration","adventure","return"]},"days":[{"dayNum":1,"nickname":"The Journey Begins","bgQuery":"airplane window clouds sunrise travel","bgMood":"anticipation","colorAccent":"#5da9e9"}],"events":[{"eventId":"evt-123","cardStyle":"hero","cardQueries":["acropolis parthenon golden hour athens marble columns"]},{"eventId":"evt-456","cardStyle":"carousel","cardQueries":["plaka cobblestone bougainvillea","monastiraki flea market stalls","anafiotika whitewashed houses"]},{"eventId":"evt-789","cardStyle":"minimal","cardQueries":[]}]}
+
+Fields:
+- narrativeArc.theme: evocative trip tagline
+- days[].dayNum: matches input day number
+- days[].nickname: creative 2-5 word chapter title
+- days[].bgQuery: specific Unsplash search terms
+- days[].bgMood: one word mood
+- events[].eventId: EXACT event ID from input
+- events[].cardStyle: "hero"|"carousel"|"minimal"|"accent"
+- events[].cardQueries: array of specific image search terms`;
 
 /**
  * Generate narrative for a trip
@@ -169,9 +145,9 @@ function buildNarrativePrompt(trip) {
   const travelerList = trip.travelers.map(t => t.name).join(", ");
   const travelerCount = trip.travelers.length;
 
-  // Format days with events
+  // Format days with events (include event IDs for AI to reference)
   const daysFormatted = trip.days.map(day => {
-    const eventList = day.events.map(e => `  - ${e.type}: ${e.title}${e.where ? ` at ${e.where}` : ""}`).join("\n");
+    const eventList = day.events.map(e => `  - [${e.id}] ${e.type}: ${e.title}${e.where ? ` at ${e.where}` : ""}`).join("\n");
     return `Day ${day.dayNum} (${day.date}) - ${day.location}
 Theme: ${day.theme || "No theme set"}
 ${eventList || "  (no events)"}`;
