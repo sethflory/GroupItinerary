@@ -118,32 +118,8 @@ export function getTravelerFilter() {
 // ========================================
 
 export function renderPhaseTabs() {
-  const container = document.getElementById('phaseTabs');
-  if (!container || !PHASES) return;
-
-  container.innerHTML = Object.entries(PHASES).map(([key, phase]) => {
-    const isActive = currentPhase === key;
-    const phaseDays = DAYS.filter(d => d.date >= phase.startDate && d.date <= phase.endDate);
-    const isDisabled = phaseDays.length === 0;
-
-    return `
-      <button class="phase-tab ${isActive ? 'active' : ''} ${isDisabled ? 'disabled' : ''}"
-              onclick="${isDisabled ? '' : `setPhase('${key}')`}"
-              ${isDisabled ? 'disabled' : ''}>
-        <span>${phase.icon}</span>
-        <span>${phase.label}</span>
-        <span class="phase-tab-dates">${phase.dates}</span>
-      </button>
-    `;
-  }).join('');
-
-  // Add Today button
-  container.innerHTML += `
-    <button class="today-btn" id="todayBtn" onclick="goToToday()">
-      <span class="material-symbols-outlined">today</span>
-      Today
-    </button>
-  `;
+  // Phase tabs removed - using simplified day navigation instead
+  return;
 }
 
 export function setPhase(phase) {

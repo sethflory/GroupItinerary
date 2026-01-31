@@ -82,37 +82,8 @@ export function goToToday() {
 }
 
 export function renderDayList() {
-  const container = document.getElementById('dayList');
-  if (!container) return;
-
-  // Filter days by phase if set
-  let filteredDays = DAYS;
-  if (currentPhase && PHASES[currentPhase]) {
-    const phase = PHASES[currentPhase];
-    filteredDays = DAYS.filter(d => d.date >= phase.startDate && d.date <= phase.endDate);
-  }
-
-  container.innerHTML = filteredDays.map((day, idx) => {
-    const actualIndex = DAYS.indexOf(day);
-    const isActive = actualIndex === currentDayIndex;
-    const dayEvents = day.events || [];
-    const isForMe = dayEvents.some(e => isForTraveler(e.travelers, currentTravelerFilter));
-
-    return `
-      <div class="day-item ${isActive ? 'active' : ''} ${!isForMe && currentTravelerFilter !== 'all' ? 'not-mine' : ''}"
-           onclick="goToDay(${actualIndex})">
-        <div class="day-item-header">
-          <span class="day-item-date">${day.label}</span>
-          <span class="day-item-num">Day ${day.dayNum}</span>
-        </div>
-        <div class="day-item-title">${day.theme}</div>
-        <div class="day-item-location">
-          <span class="material-symbols-outlined">location_on</span>
-          ${day.location}
-        </div>
-      </div>
-    `;
-  }).join('');
+  // Day list sidebar removed - using simplified navigation with prev/next arrows
+  return;
 }
 
 export function renderDayDetail() {
@@ -133,25 +104,23 @@ export function renderDayDetail() {
   // Set background class
   container.className = `day-detail ${day.destination}-bg`;
 
+  const isFirst = currentDayIndex === 0;
+  const isLast = currentDayIndex >= DAYS.length - 1;
+
   container.innerHTML = `
     <div class="day-header">
+      <button class="day-nav-arrow ${isFirst ? 'disabled' : ''}" onclick="goToPrevDay()" ${isFirst ? 'disabled' : ''} title="Previous Day">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
       <div class="day-header-main">
         <div class="day-header-date">Day ${day.dayNum} • ${day.label}</div>
         <h2 class="day-header-title">${day.theme}</h2>
         <div class="day-header-subtitle">${day.location} ${dest.city ? `• ${dest.city}, ${dest.country}` : ''}</div>
         ${renderDinnerPollButton(day.date)}
       </div>
-      <div class="day-meta-cards">
-        ${day.estimatedSteps ? `
-          <div class="day-meta-card">
-            <span class="material-symbols-outlined">directions_walk</span>
-            <div>
-              <strong>${day.estimatedSteps.toLocaleString()}</strong>
-              <div class="sub">est. steps</div>
-            </div>
-          </div>
-        ` : ''}
-      </div>
+      <button class="day-nav-arrow ${isLast ? 'disabled' : ''}" onclick="goToNextDay()" ${isLast ? 'disabled' : ''} title="Next Day">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
     </div>
 
     ${day.destinationInfo ? `
