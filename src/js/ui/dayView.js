@@ -204,7 +204,7 @@ export function renderEventCard(e, notMine = false) {
             ${(e.type === 'activity' || e.type === 'meal') ? `
               <button class="event-see-btn ${window.hasEventSavedList && window.hasEventSavedList(e.id) ? 'has-list' : ''}"
                       onclick="openWhatsYouWillSee('${e.id}')"
-                      title="${window.hasEventSavedList && window.hasEventSavedList(e.id) ? 'View saved list' : 'What you\\'ll see'}">
+                      title="${window.hasEventSavedList && window.hasEventSavedList(e.id) ? 'View saved list' : 'What you will see'}">
                 <span class="material-symbols-outlined">${window.hasEventSavedList && window.hasEventSavedList(e.id) ? 'format_list_bulleted' : 'visibility'}</span>
               </button>
             ` : ''}
