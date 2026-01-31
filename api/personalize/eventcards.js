@@ -13,25 +13,27 @@ const AI_TIMEOUT = 45000;
 const SYSTEM_PROMPT = `You design event cards for a travel itinerary app. Each event gets a card style and optional image queries.
 
 Card Styles:
-- "hero": Large dramatic image - major attractions, landmarks, bucket-list moments
-- "carousel": 3-4 swipeable images - walking tours, neighborhood exploration, multi-stop activities
-- "accent": Small thumbnail - restaurants, cafes, minor activities
-- "minimal": No image - flights, transfers, hotel check-ins, logistics
+- "hero": Large dramatic image - major attractions, landmarks
+- "carousel": 3-4 swipeable images - walking tours, explorations
+- "accent": Small thumbnail - restaurants, minor activities
+- "minimal": No image - flights, transfers, check-ins
 
 Guidelines:
-- Flights, transfers, check-ins → minimal (no queries needed)
-- Major landmarks → hero with 1 specific query
-- Walking tours, explorations → carousel with 3-4 distinct queries
-- Restaurants, cafes → accent with 1 query OR minimal
-- Mix it up! Not every event needs images
-- Queries must be SPECIFIC to avoid duplicates
+- Flights, transfers, check-ins → minimal
+- Major landmarks → hero
+- Walking tours → carousel
+- Restaurants → accent or minimal
+- Only 30-40% of events should have images
 
-Return JSON object mapping event IDs to card config:
-{
-  "evt-001": {"style": "minimal", "queries": []},
-  "evt-002": {"style": "hero", "queries": ["acropolis parthenon golden hour marble columns"]},
-  "evt-003": {"style": "carousel", "queries": ["plaka cobblestone evening", "monastiraki market stalls", "anafiotika white houses"]}
-}`;
+IMPORTANT - Image Query Rules:
+- Keep queries SHORT: 2-4 words max
+- Use generic travel terms that Unsplash will have
+- Good: "acropolis sunset", "greek taverna", "bangalore palace"
+- Bad: "acropolis parthenon golden hour marble columns ancient greece" (too long!)
+- Bad: "spondi restaurant athens" (too specific, won't match)
+
+Return JSON mapping event IDs to config:
+{"evt-001": {"style": "minimal", "queries": []}, "evt-002": {"style": "hero", "queries": ["acropolis sunset"]}, "evt-003": {"style": "carousel", "queries": ["plaka street", "athens market", "greek cafe"]}}`;
 
 async function generateEventCardConfigs(tripData) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -172,6 +174,10 @@ async function generateEventCards(tripData) {
         const image = await searchUnsplash(query, { orientation: "landscape" });
         if (image) {
           resolvedImages++;
+          await logger.info("eventcards", `Found image for: ${query.slice(0, 40)}`, {
+            url: image.url?.slice(0, 60),
+            credit: image.credit
+          });
           images.push({
             query,
             url: image.url,
