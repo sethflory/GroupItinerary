@@ -168,6 +168,11 @@ function renderActiveHuntView(content) {
       <div class="hunt-progress-text">${earnedPoints} / ${totalPoints} points</div>
     </div>
 
+    <button class="hunt-view-map-btn" onclick="openTreasureMap()">
+      <span class="material-symbols-outlined">map</span>
+      View Treasure Map
+    </button>
+
     <div class="hunt-items-list" id="huntItemsList">
       ${currentItems.map(item => renderHuntItem(item)).join('')}
     </div>
@@ -204,6 +209,11 @@ function renderCompletedHuntView(content) {
       <h4>🏆 Final Scores</h4>
       ${renderFinalScores()}
     </div>
+
+    <button class="hunt-view-map-btn" onclick="openTreasureMap()">
+      <span class="material-symbols-outlined">map</span>
+      View Treasure Map
+    </button>
 
     <div class="hunt-items-list completed">
       ${currentItems.map(item => renderHuntItem(item, true)).join('')}
@@ -929,6 +939,202 @@ function escapeHtml(str) {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[m]));
 }
+
+// ========================================
+// TREASURE MAP VIEW
+// ========================================
+
+let treasureMap = null;
+let mapMarkers = [];
+
+function openTreasureMap() {
+  // Create map modal if it doesn't exist
+  let modal = document.getElementById('treasureMapModal');
+  if (!modal) {
+    modal = createTreasureMapModal();
+  }
+
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  // Initialize or update the map
+  setTimeout(() => {
+    initTreasureMap();
+  }, 100);
+}
+
+function closeTreasureMap() {
+  const modal = document.getElementById('treasureMapModal');
+  if (modal) {
+    modal.classList.remove('active');
+  }
+  document.body.style.overflow = '';
+}
+
+function createTreasureMapModal() {
+  const modal = document.createElement('div');
+  modal.id = 'treasureMapModal';
+  modal.className = 'hunt-map-modal';
+
+  const foundCount = currentItems.filter(i => i.foundBy).length;
+
+  modal.innerHTML = `
+    <div class="hunt-map-container">
+      <div class="hunt-map-frame"></div>
+      <div class="hunt-map-parchment"></div>
+
+      <div class="hunt-map-header">
+        <h3>🗺️ ${currentHunt?.title || 'Treasure Map'}</h3>
+        <div class="hunt-map-subtitle">${foundCount}/${currentItems.length} treasures found</div>
+      </div>
+
+      <button class="hunt-map-close" onclick="closeTreasureMap()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+
+      <div id="treasureMapLeaflet" class="hunt-map-leaflet"></div>
+
+      <div class="hunt-map-legend">
+        <h4>Legend</h4>
+        <div class="hunt-legend-item">
+          <div class="hunt-legend-marker unfound"></div>
+          <span>Undiscovered</span>
+        </div>
+        <div class="hunt-legend-item">
+          <div class="hunt-legend-marker found"></div>
+          <span>Found</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // Close on overlay click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeTreasureMap();
+    }
+  });
+
+  return modal;
+}
+
+function initTreasureMap() {
+  const container = document.getElementById('treasureMapLeaflet');
+  if (!container) return;
+
+  // Get the current destination for center point
+  const currentDest = getCurrentLocation();
+  const centerLat = currentDest.lat || 37.9838;  // Default to Athens
+  const centerLon = currentDest.lon || 23.7275;
+
+  // If map exists, just update markers
+  if (treasureMap) {
+    updateTreasureMarkers();
+    return;
+  }
+
+  // Create Leaflet map
+  treasureMap = L.map('treasureMapLeaflet', {
+    center: [centerLat, centerLon],
+    zoom: 14,
+    zoomControl: true
+  });
+
+  // Use a vintage-style tile layer
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(treasureMap);
+
+  // Add markers for hunt items
+  updateTreasureMarkers();
+
+  // Fit bounds to show all markers
+  if (mapMarkers.length > 0) {
+    const group = L.featureGroup(mapMarkers);
+    treasureMap.fitBounds(group.getBounds().pad(0.1));
+  }
+}
+
+function updateTreasureMarkers() {
+  if (!treasureMap) return;
+
+  // Clear existing markers
+  mapMarkers.forEach(m => treasureMap.removeLayer(m));
+  mapMarkers = [];
+
+  // Get current destination as fallback for items without coords
+  const currentDest = getCurrentLocation();
+  const baseLat = currentDest.lat || 37.9838;
+  const baseLon = currentDest.lon || 23.7275;
+
+  currentItems.forEach((item, index) => {
+    // Use item's lat/lon or scatter around the destination
+    let lat = item.lat;
+    let lon = item.lon;
+
+    if (!lat || !lon) {
+      // Scatter items in a radius around the destination
+      const angle = (index / currentItems.length) * 2 * Math.PI;
+      const radius = 0.005 + Math.random() * 0.01;  // ~500m to 1.5km radius
+      lat = baseLat + radius * Math.cos(angle);
+      lon = baseLon + radius * Math.sin(angle);
+    }
+
+    const isFound = !!item.foundBy;
+
+    // Create custom marker icon
+    const markerHtml = `
+      <div class="treasure-marker ${isFound ? 'found' : ''}">
+        <div class="treasure-marker-icon">
+          <span>${isFound ? '✓' : index + 1}</span>
+        </div>
+      </div>
+    `;
+
+    const icon = L.divIcon({
+      html: markerHtml,
+      className: 'treasure-marker-container',
+      iconSize: [36, 36],
+      iconAnchor: [18, 36],
+      popupAnchor: [0, -36]
+    });
+
+    const marker = L.marker([lat, lon], { icon }).addTo(treasureMap);
+
+    // Create popup content
+    const popupContent = `
+      <div class="treasure-popup-content">
+        <h4>${isFound ? '✅' : '🎯'} Item #${index + 1}</h4>
+        <p>${escapeHtml(item.description)}</p>
+        <span class="treasure-popup-points">${item.points} pts</span>
+        ${isFound ? `
+          <div class="treasure-popup-found">
+            Found by ${escapeHtml(item.foundByName || 'Unknown')}
+            ${item.foundAt ? ` • ${formatTime(item.foundAt)}` : ''}
+          </div>
+        ` : item.hint ? `
+          <div class="treasure-popup-hint" style="margin-top:8px;font-style:italic;color:#8b5a2b;font-size:0.85rem;">
+            💡 ${escapeHtml(item.hint)}
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+    marker.bindPopup(popupContent, {
+      className: 'treasure-popup',
+      maxWidth: 250
+    });
+
+    mapMarkers.push(marker);
+  });
+}
+
+window.openTreasureMap = openTreasureMap;
+window.closeTreasureMap = closeTreasureMap;
 
 // Expose functions globally
 window.openScavengerHunt = openScavengerHunt;

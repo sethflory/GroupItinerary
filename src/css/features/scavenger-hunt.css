@@ -667,3 +667,317 @@
     flex-direction: column;
   }
 }
+
+/* ----------------------------------------
+   Treasure Map View
+   ---------------------------------------- */
+.hunt-map-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.hunt-map-modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.hunt-map-container {
+  position: relative;
+  width: 95vw;
+  max-width: 900px;
+  height: 85vh;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.hunt-map-modal.active .hunt-map-container {
+  transform: scale(1);
+}
+
+/* Parchment border frame */
+.hunt-map-frame {
+  position: absolute;
+  inset: 0;
+  border: 12px solid transparent;
+  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23d4a574' width='100' height='100'/%3E%3Crect fill='%23c49a6c' x='5' y='5' width='90' height='90'/%3E%3C/svg%3E") 12 stretch;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: inset 0 0 30px rgba(139, 90, 43, 0.3);
+}
+
+/* Parchment texture overlay */
+.hunt-map-parchment {
+  position: absolute;
+  inset: 0;
+  background:
+    /* Aged spots */
+    radial-gradient(ellipse at 20% 30%, rgba(139, 90, 43, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(139, 90, 43, 0.1) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 90%, rgba(139, 90, 43, 0.12) 0%, transparent 35%),
+    /* Base parchment */
+    linear-gradient(to bottom,
+      rgba(244, 228, 188, 0.92) 0%,
+      rgba(234, 218, 178, 0.88) 50%,
+      rgba(224, 198, 158, 0.92) 100%
+    );
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: multiply;
+}
+
+/* Torn edges effect */
+.hunt-map-container::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background:
+    /* Top edge */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10'%3E%3Cpath fill='%23d4a574' d='M0,10 Q10,8 20,10 T40,10 T60,10 T80,10 T100,10 L100,0 L0,0 Z'/%3E%3C/svg%3E") top repeat-x,
+    /* Bottom edge */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10'%3E%3Cpath fill='%23d4a574' d='M0,0 Q10,3 20,0 T40,0 T60,0 T80,0 T100,0 L100,10 L0,10 Z'/%3E%3C/svg%3E") bottom repeat-x;
+  background-size: 50px 8px;
+  pointer-events: none;
+  z-index: 15;
+}
+
+/* Map container */
+.hunt-map-leaflet {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* Sepia filter on map tiles */
+.hunt-map-leaflet .leaflet-tile-pane {
+  filter: sepia(40%) saturate(80%) brightness(95%) contrast(90%);
+}
+
+/* Map header overlay */
+.hunt-map-header {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  text-align: center;
+  padding: 12px 24px;
+  background: linear-gradient(to bottom, rgba(244, 228, 188, 0.95), rgba(234, 208, 168, 0.95));
+  border: 3px solid #8b5a2b;
+  border-radius: 4px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.hunt-map-header h3 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: #5c3d1e;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.hunt-map-header .hunt-map-subtitle {
+  font-size: 0.85rem;
+  color: #8b5a2b;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Close button */
+.hunt-map-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 25;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #8b5a2b;
+  background: linear-gradient(to bottom, #f4e4bc, #d4c4a4);
+  color: #5c3d1e;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s;
+}
+
+.hunt-map-close:hover {
+  transform: scale(1.1);
+}
+
+/* Custom treasure markers */
+.treasure-marker {
+  position: relative;
+  width: 36px;
+  height: 36px;
+}
+
+.treasure-marker-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #ffd700 0%, #daa520 50%, #b8860b 100%);
+  border: 3px solid #8b5a2b;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.treasure-marker-icon span {
+  transform: rotate(45deg);
+  font-size: 14px;
+  font-weight: bold;
+  color: #5c3d1e;
+}
+
+.treasure-marker.found .treasure-marker-icon {
+  background: linear-gradient(135deg, #71b280 0%, #4a9960 50%, #2d7a4d 100%);
+  border-color: #1e5631;
+}
+
+.treasure-marker.found .treasure-marker-icon span {
+  color: white;
+}
+
+/* Marker popup styling */
+.treasure-popup .leaflet-popup-content-wrapper {
+  background: linear-gradient(to bottom, #f4e4bc, #e4d4ac);
+  border: 2px solid #8b5a2b;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.treasure-popup .leaflet-popup-tip {
+  background: #e4d4ac;
+  border: 1px solid #8b5a2b;
+}
+
+.treasure-popup-content {
+  padding: 4px;
+  font-family: 'Inter', sans-serif;
+}
+
+.treasure-popup-content h4 {
+  margin: 0 0 8px;
+  font-family: 'Playfair Display', serif;
+  color: #5c3d1e;
+  font-size: 1rem;
+}
+
+.treasure-popup-content p {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  color: #6b4423;
+  line-height: 1.4;
+}
+
+.treasure-popup-points {
+  display: inline-block;
+  background: #8b5a2b;
+  color: #f4e4bc;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.treasure-popup-found {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #c4a474;
+  font-size: 0.85rem;
+  color: #2d7a4d;
+}
+
+/* Legend */
+.hunt-map-legend {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 20;
+  background: linear-gradient(to bottom, rgba(244, 228, 188, 0.95), rgba(234, 208, 168, 0.95));
+  border: 2px solid #8b5a2b;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.hunt-map-legend h4 {
+  margin: 0 0 10px;
+  font-family: 'Playfair Display', serif;
+  color: #5c3d1e;
+  font-size: 0.9rem;
+}
+
+.hunt-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: #6b4423;
+  margin-bottom: 6px;
+}
+
+.hunt-legend-item:last-child {
+  margin-bottom: 0;
+}
+
+.hunt-legend-marker {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #8b5a2b;
+}
+
+.hunt-legend-marker.unfound {
+  background: linear-gradient(135deg, #ffd700, #b8860b);
+}
+
+.hunt-legend-marker.found {
+  background: linear-gradient(135deg, #71b280, #2d7a4d);
+  border-color: #1e5631;
+}
+
+/* View map button */
+.hunt-view-map-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  margin: 12px 0;
+  background: linear-gradient(to bottom, #f4e4bc, #d4c4a4);
+  border: 2px solid #8b5a2b;
+  border-radius: 8px;
+  color: #5c3d1e;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.hunt-view-map-btn:hover {
+  background: linear-gradient(to bottom, #ffe4cc, #e4d4b4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 90, 43, 0.3);
+}
+
+.hunt-view-map-btn .material-symbols-outlined {
+  font-size: 1.2rem;
+}
