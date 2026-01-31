@@ -1,5 +1,5 @@
 // ========================================
-// SAW IT! - "What You'll See" Game
+// SAW IT! - "What Will We See" Game
 // ========================================
 
 import { currentTripId } from '../state.js';
@@ -120,7 +120,7 @@ function createSawItModal() {
   modal.innerHTML = `
     <div class="share-modal saw-it-modal">
       <div class="saw-it-header">
-        <h3><span class="material-symbols-outlined">visibility</span> What You'll See</h3>
+        <h3><span class="material-symbols-outlined">visibility</span> What Will We See</h3>
         <button class="modal-close" onclick="closeSawItModal()">
           <span class="material-symbols-outlined">close</span>
         </button>
@@ -364,7 +364,7 @@ function renderPreviewStep() {
           <span class="material-symbols-outlined">arrow_back</span>
         </button>
         <div>
-          <h4>What You'll See</h4>
+          <h4>What Will We See</h4>
           <p class="saw-it-subtitle">${transportMode === 'walk' ? 'Walking' : 'Driving'} to ${event?.title || 'destination'}</p>
         </div>
       </div>
