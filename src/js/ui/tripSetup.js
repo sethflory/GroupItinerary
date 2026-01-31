@@ -209,10 +209,10 @@ function renderCodesTab(container) {
             <input type="hidden" id="code-raw-${t.id}" value="${t.accessCode || ''}">
           </div>
           <div class="code-actions">
-            <button class="icon-btn" onclick="copyAccessCode('${t.id}')" title="Copy">
+            <button class="icon-btn" onclick="copyAccessCode(event, '${t.id}')" title="Copy">
               <span class="material-symbols-outlined">content_copy</span>
             </button>
-            <button class="icon-btn" onclick="regenerateCode('${t.id}')" title="Regenerate">
+            <button class="icon-btn" onclick="regenerateCode(event, '${t.id}')" title="Regenerate">
               <span class="material-symbols-outlined">refresh</span>
             </button>
           </div>
@@ -297,7 +297,7 @@ export function showAddTravelerForm() {
       </div>
       <div class="form-actions">
         <button class="btn secondary" onclick="hideAddTravelerForm()">Cancel</button>
-        <button class="btn primary" onclick="submitAddTraveler()">Add</button>
+        <button class="btn primary" onclick="submitAddTraveler(event)">Add</button>
       </div>
     </div>
   `;
@@ -310,7 +310,7 @@ export function hideAddTravelerForm() {
   if (container) container.innerHTML = '';
 }
 
-export async function submitAddTraveler() {
+export async function submitAddTraveler(event) {
   const name = document.getElementById('newTravelerName').value.trim();
   const group = document.getElementById('newTravelerGroup').value;
   const color = document.getElementById('newTravelerColor').value;
@@ -380,13 +380,13 @@ export function editTraveler(id) {
       </div>
       <div class="form-actions">
         <button class="btn secondary" onclick="hideAddTravelerForm()">Cancel</button>
-        <button class="btn primary" onclick="submitEditTraveler('${id}')">Save</button>
+        <button class="btn primary" onclick="submitEditTraveler(event, '${id}')">Save</button>
       </div>
     </div>
   `;
 }
 
-export async function submitEditTraveler(id) {
+export async function submitEditTraveler(event, id) {
   const name = document.getElementById('editTravelerName').value.trim();
   const group = document.getElementById('editTravelerGroup').value;
   const color = document.getElementById('editTravelerColor').value;
@@ -481,7 +481,7 @@ export function toggleCodeVisibility(id) {
   }
 }
 
-export async function copyAccessCode(id) {
+export async function copyAccessCode(event, id) {
   const rawEl = document.getElementById(`code-raw-${id}`);
   const code = rawEl?.value;
 
@@ -506,7 +506,7 @@ export async function copyAccessCode(id) {
   }
 }
 
-export async function regenerateCode(id) {
+export async function regenerateCode(event, id) {
   if (!confirm('Generate a new access code? The old code will stop working.')) {
     return;
   }
