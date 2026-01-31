@@ -90,7 +90,7 @@ async function generateNarrative(sanitizedTrip) {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
-        max_tokens: 2048,
+        max_tokens: 4096,
         system: SYSTEM_PROMPT,
         messages: [{ role: "user", content: userPrompt }]
       }),
@@ -141,13 +141,20 @@ async function generateNarrative(sanitizedTrip) {
       }
     }
 
+    // Clean up common JSON issues
+    jsonStr = jsonStr
+      .replace(/,\s*}/g, '}')      // Remove trailing commas before }
+      .replace(/,\s*]/g, ']')      // Remove trailing commas before ]
+      .replace(/[\x00-\x1F\x7F]/g, ' '); // Remove control characters
+
     let narrative;
     try {
       narrative = JSON.parse(jsonStr);
       console.log("[Narrative] Successfully parsed JSON");
     } catch (parseErr) {
       console.error("[Narrative] JSON parse error:", parseErr.message);
-      console.error("[Narrative] Attempted to parse:", jsonStr.slice(0, 500));
+      console.error("[Narrative] JSON around error position:", jsonStr.slice(7300, 7500));
+      console.error("[Narrative] Full JSON length:", jsonStr.length);
       throw new Error("AI returned invalid JSON: " + parseErr.message);
     }
 
