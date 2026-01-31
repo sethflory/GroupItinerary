@@ -11,8 +11,11 @@ module.exports = async function (context, req) {
   };
 
   try {
-    // Get all debug entries, sorted by timestamp (newest first)
-    const entries = await queryByPartition(TABLES.DEBUG, "narrative");
+    // Get partition from query param, default to "narrative"
+    const partition = req.query.partition || "backgrounds";
+
+    // Get all debug entries for this partition
+    const entries = await queryByPartition(TABLES.DEBUG, partition);
 
     // Sort by rowKey (timestamp) descending
     entries.sort((a, b) => b.rowKey.localeCompare(a.rowKey));
@@ -24,7 +27,7 @@ module.exports = async function (context, req) {
       context.res = {
         status: 404,
         headers,
-        body: JSON.stringify({ error: "No debug entries found" })
+        body: JSON.stringify({ error: `No debug entries found for partition: ${partition}` })
       };
       return;
     }
@@ -33,12 +36,14 @@ module.exports = async function (context, req) {
       status: 200,
       headers,
       body: JSON.stringify({
+        partition,
         timestamp: latest.timestamp,
         contentLength: latest.contentLength,
         content: latest.content,
         // Also return recent entries list
         recentEntries: entries.slice(0, 5).map(e => ({
           rowKey: e.rowKey,
+          partition: e.partitionKey,
           timestamp: e.timestamp,
           contentLength: e.contentLength
         }))
