@@ -43,7 +43,14 @@ async function callPersonalizeApi(mode = 'auto') {
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+    const text = await response.text();
+    console.error('[AI Assist] API error response:', response.status, text.slice(0, 500));
+    let error;
+    try {
+      error = JSON.parse(text);
+    } catch (e) {
+      throw new Error(`API error ${response.status}: ${text.slice(0, 200)}`);
+    }
     throw new Error(error.error || `API error: ${response.status}`);
   }
 

@@ -157,15 +157,12 @@ async function generateNarrative(sanitizedTrip) {
       const errorPos = posMatch ? parseInt(posMatch[1]) : 0;
 
       console.error("[Narrative] JSON parse error:", parseErr.message);
-      console.error("[Narrative] Full JSON length:", jsonStr.length);
-      console.error("[Narrative] === FULL JSON RESPONSE START ===");
-      // Log in chunks to avoid truncation
-      for (let i = 0; i < jsonStr.length; i += 2000) {
-        console.error(`[Narrative] JSON chunk ${i}-${i+2000}:`, jsonStr.slice(i, i + 2000));
-      }
-      console.error("[Narrative] === FULL JSON RESPONSE END ===");
+      console.error("[Narrative] JSON length:", jsonStr.length);
+      // Log start and end of JSON
+      console.error("[Narrative] JSON start:", jsonStr.slice(0, 500));
+      console.error("[Narrative] JSON end:", jsonStr.slice(-500));
       if (errorPos > 0) {
-        console.error("[Narrative] Around error position:", jsonStr.slice(Math.max(0, errorPos - 100), errorPos + 100));
+        console.error("[Narrative] Around error (pos " + errorPos + "):", jsonStr.slice(Math.max(0, errorPos - 150), errorPos + 150));
       }
       throw new Error("AI returned invalid JSON: " + parseErr.message);
     }
