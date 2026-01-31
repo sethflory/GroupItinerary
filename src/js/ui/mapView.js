@@ -2,7 +2,7 @@
 // MAP VIEW - Traveler Locations
 // ========================================
 
-import { currentTripId, TRAVELERS, DESTINATIONS, HOTEL } from '../state.js';
+import { currentTripId } from '../state.js';
 import { fetchLocations } from '../api.js';
 
 // Module state
@@ -12,6 +12,19 @@ let isInitialized = false;
 let refreshIntervalId = null;
 
 const REFRESH_INTERVAL = 30 * 1000; // 30 seconds
+
+// Get data from window (set by app.js after data loads)
+function getTravelers() {
+  return window.TRAVELERS || [];
+}
+
+function getDestinations() {
+  return window.DESTINATIONS || {};
+}
+
+function getHotel() {
+  return window.HOTEL || null;
+}
 
 // ========================================
 // INITIALIZATION
@@ -59,6 +72,9 @@ async function initializeMap() {
     return;
   }
 
+  const hotel = getHotel();
+  const destinations = getDestinations();
+
   // Start with a default center, will adjust after
   let initialCenter = [37.9838, 23.7275]; // Default: Athens
   let initialZoom = 13;
@@ -84,10 +100,10 @@ async function initializeMap() {
 
   // If no user location, try hotel or destination
   if (!userLocation) {
-    if (HOTEL?.lat && HOTEL?.lon) {
-      initialCenter = [HOTEL.lat, HOTEL.lon];
+    if (hotel?.lat && hotel?.lon) {
+      initialCenter = [hotel.lat, hotel.lon];
     } else {
-      const firstDest = Object.values(DESTINATIONS)[0];
+      const firstDest = Object.values(destinations)[0];
       if (firstDest?.lat && firstDest?.lon) {
         initialCenter = [firstDest.lat, firstDest.lon];
       }
@@ -108,7 +124,7 @@ async function initializeMap() {
   }).addTo(map);
 
   // Add hotel marker if available
-  if (HOTEL?.lat && HOTEL?.lon) {
+  if (hotel?.lat && hotel?.lon) {
     const hotelIcon = L.divIcon({
       className: 'map-marker map-marker-hotel',
       html: '<span class="material-symbols-outlined">hotel</span>',
@@ -116,9 +132,9 @@ async function initializeMap() {
       iconAnchor: [16, 16]
     });
 
-    L.marker([HOTEL.lat, HOTEL.lon], { icon: hotelIcon })
+    L.marker([hotel.lat, hotel.lon], { icon: hotelIcon })
       .addTo(map)
-      .bindPopup(`<strong>${HOTEL.name || 'Hotel'}</strong>`);
+      .bindPopup(`<strong>${hotel.name || 'Hotel'}</strong>`);
   }
 
   console.log('[MapView] Map initialized');
@@ -141,14 +157,19 @@ async function refreshLocations() {
 function updateMarkers(locations) {
   if (!map) return;
 
+  const travelers = getTravelers();
+  const hotel = getHotel();
   const validPositions = [];
 
   // Update or create markers for each location
   locations.forEach(loc => {
     if (!loc.lat || !loc.lon) return;
 
-    const traveler = TRAVELERS.find(t => t.id === loc.travelerId);
-    if (!traveler) return;
+    const traveler = travelers.find(t => t.id === loc.travelerId);
+    if (!traveler) {
+      console.log('[MapView] No traveler found for ID:', loc.travelerId);
+      return;
+    }
 
     validPositions.push([loc.lat, loc.lon]);
 
@@ -179,8 +200,8 @@ function updateMarkers(locations) {
   // Fit bounds to show all markers if we have any
   if (validPositions.length > 0) {
     // Include hotel in bounds if available
-    if (HOTEL?.lat && HOTEL?.lon) {
-      validPositions.push([HOTEL.lat, HOTEL.lon]);
+    if (hotel?.lat && hotel?.lon) {
+      validPositions.push([hotel.lat, hotel.lon]);
     }
 
     if (validPositions.length === 1) {
