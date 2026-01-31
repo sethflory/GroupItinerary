@@ -1,0 +1,59 @@
+{
+  "routes": [
+    {
+      "route": "/",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/login",
+      "rewrite": "/.auth/login/google?post_login_redirect_uri=/welcome"
+    },
+    {
+      "route": "/login/google",
+      "rewrite": "/.auth/login/google?post_login_redirect_uri=/welcome"
+    },
+    {
+      "route": "/logout",
+      "redirect": "/.auth/logout"
+    },
+    {
+      "route": "/.auth/login/google",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/.auth/me",
+      "allowedRoles": ["anonymous", "authenticated"]
+    }
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.html"
+  },
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/index.html"
+    }
+  },
+  "globalHeaders": {
+    "Cache-Control": "public, max-age=3600"
+  },
+  "mimeTypes": {
+    ".json": "application/json",
+    ".css": "text/css",
+    ".js": "application/javascript",
+    ".html": "text/html",
+    ".svg": "image/svg+xml",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".ico": "image/x-icon"
+  },
+  "auth": {
+    "identityProviders": {
+      "google": {
+        "registration": {
+          "clientIdSettingName": "GOOGLE_CLIENT_ID",
+          "clientSecretSettingName": "GOOGLE_CLIENT_SECRET"
+        }
+      }
+    }
+  }
+}
