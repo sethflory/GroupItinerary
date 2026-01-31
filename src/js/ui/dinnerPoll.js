@@ -625,7 +625,7 @@ window.dinnerPollCreatePoll = async function() {
   const options = generatedOptions.filter(opt => !excludedOptions.has(opt.id));
 
   if (options.length < 2) {
-    alert('Please include at least 2 options in the poll.');
+    showToast('Please include at least 2 options in the poll.', 'error');
     return;
   }
 
@@ -698,29 +698,36 @@ window.dinnerPollVote = async function(optionId) {
   const result = await fetchDinnerAPI(`vote/${currentPoll.id}`, 'POST', { optionId });
 
   if (result.error) {
-    alert(result.error);
+    showToast(result.error, 'error');
     return;
   }
 
   currentPoll = result;
   renderCurrentStep();
+  showToast('Vote recorded!', 'success');
 };
 
 window.dinnerPollClosePoll = async function() {
   if (!currentPoll) return;
 
-  if (!confirm('Close this poll? No more votes will be accepted.')) return;
+  showConfirmModal(
+    'Close Poll?',
+    'No more votes will be accepted after closing.',
+    'Close Poll',
+    async () => {
+      const result = await fetchDinnerAPI(`polls/${currentPoll.id}`, 'PUT', { action: 'close' });
 
-  const result = await fetchDinnerAPI(`polls/${currentPoll.id}`, 'PUT', { action: 'close' });
+      if (result.error) {
+        showToast(result.error, 'error');
+        return;
+      }
 
-  if (result.error) {
-    alert(result.error);
-    return;
-  }
-
-  currentPoll = result;
-  currentStep = 'results';
-  renderCurrentStep();
+      currentPoll = result;
+      currentStep = 'results';
+      renderCurrentStep();
+      showToast('Poll closed successfully', 'success');
+    }
+  );
 };
 
 window.dinnerPollAddToItinerary = async function(optionId) {
@@ -729,7 +736,12 @@ window.dinnerPollAddToItinerary = async function(optionId) {
   const option = currentPoll.options.find(o => o.id === optionId);
   if (!option) return;
 
-  const day = DAYS?.find(d => d.date === currentPoll.date);
+  // Show loading state on button
+  const btn = document.querySelector(`[onclick="window.dinnerPollAddToItinerary('${optionId}')"]`);
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> Adding...';
+  }
 
   try {
     // Create the meal event
@@ -750,21 +762,36 @@ window.dinnerPollAddToItinerary = async function(optionId) {
     const createdEvent = await createEvent(currentTripId, eventData);
 
     // Update poll with event ID
-    await fetchDinnerAPI(`polls/${currentPoll.id}`, 'PUT', {
+    const updatedPoll = await fetchDinnerAPI(`polls/${currentPoll.id}`, 'PUT', {
       selectedOptionId: optionId,
       eventId: createdEvent.id
     });
 
-    // Refresh trip data
-    if (window.refreshTripData) {
-      window.refreshTripData();
+    if (updatedPoll.error) {
+      throw new Error(updatedPoll.error);
     }
+
+    // Update local poll state
+    currentPoll = updatedPoll;
+
+    // Refresh trip data to show new event
+    if (window.refreshTripData) {
+      await window.refreshTripData();
+    }
+
+    // Re-render results to show "Added" badge
+    renderCurrentStep();
 
     // Show reservation prompt
     showReservationPrompt(option);
 
   } catch (err) {
-    alert('Failed to add to itinerary: ' + err.message);
+    showToast('Failed to add to itinerary: ' + err.message, 'error');
+    // Restore button
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">add_circle</span> Add to Itinerary';
+    }
   }
 };
 
@@ -823,6 +850,75 @@ window.dinnerPollCloseReservationPrompt = function() {
   modal?.remove();
   closeDinnerPollModal();
 };
+
+// ========================================
+// CUSTOM MODALS & TOASTS
+// ========================================
+
+function showConfirmModal(title, message, confirmText, onConfirm) {
+  const modal = document.createElement('div');
+  modal.className = 'dinner-confirm-overlay';
+  modal.id = 'dinnerConfirmModal';
+  modal.innerHTML = `
+    <div class="dinner-confirm-modal">
+      <div class="confirm-icon">
+        <span class="material-symbols-outlined">help</span>
+      </div>
+      <h4>${title}</h4>
+      <p>${message}</p>
+      <div class="confirm-actions">
+        <button class="dinner-btn secondary" onclick="window.dinnerCloseConfirm()">Cancel</button>
+        <button class="dinner-btn primary" id="confirmActionBtn">${confirmText}</button>
+      </div>
+    </div>
+  `;
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) window.dinnerCloseConfirm();
+  });
+
+  document.body.appendChild(modal);
+
+  // Attach confirm handler
+  document.getElementById('confirmActionBtn').onclick = async () => {
+    window.dinnerCloseConfirm();
+    await onConfirm();
+  };
+}
+
+window.dinnerCloseConfirm = function() {
+  document.getElementById('dinnerConfirmModal')?.remove();
+};
+
+function showToast(message, type = 'info') {
+  // Remove existing toast
+  document.getElementById('dinnerToast')?.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'dinnerToast';
+  toast.className = `dinner-toast ${type}`;
+
+  const icon = type === 'success' ? 'check_circle' :
+               type === 'error' ? 'error' : 'info';
+
+  toast.innerHTML = `
+    <span class="material-symbols-outlined">${icon}</span>
+    <span>${message}</span>
+  `;
+
+  document.body.appendChild(toast);
+
+  // Trigger animation
+  requestAnimationFrame(() => {
+    toast.classList.add('show');
+  });
+
+  // Auto-remove after 3 seconds
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
 
 // ========================================
 // HELPERS

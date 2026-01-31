@@ -6631,15 +6631,124 @@
       background: rgba(34, 197, 94, 0.05);
     }
 
+    /* Custom Confirm Modal */
+    .dinner-confirm-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1200;
+      padding: 1rem;
+    }
+
+    .dinner-confirm-modal {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      max-width: 320px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .confirm-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--color-cream);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+    }
+
+    .confirm-icon .material-symbols-outlined {
+      font-size: 1.75rem;
+      color: var(--color-sunrise);
+    }
+
+    .dinner-confirm-modal h4 {
+      font-size: 1.1rem;
+      margin: 0 0 0.5rem;
+    }
+
+    .dinner-confirm-modal p {
+      color: #666;
+      font-size: 0.9rem;
+      margin: 0 0 1.25rem;
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .confirm-actions .dinner-btn {
+      flex: 1;
+      justify-content: center;
+    }
+
+    /* Toast Notification */
+    .dinner-toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: #333;
+      color: white;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      z-index: 1300;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .dinner-toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .dinner-toast.success {
+      background: #22c55e;
+    }
+
+    .dinner-toast.error {
+      background: #ef4444;
+    }
+
+    .dinner-toast .material-symbols-outlined {
+      font-size: 1.25rem;
+    }
+
     /* Mobile Responsive */
     @media (max-width: 480px) {
       .dinner-poll-modal {
         max-height: 90vh;
         margin: 5vh 0;
+        width: 95vw;
+      }
+
+      .dinner-poll-content {
+        padding: 1rem;
       }
 
       .dinner-days-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+      }
+
+      .day-option-content {
+        padding: 0.75rem 0.5rem;
       }
 
       .reservation-options {
@@ -6648,10 +6757,53 @@
 
       .dinner-actions {
         flex-direction: column;
+        gap: 0.5rem;
       }
 
       .dinner-btn {
         width: 100%;
         justify-content: center;
+        padding: 0.875rem 1rem;
+      }
+
+      .dinner-option-preview {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .option-checkbox {
+        align-self: flex-start;
+      }
+
+      .confirm-actions {
+        flex-direction: column;
+      }
+
+      .dinner-toast {
+        left: 1rem;
+        right: 1rem;
+        transform: translateY(100px);
+        width: auto;
+      }
+
+      .dinner-toast.show {
+        transform: translateY(0);
+      }
+
+      .filter-chips {
+        gap: 0.375rem;
+      }
+
+      .filter-chip {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+      }
+
+      .dinner-vote-card {
+        padding: 0.875rem;
+      }
+
+      .vote-card-name {
+        font-size: 0.95rem;
       }
     }
