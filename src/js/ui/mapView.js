@@ -1,6 +1,7 @@
 // ========================================
 // MAP VIEW - Traveler Locations
 // ========================================
+console.log('[MapView] MODULE LOADED v2');
 
 import { currentTripId } from '../state.js';
 import { fetchLocations } from '../api.js';
@@ -155,45 +156,81 @@ async function refreshLocations() {
 }
 
 function updateMarkers(locations) {
-  if (!map) return;
+  console.log('[MapView] updateMarkers called, map exists:', !!map);
+  if (!map) {
+    console.log('[MapView] No map, returning');
+    return;
+  }
 
   const travelers = getTravelers();
+  console.log('[MapView] Travelers:', travelers.length);
   const hotel = getHotel();
   const validPositions = [];
 
-  // Update or create markers for each location
-  locations.forEach(loc => {
-    if (!loc.lat || !loc.lon) return;
+  // Apply jitter to locations that are too close together
+  console.log('[MapView] Applying jitter...');
+  const jitteredLocations = applyLocationJitter(locations);
+  console.log('[MapView] Jittered locations:', jitteredLocations);
 
-    // Find traveler in array, or create a fallback for users not in TRAVELERS (e.g., admin)
+  // Update or create markers for each location
+  console.log('[MapView] Creating markers for', jitteredLocations.length, 'locations');
+
+  for (let i = 0; i < jitteredLocations.length; i++) {
+    const loc = jitteredLocations[i];
+    console.log('[MapView] Marker', i + 1, ':', loc.displayName, loc.lat, loc.lon);
+
+    if (!loc.lat || !loc.lon) {
+      console.log('[MapView] Skipping - no coords');
+      continue;
+    }
+
+    // Find traveler in array, or create fallback
     let traveler = travelers.find(t => t.id === loc.travelerId);
     if (!traveler) {
-      // Create fallback traveler object from location data
       traveler = {
         id: loc.travelerId,
         name: loc.displayName || loc.travelerId,
         initials: (loc.displayName || loc.travelerId).substring(0, 2).toUpperCase(),
-        color: '#667085' // default gray
+        color: '#667085'
       };
-      console.log('[MapView] Using fallback for:', loc.travelerId);
     }
 
     validPositions.push([loc.lat, loc.lon]);
 
-    if (markers[loc.travelerId]) {
-      // Update existing marker position
-      markers[loc.travelerId].setLatLng([loc.lat, loc.lon]);
-      markers[loc.travelerId].setPopupContent(createPopupContent(traveler, loc));
-    } else {
-      // Create new marker
-      const icon = createTravelerIcon(traveler);
-      const marker = L.marker([loc.lat, loc.lon], { icon })
-        .addTo(map)
-        .bindPopup(createPopupContent(traveler, loc));
+    try {
+      const markerKey = loc.travelerId;
+      console.log('[MapView] Marker key:', markerKey, 'exists?', !!markers[markerKey]);
 
-      markers[loc.travelerId] = marker;
+      if (markers[markerKey]) {
+        markers[markerKey].setLatLng([loc.lat, loc.lon]);
+        console.log('[MapView] Updated marker for', loc.displayName);
+      } else {
+        const color = traveler.color || '#ff0000';
+        console.log('[MapView] Creating marker:', {
+          name: loc.displayName,
+          key: markerKey,
+          lat: loc.lat,
+          lon: loc.lon,
+          color: color
+        });
+
+        const marker = L.circleMarker([loc.lat, loc.lon], {
+          radius: 20,
+          fillColor: color,
+          color: '#000',
+          weight: 3,
+          fillOpacity: 1
+        }).addTo(map);
+
+        markers[markerKey] = marker;
+        console.log('[MapView] Created marker, total now:', Object.keys(markers));
+      }
+    } catch (err) {
+      console.error('[MapView] Error creating marker:', err);
     }
-  });
+  }
+
+  console.log('[MapView] Total markers in map:', Object.keys(markers).length);
 
   // Remove markers for travelers no longer sharing
   const activeIds = locations.map(l => l.travelerId);
@@ -204,18 +241,13 @@ function updateMarkers(locations) {
     }
   });
 
-  // Fit bounds to show all markers if we have any
+  // Fit bounds to show all traveler markers (don't include hotel - it may be far away)
   if (validPositions.length > 0) {
-    // Include hotel in bounds if available
-    if (hotel?.lat && hotel?.lon) {
-      validPositions.push([hotel.lat, hotel.lon]);
-    }
-
     if (validPositions.length === 1) {
       map.setView(validPositions[0], 15);
     } else {
       const bounds = L.latLngBounds(validPositions);
-      map.fitBounds(bounds, { padding: [50, 50] });
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
     }
   }
 }
@@ -304,4 +336,25 @@ function escapeHtml(str) {
     '"': '&quot;',
     "'": '&#39;'
   })[char]);
+}
+
+// Apply jitter to markers that are too close together
+function applyLocationJitter(locations) {
+  const PROXIMITY_THRESHOLD = 0.001; // ~100 meters
+  const JITTER_AMOUNT = 0.002; // ~200 meters offset - very visible
+
+  // Create a copy to avoid mutating original
+  const result = locations.map(loc => ({ ...loc }));
+
+  // Always spread markers in a circle if there are multiple
+  if (result.length > 1) {
+    for (let i = 0; i < result.length; i++) {
+      const angle = (i * 2 * Math.PI) / result.length;
+      result[i].lat += Math.cos(angle) * JITTER_AMOUNT;
+      result[i].lon += Math.sin(angle) * JITTER_AMOUNT;
+    }
+    console.log('[MapView] Applied jitter to all markers');
+  }
+
+  return result;
 }

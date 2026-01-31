@@ -63,9 +63,10 @@ async function getAllLocations(context, tripId, headers) {
 
   const locations = entities.map(formatLocation);
 
-  // Filter out stale locations (older than 1 hour)
+  // Filter out stale locations (older than 1 hour) and those not sharing
   const oneHourAgo = Date.now() - (60 * 60 * 1000);
   const recentLocations = locations.filter(loc =>
+    loc.isSharing !== false &&
     new Date(loc.updatedAt).getTime() > oneHourAgo
   );
 
