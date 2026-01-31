@@ -5,7 +5,7 @@
 import { currentTripId } from '../state.js';
 import { API_BASE } from '../config.js';
 import { getStoredAccessCode } from '../auth.js';
-import { applyTheme, previewTheme, revertThemePreview } from './themeManager.js';
+import { applyTheme, previewTheme, revertThemePreview, getAllThemes, setTheme, getThemeById, getCurrentTheme } from './themeManager.js';
 
 // ========================================
 // STATE
@@ -929,6 +929,123 @@ export async function selectThemeFromSelector(themeId) {
 }
 
 // ========================================
+// BUILT-IN THEME SELECTOR
+// ========================================
+
+// Theme metadata for display
+const THEME_DISPLAY_INFO = {
+  emerald: {
+    emoji: '🌿',
+    description: 'Classic emerald green with gold accents. Elegant and timeless.'
+  },
+  ocean: {
+    emoji: '🌊',
+    description: 'Deep ocean blues. Perfect for beach and coastal trips.'
+  },
+  sunset: {
+    emoji: '🌅',
+    description: 'Warm coral and orange tones. Great for adventure trips.'
+  },
+  midnight: {
+    emoji: '🌙',
+    description: 'Dark mode with elegant purple accents. Easy on the eyes.'
+  }
+};
+
+export function openBuiltInThemeSelector() {
+  let modal = document.getElementById('builtInThemeSelectorModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'builtInThemeSelectorModal';
+    modal.className = 'modal-overlay';
+    document.body.appendChild(modal);
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeBuiltInThemeSelector();
+    });
+  }
+
+  const themes = getAllThemes();
+  const currentTheme = getCurrentTheme();
+  const currentThemeId = currentTheme?.id || 'emerald';
+
+  modal.innerHTML = `
+    <div class="modal theme-selector-modal">
+      <div class="modal-header">
+        <h3><span class="material-symbols-outlined">palette</span> Choose Theme</h3>
+        <button class="modal-close" onclick="closeBuiltInThemeSelector()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="theme-selector-intro">Select a color theme for your trip. Changes apply instantly.</p>
+        <div class="theme-options-grid">
+          ${Object.values(themes).map(theme => {
+            const info = THEME_DISPLAY_INFO[theme.id] || { emoji: '✨', description: '' };
+            return `
+              <button class="theme-option ${theme.id === currentThemeId ? 'selected' : ''}"
+                      data-theme-id="${theme.id}"
+                      onmouseenter="previewBuiltInTheme('${theme.id}')"
+                      onmouseleave="revertThemePreview()"
+                      onclick="selectBuiltInTheme('${theme.id}')">
+                <div class="theme-option-header">
+                  <span class="theme-emoji">${info.emoji}</span>
+                  <span class="theme-name">${theme.name}</span>
+                  ${theme.id === 'emerald' ? '<span class="theme-badge">Default</span>' : ''}
+                </div>
+                <div class="theme-palette">
+                  ${Object.values(theme.palette).slice(0, 5).map(color =>
+                    `<span class="theme-swatch" style="background: ${color}"></span>`
+                  ).join('')}
+                </div>
+                <p class="theme-description">${info.description}</p>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+
+  modal.classList.add('active');
+}
+
+export function closeBuiltInThemeSelector() {
+  const modal = document.getElementById('builtInThemeSelectorModal');
+  if (modal) {
+    modal.classList.remove('active');
+  }
+  revertThemePreview();
+}
+
+export function previewBuiltInTheme(themeId) {
+  const theme = getThemeById(themeId);
+  if (theme) {
+    previewTheme(theme);
+  }
+}
+
+export async function selectBuiltInTheme(themeId) {
+  const theme = getThemeById(themeId);
+  if (!theme) return;
+
+  // Close modal
+  closeBuiltInThemeSelector();
+
+  // Apply and save theme
+  await setTheme(themeId, { animate: true, duration: 1200 });
+
+  // Update personalization state if exists
+  if (window.tripPersonalization) {
+    window.tripPersonalization.theme = theme;
+  }
+
+  // Show toast
+  const info = THEME_DISPLAY_INFO[themeId] || { emoji: '✨' };
+  showThemeToast({ ...theme, emoji: info.emoji });
+}
+
+// ========================================
 // HELPERS
 // ========================================
 
@@ -975,7 +1092,7 @@ export function renderPersonalizeContent(container) {
       </div>
 
       <div class="personalize-actions">
-        <button class="btn secondary" onclick="openThemeSelector()">
+        <button class="btn secondary" onclick="openBuiltInThemeSelector()">
           <span class="material-symbols-outlined">palette</span>
           Change Theme
         </button>
@@ -1057,13 +1174,13 @@ export function renderPersonalizeContent(container) {
           <span class="material-symbols-outlined option-arrow">chevron_right</span>
         </button>
 
-        <button class="personalize-option-card disabled" disabled>
+        <button class="personalize-option-card" onclick="openBuiltInThemeSelector()">
           <span class="material-symbols-outlined">palette</span>
           <div class="option-info">
             <span class="option-title">Color Theme</span>
-            <span class="option-desc">Colors that match your trip</span>
+            <span class="option-desc">Choose from 4 beautiful themes</span>
           </div>
-          <span class="option-badge">Coming Soon</span>
+          <span class="material-symbols-outlined option-arrow">chevron_right</span>
         </button>
       </div>
     `;
@@ -1105,3 +1222,7 @@ window.selectThemeFromSelector = selectThemeFromSelector;
 window.applyReviewedPersonalization = applyReviewedPersonalization;
 window.revertThemePreview = revertThemePreview;
 window.renderPersonalizeContent = renderPersonalizeContent;
+window.openBuiltInThemeSelector = openBuiltInThemeSelector;
+window.closeBuiltInThemeSelector = closeBuiltInThemeSelector;
+window.previewBuiltInTheme = previewBuiltInTheme;
+window.selectBuiltInTheme = selectBuiltInTheme;

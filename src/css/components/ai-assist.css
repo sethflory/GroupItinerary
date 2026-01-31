@@ -417,6 +417,13 @@ body.theme-transitioning .day-detail {
   max-width: 600px;
 }
 
+.theme-selector-intro {
+  text-align: center;
+  color: var(--color-text-muted);
+  margin: 0 0 20px 0;
+  font-size: 0.9rem;
+}
+
 /* ----------------------------------------
    Toast Notifications
    ---------------------------------------- */
