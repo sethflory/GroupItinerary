@@ -36,12 +36,21 @@ export function isAccessGranted(tripId) {
 }
 
 export function getStoredAccessCode(tripId) {
-  // Check session first
+  // Try trip-specific code first (most reliable)
+  const tripCode = localStorage.getItem(getAccessCodeKey(tripId));
+  if (tripCode) {
+    return tripCode;
+  }
+
+  // Fall back to lastAccessCode if session matches
   const sess = session.getSession();
   if (sess && sess.tripId === tripId) {
     return localStorage.getItem('lastAccessCode') || '';
   }
-  return localStorage.getItem(getAccessCodeKey(tripId)) || '';
+
+  // Last resort - return lastAccessCode even if session doesn't match
+  // (handles edge cases where session state is stale)
+  return localStorage.getItem('lastAccessCode') || '';
 }
 
 // ========================================
