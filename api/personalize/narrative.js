@@ -99,28 +99,56 @@ async function generateNarrative(sanitizedTrip) {
 
     clearTimeout(timeout);
 
+    console.log("[Narrative] API response status:", response.status);
+
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(`AI API error: ${response.status} - ${error.error?.message || "Unknown"}`);
+      const errorBody = await response.text();
+      console.error("[Narrative] API error response:", errorBody);
+      let errorMsg = errorBody.slice(0, 200);
+      try {
+        const error = JSON.parse(errorBody);
+        errorMsg = error?.error?.message || errorMsg;
+      } catch (e) {}
+      throw new Error(`AI API error: ${response.status} - ${errorMsg}`);
     }
 
     const data = await response.json();
+    console.log("[Narrative] API response keys:", Object.keys(data));
     const content = data.content?.[0]?.text;
 
     if (!content) {
       throw new Error("AI returned empty response");
     }
 
-    // Parse JSON from response (handle markdown code blocks)
-    const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/) || [null, content];
-    const jsonStr = jsonMatch[1].trim();
+    console.log("[Narrative] Raw AI response length:", content.length);
+    console.log("[Narrative] Raw AI response preview:", content.slice(0, 300));
+
+    // Parse JSON from response - try multiple extraction methods
+    let jsonStr = content;
+
+    // Method 1: Extract from markdown code block
+    const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (codeBlockMatch && codeBlockMatch[1]) {
+      jsonStr = codeBlockMatch[1].trim();
+      console.log("[Narrative] Extracted from code block");
+    } else {
+      // Method 2: Find JSON object directly (starts with {)
+      const jsonStart = content.indexOf('{');
+      const jsonEnd = content.lastIndexOf('}');
+      if (jsonStart !== -1 && jsonEnd > jsonStart) {
+        jsonStr = content.slice(jsonStart, jsonEnd + 1);
+        console.log("[Narrative] Extracted JSON object directly");
+      }
+    }
 
     let narrative;
     try {
       narrative = JSON.parse(jsonStr);
+      console.log("[Narrative] Successfully parsed JSON");
     } catch (parseErr) {
-      console.error("[Narrative] Failed to parse AI response:", content.slice(0, 500));
-      throw new Error("AI returned invalid JSON");
+      console.error("[Narrative] JSON parse error:", parseErr.message);
+      console.error("[Narrative] Attempted to parse:", jsonStr.slice(0, 500));
+      throw new Error("AI returned invalid JSON: " + parseErr.message);
     }
 
     // Validate structure
