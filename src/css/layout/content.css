@@ -248,12 +248,12 @@
     }
 
     .phase-tab:hover {
-      border-color: var(--color-sunrise);
+      border-color: var(--header-gradient-start, var(--color-sunrise));
       color: var(--color-text);
     }
 
     .phase-tab.active {
-      background: linear-gradient(135deg, var(--color-sunrise) 0%, var(--color-sunset) 100%);
+      background: linear-gradient(135deg, var(--header-gradient-start, var(--color-sunrise)) 0%, var(--header-gradient-end, var(--color-sunset)) 100%);
       color: white;
       border-color: transparent;
       box-shadow: var(--shadow-soft);

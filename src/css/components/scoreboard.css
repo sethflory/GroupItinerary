@@ -76,7 +76,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+  background: linear-gradient(135deg, var(--header-gradient-start, var(--color-sunrise)), var(--header-gradient-end, var(--color-sunset)));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,7 +104,7 @@
 .score-points {
   font-weight: 700;
   font-size: 1.1rem;
-  color: var(--color-sunrise);
+  color: var(--header-gradient-start, var(--color-sunrise));
 }
 
 .score-points-label {
@@ -196,7 +196,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+  background: linear-gradient(135deg, var(--header-gradient-start, var(--color-sunrise)), var(--header-gradient-end, var(--color-sunset)));
   color: white;
   border: none;
   border-radius: var(--radius-lg);
@@ -248,7 +248,7 @@
 
 .scoreboard-loading .material-symbols-outlined {
   font-size: 32px;
-  color: var(--color-sunrise);
+  color: var(--header-gradient-start, var(--color-sunrise));
 }
 
 .scoreboard-loading .spinning {

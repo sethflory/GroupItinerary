@@ -2,7 +2,7 @@
        NEW SLIM HEADER
        ======================================== */
     .header.header-slim {
-      background: linear-gradient(135deg, var(--color-sunrise) 0%, var(--color-sunset) 100%);
+      background: linear-gradient(135deg, var(--header-gradient-start, var(--color-sunrise)) 0%, var(--header-gradient-end, var(--color-sunset)) 100%);
       padding: 12px 16px;
       color: white;
       position: relative;
@@ -130,7 +130,7 @@
 
     .context-action-btn {
       padding: 6px 12px;
-      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      background: linear-gradient(135deg, var(--header-gradient-start, var(--color-sunrise)), var(--header-gradient-end, var(--color-sunset)));
       color: white;
       border: none;
       border-radius: var(--radius-sm);
@@ -658,7 +658,7 @@
 
     /* Header */
     .header {
-      background: linear-gradient(135deg, var(--color-sunrise) 0%, var(--color-sunset) 50%, var(--color-sky) 100%);
+      background: linear-gradient(135deg, var(--header-gradient-start, var(--color-sunrise)) 0%, var(--header-gradient-end, var(--color-sunset)) 50%, var(--color-sky) 100%);
       padding: 24px 20px 32px;
       color: white;
       position: relative;
@@ -824,7 +824,7 @@
     }
 
     .trip-option-badge.production {
-      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      background: linear-gradient(135deg, var(--header-gradient-start, var(--color-sunrise)), var(--header-gradient-end, var(--color-sunset)));
       color: white;
     }
 
@@ -903,7 +903,7 @@
       align-items: center;
       gap: 4px;
       padding: 4px 10px;
-      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      background: linear-gradient(135deg, var(--header-gradient-start, var(--color-sunrise)), var(--header-gradient-end, var(--color-sunset)));
       color: white;
       border-radius: 12px;
       font-size: 0.7rem;
@@ -1427,7 +1427,7 @@
       align-items: center;
       gap: 8px;
       padding: 10px 20px;
-      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      background: linear-gradient(135deg, var(--header-gradient-start, var(--color-sunrise)), var(--header-gradient-end, var(--color-sunset)));
       color: white;
       border: none;
       border-radius: var(--radius-lg);
