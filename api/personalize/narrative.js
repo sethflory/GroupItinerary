@@ -69,13 +69,23 @@ Fields:
  * Generate narrative for a trip
  */
 async function generateNarrative(sanitizedTrip) {
+  console.log("[Narrative] Starting generateNarrative");
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     throw new Error("AI service not configured");
   }
+  console.log("[Narrative] API key found, length:", apiKey.length);
 
   // Build the user prompt
-  const userPrompt = buildNarrativePrompt(sanitizedTrip);
+  let userPrompt;
+  try {
+    userPrompt = buildNarrativePrompt(sanitizedTrip);
+    console.log("[Narrative] Built prompt, length:", userPrompt.length);
+  } catch (promptErr) {
+    console.error("[Narrative] Error building prompt:", promptErr);
+    throw new Error("Failed to build prompt: " + promptErr.message);
+  }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), AI_TIMEOUT);
@@ -191,7 +201,10 @@ function buildNarrativePrompt(trip) {
 
   // Format days with events (include event IDs for AI to reference)
   const daysFormatted = trip.days.map(day => {
-    const eventList = day.events.map(e => `  - [${e.id}] ${e.type}: ${e.title}${e.where ? ` at ${e.where}` : ""}`).join("\n");
+    const eventList = (day.events || []).map((e, idx) => {
+      const eventId = e.id || `day${day.dayNum}-evt${idx}`;
+      return `  - [${eventId}] ${e.type}: ${e.title}${e.where ? ` at ${e.where}` : ""}`;
+    }).join("\n");
     return `Day ${day.dayNum} (${day.date}) - ${day.location}
 Theme: ${day.theme || "No theme set"}
 ${eventList || "  (no events)"}`;
