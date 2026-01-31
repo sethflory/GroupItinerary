@@ -5,7 +5,7 @@
 import { currentTripId } from '../state.js';
 import { isFeatureEnabled } from '../config.js';
 import { isForTraveler, formatTime, renderTravelerPills, getEventIcon } from '../utils.js';
-import { getFlagHtml } from '../utils/flags.js';
+import { getFlagHtml, getCountryCode, getFlagUrl } from '../utils/flags.js';
 
 // These will be set by app.js
 let DAYS, TRAVELERS, DESTINATIONS, CAROUSELS, HOTEL, PHASES;
@@ -87,6 +87,22 @@ export function renderDayList() {
   return;
 }
 
+/**
+ * Update the header flag based on current destination
+ */
+function updateHeaderFlag(location) {
+  const headerFlag = document.getElementById('headerFlag');
+  if (!headerFlag) return;
+
+  const countryCode = getCountryCode(location);
+  if (countryCode) {
+    const flagUrl = getFlagUrl(countryCode, 48);
+    headerFlag.innerHTML = `<img src="${flagUrl}" alt="${countryCode} flag" class="header-flag-img" onerror="this.parentElement.textContent='🌍'">`;
+  } else {
+    headerFlag.textContent = '🌍';
+  }
+}
+
 export function renderDayDetail() {
   const container = document.getElementById('dayDetail');
   if (!container || !DAYS[currentDayIndex]) return;
@@ -94,6 +110,9 @@ export function renderDayDetail() {
   const day = DAYS[currentDayIndex];
   const dest = DESTINATIONS[day.location] || {};
   const events = day.events || [];
+
+  // Update header flag based on current day's destination
+  updateHeaderFlag(day.destination || dest.city || day.location);
 
   // Get personalization data if available
   const personalization = window.tripPersonalization;

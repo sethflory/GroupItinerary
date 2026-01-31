@@ -41,6 +41,16 @@
 
     .header-flag {
       font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .header-flag-img {
+      width: 24px;
+      height: 18px;
+      object-fit: cover;
+      border-radius: 2px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
     .header.header-slim .trip-title {
