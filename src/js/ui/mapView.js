@@ -23,7 +23,7 @@ export function initMapView() {
   console.log('[MapView] Initialized');
 }
 
-export function showMapView() {
+export async function showMapView() {
   const container = document.getElementById('mapView');
   if (!container) return;
 
@@ -31,7 +31,7 @@ export function showMapView() {
 
   // Initialize map if needed
   if (!map) {
-    initializeMap();
+    await initializeMap();
   }
 
   // Start refreshing locations
@@ -52,23 +52,45 @@ export function hideMapView() {
 // MAP SETUP
 // ========================================
 
-function initializeMap() {
+async function initializeMap() {
   const container = document.getElementById('mapViewMap');
   if (!container || !window.L) {
     console.warn('[MapView] Map container or Leaflet not available');
     return;
   }
 
-  // Get initial center from hotel or first destination
+  // Start with a default center, will adjust after
   let initialCenter = [37.9838, 23.7275]; // Default: Athens
   let initialZoom = 13;
 
-  if (HOTEL?.lat && HOTEL?.lon) {
-    initialCenter = [HOTEL.lat, HOTEL.lon];
-  } else {
-    const firstDest = Object.values(DESTINATIONS)[0];
-    if (firstDest?.lat && firstDest?.lon) {
-      initialCenter = [firstDest.lat, firstDest.lon];
+  // Try to get user's current location for initial center
+  let userLocation = null;
+  if (navigator.geolocation) {
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: false,
+          timeout: 5000,
+          maximumAge: 300000
+        });
+      });
+      userLocation = [position.coords.latitude, position.coords.longitude];
+      initialCenter = userLocation;
+      console.log('[MapView] Using user location as center');
+    } catch (e) {
+      console.log('[MapView] Could not get user location, using fallback');
+    }
+  }
+
+  // If no user location, try hotel or destination
+  if (!userLocation) {
+    if (HOTEL?.lat && HOTEL?.lon) {
+      initialCenter = [HOTEL.lat, HOTEL.lon];
+    } else {
+      const firstDest = Object.values(DESTINATIONS)[0];
+      if (firstDest?.lat && firstDest?.lon) {
+        initialCenter = [firstDest.lat, firstDest.lon];
+      }
     }
   }
 
