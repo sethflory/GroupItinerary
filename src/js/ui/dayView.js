@@ -151,7 +151,7 @@ export function renderDayDetail() {
     ${day.destinationInfo ? `
       <div class="destination-card ${day.destination}">
         <div class="destination-name">
-          ${getFlagHtml(day.location || dest.city, { size: 24, fallback: '', className: 'destination-flag' })}
+          ${getFlagHtml(day.destination || dest.city, { size: 24, fallback: '', className: 'destination-flag' })}
           ${dest.city || day.location}
         </div>
         <div class="destination-info">${day.destinationInfo}</div>
