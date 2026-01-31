@@ -94,6 +94,11 @@ export function renderDayDetail() {
   const dest = DESTINATIONS[day.destination] || {};
   const events = day.events || [];
 
+  // Get personalization data if available
+  const personalization = window.tripPersonalization;
+  const dayNickname = personalization?.dayNicknames?.[day.dayNum] || day.theme;
+  const dayBg = personalization?.dayBackgrounds?.[day.dayNum];
+
   // Separate events by type
   const flights = events.filter(e => e.type === 'flight');
   const activities = events.filter(e => e.type === 'activity');
@@ -101,8 +106,15 @@ export function renderDayDetail() {
   const hotels = events.filter(e => e.type === 'hotel');
   const otherEvents = events.filter(e => !['flight', 'activity', 'meal', 'hotel'].includes(e.type));
 
-  // Set background class
+  // Set background class and custom background image
   container.className = `day-detail ${day.destination}-bg`;
+  if (dayBg?.url) {
+    container.style.setProperty('--day-bg-image', `url('${dayBg.url}')`);
+    container.classList.add('has-custom-bg');
+  } else {
+    container.style.removeProperty('--day-bg-image');
+    container.classList.remove('has-custom-bg');
+  }
 
   const isFirst = currentDayIndex === 0;
   const isLast = currentDayIndex >= DAYS.length - 1;
@@ -117,7 +129,7 @@ export function renderDayDetail() {
           <span class="day-header-date">Day ${day.dayNum}</span>
           <span class="day-header-label">${day.label}</span>
         </div>
-        <h2 class="day-header-title">${day.theme}</h2>
+        <h2 class="day-header-title">${dayNickname}</h2>
         ${renderDinnerPollButton(day.date)}
       </div>
       <button class="day-nav-arrow ${isLast ? 'disabled' : ''}" onclick="goToNextDay()" ${isLast ? 'disabled' : ''} title="Next Day">

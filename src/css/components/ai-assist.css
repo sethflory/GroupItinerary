@@ -508,6 +508,134 @@ body.theme-transitioning .day-detail {
 }
 
 /* ----------------------------------------
+   Personalization Summary Modal
+   ---------------------------------------- */
+.personalization-summary-modal {
+  max-width: 550px;
+}
+
+.personalization-summary-modal .modal-body {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.summary-section {
+  margin-bottom: 24px;
+}
+
+.summary-section:last-child {
+  margin-bottom: 0;
+}
+
+.summary-section h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted);
+  margin: 0 0 12px;
+}
+
+.summary-theme {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--color-cream, #f8f6f3);
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.summary-theme .theme-emoji {
+  font-size: 2rem;
+}
+
+.summary-theme .theme-details strong {
+  display: block;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.summary-theme .theme-details p {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.personalization-summary-modal .theme-palette-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.palette-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.palette-item .theme-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.palette-name {
+  text-transform: capitalize;
+}
+
+.nicknames-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.nickname-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--color-cream, #f8f6f3);
+  border-radius: 8px;
+}
+
+.nickname-item .day-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  background: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.nickname-item .nickname-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.summary-section .hint {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  margin-top: 16px;
+}
+
+/* ----------------------------------------
    Mobile Adjustments
    ---------------------------------------- */
 @media (max-width: 480px) {

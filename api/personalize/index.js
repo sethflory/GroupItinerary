@@ -212,7 +212,23 @@ module.exports = async function (context, req) {
       lastUpdated: new Date().toISOString()
     }).catch(err => context.log("Rate limit update failed:", err.message));
 
-    context.log("[Personalize] Complete! Returning personalization.");
+    // Log summary of what was generated
+    const nicknameCount = Object.keys(personalization.dayNicknames || {}).length;
+    const imageCount = Object.values(personalization.dayBackgrounds || {}).filter(bg => bg?.url).length;
+    const themeCount = (personalization.themeOptions || []).length;
+
+    context.log("[Personalize] ===== SUMMARY =====");
+    context.log(`[Personalize] Trip: ${tripEntity.name}`);
+    context.log(`[Personalize] Days processed: ${nicknameCount}`);
+    context.log(`[Personalize] Images resolved: ${imageCount}`);
+    context.log(`[Personalize] Themes generated: ${themeCount}`);
+    context.log(`[Personalize] Selected theme: ${personalization.theme?.name || 'None'}`);
+    context.log(`[Personalize] Narrative arc: ${personalization.narrativeArc?.theme || 'None'}`);
+    context.log("[Personalize] Day nicknames:");
+    Object.entries(personalization.dayNicknames || {}).forEach(([day, nickname]) => {
+      context.log(`[Personalize]   Day ${day}: "${nickname}"`);
+    });
+    context.log("[Personalize] ===================");
 
     sendSuccess(context, { personalization }, 200, headers);
 

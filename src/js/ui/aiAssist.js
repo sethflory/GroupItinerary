@@ -463,8 +463,8 @@ function showThemeToast(theme) {
       <span class="theme-toast-text">
         <strong>${theme.name}</strong> applied
       </span>
-      <button class="theme-toast-change" onclick="openThemeSelector()">
-        Change
+      <button class="theme-toast-change" onclick="showPersonalizationSummary()">
+        See Details
       </button>
     </div>
   `;
@@ -480,8 +480,104 @@ function showThemeToast(theme) {
   setTimeout(() => {
     toast.classList.remove('visible');
     setTimeout(() => toast.remove(), 300);
-  }, 5000);
+  }, 8000);
 }
+
+/**
+ * Show a summary of what AI Assist generated
+ */
+export function showPersonalizationSummary() {
+  const personalization = window.tripPersonalization;
+  if (!personalization) {
+    alert('No personalization data found');
+    return;
+  }
+
+  const nicknames = personalization.dayNicknames || {};
+  const theme = personalization.theme || {};
+  const backgrounds = personalization.dayBackgrounds || {};
+  const imagesCount = Object.values(backgrounds).filter(bg => bg?.url).length;
+
+  let modal = document.getElementById('personalizationSummaryModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'personalizationSummaryModal';
+    modal.className = 'modal-overlay';
+    document.body.appendChild(modal);
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closePersonalizationSummary();
+    });
+  }
+
+  modal.innerHTML = `
+    <div class="modal personalization-summary-modal">
+      <div class="modal-header">
+        <h3><span class="material-symbols-outlined">auto_awesome</span> AI Assist Summary</h3>
+        <button class="modal-close" onclick="closePersonalizationSummary()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="summary-section">
+          <h4>Theme Applied</h4>
+          <div class="summary-theme">
+            <span class="theme-emoji">${theme.emoji || '🎨'}</span>
+            <div class="theme-details">
+              <strong>${theme.name || 'Unknown'}</strong>
+              <p>${theme.description || ''}</p>
+            </div>
+          </div>
+          <div class="theme-palette-preview">
+            ${theme.palette ? Object.entries(theme.palette).map(([name, color]) =>
+              `<div class="palette-item">
+                <span class="theme-swatch" style="background: ${color}"></span>
+                <span class="palette-name">${name}</span>
+              </div>`
+            ).join('') : ''}
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <h4>Day Nicknames (${Object.keys(nicknames).length} days)</h4>
+          <div class="nicknames-list">
+            ${Object.entries(nicknames).map(([dayNum, nickname]) =>
+              `<div class="nickname-item">
+                <span class="day-badge">Day ${dayNum}</span>
+                <span class="nickname-text">${escapeHtml(nickname)}</span>
+              </div>`
+            ).join('')}
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <h4>Background Images</h4>
+          <p>${imagesCount > 0 ? `${imagesCount} custom images loaded` : 'No images loaded (Unsplash not configured)'}</p>
+          ${imagesCount === 0 ? '<p class="hint">Add UNSPLASH_ACCESS_KEY to enable background images</p>' : ''}
+        </div>
+
+        <div class="summary-section">
+          <h4>Narrative Arc</h4>
+          <p>${personalization.narrativeArc?.theme || 'Not available'}</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn secondary" onclick="openThemeSelector()">Change Theme</button>
+        <button class="btn primary" onclick="closePersonalizationSummary()">Done</button>
+      </div>
+    </div>
+  `;
+
+  modal.classList.add('active');
+}
+
+export function closePersonalizationSummary() {
+  const modal = document.getElementById('personalizationSummaryModal');
+  if (modal) modal.classList.remove('active');
+}
+
+window.showPersonalizationSummary = showPersonalizationSummary;
+window.closePersonalizationSummary = closePersonalizationSummary;
 
 function showErrorToast(message) {
   const existing = document.querySelector('.error-toast');

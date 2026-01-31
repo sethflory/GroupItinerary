@@ -394,6 +394,13 @@
       transition: opacity 0.5s ease;
     }
 
+    /* Custom AI-generated background */
+    .day-detail.has-custom-bg::before {
+      background-image: var(--day-bg-image);
+      opacity: 0.12;
+      filter: grayscale(20%) contrast(1.1);
+    }
+
     .day-detail.athens-bg::before {
       /* Parthenon silhouette - Unsplash free image */
       background-image: url('https://images.unsplash.com/photo-1555993539-1732b0258235?w=1200&q=80');
