@@ -21,6 +21,18 @@
       border-radius: var(--radius-lg);
       padding: 16px;
       overflow: hidden;
+      transition: box-shadow 0.3s, transform 0.3s;
+    }
+
+    .photo-ribbon.highlight {
+      box-shadow: 0 0 0 3px var(--color-sky), 0 8px 24px rgba(79, 172, 254, 0.3);
+      animation: ribbon-pulse 0.5s ease;
+    }
+
+    @keyframes ribbon-pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
     }
 
     .photo-ribbon-header {

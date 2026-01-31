@@ -1,0 +1,218 @@
+/* ========================================
+   COMPONENT: Scoreboard Modal
+   ======================================== */
+
+.scoreboard-modal {
+  max-width: 420px;
+}
+
+/* Scoreboard Header */
+.scoreboard-header {
+  background: linear-gradient(135deg, #ffd700, #ffb347);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #5c4a00;
+}
+
+.scoreboard-header .material-symbols-outlined {
+  font-size: 28px;
+}
+
+.scoreboard-header h3 {
+  flex: 1;
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+/* Leaderboard List */
+.scoreboard-list {
+  padding: 16px 20px;
+}
+
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.score-row:last-child {
+  border-bottom: none;
+}
+
+.score-rank {
+  font-size: 1.3rem;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.score-rank.gold { color: #ffd700; }
+.score-rank.silver { color: #c0c0c0; }
+.score-rank.bronze { color: #cd7f32; }
+
+.score-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.score-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.score-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.score-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.score-points {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-sunrise);
+}
+
+.score-points-label {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+/* Recent Activity */
+.scoreboard-activity {
+  padding: 16px 20px;
+  background: var(--color-cream);
+  border-top: 1px solid var(--color-border);
+}
+
+.scoreboard-activity h4 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted);
+  margin: 0 0 12px 0;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.activity-item:first-child {
+  padding-top: 0;
+}
+
+.activity-icon {
+  flex-shrink: 0;
+}
+
+.activity-text {
+  flex: 1;
+}
+
+.activity-text strong {
+  color: var(--color-text);
+}
+
+.activity-points {
+  color: var(--color-forest);
+  font-weight: 600;
+}
+
+.activity-time {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+/* Empty State */
+.scoreboard-empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.scoreboard-empty .material-symbols-outlined {
+  font-size: 48px;
+  opacity: 0.5;
+  margin-bottom: 12px;
+}
+
+.scoreboard-empty p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Scoreboard Actions */
+.scoreboard-actions {
+  padding: 16px 20px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.scoreboard-share-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.scoreboard-share-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 126, 95, 0.4);
+}
+
+.scoreboard-share-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+/* Highlight current user */
+.score-row.current-user {
+  background: linear-gradient(90deg, rgba(79, 172, 254, 0.1), transparent);
+  margin: 0 -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-radius: var(--radius-sm);
+}
+
+/* Animation for score changes */
+@keyframes score-bump {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.score-points.updated {
+  animation: score-bump 0.3s ease;
+}

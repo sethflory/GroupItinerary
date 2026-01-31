@@ -48,6 +48,11 @@ export function goToDay(index) {
     if (dayItems[index]) {
       dayItems[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
+
+    // Sync the action bar day dropdown
+    if (typeof window.setCurrentDayIndex === 'function') {
+      window.setCurrentDayIndex(index);
+    }
   }
 }
 

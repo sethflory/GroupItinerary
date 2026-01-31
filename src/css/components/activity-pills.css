@@ -1,0 +1,126 @@
+/* ========================================
+   COMPONENT: Floating Activity Pills
+   ======================================== */
+
+.activity-pills {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  flex-wrap: wrap;
+  background: transparent;
+}
+
+.activity-pills:empty {
+  display: none;
+  padding: 0;
+}
+
+/* Base Pill Style */
+.activity-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: inherit;
+}
+
+.activity-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.activity-pill:active {
+  transform: translateY(0);
+}
+
+/* Game Pills (Green) */
+.activity-pill.game {
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  color: #2e7d32;
+}
+
+.activity-pill.game:hover {
+  background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+}
+
+/* Poll Pills (Orange) */
+.activity-pill.poll {
+  background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+  color: #e65100;
+}
+
+.activity-pill.poll:hover {
+  background: linear-gradient(135deg, #ffe0b2, #ffcc80);
+}
+
+/* Pill Badge */
+.pill-badge {
+  background: rgba(0, 0, 0, 0.12);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Pill Icon */
+.pill-icon {
+  font-size: 1rem;
+}
+
+/* Animated attention pulse for new items */
+@keyframes pill-pulse {
+  0% {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 0 rgba(46, 125, 50, 0.4);
+  }
+  70% {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 8px rgba(46, 125, 50, 0);
+  }
+  100% {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 0 rgba(46, 125, 50, 0);
+  }
+}
+
+.activity-pill.new {
+  animation: pill-pulse 2s ease-out 3;
+}
+
+.activity-pill.poll.new {
+  animation: pill-pulse-orange 2s ease-out 3;
+}
+
+@keyframes pill-pulse-orange {
+  0% {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 0 rgba(230, 81, 0, 0.4);
+  }
+  70% {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 8px rgba(230, 81, 0, 0);
+  }
+  100% {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 0 0 rgba(230, 81, 0, 0);
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .activity-pills {
+    padding: 6px 12px;
+    gap: 6px;
+  }
+
+  .activity-pill {
+    padding: 5px 12px;
+    font-size: 0.8rem;
+  }
+
+  .pill-badge {
+    padding: 1px 6px;
+    font-size: 0.7rem;
+  }
+}

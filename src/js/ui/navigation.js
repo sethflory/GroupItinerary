@@ -261,4 +261,85 @@ document.addEventListener('click', (e) => {
   if (selector && dropdown && !selector.contains(e.target)) {
     dropdown.classList.remove('visible');
   }
+
+  // Also close day dropdown
+  const dayDropdown = document.getElementById('dayDropdown');
+  const dayMenu = document.getElementById('dayDropdownMenu');
+  if (dayDropdown && dayMenu && !dayDropdown.contains(e.target) && !dayMenu.contains(e.target)) {
+    dayDropdown.classList.remove('open');
+    dayMenu.classList.remove('visible');
+  }
 });
+
+// ========================================
+// DAY DROPDOWN (Action Bar)
+// ========================================
+
+let currentDayIndex = 0;
+
+export function renderDayDropdown() {
+  const menu = document.getElementById('dayDropdownMenu');
+  const label = document.getElementById('dayDropdownLabel');
+  if (!menu || !DAYS) return;
+
+  const today = new Date();
+  const trip = getCurrentTrip();
+  const startDate = trip ? new Date(trip.startDate) : null;
+
+  menu.innerHTML = DAYS.map((day, index) => {
+    const isActive = index === currentDayIndex;
+    const isToday = startDate && isSameDay(addDays(startDate, index), today);
+    const classes = `day-dropdown-item ${isActive ? 'active' : ''} ${isToday ? 'today' : ''}`;
+
+    return `
+      <div class="${classes}" onclick="selectDay(${index})">
+        <span class="day-num">Day ${index + 1}</span>
+        <span class="day-location">${day.location || ''}</span>
+        ${isToday ? '<span class="today-badge">Today</span>' : ''}
+      </div>
+    `;
+  }).join('');
+
+  if (label) {
+    label.textContent = `Day ${currentDayIndex + 1}`;
+  }
+}
+
+export function toggleDayDropdown() {
+  const dropdown = document.getElementById('dayDropdown');
+  const menu = document.getElementById('dayDropdownMenu');
+
+  if (dropdown && menu) {
+    dropdown.classList.toggle('open');
+    menu.classList.toggle('visible');
+  }
+}
+
+export function selectDay(dayIndex) {
+  currentDayIndex = dayIndex;
+  toggleDayDropdown();
+  renderDayDropdown();
+
+  // Trigger day change
+  if (typeof window.goToDay === 'function') {
+    window.goToDay(dayIndex);
+  }
+}
+
+export function setCurrentDayIndex(index) {
+  currentDayIndex = index;
+  renderDayDropdown();
+}
+
+// Helpers
+function isSameDay(date1, date2) {
+  return date1.getFullYear() === date2.getFullYear() &&
+         date1.getMonth() === date2.getMonth() &&
+         date1.getDate() === date2.getDate();
+}
+
+function addDays(date, days) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}

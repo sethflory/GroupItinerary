@@ -34,114 +34,153 @@
     </div>
   </div>
 
-  <header class="header">
+  <!-- NEW HEADER - Slim + Context Bar -->
+  <header class="header header-slim">
     <div class="header-content">
-      <div class="title-row">
+      <div class="header-row">
+        <span class="header-flag" id="headerFlag">🇬🇷</span>
         <h1 class="trip-title" id="tripTitle">Athens & Bangalore 2026</h1>
-        <button class="how-it-works-btn" onclick="openHowItWorks()" title="How It Works">
-          <span class="material-symbols-outlined">magic_button</span>
-        </button>
-        <div class="trip-selector-wrapper">
-          <button class="trip-selector-btn" onclick="toggleTripSelector()" title="Switch Trip">
-            <span class="material-symbols-outlined">swap_horiz</span>
-            <span id="tripSelectorLabel">Switch Trip</span>
-          </button>
-          <div class="trip-selector-dropdown" id="tripSelectorDropdown">
-            <!-- Populated by JS -->
-          </div>
-        </div>
-        <button class="settings-btn" onclick="openTripSetupModal()" title="Trip Settings" id="tripSettingsBtn">
-          <span class="material-symbols-outlined">settings</span>
-        </button>
-      </div>
-      <p class="trip-dates" id="tripDates">February 1 - 12, 2026 &bull; Athens together, then S&P continue to India</p>
-      <div class="header-widgets">
-        <div class="countdown-widget" id="countdownWidget">
-          <span class="countdown-label">Departure in</span>
-          <div class="countdown-timer" id="countdownTimer">
-            <div class="countdown-unit"><span id="countDays">--</span><small>days</small></div>
-            <div class="countdown-unit"><span id="countHours">--</span><small>hrs</small></div>
-            <div class="countdown-unit"><span id="countMins">--</span><small>min</small></div>
-            <div class="countdown-unit"><span id="countSecs">--</span><small>sec</small></div>
-          </div>
-        </div>
-
-        <div class="timezone-widget" id="timezoneWidget">
-          <div class="tz-clocks">
-            <div class="tz-clock destination">
-              <span class="tz-flag" id="tzFlag">🇬🇷</span>
-              <div class="tz-time-group">
-                <span class="tz-time" id="tzDestTime">--:--</span>
-                <span class="tz-label" id="tzDestLabel">Athens</span>
-              </div>
-            </div>
-            <div class="tz-arrow">
-              <span class="tz-offset" id="tzOffset">+7h</span>
-            </div>
-            <div class="tz-clock home">
-              <span class="tz-flag">🏠</span>
-              <div class="tz-time-group">
-                <span class="tz-time" id="tzHomeTime">--:--</span>
-                <span class="tz-label">Home (ET)</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="header-controls">
-        <div class="traveler-toggle" id="travelerToggle">
-          <!-- Dynamically rendered by JS based on current trip -->
-        </div>
-
-        <div class="view-toggle" id="viewToggle">
-          <button class="view-btn active" data-view="journey">
-            <span class="material-symbols-outlined">timeline</span>
-            Journey
-          </button>
-          <button class="view-btn" data-view="list">
-            <span class="material-symbols-outlined">list</span>
-            List
-          </button>
-        </div>
-
-        <button class="trivia-header-btn" onclick="openTriviaModal()">
-          <span class="material-symbols-outlined">quiz</span>
-          Trivia
+        <button class="menu-btn" onclick="toggleMenu()" title="Menu">
+          <span class="material-symbols-outlined">menu</span>
         </button>
       </div>
     </div>
   </header>
 
-  <div class="stats-banner" id="statsBanner">
-    <div class="stats-toggle" onclick="toggleStats()">
-      <div class="stats-summary" id="statsSummary">
+  <!-- Context Bar - Trip Phase Aware -->
+  <div class="context-bar-wrapper" id="contextBar">
+    <!-- Rendered by contextBar.js -->
+  </div>
+
+  <!-- Activity Pills - Active Games & Polls -->
+  <div class="activity-pills" id="activityPills">
+    <!-- Rendered by activityPills.js -->
+  </div>
+
+  <!-- Action Bar - Day Nav + Quick Actions -->
+  <div class="action-bar">
+    <div class="action-bar-content">
+      <button class="action-dropdown" id="dayDropdown" onclick="toggleDayDropdown()">
+        <span class="material-symbols-outlined">calendar_today</span>
+        <span id="dayDropdownLabel">Day 1</span>
+        <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
+      </button>
+      <div class="day-dropdown-menu" id="dayDropdownMenu">
         <!-- Populated by JS -->
       </div>
-      <span class="material-symbols-outlined stats-expand-icon">expand_more</span>
-    </div>
-    <div class="stats-share">
-      <button class="stats-share-btn" onclick="openStatsShareModal()">
-        <span class="material-symbols-outlined">share</span>
-        Share Stats
+
+      <div class="action-divider"></div>
+
+      <button class="action-icon-btn" onclick="openPhotoGallery()" title="Trip Memories">
+        <span class="material-symbols-outlined">photo_library</span>
       </button>
-      <button class="stats-share-btn map-btn" onclick="openMapShareModal()">
-        <span class="material-symbols-outlined">map</span>
-        Share Map
+      <button class="action-icon-btn" onclick="openUploadModal()" title="Add Photo">
+        <span class="material-symbols-outlined">add_photo_alternate</span>
       </button>
-      <button class="stats-share-btn trivia-btn" onclick="openTriviaModal()">
-        <span class="material-symbols-outlined">quiz</span>
-        Trip Trivia
+      <button class="action-icon-btn highlight" onclick="openScoreboard()" title="Scoreboard">
+        <span class="material-symbols-outlined">emoji_events</span>
       </button>
-    </div>
-    <div class="stats-detail">
-      <div class="stats-grid" id="statsGrid">
-        <!-- Populated by JS -->
+
+      <div class="action-spacer"></div>
+
+      <div class="view-toggle-mini" id="viewToggleMini">
+        <button class="view-btn-mini active" data-view="journey" title="Journey View">
+          <span class="material-symbols-outlined">timeline</span>
+        </button>
+        <button class="view-btn-mini" data-view="list" title="List View">
+          <span class="material-symbols-outlined">list</span>
+        </button>
       </div>
-      <div class="traveler-stats" id="travelerStats">
-        <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- Slide-Out Menu -->
+  <div class="menu-overlay" id="menuOverlay"></div>
+  <div class="menu-drawer" id="menuDrawer">
+    <div class="menu-header">
+      <h3>Trip Menu</h3>
+      <button class="menu-close-btn" onclick="closeMenu()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="menu-content">
+      <div class="menu-section">
+        <button class="menu-item" onclick="openProfile()">
+          <span class="material-symbols-outlined">person</span>
+          <span class="menu-item-label">My Profile</span>
+          <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
+        </button>
+        <button class="menu-item" onclick="openSwitchTrip()">
+          <span class="material-symbols-outlined">swap_horiz</span>
+          <span class="menu-item-label">Switch Trip</span>
+          <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
+        </button>
+        <button class="menu-item" onclick="openTripSettings()" id="menuTripSettingsBtn">
+          <span class="material-symbols-outlined">settings</span>
+          <span class="menu-item-label">Trip Settings</span>
+          <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
+        </button>
+      </div>
+      <div class="menu-section">
+        <button class="menu-item" onclick="openTripStats()">
+          <span class="material-symbols-outlined">bar_chart</span>
+          <span class="menu-item-label">Trip Stats</span>
+          <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
+        </button>
+        <button class="menu-item" onclick="openShareMap()">
+          <span class="material-symbols-outlined">map</span>
+          <span class="menu-item-label">Share Map</span>
+          <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
+        </button>
+        <button class="menu-item" onclick="openTrivia()">
+          <span class="material-symbols-outlined">quiz</span>
+          <span class="menu-item-label">Trip Trivia</span>
+          <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
+        </button>
+        <button class="menu-item" onclick="closeMenu(); openHowItWorks()">
+          <span class="material-symbols-outlined">help</span>
+          <span class="menu-item-label">How It Works</span>
+          <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
+        </button>
+      </div>
+      <div class="menu-section">
+        <div class="menu-section-title">View Options</div>
+        <div class="menu-toggle">
+          <div class="menu-toggle-label">
+            <span class="material-symbols-outlined">group</span>
+            <span>Show Everyone's Events</span>
+          </div>
+          <div class="toggle-switch active" id="menuToggleEveryone" onclick="toggleShowEveryone()"></div>
+        </div>
+        <div class="menu-toggle">
+          <div class="menu-toggle-label">
+            <span class="material-symbols-outlined">view_list</span>
+            <span>List View</span>
+          </div>
+          <div class="toggle-switch" id="menuToggleList" onclick="toggleListView()"></div>
+        </div>
       </div>
     </div>
+    <div class="menu-footer">
+      <div class="menu-footer-title">Quick Info</div>
+      <div class="menu-footer-item">
+        <span>🕐</span>
+        <span class="tz-label" id="menuDestTime">Athens: --:--</span>
+      </div>
+      <div class="menu-footer-item">
+        <span>🏠</span>
+        <span id="menuHomeTime">Home: --:-- (+7h)</span>
+      </div>
+      <div class="menu-footer-item">
+        <span id="menuWeatherIcon">☀️</span>
+        <span id="menuWeather">--°C</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trip Selector Dropdown (kept for compatibility) -->
+  <div class="trip-selector-dropdown" id="tripSelectorDropdown">
+    <!-- Populated by JS -->
   </div>
 
   <main class="main-content">

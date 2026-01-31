@@ -26,6 +26,10 @@ import * as receiptUpload from './ui/receiptUpload.js';
 import * as onboarding from './ui/onboarding.js';
 import * as dinnerPoll from './ui/dinnerPoll.js';
 import * as sawIt from './ui/sawIt.js';
+import * as menu from './ui/menu.js';
+import * as contextBar from './ui/contextBar.js';
+import * as activityPills from './ui/activityPills.js';
+import * as scoreboard from './ui/scoreboard.js';
 
 // ========================================
 // GLOBAL STATE
@@ -162,6 +166,7 @@ window.collapseAllDays = listView.collapseAllDays;
 
 window.loadTripPhotos = photos.loadTripPhotos;
 window.renderPhotoRibbon = photos.renderPhotoRibbon;
+window.openPhotoGallery = photos.openPhotoGallery;
 window.toggleRibbonPause = photos.toggleRibbonPause;
 window.openUploadModal = photos.openUploadModal;
 window.closeUploadModal = photos.closeUploadModal;
@@ -227,6 +232,10 @@ window.renderTripSelector = navigation.renderTripSelector;
 window.toggleTripSelector = navigation.toggleTripSelector;
 window.switchTrip = navigation.switchTrip;
 window.lockTrip = navigation.lockTrip;
+window.toggleDayDropdown = navigation.toggleDayDropdown;
+window.selectDay = navigation.selectDay;
+window.renderDayDropdown = navigation.renderDayDropdown;
+window.setCurrentDayIndex = navigation.setCurrentDayIndex;
 
 // ========================================
 // STATS EXPORTS
@@ -316,6 +325,48 @@ window.hasEventSavedList = sawIt.hasEventSavedList;
 window.refreshSavedLists = sawIt.refreshSavedLists;
 
 // ========================================
+// MENU EXPORTS
+// ========================================
+
+window.toggleMenu = menu.toggleMenu;
+window.closeMenu = menu.closeMenu;
+window.toggleShowEveryone = menu.toggleShowEveryone;
+window.toggleListView = menu.toggleListView;
+window.openProfile = menu.openProfile;
+window.openTripStats = menu.openTripStats;
+window.openShareMap = menu.openShareMap;
+window.openTrivia = menu.openTrivia;
+window.openSwitchTrip = menu.openSwitchTrip;
+window.openTripSettings = menu.openTripSettings;
+
+// ========================================
+// CONTEXT BAR EXPORTS
+// ========================================
+
+window.initContextBar = contextBar.initContextBar;
+window.renderContextBar = contextBar.renderContextBar;
+window.setContextBarWeather = contextBar.setWeather;
+window.getTripPhase = contextBar.getTripPhase;
+window.getCurrentDayNumber = contextBar.getCurrentDayNumber;
+
+// ========================================
+// ACTIVITY PILLS EXPORTS
+// ========================================
+
+window.initActivityPills = activityPills.initActivityPills;
+window.startActivityPolling = activityPills.startActivityPolling;
+window.stopActivityPolling = activityPills.stopActivityPolling;
+window.showDemoPills = activityPills.showDemoPills;
+
+// ========================================
+// SCOREBOARD EXPORTS
+// ========================================
+
+window.openScoreboard = scoreboard.openScoreboard;
+window.closeScoreboard = scoreboard.closeScoreboard;
+window.shareScoreboard = scoreboard.shareScoreboard;
+
+// ========================================
 // DEPENDENCY INJECTION
 // ========================================
 
@@ -340,6 +391,10 @@ function injectDependencies() {
   countdown.setCountdownDeps(deps);
   dinnerPoll.setDinnerPollDeps(deps);
   sawIt.setSawItDeps(deps);
+  menu.setMenuDeps(deps);
+  contextBar.setContextBarDeps(deps);
+  activityPills.setActivityPillsDeps(deps);
+  scoreboard.setScoreboardDeps(deps);
 }
 
 // ========================================
@@ -374,6 +429,8 @@ function renderAll() {
   navigation.renderTravelerToggle();
   navigation.renderPhaseTabs();
   navigation.renderTripSelector();
+  navigation.renderDayDropdown();
+  contextBar.renderContextBar();
   stats.renderStats();
   dayView.renderDayList();
   dayView.renderDayDetail();
@@ -462,6 +519,11 @@ function init() {
   share.initShareListeners();
   modals.initModalListeners();
 
+  // Initialize new header components
+  menu.initMenu();
+  contextBar.initContextBar();
+  activityPills.initActivityPills();
+
   // Check access (will show lock screen or registration modal if needed)
   auth.checkAccessOnLoad(async (session) => {
     // Callback when access is granted
@@ -490,6 +552,12 @@ function init() {
   // Initial render
   renderAll();
 
+  // Navigate to current day (now-first experience)
+  dayView.goToToday();
+
+  // Sync the day dropdown with the current day
+  navigation.setCurrentDayIndex(dayView.getCurrentDayIndex());
+
   // Start timers
   countdown.startTimers();
 
@@ -515,6 +583,21 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!btn) return;
 
       document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const view = btn.dataset.view;
+      navigation.setView(view);
+    });
+  }
+
+  // Mini view toggle in action bar
+  const viewToggleMini = document.getElementById('viewToggleMini');
+  if (viewToggleMini) {
+    viewToggleMini.addEventListener('click', (e) => {
+      const btn = e.target.closest('.view-btn-mini');
+      if (!btn) return;
+
+      viewToggleMini.querySelectorAll('.view-btn-mini').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
       const view = btn.dataset.view;

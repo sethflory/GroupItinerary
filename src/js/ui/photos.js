@@ -114,6 +114,27 @@ export function setRibbonPaused(paused) {
   }
 }
 
+export function openPhotoGallery() {
+  // Scroll to and highlight the photo ribbon
+  const ribbon = document.getElementById('photoRibbon');
+  if (ribbon) {
+    ribbon.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    ribbon.classList.add('highlight');
+    setTimeout(() => ribbon.classList.remove('highlight'), 2000);
+  }
+
+  // If there are photos, open the first one in lightbox
+  if (tripPhotosCache.length > 0) {
+    const photo = tripPhotosCache[0];
+    openLightbox(
+      photo.url,
+      photo.metadata?.caption || '',
+      photo.metadata?.uploadedBy || '',
+      photo.metadata?.photoDate || ''
+    );
+  }
+}
+
 export function openUploadModal() {
   document.getElementById('uploadModal').classList.add('active');
   resetUploadForm();
