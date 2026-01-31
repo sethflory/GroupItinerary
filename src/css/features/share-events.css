@@ -23,6 +23,7 @@
       width: 90%;
       max-width: 500px;
       max-height: 85vh;
+      max-height: 85dvh; /* Dynamic viewport height for mobile */
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -399,16 +400,24 @@
     /* Event Form Modal */
     .event-form-modal {
       max-width: 520px;
+      max-height: 90vh;
+      max-height: 90dvh;
     }
 
     .event-form-modal .share-modal-body {
       padding: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     .event-form {
       display: flex;
       flex-direction: column;
       gap: 0;
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .event-form-section {
@@ -508,6 +517,10 @@
       display: flex;
       gap: 12px;
       justify-content: flex-end;
+      flex-shrink: 0;
+      border-top: 1px solid var(--color-border);
+      position: sticky;
+      bottom: 0;
     }
 
     .event-form-btn {

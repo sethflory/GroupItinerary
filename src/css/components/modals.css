@@ -136,6 +136,10 @@
   border-radius: var(--radius-lg);
   width: 90%;
   max-width: 420px;
+  max-height: 90vh;
+  max-height: 90dvh; /* Dynamic viewport height for mobile */
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   transform: translateY(20px) scale(0.95);
   transition: transform 0.3s;
@@ -188,12 +192,22 @@
   color: var(--color-accent);
 }
 
+.modal-header {
+  flex-shrink: 0;
+}
+
 .modal-body {
   padding: 20px 24px;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-footer {
   padding: 16px 24px 24px;
+  flex-shrink: 0;
+  background: white;
+  border-top: 1px solid var(--color-border);
 }
 
 /* Registration-specific styles */
