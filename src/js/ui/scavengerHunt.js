@@ -30,7 +30,7 @@ export async function openScavengerHunt(huntId = null) {
   }
 
   isModalOpen = true;
-  document.getElementById('scavengerHuntModal').classList.add('visible');
+  document.getElementById('scavengerHuntModal').classList.add('active');
 
   // Load hunt data
   await refreshHuntData(huntId);
@@ -39,7 +39,7 @@ export async function openScavengerHunt(huntId = null) {
 export function closeScavengerHunt() {
   const modal = document.getElementById('scavengerHuntModal');
   if (modal) {
-    modal.classList.remove('visible');
+    modal.classList.remove('active');
   }
   isModalOpen = false;
 }
@@ -683,7 +683,7 @@ export function openClaimModal(itemId) {
 
   const modal = document.createElement('div');
   modal.id = 'claimModal';
-  modal.className = 'share-modal-overlay visible';
+  modal.className = 'share-modal-overlay active';
   modal.innerHTML = `
     <div class="share-modal claim-modal">
       <button class="modal-close" onclick="closeClaimModal()">
@@ -799,7 +799,7 @@ async function endHuntNow() {
 window.showAddItemForm = function() {
   const modal = document.createElement('div');
   modal.id = 'addItemModal';
-  modal.className = 'share-modal-overlay visible';
+  modal.className = 'share-modal-overlay active';
   modal.innerHTML = `
     <div class="share-modal claim-modal">
       <button class="modal-close" onclick="closeAddItemModal()">
