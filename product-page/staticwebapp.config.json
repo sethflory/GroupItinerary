@@ -12,5 +12,15 @@
     ".png": "image/png",
     ".jpg": "image/jpeg",
     ".ico": "image/x-icon"
+  },
+  "auth": {
+    "identityProviders": {
+      "google": {
+        "registration": {
+          "clientIdSettingName": "GOOGLE_CLIENT_ID",
+          "clientSecretSettingName": "GOOGLE_CLIENT_SECRET"
+        }
+      }
+    }
   }
 }
