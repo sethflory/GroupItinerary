@@ -20,6 +20,11 @@ describe('tableStorage', () => {
       expect(TABLES.TRIVIA_ROUNDS).toBe('TriviaRounds');
       expect(TABLES.PHOTOS).toBe('Photos');
     });
+
+    it('should have Saw It tables', () => {
+      expect(TABLES.SAW_IT_GAMES).toBe('SawItGames');
+      expect(TABLES.SAW_IT_LISTS).toBe('SawItLists');
+    });
   });
 
   describe('generateRowKey', () => {
