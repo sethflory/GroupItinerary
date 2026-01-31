@@ -172,6 +172,48 @@ export async function generateBackgrounds() {
   }
 }
 
+/**
+ * Generate event card styles and images
+ */
+export async function generateEventCards() {
+  if (isPersonalizing) return;
+
+  isPersonalizing = true;
+  showSimpleLoader('Styling your events...');
+
+  try {
+    const result = await callPersonalizeEndpoint('eventcards');
+
+    hidePersonalizationLoader();
+
+    if (result.eventCards) {
+      // Update global personalization
+      if (!window.tripPersonalization) {
+        window.tripPersonalization = {};
+      }
+      window.tripPersonalization.eventCards = result.eventCards;
+
+      // Refresh the view
+      if (window.renderDayDetail) {
+        window.renderDayDetail();
+      }
+
+      const imageCount = Object.values(result.eventCards).reduce((sum, c) => sum + (c.images?.length || 0), 0);
+      showSuccessToast(`Styled ${Object.keys(result.eventCards).length} events with ${imageCount} images!`);
+    }
+
+    return result;
+
+  } catch (err) {
+    console.error('[AI Assist] EventCards error:', err);
+    hidePersonalizationLoader();
+    showErrorToast(err.message || 'Failed to generate event cards');
+    throw err;
+  } finally {
+    isPersonalizing = false;
+  }
+}
+
 // ========================================
 // MAIN FLOW
 // ========================================
@@ -470,13 +512,13 @@ function renderAiAssistContent(hasPersonalization) {
           <span class="material-symbols-outlined ai-option-arrow">chevron_right</span>
         </button>
 
-        <button class="ai-option-btn" onclick="generateEventCards()" disabled>
+        <button class="ai-option-btn" onclick="generateEventCards()">
           <span class="material-symbols-outlined">view_carousel</span>
           <div class="ai-option-info">
             <span class="ai-option-title">Event Cards</span>
             <span class="ai-option-desc">Hero images, carousels & more</span>
           </div>
-          <span class="ai-option-badge">Coming Soon</span>
+          <span class="material-symbols-outlined ai-option-arrow">chevron_right</span>
         </button>
 
         <button class="ai-option-btn" onclick="generateTheme()" disabled>
@@ -755,6 +797,7 @@ window.showPersonalizationSummary = showPersonalizationSummary;
 window.closePersonalizationSummary = closePersonalizationSummary;
 window.generateNicknames = generateNicknames;
 window.generateBackgrounds = generateBackgrounds;
+window.generateEventCards = generateEventCards;
 
 function showErrorToast(message) {
   const existing = document.querySelector('.error-toast');
