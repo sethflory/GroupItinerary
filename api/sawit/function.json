@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "req",
       "methods": ["get", "post", "put", "options"],
-      "route": "sawit/{action?}/{eventId?}"
+      "route": "sawit/{action?}/{eventId?}/{subAction?}"
     },
     {
       "type": "http",

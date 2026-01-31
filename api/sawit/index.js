@@ -27,6 +27,7 @@ module.exports = async function (context, req) {
   // Extract path parameters
   const action = context.bindingData.action;
   const eventId = context.bindingData.eventId;
+  const subAction = context.bindingData.subAction || req.query.subAction;
 
   // Validate access
   const auth = await requireTravelerAuth(context, req, { methods: "GET, POST, PUT, OPTIONS" });
@@ -80,8 +81,7 @@ module.exports = async function (context, req) {
           } else if (req.method === "PUT") {
             return await updateGame(context, tripId, eventId, req.body, auth, headers);
           } else if (req.method === "POST") {
-            // Check for sub-action in URL path
-            const subAction = req.query.subAction || req.body?.subAction;
+            // Handle sub-actions (sight, share)
             if (subAction === "sight") {
               return await recordSighting(context, tripId, eventId, req.body, auth, headers);
             } else if (subAction === "share") {
@@ -100,23 +100,6 @@ module.exports = async function (context, req) {
         return;
 
       default:
-        // Handle URL pattern like /sawit/game/{eventId}/sight
-        if (action && action.startsWith("game")) {
-          // Try to parse compound path
-          const pathParts = (req.url || "").split("/").filter(Boolean);
-          const gameIdx = pathParts.findIndex(p => p === "game");
-
-          if (gameIdx >= 0 && pathParts.length > gameIdx + 2) {
-            const gameEventId = pathParts[gameIdx + 1];
-            const subAction = pathParts[gameIdx + 2];
-
-            if (subAction === "sight" && req.method === "POST") {
-              return await recordSighting(context, tripId, gameEventId, req.body, auth, headers);
-            } else if (subAction === "share" && req.method === "POST") {
-              return await recordShare(context, tripId, gameEventId, req.body, auth, headers);
-            }
-          }
-        }
         sendError(context, "Unknown action: " + action, 404, headers);
     }
 
