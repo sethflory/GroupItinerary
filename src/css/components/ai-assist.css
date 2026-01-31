@@ -36,7 +36,11 @@ body.theme-transitioning .day-detail {
 .ai-assist-loader {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: linear-gradient(
+    135deg,
+    rgba(19, 78, 94, 0.9) 0%,
+    rgba(0, 0, 0, 0.85) 100%
+  );
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
@@ -63,7 +67,8 @@ body.theme-transitioning .day-detail {
 
 .ai-assist-loader-spinner .material-symbols-outlined {
   font-size: 48px;
-  color: var(--color-accent, #f5af19);
+  color: var(--ai-emerald-light);
+  filter: drop-shadow(0 0 12px var(--ai-emerald-glow));
 }
 
 .ai-assist-loader-spinner .spinning {
@@ -99,7 +104,7 @@ body.theme-transitioning .day-detail {
 
 .ai-assist-loader-progress-bar {
   height: 100%;
-  background: var(--color-accent, #f5af19);
+  background: var(--ai-gradient);
   border-radius: 2px;
   width: 0;
   transition: width 0.5s ease;

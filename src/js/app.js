@@ -33,6 +33,8 @@ import * as scoreboard from './ui/scoreboard.js';
 import * as timezoneClocks from './ui/timezoneClocks.js';
 import * as aiAssist from './ui/aiAssist.js';
 import * as themeManager from './ui/themeManager.js';
+import * as notifications from './ui/notifications.js';
+import * as scavengerHunt from './ui/scavengerHunt.js';
 
 // ========================================
 // GLOBAL STATE
@@ -123,6 +125,14 @@ window.uploadPhoto = api.uploadPhoto;
 window.deletePhoto = api.deletePhoto;
 window.sendAIMessage = api.sendAIMessage;
 window.fetchWeather = api.fetchWeather;
+window.fetchNotifications = api.fetchNotifications;
+window.fetchActiveHunt = api.fetchActiveHunt;
+window.fetchHunts = api.fetchHunts;
+window.fetchHunt = api.fetchHunt;
+window.createHunt = api.createHunt;
+window.endHunt = api.endHunt;
+window.claimHuntItem = api.claimHuntItem;
+window.addHuntItem = api.addHuntItem;
 
 // ========================================
 // UTILS EXPORTS
@@ -399,6 +409,23 @@ window.revertThemePreview = themeManager.revertThemePreview;
 window.initTheme = themeManager.initTheme;
 
 // ========================================
+// NOTIFICATIONS EXPORTS
+// ========================================
+
+window.initNotifications = notifications.initNotifications;
+window.pushNotification = notifications.pushNotification;
+window.clearNotifications = notifications.clearNotifications;
+
+// ========================================
+// SCAVENGER HUNT EXPORTS
+// ========================================
+
+window.openScavengerHunt = scavengerHunt.openScavengerHunt;
+window.closeScavengerHunt = scavengerHunt.closeScavengerHunt;
+window.showHuntSetup = scavengerHunt.showHuntSetup;
+window.generateHuntItems = scavengerHunt.generateHuntItems;
+
+// ========================================
 // DEPENDENCY INJECTION
 // ========================================
 
@@ -428,6 +455,7 @@ function injectDependencies() {
   activityPills.setActivityPillsDeps(deps);
   scoreboard.setScoreboardDeps(deps);
   timezoneClocks.setTimezoneClocksDeps(deps);
+  scavengerHunt.setScavengerHuntDeps(deps);
 }
 
 // ========================================
@@ -562,6 +590,7 @@ function init() {
   contextBar.initContextBar();
   activityPills.initActivityPills();
   timezoneClocks.initTimezoneClocks();
+  notifications.initNotifications();
 
   // Check access (will show lock screen or registration modal if needed)
   auth.checkAccessOnLoad(async (session) => {

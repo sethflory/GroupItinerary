@@ -1,7 +1,8 @@
 const {
   TABLES,
   getEntity,
-  queryByPartition
+  queryByPartition,
+  queryEntities
 } = require("../shared/tableStorage");
 const {
   getHeaders,
@@ -42,10 +43,13 @@ module.exports = async function (context, req) {
     const now = Date.now();
 
     // Fetch all data in parallel
-    const [triviaRounds, pokes, locations] = await Promise.all([
+    const [triviaRounds, pokes, locations, hunts, huntItems, notifications] = await Promise.all([
       queryByPartition(TABLES.TRIVIA_ROUNDS, tripId),
       travelerId ? queryByPartition(TABLES.TRIVIA_POKES, tripId) : Promise.resolve([]),
-      queryByPartition(TABLES.TRAVELER_LOCATIONS, tripId)
+      queryByPartition(TABLES.TRAVELER_LOCATIONS, tripId),
+      queryByPartition(TABLES.SCAVENGER_HUNTS, tripId),
+      queryByPartition(TABLES.SCAVENGER_HUNT_ITEMS, tripId),
+      queryByPartition(TABLES.NOTIFICATIONS, tripId)
     ]);
 
     // Find active trivia round
@@ -107,15 +111,54 @@ module.exports = async function (context, req) {
         updatedAt: loc.updatedAt || loc.createdAt
       }));
 
-    // Calculate if polling should be faster (active trivia round)
-    const suggestedPollInterval = activeRound ? 2000 : 15000; // 2s during trivia, 15s idle
+    // Find active scavenger hunt
+    let activeHunt = null;
+    const activeHuntEntity = hunts.find(h => h.status === "active");
+    if (activeHuntEntity) {
+      const huntItemsForHunt = huntItems.filter(i => i.huntId === activeHuntEntity.id);
+      const foundItems = huntItemsForHunt.filter(i => i.foundBy);
+      const lastClaim = foundItems
+        .sort((a, b) => new Date(b.foundAt).getTime() - new Date(a.foundAt).getTime())[0];
+
+      activeHunt = {
+        id: activeHuntEntity.id,
+        status: activeHuntEntity.status,
+        title: activeHuntEntity.title,
+        itemsFound: foundItems.length,
+        itemsTotal: huntItemsForHunt.length,
+        lastClaimBy: lastClaim?.foundBy || null,
+        lastClaimItem: lastClaim?.name || null,
+        lastUpdate: activeHuntEntity.updatedAt || activeHuntEntity.createdAt
+      };
+    }
+
+    // Filter recent notifications (last 24 hours, limit 10)
+    const oneDayAgo = now - (24 * 60 * 60 * 1000);
+    const recentNotifications = notifications
+      .filter(n => new Date(n.createdAt).getTime() > oneDayAgo)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 10)
+      .map(n => ({
+        id: n.id,
+        type: n.type,
+        message: n.message,
+        icon: n.icon,
+        relatedId: n.relatedId,
+        createdAt: n.createdAt
+      }));
+
+    // Calculate if polling should be faster (active trivia round or active hunt)
+    const suggestedPollInterval = activeRound ? 2000 : (activeHunt ? 10000 : 15000); // 2s during trivia, 10s during hunt, 15s idle
 
     // Set ETag for caching
     const stateHash = JSON.stringify({
       round: activeRound?.id,
       roundState: activeRound?.state,
       pokeCount: pendingPokes.length,
-      locationCount: recentLocations.length
+      locationCount: recentLocations.length,
+      huntId: activeHunt?.id,
+      huntItemsFound: activeHunt?.itemsFound,
+      notificationCount: recentNotifications.length
     });
     const etag = Buffer.from(stateHash).toString("base64").substring(0, 16);
 
@@ -136,9 +179,11 @@ module.exports = async function (context, req) {
       triviaRound: activeRound,
       pokes: pendingPokes,
       locations: recentLocations,
+      scavengerHunt: activeHunt,
+      notifications: recentNotifications,
       lastSync: new Date(now).toISOString(),
       suggestedPollInterval,
-      hasUpdates: activeRound !== null || pendingPokes.length > 0 || recentLocations.length > 0
+      hasUpdates: activeRound !== null || pendingPokes.length > 0 || recentLocations.length > 0 || activeHunt !== null || recentNotifications.length > 0
     }, 200, {
       ...headers,
       "ETag": etag,

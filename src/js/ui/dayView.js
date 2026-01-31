@@ -194,8 +194,11 @@ export function renderEventCard(e, notMine = false) {
     };
   }
 
+  // Check if this card has AI-enhanced content (personalized image, not demo)
+  const isAiEnhanced = personalization?.eventImages?.[e.id] != null;
+
   return `
-    <div class="event-card ${e.type} ${isNotMine ? 'not-mine' : ''} ${eventImage ? 'has-image' : ''}">
+    <div class="event-card ${e.type} ${isNotMine ? 'not-mine' : ''} ${eventImage ? 'has-image' : ''} ${isAiEnhanced ? 'ai-enhanced' : ''}">
       <div class="event-main">
         <div class="event-header">
           <div class="event-icon ${e.type}">
@@ -213,11 +216,6 @@ export function renderEventCard(e, notMine = false) {
             </div>
           </div>
           <div class="event-actions">
-            ${isFeatureEnabled('AI_INSIGHTS') ? `
-              <button class="ai-insights-btn" onclick="openAiInsights('${e.id}', '${(e.title || '').replace(/'/g, "\\'")}', '${(e.details || '').replace(/'/g, "\\'")}')" title="AI Insights">
-                <span class="material-symbols-outlined">smart_toy</span>
-              </button>
-            ` : ''}
             ${(e.type === 'activity' || e.type === 'meal') ? `
               <button class="event-see-btn ${window.hasEventSavedList && window.hasEventSavedList(e.id) ? 'has-list' : ''}"
                       onclick="openWhatsYouWillSee('${e.id}')"

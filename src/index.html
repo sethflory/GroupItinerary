@@ -159,6 +159,12 @@
           <span class="menu-item-label">Trip Trivia</span>
           <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
         </button>
+        <button class="menu-item highlight" onclick="closeMenu(); openScavengerHunt()">
+          <span class="material-symbols-outlined">search</span>
+          <span class="menu-item-label">Scavenger Hunt</span>
+          <span class="menu-item-badge" id="huntStatusBadge"></span>
+          <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
+        </button>
         <button class="menu-item highlight" onclick="openScoreboard()">
           <span class="material-symbols-outlined">emoji_events</span>
           <span class="menu-item-label">Scoreboard</span>
@@ -438,7 +444,7 @@
         <span class="material-symbols-outlined">close</span>
       </button>
       <h3 class="upload-title">
-        <span class="material-symbols-outlined" style="color: #667eea;">smart_toy</span>
+        <span class="material-symbols-outlined" style="color: var(--ai-emerald-mid);">auto_awesome</span>
         <span id="aiInsightsTitle">AI Insights</span>
       </h3>
       <div id="aiInsightsContent">

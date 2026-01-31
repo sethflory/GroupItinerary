@@ -19,6 +19,7 @@
 @import url('components/activity-pills.css');
 @import url('components/scoreboard.css');
 @import url('components/ai-assist.css');
+@import url('components/notifications.css');
 
 /* Features - Day/List Views */
 @import url('features/day-view.css');
@@ -40,3 +41,6 @@
 
 /* Features - Saw It Game */
 @import url('features/saw-it.css');
+
+/* Features - Scavenger Hunt */
+@import url('features/scavenger-hunt.css');

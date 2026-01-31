@@ -226,6 +226,148 @@ export async function sendAIMessage(tripId, { system, messages, maxTokens = 1024
 }
 
 // ========================================
+// NOTIFICATIONS API
+// ========================================
+
+export async function fetchNotifications(tripId, options = {}) {
+  const accessCode = getStoredAccessCode(tripId);
+  const { limit = 20, since } = options;
+
+  let url = `${API_BASE}/notifications/recent?tripId=${encodeURIComponent(tripId)}&accessCode=${encodeURIComponent(accessCode)}&limit=${limit}`;
+  if (since) {
+    url += `&since=${encodeURIComponent(since)}`;
+  }
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch notifications');
+  }
+
+  const data = await response.json();
+  return data.notifications || [];
+}
+
+// ========================================
+// SCAVENGER HUNT API
+// ========================================
+
+export async function fetchActiveHunt(tripId) {
+  const accessCode = getStoredAccessCode(tripId);
+  const url = `${API_BASE}/hunts/active?tripId=${encodeURIComponent(tripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch active hunt');
+  }
+
+  return await response.json();
+}
+
+export async function fetchHunts(tripId, status = null) {
+  const accessCode = getStoredAccessCode(tripId);
+  let url = `${API_BASE}/hunts/list?tripId=${encodeURIComponent(tripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+  if (status) {
+    url += `&status=${encodeURIComponent(status)}`;
+  }
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch hunts');
+  }
+
+  const data = await response.json();
+  return data.hunts || [];
+}
+
+export async function fetchHunt(tripId, huntId) {
+  const accessCode = getStoredAccessCode(tripId);
+  const url = `${API_BASE}/hunts/${huntId}?tripId=${encodeURIComponent(tripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch hunt');
+  }
+
+  return await response.json();
+}
+
+export async function createHunt(tripId, huntData) {
+  const accessCode = getStoredAccessCode(tripId);
+  const url = `${API_BASE}/hunts?tripId=${encodeURIComponent(tripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(huntData)
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error || 'Failed to create hunt');
+  }
+
+  return await response.json();
+}
+
+export async function endHunt(tripId, huntId) {
+  const accessCode = getStoredAccessCode(tripId);
+  const url = `${API_BASE}/hunts/${huntId}?tripId=${encodeURIComponent(tripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'end' })
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error || 'Failed to end hunt');
+  }
+
+  return await response.json();
+}
+
+export async function claimHuntItem(tripId, huntId, itemId, claimData = {}) {
+  const accessCode = getStoredAccessCode(tripId);
+  const url = `${API_BASE}/hunts/${huntId}/claim/${itemId}?tripId=${encodeURIComponent(tripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(claimData)
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error || 'Failed to claim item');
+  }
+
+  return await response.json();
+}
+
+export async function addHuntItem(tripId, huntId, itemData) {
+  const accessCode = getStoredAccessCode(tripId);
+  const url = `${API_BASE}/hunts/${huntId}/items?tripId=${encodeURIComponent(tripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(itemData)
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error || 'Failed to add item');
+  }
+
+  return await response.json();
+}
+
+// ========================================
 // WEATHER API
 // ========================================
 

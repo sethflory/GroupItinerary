@@ -4,10 +4,11 @@
 
 import { currentTripId } from '../state.js';
 import { API_BASE } from '../config.js';
+import { fetchActiveHunt } from '../api.js';
 
 let TRAVELERS = [];
 let pollInterval = null;
-let lastActivityState = { games: [], polls: [] };
+let lastActivityState = { games: [], polls: [], hunt: null };
 
 export function setActivityPillsDeps(deps) {
   TRAVELERS = deps.TRAVELERS || [];
@@ -53,23 +54,69 @@ async function fetchOpenPolls() {
   }
 }
 
+async function fetchActiveScavengerHunt() {
+  try {
+    const data = await fetchActiveHunt(currentTripId);
+    if (data.hunt && data.hunt.status === 'active') {
+      const items = data.items || [];
+      const foundCount = items.filter(i => i.foundBy).length;
+      return {
+        ...data.hunt,
+        foundCount,
+        totalCount: items.length
+      };
+    }
+    return null;
+  } catch (error) {
+    // Hunt API may not exist yet or no active hunt
+    return null;
+  }
+}
+
 // ========================================
 // RENDER PILLS
 // ========================================
 
-function renderActivityPills(games, polls) {
+function renderActivityPills(games, polls, hunt = null) {
   const container = document.getElementById('activityPills');
   if (!container) return;
 
   // Check if anything changed
-  const newState = JSON.stringify({ games, polls });
+  const newState = JSON.stringify({ games, polls, hunt });
   const oldState = JSON.stringify(lastActivityState);
 
   const hasChanges = newState !== oldState;
-  lastActivityState = { games, polls };
+  lastActivityState = { games, polls, hunt };
 
   // Clear and rebuild
   container.innerHTML = '';
+
+  // Render scavenger hunt pill (first, most prominent)
+  if (hunt) {
+    const pill = document.createElement('button');
+    pill.className = 'activity-pill hunt';
+
+    if (hasChanges && !oldState.includes(hunt.id)) {
+      pill.classList.add('new');
+    }
+
+    // Add pulse when 80%+ complete
+    const completionRate = hunt.totalCount > 0 ? hunt.foundCount / hunt.totalCount : 0;
+    if (completionRate >= 0.8 && completionRate < 1) {
+      pill.classList.add('almost-done');
+    }
+
+    const displayName = truncateName(hunt.title || 'Scavenger Hunt', 15);
+
+    pill.innerHTML = `
+      <span class="pill-icon">🎯</span>
+      <span class="pill-name">${displayName}</span>
+      <span class="pill-badge">${hunt.foundCount}/${hunt.totalCount}</span>
+    `;
+
+    pill.onclick = () => openScavengerHunt(hunt.id);
+    container.appendChild(pill);
+  }
 
   // Render game pills
   games.forEach((game, index) => {
@@ -150,17 +197,27 @@ function openPoll(pollId) {
   }
 }
 
+function openScavengerHunt(huntId) {
+  // Open the scavenger hunt modal
+  if (typeof window.openScavengerHunt === 'function') {
+    window.openScavengerHunt(huntId);
+  } else {
+    console.log('Open scavenger hunt:', huntId);
+  }
+}
+
 // ========================================
 // POLLING
 // ========================================
 
 async function refreshActivities() {
-  const [games, polls] = await Promise.all([
+  const [games, polls, hunt] = await Promise.all([
     fetchActiveGames(),
-    fetchOpenPolls()
+    fetchOpenPolls(),
+    fetchActiveScavengerHunt()
   ]);
 
-  renderActivityPills(games, polls);
+  renderActivityPills(games, polls, hunt);
 }
 
 export function startActivityPolling(intervalMs = 30000) {
@@ -222,7 +279,14 @@ export function showDemoPills() {
     { id: 'poll1', title: 'Dinner', voteCount: 2 }
   ];
 
-  renderActivityPills(demoGames, demoPolls);
+  const demoHunt = {
+    id: 'hunt1',
+    title: 'Photo Safari',
+    foundCount: 3,
+    totalCount: 12
+  };
+
+  renderActivityPills(demoGames, demoPolls, demoHunt);
 }
 
 // ========================================

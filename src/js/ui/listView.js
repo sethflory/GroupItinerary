@@ -3,7 +3,6 @@
 // ========================================
 
 import { isForTraveler, getEventIcon, formatTime, renderTravelerPills } from '../utils.js';
-import { isFeatureEnabled } from '../config.js';
 import { fetchWeather } from '../api.js';
 
 let DAYS, TRAVELERS, DESTINATIONS, CAROUSELS;
@@ -53,11 +52,6 @@ function renderEventCard(e, notMine = false) {
             </div>
           </div>
           <div class="event-actions">
-            ${isFeatureEnabled('AI_INSIGHTS') ? `
-              <button class="ai-insights-btn" onclick="openAiInsights('${e.id}', '${(e.title || '').replace(/'/g, "\\'")}', '${(e.details || '').replace(/'/g, "\\'")}')" title="AI Insights">
-                <span class="material-symbols-outlined">smart_toy</span>
-              </button>
-            ` : ''}
             <button class="event-share-btn" onclick="openShareModal('${e.id}')" title="Create post">
               <span class="material-symbols-outlined">share</span>
             </button>

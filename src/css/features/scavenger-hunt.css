@@ -1,0 +1,669 @@
+/* ========================================
+   SCAVENGER HUNT STYLES
+   ======================================== */
+
+.scavenger-hunt-modal {
+  max-width: 500px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.scavenger-hunt-modal .modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 4px;
+}
+
+/* ----------------------------------------
+   Header
+   ---------------------------------------- */
+.hunt-header {
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.hunt-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+}
+
+.hunt-header h3 .material-symbols-outlined {
+  color: var(--ai-emerald-mid);
+}
+
+.hunt-meta {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.hunt-meta.hunt-completed {
+  color: var(--ai-emerald-mid);
+  font-weight: 500;
+}
+
+/* ----------------------------------------
+   Progress Bar
+   ---------------------------------------- */
+.hunt-progress {
+  padding: 16px 20px;
+  background: var(--color-cream);
+}
+
+.hunt-progress-bar {
+  height: 8px;
+  background: var(--color-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.hunt-progress-fill {
+  height: 100%;
+  background: var(--ai-gradient);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.hunt-progress-text {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* ----------------------------------------
+   Items List
+   ---------------------------------------- */
+.hunt-items-list {
+  padding: 12px 20px;
+}
+
+.hunt-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+
+.hunt-item.found {
+  background: rgba(113, 178, 128, 0.1);
+  border-color: var(--ai-emerald-light);
+}
+
+.hunt-item-check {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.hunt-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.hunt-item-description {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.hunt-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.hunt-item-points {
+  background: var(--ai-emerald-dark);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.hunt-hint-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  padding: 0;
+}
+
+.hunt-hint-btn:hover {
+  color: var(--ai-emerald-mid);
+}
+
+.hunt-item-hint {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--color-cream);
+  border-radius: var(--radius-sm);
+}
+
+.hunt-item-found {
+  font-size: 0.8rem;
+  color: var(--ai-emerald-mid);
+  margin-top: 8px;
+}
+
+.hunt-item-photo {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-top: 8px;
+}
+
+.hunt-claim-btn {
+  background: var(--ai-gradient);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.hunt-claim-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* ----------------------------------------
+   Leaderboard
+   ---------------------------------------- */
+.hunt-leaderboard {
+  padding: 16px 20px;
+  background: var(--color-cream);
+  margin: 12px 20px;
+  border-radius: var(--radius-md);
+}
+
+.hunt-leaderboard h4 {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+}
+
+.hunt-leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hunt-leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  background: white;
+  border-radius: var(--radius-sm);
+}
+
+.hunt-leaderboard-row.winner {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.05));
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.hunt-lb-rank {
+  font-size: 1.1rem;
+  width: 28px;
+  text-align: center;
+}
+
+.hunt-lb-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.hunt-lb-points {
+  color: var(--ai-emerald-mid);
+  font-weight: 600;
+}
+
+.hunt-leaderboard-empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-style: italic;
+  padding: 12px;
+}
+
+/* ----------------------------------------
+   Actions
+   ---------------------------------------- */
+.hunt-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.hunt-actions .btn {
+  flex: 1;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+/* ----------------------------------------
+   Empty State
+   ---------------------------------------- */
+.hunt-empty {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.hunt-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.hunt-empty h4 {
+  margin: 0 0 8px;
+}
+
+.hunt-empty p {
+  color: var(--color-text-muted);
+  margin-bottom: 24px;
+}
+
+.btn-large {
+  padding: 14px 28px;
+  font-size: 1rem;
+}
+
+/* ----------------------------------------
+   History
+   ---------------------------------------- */
+.hunt-history-section {
+  padding: 16px 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.hunt-history-section h4 {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin: 0 0 12px;
+}
+
+.hunt-history-item {
+  padding: 10px 12px;
+  background: var(--color-cream);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.hunt-history-item:hover {
+  background: var(--color-border);
+}
+
+.hunt-history-title {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.hunt-history-meta {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.hunt-history-empty {
+  color: var(--color-text-muted);
+  font-style: italic;
+  text-align: center;
+  padding: 12px;
+}
+
+/* ----------------------------------------
+   Setup Form
+   ---------------------------------------- */
+.hunt-setup-form {
+  padding: 20px;
+}
+
+.hunt-form-group {
+  margin-bottom: 16px;
+}
+
+.hunt-form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.hunt-form-group input,
+.hunt-form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.hunt-form-group input:focus,
+.hunt-form-group select:focus {
+  outline: none;
+  border-color: var(--ai-emerald-mid);
+}
+
+.hunt-form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.hunt-form-row .hunt-form-group {
+  flex: 1;
+}
+
+.hunt-setup-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.hunt-setup-actions .btn {
+  flex: 1;
+}
+
+/* ----------------------------------------
+   Generating / Loading
+   ---------------------------------------- */
+.hunt-generating,
+.hunt-loading {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.hunt-generating-spinner,
+.hunt-loading .material-symbols-outlined {
+  font-size: 3rem;
+  color: var(--ai-emerald-mid);
+  margin-bottom: 16px;
+}
+
+.spinning {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.hunt-generating h4 {
+  margin: 0 0 8px;
+}
+
+.hunt-generating p {
+  color: var(--color-text-muted);
+}
+
+/* ----------------------------------------
+   Error
+   ---------------------------------------- */
+.hunt-error {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.hunt-error .material-symbols-outlined {
+  font-size: 2.5rem;
+  color: #dc2626;
+  margin-bottom: 12px;
+}
+
+.hunt-error p {
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
+
+/* ----------------------------------------
+   Preview
+   ---------------------------------------- */
+.hunt-preview {
+  padding: 20px;
+}
+
+.hunt-preview-title input {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.hunt-preview-title input:focus {
+  border-color: var(--ai-emerald-mid);
+  border-style: solid;
+  outline: none;
+}
+
+.hunt-preview-items {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.hunt-preview-item {
+  background: var(--color-cream);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+
+.hunt-preview-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.hunt-preview-points {
+  background: var(--ai-emerald-dark);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.hunt-preview-delete {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.hunt-preview-delete:hover {
+  color: #dc2626;
+}
+
+.hunt-preview-desc,
+.hunt-preview-hint {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.hunt-preview-hint {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.hunt-preview-summary {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  padding: 12px;
+  background: var(--color-cream);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+.hunt-preview-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.hunt-preview-actions .btn {
+  flex: 1;
+}
+
+/* ----------------------------------------
+   Claim Modal
+   ---------------------------------------- */
+.claim-modal {
+  max-width: 400px;
+}
+
+.claim-modal h3 {
+  margin: 0 0 8px;
+  padding: 20px 20px 0;
+}
+
+.claim-item-desc {
+  padding: 0 20px 16px;
+  font-style: italic;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.claim-photo-upload {
+  padding: 16px 20px;
+}
+
+.claim-dropzone {
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.claim-dropzone:hover {
+  border-color: var(--ai-emerald-mid);
+}
+
+.claim-dropzone .material-symbols-outlined {
+  font-size: 2rem;
+  color: var(--color-text-muted);
+}
+
+.claim-dropzone p {
+  margin: 8px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.claim-photo-preview {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+}
+
+.claim-form-group {
+  padding: 0 20px 16px;
+}
+
+.claim-form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.claim-form-group input,
+.claim-form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.claim-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.claim-actions .btn {
+  flex: 1;
+}
+
+/* ----------------------------------------
+   Final Scores
+   ---------------------------------------- */
+.hunt-final-scores {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+  margin: 12px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.hunt-final-scores h4 {
+  margin: 0 0 12px;
+}
+
+/* ----------------------------------------
+   Mobile
+   ---------------------------------------- */
+@media (max-width: 480px) {
+  .scavenger-hunt-modal {
+    max-width: 100%;
+    margin: 12px;
+    max-height: calc(100vh - 24px);
+  }
+
+  .hunt-form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .hunt-actions {
+    flex-direction: column;
+  }
+}

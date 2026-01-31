@@ -1,28 +1,21 @@
 /* ========================================
    FEATURE: AI Event Insights - Emerald Theme
    ======================================== */
-.ai-insights-btn {
-  display: none;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  background: var(--ai-gradient);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+
+/* Subtle AI indicator for AI-enhanced event cards */
+.event-card.ai-enhanced {
+  position: relative;
 }
 
-.ai-insights-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(19, 78, 94, 0.3);
-}
-
-.ai-insights-btn .material-symbols-outlined {
-  font-size: 16px;
+.event-card.ai-enhanced::before {
+  content: '✦';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 10px;
+  color: var(--ai-emerald-mid);
+  opacity: 0.7;
+  z-index: 1;
 }
 
 .ai-insights-modal {

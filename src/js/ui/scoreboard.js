@@ -47,18 +47,29 @@ function getDemoScores() {
   const scores = TRAVELERS.map((traveler, index) => ({
     travelerId: traveler.id,
     name: traveler.name,
-    points: Math.floor(Math.random() * 50) + 10,
-    gamePoints: Math.floor(Math.random() * 30),
-    triviaPoints: Math.floor(Math.random() * 20)
+    points: Math.floor(Math.random() * 60) + 10,
+    gamePoints: Math.floor(Math.random() * 20),
+    triviaPoints: Math.floor(Math.random() * 20),
+    huntPoints: Math.floor(Math.random() * 20)
   })).sort((a, b) => b.points - a.points);
 
   const activity = [
-    { type: 'game', traveler: scores[0]?.name || 'Someone', action: 'spotted "Hadrian\'s Arch"', points: 4, time: '2 min ago' },
-    { type: 'trivia', traveler: scores[1]?.name || 'Someone', action: 'won Trivia Round 3', points: 10, time: '15 min ago' },
-    { type: 'game', traveler: scores[2]?.name || 'Someone', action: 'spotted "Street Art Alley"', points: 3, time: '1 hr ago' }
+    { type: 'hunt', traveler: scores[0]?.name || 'Someone', action: 'found "Blue Door Cafe"', points: 5, time: '2 min ago' },
+    { type: 'game', traveler: scores[1]?.name || 'Someone', action: 'spotted "Hadrian\'s Arch"', points: 4, time: '15 min ago' },
+    { type: 'trivia', traveler: scores[2]?.name || 'Someone', action: 'won Trivia Round 3', points: 10, time: '1 hr ago' }
   ];
 
   return { scores, activity };
+}
+
+function buildScoreBreakdown(score) {
+  const parts = [];
+  if (score.gamePoints > 0) parts.push(`${score.gamePoints} game`);
+  if (score.triviaPoints > 0) parts.push(`${score.triviaPoints} trivia`);
+  if (score.huntPoints > 0) parts.push(`${score.huntPoints} hunt`);
+
+  if (parts.length === 0) return 'No points yet';
+  return parts.join(' + ');
 }
 
 // ========================================
@@ -76,13 +87,15 @@ function renderScoreboard(scores, activity) {
     const isCurrentUser = score.travelerId === currentUserId;
     const initial = score.name?.charAt(0) || '?';
 
+    const breakdown = buildScoreBreakdown(score);
+
     return `
       <div class="score-row ${isCurrentUser ? 'current-user' : ''}">
         <span class="score-rank ${rankClass}">${rankDisplay}</span>
         <div class="score-avatar">${initial}</div>
         <div class="score-info">
           <div class="score-name">${score.name}${isCurrentUser ? ' (You)' : ''}</div>
-          <div class="score-subtitle">${score.gamePoints || 0} game + ${score.triviaPoints || 0} trivia</div>
+          <div class="score-subtitle">${breakdown}</div>
         </div>
         <div class="score-points">
           ${score.points}
@@ -99,7 +112,7 @@ function renderScoreboard(scores, activity) {
   `;
 
   const activityHtml = activity.length > 0 ? activity.map(item => {
-    const icon = item.type === 'game' ? '🎮' : item.type === 'trivia' ? '🎯' : '⭐';
+    const icon = item.type === 'game' ? '🎮' : item.type === 'trivia' ? '🎯' : item.type === 'hunt' ? '🎯' : '⭐';
     return `
       <div class="activity-item">
         <span class="activity-icon">${icon}</span>

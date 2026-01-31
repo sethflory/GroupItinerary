@@ -29,6 +29,9 @@ const TABLES = {
   DINNER_POLLS: "DinnerPolls",
   SAW_IT_GAMES: "SawItGames",
   SAW_IT_LISTS: "SawItLists",
+  SCAVENGER_HUNTS: "ScavengerHunts",
+  SCAVENGER_HUNT_ITEMS: "ScavengerHuntItems",
+  NOTIFICATIONS: "Notifications",
 
   // System tables
   RATE_LIMITS: "RateLimits"
