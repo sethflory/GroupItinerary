@@ -217,6 +217,7 @@ window.searchEventImages = events.searchEventImages;
 window.selectEventImage = events.selectEventImage;
 window.clearSelectedImage = events.clearSelectedImage;
 window.suggestImageFromTitle = events.suggestImageFromTitle;
+window.setImageSource = events.setImageSource;
 
 // ========================================
 // SHARE EXPORTS

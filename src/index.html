@@ -658,8 +658,16 @@
         <div class="event-form-section">
           <label class="event-form-label">Event Image</label>
           <div class="image-search-container">
+            <div class="image-source-toggle">
+              <button type="button" class="source-btn active" data-source="places" onclick="setImageSource('places')">
+                <span class="material-symbols-outlined">location_on</span> Venue Photos
+              </button>
+              <button type="button" class="source-btn" data-source="unsplash" onclick="setImageSource('unsplash')">
+                <span class="material-symbols-outlined">photo_library</span> Stock Photos
+              </button>
+            </div>
             <div class="image-search-input-row">
-              <input type="text" class="event-form-input" id="eventImageQuery" placeholder="Search for an image...">
+              <input type="text" class="event-form-input" id="eventImageQuery" placeholder="Search venue name or keywords...">
               <button type="button" class="image-search-btn secondary" onclick="suggestImageFromTitle()" title="Suggest from title">
                 <span class="material-symbols-outlined">auto_awesome</span>
               </button>
@@ -667,7 +675,7 @@
                 <span class="material-symbols-outlined">search</span>
               </button>
             </div>
-            <div class="image-search-hint">Search Unsplash for a cover image, or click ✨ to suggest from title</div>
+            <div class="image-search-hint" id="imageSearchHint">Search Google Places for venue photos, or click ✨ to use event title</div>
             <div class="image-search-results" id="imageSearchResults">
               <!-- Populated by JS -->
             </div>

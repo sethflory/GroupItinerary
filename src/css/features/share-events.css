@@ -601,6 +601,45 @@
    IMAGE SEARCH (Event Form)
    ======================================== */
 
+/* Image Source Toggle */
+.image-source-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.source-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.source-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.source-btn:hover {
+  background: var(--color-cream);
+  color: var(--color-text);
+}
+
+.source-btn.active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
 .image-search-container {
   display: flex;
   flex-direction: column;
@@ -700,6 +739,38 @@
 
 .image-search-error {
   color: var(--color-sunrise);
+}
+
+/* Place info header in results */
+.image-search-place-info {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+.image-search-place-info .material-symbols-outlined {
+  color: var(--color-primary);
+  font-size: 18px;
+}
+
+.image-search-place-info strong {
+  color: var(--color-text);
+}
+
+.image-search-place-info .place-address {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  margin-left: auto;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .spinning {

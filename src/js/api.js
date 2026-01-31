@@ -447,6 +447,41 @@ export async function searchImages(tripId, query, options = {}) {
 }
 
 // ========================================
+// GOOGLE PLACES API
+// ========================================
+
+export async function searchPlacePhotos(tripId, query, options = {}) {
+  const accessCode = getStoredAccessCode(tripId);
+  const { count = 6, location = null } = options;
+
+  const params = new URLSearchParams({
+    tripId,
+    accessCode,
+    q: query,
+    count: count.toString()
+  });
+
+  if (location) {
+    params.append('location', location);
+  }
+
+  const url = `${API_BASE}/places/photos?${params}`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error || 'Place search failed');
+  }
+
+  const data = await response.json();
+  return {
+    place: data.place,
+    photos: data.photos || []
+  };
+}
+
+// ========================================
 // WEATHER API
 // ========================================
 

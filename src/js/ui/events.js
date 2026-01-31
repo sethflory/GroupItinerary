@@ -5,11 +5,12 @@
 import { currentTripId } from '../state.js';
 import { isFeatureEnabled } from '../config.js';
 import { getStoredAccessCode } from '../auth.js';
-import { createEvent, updateEvent, deleteEventAPI, searchImages } from '../api.js';
+import { createEvent, updateEvent, deleteEventAPI, searchImages, searchPlacePhotos } from '../api.js';
 
 // Image search state
 let selectedImage = null;
 let isSearching = false;
+let imageSource = 'places'; // 'places' or 'unsplash'
 
 let DAYS, TRAVELERS;
 let editingEventId = null;
@@ -290,6 +291,35 @@ export async function deleteEvent(eventId) {
 // IMAGE SEARCH
 // ========================================
 
+export function setImageSource(source) {
+  imageSource = source;
+
+  // Update button states
+  document.querySelectorAll('.source-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.source === source);
+  });
+
+  // Update hint text
+  const hint = document.getElementById('imageSearchHint');
+  if (hint) {
+    hint.textContent = source === 'places'
+      ? 'Search Google Places for venue photos, or click ✨ to use event title'
+      : 'Search Unsplash for stock photos, or click ✨ to use event title';
+  }
+
+  // Update placeholder
+  const queryInput = document.getElementById('eventImageQuery');
+  if (queryInput) {
+    queryInput.placeholder = source === 'places'
+      ? 'Search venue name (e.g., "Acropolis Museum")...'
+      : 'Search keywords (e.g., "greek sunset")...';
+  }
+
+  // Clear results when switching
+  const resultsContainer = document.getElementById('imageSearchResults');
+  if (resultsContainer) resultsContainer.innerHTML = '';
+}
+
 export async function searchEventImages() {
   const queryInput = document.getElementById('eventImageQuery');
   const resultsContainer = document.getElementById('imageSearchResults');
@@ -303,21 +333,56 @@ export async function searchEventImages() {
   if (isSearching) return;
   isSearching = true;
 
-  resultsContainer.innerHTML = '<div class="image-search-loading"><span class="material-symbols-outlined spinning">progress_activity</span> Searching...</div>';
+  const sourceLabel = imageSource === 'places' ? 'Google Places' : 'Unsplash';
+  resultsContainer.innerHTML = `<div class="image-search-loading"><span class="material-symbols-outlined spinning">progress_activity</span> Searching ${sourceLabel}...</div>`;
 
   try {
-    const images = await searchImages(currentTripId, query, { count: 8 });
+    if (imageSource === 'places') {
+      // Google Places search
+      const result = await searchPlacePhotos(currentTripId, query, { count: 6 });
 
-    if (images.length === 0) {
-      resultsContainer.innerHTML = '<div class="image-search-empty">No images found. Try different keywords.</div>';
-      return;
+      if (!result.place) {
+        resultsContainer.innerHTML = '<div class="image-search-empty">Place not found. Try a more specific name.</div>';
+        return;
+      }
+
+      if (result.photos.length === 0) {
+        resultsContainer.innerHTML = `<div class="image-search-empty">No photos for "${result.place.name}". Try Unsplash instead.</div>`;
+        return;
+      }
+
+      // Show place info
+      const placeInfo = `<div class="image-search-place-info">
+        <span class="material-symbols-outlined">location_on</span>
+        <strong>${escapeHtml(result.place.name)}</strong>
+        ${result.place.address ? `<span class="place-address">${escapeHtml(result.place.address)}</span>` : ''}
+      </div>`;
+
+      resultsContainer.innerHTML = placeInfo + result.photos.map(photo => {
+        const credit = photo.attributions?.[0]?.name || 'Google';
+        const creditUrl = photo.attributions?.[0]?.url || '';
+        return `
+          <div class="image-search-item" onclick="selectEventImage('${photo.url}', '${photo.thumb}', '${escapeAttr(credit)}', '${escapeAttr(creditUrl)}')">
+            <img src="${photo.thumb}" alt="Photo of ${escapeAttr(result.place.name)}" loading="lazy">
+          </div>
+        `;
+      }).join('');
+
+    } else {
+      // Unsplash search
+      const images = await searchImages(currentTripId, query, { count: 8 });
+
+      if (images.length === 0) {
+        resultsContainer.innerHTML = '<div class="image-search-empty">No images found. Try different keywords.</div>';
+        return;
+      }
+
+      resultsContainer.innerHTML = images.map(img => `
+        <div class="image-search-item" onclick="selectEventImage('${img.url}', '${img.thumb}', '${escapeAttr(img.credit)}', '${escapeAttr(img.creditUrl || '')}')">
+          <img src="${img.thumb}" alt="${escapeAttr(img.description || '')}" loading="lazy">
+        </div>
+      `).join('');
     }
-
-    resultsContainer.innerHTML = images.map(img => `
-      <div class="image-search-item" onclick="selectEventImage('${img.url}', '${img.thumb}', '${escapeAttr(img.credit)}', '${escapeAttr(img.creditUrl || '')}')">
-        <img src="${img.thumb}" alt="${escapeAttr(img.description || '')}" loading="lazy">
-      </div>
-    `).join('');
 
   } catch (err) {
     console.error('[Events] Image search error:', err);
@@ -373,6 +438,17 @@ function clearImageSearch() {
 function escapeAttr(str) {
   if (!str) return '';
   return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[char]);
 }
 
 function setupImageSearchKeyHandler() {
