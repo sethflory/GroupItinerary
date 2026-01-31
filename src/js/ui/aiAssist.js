@@ -944,6 +944,152 @@ function escapeHtml(str) {
 }
 
 // ========================================
+// PERSONALIZE TAB CONTENT (for Trip Settings integration)
+// ========================================
+
+/**
+ * Render content for the Personalize tab in Trip Settings
+ * @param {HTMLElement} container - The container element to render into
+ */
+export function renderPersonalizeContent(container) {
+  if (!container) return;
+
+  const hasPersonalization = window.tripPersonalization?.theme;
+
+  if (hasPersonalization) {
+    const theme = window.tripPersonalization.theme;
+    container.innerHTML = `
+      <div class="personalize-current">
+        <div class="personalize-theme-display">
+          <span class="theme-emoji">${theme.emoji || '✨'}</span>
+          <div class="theme-info">
+            <div class="theme-name">${theme.name}</div>
+            <div class="theme-description">${theme.description || ''}</div>
+          </div>
+        </div>
+        <div class="theme-palette-preview">
+          ${theme.palette ? Object.values(theme.palette).slice(0, 6).map(color =>
+            `<span class="theme-swatch" style="background: ${color}"></span>`
+          ).join('') : ''}
+        </div>
+      </div>
+
+      <div class="personalize-actions">
+        <button class="btn secondary" onclick="openThemeSelector()">
+          <span class="material-symbols-outlined">palette</span>
+          Change Theme
+        </button>
+        <button class="btn secondary" onclick="runAiAssist('auto')">
+          <span class="material-symbols-outlined">refresh</span>
+          Regenerate All
+        </button>
+      </div>
+
+      <div class="personalize-divider">
+        <span>Update individually</span>
+      </div>
+
+      <div class="personalize-options-grid">
+        <button class="personalize-option-btn" onclick="generateNicknames()">
+          <span class="material-symbols-outlined">auto_stories</span>
+          <span class="option-label">Nicknames</span>
+        </button>
+        <button class="personalize-option-btn" onclick="generateBackgrounds()">
+          <span class="material-symbols-outlined">image</span>
+          <span class="option-label">Backgrounds</span>
+        </button>
+        <button class="personalize-option-btn" onclick="generateEventCards()">
+          <span class="material-symbols-outlined">view_carousel</span>
+          <span class="option-label">Event Cards</span>
+        </button>
+      </div>
+    `;
+  } else {
+    container.innerHTML = `
+      <div class="personalize-intro">
+        <div class="personalize-icon">
+          <img src="images/keys.png" alt="AI" class="ai-key-icon large">
+        </div>
+        <h4>Make your trip unique with AI</h4>
+        <p>Let AI personalize your itinerary with creative day nicknames, beautiful backgrounds, styled event cards, and a custom color theme.</p>
+      </div>
+
+      <div class="personalize-main-action">
+        <button class="ai-full-btn" onclick="runAiAssist('auto')">
+          <span class="material-symbols-outlined">auto_awesome</span>
+          <div class="ai-full-btn-content">
+            <span class="ai-full-btn-title">Full Personalization</span>
+            <span class="ai-full-btn-desc">Day nicknames, backgrounds, event cards, and theme</span>
+          </div>
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+      </div>
+
+      <div class="personalize-divider">
+        <span>Or customize individually</span>
+      </div>
+
+      <div class="personalize-options">
+        <button class="personalize-option-card" onclick="generateNicknames()">
+          <span class="material-symbols-outlined">auto_stories</span>
+          <div class="option-info">
+            <span class="option-title">Day Nicknames</span>
+            <span class="option-desc">Creative chapter titles for each day</span>
+          </div>
+          <span class="material-symbols-outlined option-arrow">chevron_right</span>
+        </button>
+
+        <button class="personalize-option-card" onclick="generateBackgrounds()">
+          <span class="material-symbols-outlined">image</span>
+          <div class="option-info">
+            <span class="option-title">Day Backgrounds</span>
+            <span class="option-desc">Beautiful images for each day</span>
+          </div>
+          <span class="material-symbols-outlined option-arrow">chevron_right</span>
+        </button>
+
+        <button class="personalize-option-card" onclick="generateEventCards()">
+          <span class="material-symbols-outlined">view_carousel</span>
+          <div class="option-info">
+            <span class="option-title">Event Cards</span>
+            <span class="option-desc">Hero images, carousels & more</span>
+          </div>
+          <span class="material-symbols-outlined option-arrow">chevron_right</span>
+        </button>
+
+        <button class="personalize-option-card disabled" disabled>
+          <span class="material-symbols-outlined">palette</span>
+          <div class="option-info">
+            <span class="option-title">Color Theme</span>
+            <span class="option-desc">Colors that match your trip</span>
+          </div>
+          <span class="option-badge">Coming Soon</span>
+        </button>
+      </div>
+    `;
+  }
+}
+
+/**
+ * Check if the trip has personalization
+ */
+export function hasPersonalization() {
+  return !!window.tripPersonalization?.theme;
+}
+
+/**
+ * Get current personalization state
+ */
+export function getPersonalizationState() {
+  return {
+    hasTheme: !!window.tripPersonalization?.theme,
+    hasNicknames: !!window.tripPersonalization?.dayNicknames && Object.keys(window.tripPersonalization.dayNicknames).length > 0,
+    hasBackgrounds: !!window.tripPersonalization?.dayBackgrounds && Object.keys(window.tripPersonalization.dayBackgrounds).length > 0,
+    hasEventCards: !!window.tripPersonalization?.eventCards && Object.keys(window.tripPersonalization.eventCards).length > 0
+  };
+}
+
+// ========================================
 // WINDOW EXPORTS
 // ========================================
 
@@ -958,3 +1104,4 @@ window.selectReviewTheme = selectReviewTheme;
 window.selectThemeFromSelector = selectThemeFromSelector;
 window.applyReviewedPersonalization = applyReviewedPersonalization;
 window.revertThemePreview = revertThemePreview;
+window.renderPersonalizeContent = renderPersonalizeContent;

@@ -545,3 +545,496 @@
   margin: 0;
   line-height: 1.4;
 }
+
+/* ========================================
+   TRIP SETTINGS MODAL (Extended)
+   ======================================== */
+
+.trip-settings-modal {
+  max-width: 560px;
+}
+
+/* ========================================
+   WIZARD MODE STYLES
+   ======================================== */
+
+.wizard-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.wizard-step .step-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.wizard-step.active .step-number {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: white;
+}
+
+.wizard-step.completed .step-number {
+  background: #22c55e;
+  color: white;
+}
+
+.wizard-step .step-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.wizard-step.active .step-label {
+  color: var(--color-primary);
+}
+
+.wizard-step.completed .step-label {
+  color: #22c55e;
+}
+
+.wizard-step-line {
+  width: 60px;
+  height: 2px;
+  background: #e2e8f0;
+  margin: 0 8px 16px;
+  transition: background 0.3s ease;
+}
+
+.wizard-step-line.completed {
+  background: #22c55e;
+}
+
+.wizard-body {
+  padding: 24px;
+}
+
+/* Wizard Welcome Step */
+.wizard-welcome {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.wizard-welcome-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+.wizard-welcome h2 {
+  margin: 0 0 8px 0;
+  font-size: 1.5rem;
+  color: var(--color-charcoal);
+}
+
+.wizard-welcome-text {
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+.wizard-welcome-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+  align-items: center;
+}
+
+.welcome-feature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.welcome-feature .material-symbols-outlined {
+  color: var(--color-primary);
+  font-size: 1.2rem;
+}
+
+.wizard-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+}
+
+/* Wizard Travelers Step */
+.wizard-travelers h3,
+.wizard-personalize h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.25rem;
+  color: var(--color-charcoal);
+}
+
+.wizard-subtitle {
+  color: #64748b;
+  margin: 0 0 20px 0;
+  font-size: 0.9rem;
+}
+
+.wizard-travelers-list {
+  max-height: 280px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.wizard-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.wizard-nav .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wizard-nav .btn.text {
+  background: none;
+  color: #64748b;
+  padding: 8px 12px;
+}
+
+.wizard-nav .btn.text:hover {
+  color: var(--color-charcoal);
+  background: #f1f5f9;
+}
+
+/* Wizard Personalize Step */
+.wizard-personalize-content {
+  margin-bottom: 20px;
+}
+
+/* ========================================
+   PERSONALIZE TAB STYLES
+   ======================================== */
+
+.personalize-tab-content {
+  padding: 0;
+}
+
+.personalize-intro {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.personalize-icon {
+  margin-bottom: 12px;
+}
+
+.personalize-icon .ai-key-icon.large {
+  width: 48px;
+  height: 48px;
+}
+
+.personalize-intro h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  color: var(--color-charcoal);
+}
+
+.personalize-intro p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Full Personalization Button */
+.personalize-main-action {
+  margin: 20px 0;
+}
+
+.ai-full-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.ai-full-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(19, 78, 94, 0.3);
+}
+
+.ai-full-btn .material-symbols-outlined:first-child {
+  font-size: 1.75rem;
+}
+
+.ai-full-btn-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ai-full-btn-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.ai-full-btn-desc {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+/* Personalize Divider */
+.personalize-divider {
+  display: flex;
+  align-items: center;
+  margin: 24px 0;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.personalize-divider::before,
+.personalize-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.personalize-divider span {
+  padding: 0 16px;
+}
+
+/* Personalize Option Cards */
+.personalize-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.personalize-option-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.personalize-option-card:hover:not(.disabled) {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateX(4px);
+}
+
+.personalize-option-card.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.personalize-option-card > .material-symbols-outlined:first-child {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.personalize-option-card .option-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.personalize-option-card .option-title {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+
+.personalize-option-card .option-desc {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.personalize-option-card .option-arrow {
+  color: #94a3b8;
+}
+
+.personalize-option-card .option-badge {
+  background: #e2e8f0;
+  color: #64748b;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* Personalize Options Grid (when personalized) */
+.personalize-options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.personalize-option-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.personalize-option-btn:hover {
+  background: #f1f5f9;
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.personalize-option-btn .material-symbols-outlined {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+}
+
+.personalize-option-btn .option-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+/* Current Theme Display (when personalized) */
+.personalize-current {
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.personalize-theme-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.personalize-theme-display .theme-emoji {
+  font-size: 2rem;
+}
+
+.personalize-theme-display .theme-info {
+  flex: 1;
+}
+
+.personalize-theme-display .theme-name {
+  font-weight: 600;
+  color: var(--color-charcoal);
+  font-size: 1rem;
+}
+
+.personalize-theme-display .theme-description {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.personalize-current .theme-palette-preview {
+  display: flex;
+  gap: 6px;
+}
+
+.personalize-current .theme-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.personalize-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.personalize-actions .btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ========================================
+   RESPONSIVE STYLES
+   ======================================== */
+
+@media (max-width: 480px) {
+  .wizard-progress {
+    padding: 16px;
+  }
+
+  .wizard-step-line {
+    width: 40px;
+  }
+
+  .wizard-body {
+    padding: 16px;
+  }
+
+  .personalize-options-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .modal-tabs {
+    padding: 0 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-tabs .tab {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .modal-tabs .tab .material-symbols-outlined {
+    font-size: 1rem;
+  }
+}

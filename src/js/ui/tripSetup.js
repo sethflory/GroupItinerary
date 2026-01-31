@@ -1,18 +1,22 @@
 // ========================================
-// TRIP SETUP MODAL
+// TRIP SETTINGS MODAL (formerly Trip Setup)
+// Supports both wizard mode (new trips) and tabbed mode (maintenance)
 // ========================================
 
 import { currentTripId } from '../state.js';
 import { API_BASE } from '../config.js';
 import { getStoredAccessCode, isAdmin } from '../auth.js';
+import { renderPersonalizeContent, hasPersonalization } from './aiAssist.js';
 
 // ========================================
 // STATE
 // ========================================
 
-let activeTab = 'travelers';
+let activeTab = 'personalize';
 let travelers = [];
 let isLoading = false;
+let wizardMode = false;
+let wizardStep = 1; // 1: Welcome, 2: Travelers, 3: Personalize
 
 // ========================================
 // API HELPERS
@@ -47,54 +51,80 @@ async function fetchTripSetup(endpoint, method = 'GET', body = null) {
 }
 
 // ========================================
+// WIZARD MODE DETECTION
+// ========================================
+
+function shouldShowWizard() {
+  // Show wizard if: no personalization AND only 1 traveler AND not completed before
+  const setupComplete = localStorage.getItem(`tripSetupComplete_${currentTripId}`);
+  if (setupComplete === 'true') return false;
+
+  const hasPersonalized = hasPersonalization();
+  const hasFewTravelers = travelers.length <= 1;
+
+  return !hasPersonalized && hasFewTravelers;
+}
+
+function markSetupComplete() {
+  localStorage.setItem(`tripSetupComplete_${currentTripId}`, 'true');
+  wizardMode = false;
+  wizardStep = 1;
+}
+
+// ========================================
 // MODAL MANAGEMENT
 // ========================================
 
-export function openTripSetupModal() {
-  let modal = document.getElementById('tripSetupModal');
+export function openTripSetupModal(forceTab = null) {
+  let modal = document.getElementById('tripSettingsModal');
   if (!modal) {
-    createTripSetupModal();
-    modal = document.getElementById('tripSetupModal');
+    createTripSettingsModal();
+    modal = document.getElementById('tripSettingsModal');
   }
+
+  // Load travelers first to determine mode
+  loadTravelers().then(() => {
+    // Determine if we should show wizard or tabs
+    wizardMode = shouldShowWizard();
+
+    if (forceTab) {
+      wizardMode = false;
+      activeTab = forceTab;
+    }
+
+    renderModalContent();
+  });
+
   modal.classList.add('active');
-  loadTravelers();
 }
 
 export function closeTripSetupModal() {
-  const modal = document.getElementById('tripSetupModal');
+  const modal = document.getElementById('tripSettingsModal');
   if (modal) {
     modal.classList.remove('active');
   }
+  // Reset state
+  wizardStep = 1;
 }
 
-function createTripSetupModal() {
+// Alias for backward compatibility
+export const openTripSettingsModal = openTripSetupModal;
+export const closeTripSettingsModal = closeTripSetupModal;
+
+function createTripSettingsModal() {
   const modal = document.createElement('div');
-  modal.id = 'tripSetupModal';
+  modal.id = 'tripSettingsModal';
   modal.className = 'modal-overlay';
   modal.innerHTML = `
-    <div class="modal trip-setup-modal">
+    <div class="modal trip-setup-modal trip-settings-modal">
       <div class="modal-header">
         <h3><span class="material-symbols-outlined">settings</span> Trip Settings</h3>
         <button class="modal-close" onclick="closeTripSetupModal()">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
-      <div class="modal-tabs">
-        <button class="tab active" data-tab="travelers" onclick="switchTripSetupTab('travelers')">
-          <span class="material-symbols-outlined">group</span>
-          Travelers
-        </button>
-        <button class="tab" data-tab="codes" onclick="switchTripSetupTab('codes')">
-          <span class="material-symbols-outlined">key</span>
-          Access Codes
-        </button>
-        <button class="tab" data-tab="import" onclick="switchTripSetupTab('import')">
-          <span class="material-symbols-outlined">upload</span>
-          Import
-        </button>
-      </div>
-      <div class="modal-body" id="tripSetupBody">
-        <div class="loading-spinner">Loading...</div>
+      <div id="tripSettingsContent">
+        <div class="loading-spinner"><span class="material-symbols-outlined spinning">progress_activity</span> Loading...</div>
       </div>
     </div>
   `;
@@ -105,6 +135,250 @@ function createTripSetupModal() {
   });
 }
 
+function renderModalContent() {
+  const contentEl = document.getElementById('tripSettingsContent');
+  if (!contentEl) return;
+
+  if (wizardMode) {
+    renderWizardContent(contentEl);
+  } else {
+    renderTabbedContent(contentEl);
+  }
+}
+
+// ========================================
+// WIZARD MODE RENDERING
+// ========================================
+
+function renderWizardContent(container) {
+  const trip = window.getCurrentTrip?.() || { name: 'Your Trip', emoji: '✈️' };
+
+  container.innerHTML = `
+    <div class="wizard-progress">
+      <div class="wizard-step ${wizardStep >= 1 ? 'active' : ''} ${wizardStep > 1 ? 'completed' : ''}">
+        <span class="step-number">1</span>
+        <span class="step-label">Welcome</span>
+      </div>
+      <div class="wizard-step-line ${wizardStep > 1 ? 'completed' : ''}"></div>
+      <div class="wizard-step ${wizardStep >= 2 ? 'active' : ''} ${wizardStep > 2 ? 'completed' : ''}">
+        <span class="step-number">2</span>
+        <span class="step-label">Travelers</span>
+      </div>
+      <div class="wizard-step-line ${wizardStep > 2 ? 'completed' : ''}"></div>
+      <div class="wizard-step ${wizardStep >= 3 ? 'active' : ''}">
+        <span class="step-number">3</span>
+        <span class="step-label">Personalize</span>
+      </div>
+    </div>
+    <div class="wizard-body" id="wizardBody">
+      <!-- Step content rendered here -->
+    </div>
+  `;
+
+  const wizardBody = document.getElementById('wizardBody');
+  renderWizardStep(wizardBody);
+}
+
+function renderWizardStep(container) {
+  if (wizardStep === 1) {
+    renderWelcomeStep(container);
+  } else if (wizardStep === 2) {
+    renderTravelersStep(container);
+  } else if (wizardStep === 3) {
+    renderPersonalizeStep(container);
+  }
+}
+
+function renderWelcomeStep(container) {
+  const trip = window.getCurrentTrip?.() || { name: 'Your Trip', emoji: '✈️' };
+
+  container.innerHTML = `
+    <div class="wizard-welcome">
+      <div class="wizard-welcome-icon">${trip.emoji || '✈️'}</div>
+      <h2>${trip.name || 'Your Trip'}</h2>
+      <p class="wizard-welcome-text">Let's set up your trip to make it perfect for everyone!</p>
+      <div class="wizard-welcome-features">
+        <div class="welcome-feature">
+          <span class="material-symbols-outlined">group</span>
+          <span>Add your fellow travelers</span>
+        </div>
+        <div class="welcome-feature">
+          <span class="material-symbols-outlined">auto_awesome</span>
+          <span>Personalize with AI magic</span>
+        </div>
+        <div class="welcome-feature">
+          <span class="material-symbols-outlined">palette</span>
+          <span>Get a custom theme</span>
+        </div>
+      </div>
+      <button class="btn primary wizard-btn" onclick="wizardNext()">
+        Get Started
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+    </div>
+  `;
+}
+
+function renderTravelersStep(container) {
+  container.innerHTML = `
+    <div class="wizard-travelers">
+      <h3>Who's traveling?</h3>
+      <p class="wizard-subtitle">Add everyone in your group so they can access the itinerary.</p>
+
+      <div class="travelers-list wizard-travelers-list">
+        ${travelers.length > 0 ? travelers.map(t => `
+          <div class="traveler-item" data-id="${t.id}">
+            <div class="traveler-avatar" style="background: ${t.color}">${t.initials}</div>
+            <div class="traveler-info">
+              <span class="traveler-name">${escapeHtml(t.name)}</span>
+              <span class="traveler-group badge-${getGroupClass(t.group)}">${t.group || 'guest'}</span>
+            </div>
+            <div class="traveler-actions">
+              <button class="icon-btn" onclick="editTraveler('${t.id}')" title="Edit">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              ${travelers.length > 1 ? `
+                <button class="icon-btn danger" onclick="confirmDeleteTraveler('${t.id}', '${escapeHtml(t.name)}')" title="Delete">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `).join('') : '<p class="no-data">No travelers yet</p>'}
+      </div>
+
+      <div class="add-traveler-section">
+        <button class="add-btn" onclick="showAddTravelerForm()">
+          <span class="material-symbols-outlined">person_add</span>
+          Add Traveler
+        </button>
+      </div>
+      <div id="travelerFormContainer"></div>
+
+      <div class="wizard-nav">
+        <button class="btn secondary" onclick="wizardBack()">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Back
+        </button>
+        <button class="btn primary" onclick="wizardNext()">
+          Continue
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderPersonalizeStep(container) {
+  container.innerHTML = `
+    <div class="wizard-personalize">
+      <h3>Make it yours</h3>
+      <p class="wizard-subtitle">Let AI personalize your itinerary with creative touches.</p>
+
+      <div class="wizard-personalize-content" id="wizardPersonalizeContent">
+        <!-- Personalize content rendered here -->
+      </div>
+
+      <div class="wizard-nav">
+        <button class="btn secondary" onclick="wizardBack()">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Back
+        </button>
+        <button class="btn text" onclick="wizardSkip()">
+          Skip for now
+        </button>
+        <button class="btn primary" onclick="wizardFinish()">
+          Done
+          <span class="material-symbols-outlined">check</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Render the personalize content
+  const personalizeContent = document.getElementById('wizardPersonalizeContent');
+  renderPersonalizeContent(personalizeContent);
+}
+
+export function wizardNext() {
+  if (wizardStep < 3) {
+    wizardStep++;
+    renderModalContent();
+  }
+}
+
+export function wizardBack() {
+  if (wizardStep > 1) {
+    wizardStep--;
+    renderModalContent();
+  }
+}
+
+export function wizardSkip() {
+  wizardFinish();
+}
+
+export function wizardFinish() {
+  markSetupComplete();
+
+  // Show success toast
+  showSuccessToast('Trip setup complete!');
+
+  // Close modal
+  closeTripSetupModal();
+}
+
+function showSuccessToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'ai-toast ai-toast-success';
+  toast.innerHTML = `
+    <span class="material-symbols-outlined">check_circle</span>
+    <span>${message}</span>
+  `;
+
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('visible'));
+
+  setTimeout(() => {
+    toast.classList.remove('visible');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// ========================================
+// TABBED MODE RENDERING
+// ========================================
+
+function renderTabbedContent(container) {
+  container.innerHTML = `
+    <div class="modal-tabs">
+      <button class="tab ${activeTab === 'personalize' ? 'active' : ''}" data-tab="personalize" onclick="switchTripSetupTab('personalize')">
+        <span class="material-symbols-outlined">auto_awesome</span>
+        Personalize
+      </button>
+      <button class="tab ${activeTab === 'travelers' ? 'active' : ''}" data-tab="travelers" onclick="switchTripSetupTab('travelers')">
+        <span class="material-symbols-outlined">group</span>
+        Travelers
+      </button>
+      <button class="tab ${activeTab === 'codes' ? 'active' : ''}" data-tab="codes" onclick="switchTripSetupTab('codes')">
+        <span class="material-symbols-outlined">key</span>
+        Access
+      </button>
+      <button class="tab ${activeTab === 'import' ? 'active' : ''}" data-tab="import" onclick="switchTripSetupTab('import')">
+        <span class="material-symbols-outlined">upload</span>
+        Import
+      </button>
+    </div>
+    <div class="modal-body" id="tripSetupBody">
+      ${isLoading ? '<div class="loading-spinner"><span class="material-symbols-outlined spinning">progress_activity</span> Loading...</div>' : ''}
+    </div>
+  `;
+
+  if (!isLoading) {
+    renderTabContent();
+  }
+}
+
 // ========================================
 // TAB SWITCHING
 // ========================================
@@ -113,7 +387,7 @@ export function switchTripSetupTab(tab) {
   activeTab = tab;
 
   // Update tab buttons
-  document.querySelectorAll('.trip-setup-modal .tab').forEach(btn => {
+  document.querySelectorAll('.trip-settings-modal .tab').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tab === tab);
   });
 
@@ -127,7 +401,6 @@ export function switchTripSetupTab(tab) {
 
 async function loadTravelers() {
   isLoading = true;
-  renderTabContent();
 
   try {
     const result = await fetchTripSetup('travelers');
@@ -139,7 +412,7 @@ async function loadTravelers() {
   }
 
   isLoading = false;
-  renderTabContent();
+  return travelers;
 }
 
 // ========================================
@@ -155,13 +428,21 @@ function renderTabContent() {
     return;
   }
 
-  if (activeTab === 'travelers') {
+  if (activeTab === 'personalize') {
+    renderPersonalizeTab(body);
+  } else if (activeTab === 'travelers') {
     renderTravelersTab(body);
   } else if (activeTab === 'codes') {
     renderCodesTab(body);
   } else if (activeTab === 'import') {
     renderImportTab(body);
   }
+}
+
+function renderPersonalizeTab(container) {
+  container.innerHTML = `<div class="personalize-tab-content" id="personalizeTabContent"></div>`;
+  const content = document.getElementById('personalizeTabContent');
+  renderPersonalizeContent(content);
 }
 
 function renderTravelersTab(container) {
@@ -330,7 +611,13 @@ export async function submitAddTraveler(event) {
     if (result.id) {
       travelers.push(result);
       hideAddTravelerForm();
-      renderTabContent();
+
+      // Re-render based on mode
+      if (wizardMode) {
+        renderModalContent();
+      } else {
+        renderTabContent();
+      }
 
       // Update global TRAVELERS
       if (window.TRAVELERS) {
@@ -417,7 +704,13 @@ export async function submitEditTraveler(event, id) {
         travelers[idx] = { ...travelers[idx], ...result };
       }
       hideAddTravelerForm();
-      renderTabContent();
+
+      // Re-render based on mode
+      if (wizardMode) {
+        renderModalContent();
+      } else {
+        renderTabContent();
+      }
 
       // Update global TRAVELERS
       if (window.TRAVELERS) {
@@ -455,7 +748,13 @@ async function deleteTraveler(id) {
 
     if (result.success) {
       travelers = travelers.filter(t => t.id !== id);
-      renderTabContent();
+
+      // Re-render based on mode
+      if (wizardMode) {
+        renderModalContent();
+      } else {
+        renderTabContent();
+      }
 
       // Update global TRAVELERS
       if (window.TRAVELERS) {
@@ -602,5 +901,15 @@ function getRandomColor() {
 // ========================================
 
 export {
-  loadTravelers
+  loadTravelers,
+  wizardNext,
+  wizardBack,
+  wizardSkip,
+  wizardFinish
 };
+
+// Window exports for wizard navigation
+window.wizardNext = wizardNext;
+window.wizardBack = wizardBack;
+window.wizardSkip = wizardSkip;
+window.wizardFinish = wizardFinish;

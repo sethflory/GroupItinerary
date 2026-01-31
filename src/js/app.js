@@ -316,6 +316,8 @@ window.finishScoring = trivia.finishScoring;
 
 window.openTripSetupModal = tripSetup.openTripSetupModal;
 window.closeTripSetupModal = tripSetup.closeTripSetupModal;
+window.openTripSettingsModal = tripSetup.openTripSetupModal; // Alias
+window.closeTripSettingsModal = tripSetup.closeTripSetupModal; // Alias
 window.switchTripSetupTab = tripSetup.switchTripSetupTab;
 window.showAddTravelerForm = tripSetup.showAddTravelerForm;
 window.hideAddTravelerForm = tripSetup.hideAddTravelerForm;
@@ -326,6 +328,10 @@ window.confirmDeleteTraveler = tripSetup.confirmDeleteTraveler;
 window.toggleCodeVisibility = tripSetup.toggleCodeVisibility;
 window.copyAccessCode = tripSetup.copyAccessCode;
 window.regenerateCode = tripSetup.regenerateCode;
+window.wizardNext = tripSetup.wizardNext;
+window.wizardBack = tripSetup.wizardBack;
+window.wizardSkip = tripSetup.wizardSkip;
+window.wizardFinish = tripSetup.wizardFinish;
 
 // ========================================
 // RECEIPT UPLOAD EXPORTS
@@ -374,7 +380,6 @@ window.openShareMap = menu.openShareMap;
 window.openTrivia = menu.openTrivia;
 window.openSwitchTrip = menu.openSwitchTrip;
 window.openTripSettings = menu.openTripSettings;
-window.openAiAssist = menu.openAiAssist;
 window.logout = menu.logout;
 
 // ========================================
@@ -413,6 +418,9 @@ window.openAiAssistModal = aiAssist.openAiAssistModal;
 window.closeAiAssistModal = aiAssist.closeAiAssistModal;
 window.openThemeSelector = aiAssist.openThemeSelector;
 window.closeThemeSelector = aiAssist.closeThemeSelector;
+window.renderPersonalizeContent = aiAssist.renderPersonalizeContent;
+window.hasPersonalization = aiAssist.hasPersonalization;
+window.getPersonalizationState = aiAssist.getPersonalizationState;
 
 // ========================================
 // THEME MANAGER EXPORTS
