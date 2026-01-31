@@ -181,8 +181,23 @@ export function renderEventCard(e, notMine = false) {
   const isNotMine = notMine || (currentTravelerFilter !== 'all' && !isForTraveler(e.travelers, currentTravelerFilter));
   const iconName = getEventIcon(e.type);
 
+  // Get event image from personalization
+  const personalization = window.tripPersonalization;
+  let eventImage = personalization?.eventImages?.[e.id];
+
+  // DEMO MODE: Show sample event image for first activity
+  // TODO: Remove after Unsplash approval
+  if (!eventImage && window.UNSPLASH_DEMO_MODE && e.type === 'activity') {
+    eventImage = {
+      url: 'https://images.unsplash.com/photo-1555993539-1732b0258235?w=800&q=80',
+      thumb: 'https://images.unsplash.com/photo-1555993539-1732b0258235?w=400&q=80',
+      credit: 'Spencer Davis',
+      creditUrl: 'https://unsplash.com/@spencerdavis'
+    };
+  }
+
   return `
-    <div class="event-card ${e.type} ${isNotMine ? 'not-mine' : ''}">
+    <div class="event-card ${e.type} ${isNotMine ? 'not-mine' : ''} ${eventImage ? 'has-image' : ''}">
       <div class="event-main">
         <div class="event-header">
           <div class="event-icon ${e.type}">
@@ -224,6 +239,14 @@ export function renderEventCard(e, notMine = false) {
           </div>
         </div>
       </div>
+      ${eventImage?.url ? `
+        <div class="event-image">
+          <img src="${eventImage.url}" alt="${e.title}" loading="lazy">
+          <div class="event-image-attribution">
+            Photo by <a href="${eventImage.creditUrl}?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">${eventImage.credit}</a> on <a href="https://unsplash.com?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>
+          </div>
+        </div>
+      ` : ''}
       ${e.details ? `<div class="event-details"><p>${e.details}</p></div>` : ''}
       ${e.carousel && CAROUSELS[e.carousel] ? renderCarousel(e.carousel) : ''}
       ${e.mapsLink || e.where ? `
