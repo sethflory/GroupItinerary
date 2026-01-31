@@ -107,6 +107,10 @@ async function validateTripCode(context, req, headers) {
 
   // Check TripMembers table for traveler-specific code
   const members = await queryByPartition(TABLES.TRIP_MEMBERS, tripId);
+  console.log(`[Auth] Checking ${members.length} TripMembers for tripId=${tripId}, code=${accessCode}`);
+  const memberCodes = members.map(m => m.tripCode).filter(Boolean);
+  console.log("[Auth] TripMembers codes:", memberCodes);
+
   const member = members.find(m =>
     m.tripCode && accessCode.toLowerCase() === m.tripCode.toLowerCase()
   );
@@ -133,6 +137,10 @@ async function validateTripCode(context, req, headers) {
 
   // Legacy: Check old Travelers table
   const legacyTravelers = await queryByPartition(TABLES.TRAVELERS, tripId);
+  console.log(`[Auth] Checking ${legacyTravelers.length} legacy Travelers for tripId=${tripId}`);
+  const legacyCodes = legacyTravelers.map(t => t.accessCode).filter(Boolean);
+  console.log("[Auth] Travelers accessCodes:", legacyCodes);
+
   const legacyTraveler = legacyTravelers.find(t =>
     t.accessCode && accessCode.toLowerCase() === t.accessCode.toLowerCase()
   );
@@ -156,6 +164,7 @@ async function validateTripCode(context, req, headers) {
   }
 
   // No matching code found
+  console.log(`[Auth] No matching code found for: ${accessCode}`);
   sendError(context, "Invalid access code", 403, headers);
 }
 
