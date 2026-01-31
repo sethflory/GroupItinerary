@@ -2,8 +2,9 @@
 // SCOREBOARD
 // ========================================
 
-import { currentTripId, getCurrentTraveler } from '../state.js';
+import { currentTripId } from '../state.js';
 import { API_BASE } from '../config.js';
+import { getCurrentTravelerId } from '../auth.js';
 
 let TRAVELERS = [];
 let cachedScores = null;
@@ -65,8 +66,8 @@ function getDemoScores() {
 // ========================================
 
 function renderScoreboard(scores, activity) {
-  const currentUser = getCurrentTraveler();
-  const currentUserId = currentUser?.id;
+  const currentUserId = getCurrentTravelerId();
+  const currentUser = TRAVELERS.find(t => t.id === currentUserId);
 
   const listHtml = scores.length > 0 ? scores.map((score, index) => {
     const rank = index + 1;
