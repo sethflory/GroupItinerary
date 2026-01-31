@@ -52,11 +52,24 @@
       text-align: center;
     }
 
+    .day-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
     .day-header-date {
       font-size: 0.875rem;
       color: var(--color-text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .day-header-label {
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
     }
 
     .day-header-title {
@@ -64,11 +77,6 @@
       font-size: 1.75rem;
       font-weight: 700;
       margin: 4px 0;
-    }
-
-    .day-header-subtitle {
-      color: var(--color-text-muted);
-      font-size: 0.95rem;
     }
 
     .day-meta-cards {

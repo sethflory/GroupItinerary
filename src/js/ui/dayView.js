@@ -113,9 +113,11 @@ export function renderDayDetail() {
         <span class="material-symbols-outlined">chevron_left</span>
       </button>
       <div class="day-header-main">
-        <div class="day-header-date">Day ${day.dayNum} • ${day.label}</div>
+        <div class="day-header-top">
+          <span class="day-header-date">Day ${day.dayNum}</span>
+          <span class="day-header-label">${day.label}</span>
+        </div>
         <h2 class="day-header-title">${day.theme}</h2>
-        <div class="day-header-subtitle">${day.location} ${dest.city ? `• ${dest.city}, ${dest.country}` : ''}</div>
         ${renderDinnerPollButton(day.date)}
       </div>
       <button class="day-nav-arrow ${isLast ? 'disabled' : ''}" onclick="goToNextDay()" ${isLast ? 'disabled' : ''} title="Next Day">
