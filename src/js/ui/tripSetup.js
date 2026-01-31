@@ -362,9 +362,15 @@ export function editTraveler(id) {
   container.innerHTML = `
     <div class="traveler-form">
       <h4>Edit Traveler</h4>
-      <div class="form-group">
-        <label>Name</label>
-        <input type="text" id="editTravelerName" value="${escapeHtml(traveler.name)}" maxlength="50">
+      <div class="form-row">
+        <div class="form-group flex-grow">
+          <label>Name</label>
+          <input type="text" id="editTravelerName" value="${escapeHtml(traveler.name)}" maxlength="50">
+        </div>
+        <div class="form-group form-group-small">
+          <label>Initial</label>
+          <input type="text" id="editTravelerInitials" value="${escapeHtml(traveler.initials || '')}" maxlength="2" class="input-initials">
+        </div>
       </div>
       <div class="form-group">
         <label>Group</label>
@@ -388,6 +394,7 @@ export function editTraveler(id) {
 
 export async function submitEditTraveler(event, id) {
   const name = document.getElementById('editTravelerName').value.trim();
+  const initials = document.getElementById('editTravelerInitials').value.trim().toUpperCase();
   const group = document.getElementById('editTravelerGroup').value;
   const color = document.getElementById('editTravelerColor').value;
 
@@ -401,7 +408,7 @@ export async function submitEditTraveler(event, id) {
   btn.textContent = 'Saving...';
 
   try {
-    const result = await fetchTripSetup(`travelers/${id}`, 'PUT', { name, group, color });
+    const result = await fetchTripSetup(`travelers/${id}`, 'PUT', { name, initials, group, color });
 
     if (result.id) {
       // Update local state
@@ -416,7 +423,7 @@ export async function submitEditTraveler(event, id) {
       if (window.TRAVELERS) {
         const globalIdx = window.TRAVELERS.findIndex(t => t.id === id);
         if (globalIdx >= 0) {
-          window.TRAVELERS[globalIdx] = { ...window.TRAVELERS[globalIdx], name, group, color };
+          window.TRAVELERS[globalIdx] = { ...window.TRAVELERS[globalIdx], name, initials, group, color };
         }
       }
     } else {
