@@ -30,6 +30,7 @@ import * as menu from './ui/menu.js';
 import * as contextBar from './ui/contextBar.js';
 import * as activityPills from './ui/activityPills.js';
 import * as scoreboard from './ui/scoreboard.js';
+import * as timezoneClocks from './ui/timezoneClocks.js';
 
 // ========================================
 // GLOBAL STATE
@@ -528,6 +529,7 @@ function init() {
   menu.initMenu();
   contextBar.initContextBar();
   activityPills.initActivityPills();
+  timezoneClocks.initTimezoneClocks();
 
   // Check access (will show lock screen or registration modal if needed)
   auth.checkAccessOnLoad(async (session) => {

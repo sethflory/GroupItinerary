@@ -333,6 +333,221 @@
       font-size: 20px;
     }
 
+    /* ========================================
+       TIMEZONE CLOCKS WIDGET
+       ======================================== */
+    .timezone-clocks {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-right: 12px;
+    }
+
+    .tz-clock {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .clock-face {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid var(--color-border);
+      position: relative;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .clock-face::before {
+      content: '';
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--color-text);
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+    }
+
+    .clock-hand {
+      position: absolute;
+      bottom: 50%;
+      left: 50%;
+      transform-origin: bottom center;
+      background: var(--color-text);
+      border-radius: 2px;
+    }
+
+    .clock-hand.hour {
+      width: 2px;
+      height: 8px;
+      margin-left: -1px;
+    }
+
+    .clock-hand.minute {
+      width: 1.5px;
+      height: 11px;
+      margin-left: -0.75px;
+      background: var(--color-text-muted);
+    }
+
+    .clock-city {
+      font-size: 0.65rem;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+
+    /* Add timezone button */
+    .tz-clock-add {
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+
+    .tz-clock-add:hover {
+      opacity: 1;
+    }
+
+    .clock-face-add {
+      border-style: dashed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .clock-face-add::before {
+      display: none;
+    }
+
+    .clock-face-add .material-symbols-outlined {
+      font-size: 16px;
+      color: var(--color-text-muted);
+    }
+
+    /* Third timezone when active */
+    .tz-clock.tz-clock-custom .clock-face {
+      border-color: var(--color-sky);
+    }
+
+    /* Timezone Picker Modal */
+    .tz-picker-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .tz-picker-content {
+      background: white;
+      border-radius: var(--radius-lg);
+      max-width: 320px;
+      width: 100%;
+      max-height: 80vh;
+      overflow: hidden;
+      box-shadow: var(--shadow-elevated);
+    }
+
+    .tz-picker-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .tz-picker-header h4 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .tz-picker-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      color: var(--color-text-muted);
+    }
+
+    .tz-picker-close:hover {
+      background: var(--color-cream);
+    }
+
+    .tz-picker-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 16px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .tz-picker-option {
+      padding: 12px 8px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .tz-picker-option:hover {
+      border-color: var(--color-sky);
+      background: rgba(79, 172, 254, 0.1);
+    }
+
+    .tz-option-city {
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .tz-picker-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .tz-picker-remove {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background: #fee2e2;
+      color: #dc2626;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+
+    .tz-picker-remove:hover {
+      background: #fecaca;
+    }
+
+    .tz-picker-remove .material-symbols-outlined {
+      font-size: 18px;
+    }
+
     /* Mobile action bar */
     @media (max-width: 480px) {
       .action-bar-content {
@@ -352,6 +567,38 @@
 
       .action-divider {
         margin: 0 2px;
+      }
+
+      .timezone-clocks {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .timezone-clocks {
+        gap: 8px;
+        margin-right: 8px;
+      }
+
+      .clock-face {
+        width: 28px;
+        height: 28px;
+      }
+
+      .clock-hand.hour {
+        height: 7px;
+      }
+
+      .clock-hand.minute {
+        height: 9px;
+      }
+
+      .clock-city {
+        font-size: 0.6rem;
+      }
+
+      .tz-clock-add {
+        display: none;
       }
     }
 
