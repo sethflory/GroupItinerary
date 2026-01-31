@@ -948,16 +948,20 @@ let treasureMap = null;
 let mapMarkers = [];
 
 function openTreasureMap() {
-  // Create map modal if it doesn't exist
-  let modal = document.getElementById('treasureMapModal');
-  if (!modal) {
-    modal = createTreasureMapModal();
+  // Remove existing modal to refresh with current data
+  const existingModal = document.getElementById('treasureMapModal');
+  if (existingModal) {
+    existingModal.remove();
+    treasureMap = null;
+    mapMarkers = [];
   }
 
+  // Create fresh modal with current hunt data
+  const modal = createTreasureMapModal();
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
 
-  // Initialize or update the map
+  // Initialize the map
   setTimeout(() => {
     initTreasureMap();
   }, 100);
