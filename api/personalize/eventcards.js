@@ -61,16 +61,16 @@ Return JSON mapping event IDs to {style, queries}.`;
 
   console.log("[EventCards] Prompt length:", userPrompt.length);
 
-  // Save prompt to debug table
+  // Save truncated prompt to debug table (Azure Table Storage has 64KB limit)
   const debugRowKey = new Date().toISOString().replace(/[:.]/g, "-");
   await upsertEntity(TABLES.DEBUG, {
     partitionKey: "eventcards",
     rowKey: debugRowKey,
-    systemPrompt: SYSTEM_PROMPT,
-    userPrompt: userPrompt,
+    promptLength: userPrompt.length,
+    promptPreview: userPrompt.slice(0, 1000),
     content: "PENDING...",
     timestamp: new Date().toISOString()
-  }).catch(() => {});
+  }).catch(e => console.warn("[EventCards] Debug save failed:", e.message));
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), AI_TIMEOUT);
@@ -102,15 +102,16 @@ Return JSON mapping event IDs to {style, queries}.`;
     const data = await response.json();
     const content = data.content?.[0]?.text;
 
-    // Update debug table with response
+    // Update debug table with truncated response
     await upsertEntity(TABLES.DEBUG, {
       partitionKey: "eventcards",
       rowKey: debugRowKey,
-      systemPrompt: SYSTEM_PROMPT,
-      userPrompt: userPrompt,
-      content: content || "EMPTY",
+      promptLength: userPrompt.length,
+      promptPreview: userPrompt.slice(0, 1000),
+      contentLength: content?.length || 0,
+      contentPreview: (content || "EMPTY").slice(0, 2000),
       timestamp: new Date().toISOString()
-    }).catch(() => {});
+    }).catch(e => console.warn("[EventCards] Debug update failed:", e.message));
 
     if (!content) {
       throw new Error("Empty response from AI");
