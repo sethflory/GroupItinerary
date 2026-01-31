@@ -401,10 +401,6 @@ window.logout = menu.logout;
 window.updateGameMenuItems = menu.updateGameMenuItems;
 window.initGameMenuItems = menu.initGameMenuItems;
 
-// Placeholder functions for games not yet implemented
-window.openBingo = () => { alert('Travel Bingo coming soon!'); };
-window.openPredictions = () => { alert('Trip Predictions coming soon!'); };
-window.openChallenges = () => { alert('Daily Challenges coming soon!'); };
 
 // ========================================
 // CONTEXT BAR EXPORTS

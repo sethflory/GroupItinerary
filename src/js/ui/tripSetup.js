@@ -24,7 +24,7 @@ const DEFAULT_GROUPS = [
   { id: 'everyone', name: 'Everyone', color: '#6b7280', icon: 'group' }
 ];
 
-// Available always-on games
+// Available always-on games and features (only include implemented ones)
 const AVAILABLE_GAMES = [
   {
     id: 'trivia',
@@ -39,27 +39,6 @@ const AVAILABLE_GAMES = [
     description: 'Find and photograph items around your destination to earn points',
     icon: 'search',
     color: '#f59e0b'
-  },
-  {
-    id: 'bingo',
-    name: 'Travel Bingo',
-    description: 'Mark off travel experiences on your bingo card to win',
-    icon: 'grid_view',
-    color: '#10b981'
-  },
-  {
-    id: 'predictions',
-    name: 'Trip Predictions',
-    description: 'Make predictions about the trip and earn points when they come true',
-    icon: 'psychology',
-    color: '#ec4899'
-  },
-  {
-    id: 'challenges',
-    name: 'Daily Challenges',
-    description: 'Complete fun daily challenges to earn bonus points',
-    icon: 'emoji_events',
-    color: '#3b82f6'
   }
 ];
 
