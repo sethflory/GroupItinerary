@@ -67,10 +67,20 @@ export function applyFeatureFlags() {
   }
 }
 
-// Trip registry - trips are loaded from database
-// Add your trip here or it will be fetched from the API
+// Trip registry
 export const TRIPS = {
-  // Trips will be populated from database
+  'greece-india-2026': {
+    id: 'greece-india-2026',
+    name: 'Greece & India 2026',
+    subtitle: 'Our Adventure',
+    dates: 'February 1 - 12, 2026',
+    description: 'Athens together, then onward to India',
+    icon: '🌍',
+    badge: 'live',
+    startDate: '2026-02-01T00:00:00Z',
+    endDate: '2026-02-12T23:59:59Z',
+    accessCode: 'tripmaster2026'
+  }
 };
 
 // API base URL
