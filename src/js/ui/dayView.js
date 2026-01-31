@@ -182,8 +182,26 @@ export function renderEventCard(e, notMine = false) {
   // Get event card config from personalization (new format)
   const personalization = window.tripPersonalization;
   const eventCard = personalization?.eventCards?.[e.id];
-  const cardStyle = eventCard?.cardStyle || 'minimal';
-  const cardImages = eventCard?.images || [];
+
+  // Priority: user-selected images > AI personalization > legacy format
+  let cardImages = [];
+  let cardStyle = 'minimal';
+
+  // Check for user-selected linked photos first
+  if (e.linkedPhotos && e.linkedPhotos.length > 0) {
+    cardImages = e.linkedPhotos.map(p =>
+      typeof p === 'string' ? { url: p, thumb: p } : p
+    );
+    cardStyle = cardImages.length > 1 ? 'carousel' : 'hero';
+  } else if (eventCard?.images?.length > 0) {
+    // AI personalization images
+    cardImages = eventCard.images;
+    cardStyle = eventCard.cardStyle || 'minimal';
+  } else if (e.linkedPhotoUrl) {
+    // Legacy single image format
+    cardImages = [{ url: e.linkedPhotoUrl, thumb: e.linkedPhotoUrl }];
+    cardStyle = 'hero';
+  }
 
   // Fallback to legacy eventImages format
   let eventImage = cardImages[0] || personalization?.eventImages?.[e.id];

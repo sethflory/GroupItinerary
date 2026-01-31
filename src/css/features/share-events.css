@@ -782,27 +782,39 @@
   to { transform: rotate(360deg); }
 }
 
-/* Selected Image Preview */
-.selected-image-preview {
-  position: relative;
+/* Selected Images Preview (Multi-select) */
+.selected-images-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  background: var(--color-surface);
   border-radius: var(--radius-md);
+  margin-top: 8px;
+}
+
+.selected-image-item {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  max-width: 200px;
   border: 2px solid var(--color-primary);
 }
 
-.selected-image-preview img {
+.selected-image-item img {
   width: 100%;
-  height: auto;
-  display: block;
+  height: 100%;
+  object-fit: cover;
 }
 
-.remove-image-btn {
+.selected-image-item .remove-image-btn {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 24px;
-  height: 24px;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: rgba(0,0,0,0.7);
   color: white;
@@ -812,30 +824,52 @@
   align-items: center;
   justify-content: center;
   transition: background 0.2s;
+  opacity: 0;
 }
 
-.remove-image-btn:hover {
+.selected-image-item:hover .remove-image-btn {
+  opacity: 1;
+}
+
+.selected-image-item .remove-image-btn:hover {
   background: rgba(0,0,0,0.9);
 }
 
-.remove-image-btn .material-symbols-outlined {
-  font-size: 16px;
+.selected-image-item .remove-image-btn .material-symbols-outlined {
+  font-size: 14px;
 }
 
-.image-credit {
-  padding: 6px 8px;
-  background: var(--color-surface);
-  font-size: 0.7rem;
+.selected-images-count {
+  font-size: 0.75rem;
   color: var(--color-text-muted);
+  padding: 4px 8px;
 }
 
-.image-credit a {
-  color: var(--color-primary);
-  text-decoration: none;
+/* Mark selected items in search results */
+.image-search-item.selected {
+  border-color: var(--color-primary);
+  opacity: 0.6;
 }
 
-.image-credit a:hover {
-  text-decoration: underline;
+.image-search-item.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--color-primary);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.image-search-item {
+  position: relative;
 }
 
 /* Mobile responsive */

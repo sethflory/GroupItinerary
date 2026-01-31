@@ -215,7 +215,9 @@ window.deleteEventFromForm = events.deleteEventFromForm;
 window.deleteEvent = events.deleteEvent;
 window.searchEventImages = events.searchEventImages;
 window.selectEventImage = events.selectEventImage;
+window.removeSelectedImage = events.removeSelectedImage;
 window.clearSelectedImage = events.clearSelectedImage;
+window.clearSelectedImages = events.clearSelectedImages;
 window.suggestImageFromTitle = events.suggestImageFromTitle;
 window.setImageSource = events.setImageSource;
 

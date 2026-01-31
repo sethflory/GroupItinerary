@@ -8,9 +8,10 @@ import { getStoredAccessCode } from '../auth.js';
 import { createEvent, updateEvent, deleteEventAPI, searchImages, searchPlacePhotos } from '../api.js';
 
 // Image search state
-let selectedImage = null;
+let selectedImages = []; // Array of selected images
 let isSearching = false;
 let imageSource = 'places'; // 'places' or 'unsplash'
+const MAX_IMAGES = 5;
 
 let DAYS, TRAVELERS;
 let editingEventId = null;
@@ -33,7 +34,7 @@ export function openAddEventForm(date) {
   editingEventId = null;
   editingEventDate = date;
   selectedEventTravelers = ['all'];
-  selectedImage = null;
+  selectedImages = [];
 
   document.getElementById('eventFormTitle').innerHTML = '<span class="material-symbols-outlined">add_circle</span> Add Event';
   document.getElementById('eventFormSubmitBtn').textContent = 'Add Event';
@@ -76,22 +77,22 @@ export function openEditEventForm(eventId) {
   document.getElementById('eventFormStatus').value = event.status || 'confirmed';
   document.getElementById('eventFormDetails').value = event.details || '';
 
-  // Handle existing image
+  // Handle existing images
   clearImageSearch();
   setupImageSearchKeyHandler();
 
-  if (event.linkedPhotoUrl) {
-    selectedImage = { url: event.linkedPhotoUrl, thumb: event.linkedPhotoUrl };
-    document.getElementById('eventFormLinkedPhoto').value = event.linkedPhotoUrl;
-
-    const preview = document.getElementById('selectedImagePreview');
-    const img = document.getElementById('selectedImageImg');
-    const creditEl = document.getElementById('selectedImageCredit');
-
-    img.src = event.linkedPhotoUrl;
-    creditEl.innerHTML = 'Existing image';
-    preview.style.display = 'block';
+  // Support both old single image and new array format
+  if (event.linkedPhotos && event.linkedPhotos.length > 0) {
+    selectedImages = event.linkedPhotos.map(p =>
+      typeof p === 'string' ? { url: p, thumb: p, credit: '' } : p
+    );
+  } else if (event.linkedPhotoUrl) {
+    selectedImages = [{ url: event.linkedPhotoUrl, thumb: event.linkedPhotoUrl, credit: '' }];
+  } else {
+    selectedImages = [];
   }
+
+  renderSelectedImages();
 
   populateDayDropdown(day.date);
   renderEventFormTravelers();
@@ -161,9 +162,9 @@ export async function submitEventForm(e) {
   const originalDate = document.getElementById('eventFormOriginalDate').value;
   const dateChanged = editingEventId && newDate !== originalDate;
 
-  // Get linked photo URL if present (from "Add Moment" feature)
-  const linkedPhotoInput = document.getElementById('eventFormLinkedPhoto');
-  const linkedPhotoUrl = linkedPhotoInput?.value || null;
+  // Build linked photos array (keep backwards compatible with linkedPhotoUrl)
+  const linkedPhotos = selectedImages.length > 0 ? selectedImages : null;
+  const linkedPhotoUrl = linkedPhotos?.[0]?.url || null; // Keep for backwards compatibility
 
   const eventData = {
     title: document.getElementById('eventFormTitleInput').value,
@@ -177,7 +178,8 @@ export async function submitEventForm(e) {
     travelers: selectedEventTravelers,
     date: newDate,
     isUserGenerated: true,
-    linkedPhotoUrl
+    linkedPhotoUrl,
+    linkedPhotos
   };
 
   let createdEvent = null;
@@ -393,46 +395,79 @@ export async function searchEventImages() {
 }
 
 export function selectEventImage(url, thumb, credit, creditUrl) {
-  selectedImage = { url, thumb, credit, creditUrl };
+  // Check if already selected
+  if (selectedImages.some(img => img.url === url)) {
+    return;
+  }
 
-  // Update hidden input
-  document.getElementById('eventFormLinkedPhoto').value = url;
+  // Check max limit
+  if (selectedImages.length >= MAX_IMAGES) {
+    alert(`Maximum ${MAX_IMAGES} images allowed`);
+    return;
+  }
 
-  // Show preview
-  const preview = document.getElementById('selectedImagePreview');
-  const img = document.getElementById('selectedImageImg');
-  const creditEl = document.getElementById('selectedImageCredit');
+  selectedImages.push({ url, thumb, credit, creditUrl });
+  renderSelectedImages();
 
-  img.src = thumb || url;
-  creditEl.innerHTML = creditUrl
-    ? `Photo by <a href="${creditUrl}" target="_blank" rel="noopener">${credit}</a> on Unsplash`
-    : `Photo by ${credit} on Unsplash`;
-
-  preview.style.display = 'block';
-
-  // Clear search results
-  document.getElementById('imageSearchResults').innerHTML = '';
-  document.getElementById('eventImageQuery').value = '';
+  // Mark as selected in results
+  const resultItems = document.querySelectorAll('.image-search-item');
+  resultItems.forEach(item => {
+    if (item.querySelector(`img[src="${thumb}"]`)) {
+      item.classList.add('selected');
+    }
+  });
 }
 
+export function removeSelectedImage(index) {
+  selectedImages.splice(index, 1);
+  renderSelectedImages();
+}
+
+export function clearSelectedImages() {
+  selectedImages = [];
+  renderSelectedImages();
+}
+
+function renderSelectedImages() {
+  const container = document.getElementById('selectedImagesPreview');
+  if (!container) return;
+
+  if (selectedImages.length === 0) {
+    container.style.display = 'none';
+    container.innerHTML = '';
+    return;
+  }
+
+  container.style.display = 'flex';
+  container.innerHTML = selectedImages.map((img, index) => `
+    <div class="selected-image-item">
+      <img src="${img.thumb || img.url}" alt="Selected ${index + 1}">
+      <button type="button" class="remove-image-btn" onclick="removeSelectedImage(${index})">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+  `).join('') + `
+    <div class="selected-images-count">${selectedImages.length}/${MAX_IMAGES}</div>
+  `;
+}
+
+// Legacy function for backwards compatibility
 export function clearSelectedImage() {
-  selectedImage = null;
-  document.getElementById('eventFormLinkedPhoto').value = '';
-  document.getElementById('selectedImagePreview').style.display = 'none';
-  document.getElementById('selectedImageImg').src = '';
+  clearSelectedImages();
 }
 
 function clearImageSearch() {
-  selectedImage = null;
+  selectedImages = [];
   const queryInput = document.getElementById('eventImageQuery');
   const resultsContainer = document.getElementById('imageSearchResults');
-  const linkedPhotoInput = document.getElementById('eventFormLinkedPhoto');
-  const preview = document.getElementById('selectedImagePreview');
+  const previewContainer = document.getElementById('selectedImagesPreview');
 
   if (queryInput) queryInput.value = '';
   if (resultsContainer) resultsContainer.innerHTML = '';
-  if (linkedPhotoInput) linkedPhotoInput.value = '';
-  if (preview) preview.style.display = 'none';
+  if (previewContainer) {
+    previewContainer.style.display = 'none';
+    previewContainer.innerHTML = '';
+  }
 }
 
 function escapeAttr(str) {
