@@ -6,6 +6,7 @@
  */
 
 const { validateNarrativeOutput } = require("./sanitize");
+const { TABLES, upsertEntity } = require("../shared/tableStorage");
 
 const AI_TIMEOUT = 45000; // 45 seconds
 
@@ -125,6 +126,20 @@ async function generateNarrative(sanitizedTrip) {
     const data = await response.json();
     console.log("[Narrative] API response keys:", Object.keys(data));
     const content = data.content?.[0]?.text;
+
+    // Save raw response to table storage for debugging
+    try {
+      await upsertEntity(TABLES.DEBUG || "debug", {
+        partitionKey: "narrative",
+        rowKey: new Date().toISOString().replace(/[:.]/g, "-"),
+        content: content ? content.slice(0, 30000) : "EMPTY",
+        contentLength: content?.length || 0,
+        timestamp: new Date().toISOString()
+      });
+      console.log("[Narrative] Saved raw response to debug table");
+    } catch (debugErr) {
+      console.warn("[Narrative] Failed to save debug:", debugErr.message);
+    }
 
     if (!content) {
       throw new Error("AI returned empty response");
