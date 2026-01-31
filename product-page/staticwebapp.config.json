@@ -6,7 +6,7 @@
     },
     {
       "route": "/login",
-      "redirect": "/.auth/login/google?post_login_redirect_uri=/welcome.html"
+      "redirect": "/.auth/login/google?post_login_redirect_uri=https://gentle-beach-0bc288010.4.azurestaticapps.net/welcome.html"
     },
     {
       "route": "/logout",
