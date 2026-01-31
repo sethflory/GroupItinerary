@@ -34,13 +34,10 @@ function createTickerElement() {
     </div>
   `;
 
-  // Insert after activity pills or context bar
-  const activityPills = document.getElementById('activityPills');
-  const contextBar = document.querySelector('.context-bar-wrapper');
-  const insertAfter = activityPills || contextBar;
-
-  if (insertAfter && insertAfter.parentNode) {
-    insertAfter.parentNode.insertBefore(ticker, insertAfter.nextSibling);
+  // Insert at top of day-detail-wrapper (inside the day card area)
+  const dayDetailWrapper = document.querySelector('.day-detail-wrapper');
+  if (dayDetailWrapper) {
+    dayDetailWrapper.insertBefore(ticker, dayDetailWrapper.firstChild);
   } else {
     // Fallback: insert at beginning of main content
     const main = document.querySelector('.main-content');
