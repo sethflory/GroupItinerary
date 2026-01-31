@@ -117,13 +117,13 @@ export function renderDayDetail() {
   const otherEvents = events.filter(e => !['flight', 'activity', 'meal', 'hotel'].includes(e.type));
 
   // Set background class and custom background image
-  container.className = `day-detail ${day.destination}-bg`;
+  // If we have a custom AI background, don't apply destination-specific bg class
   if (dayBg?.url) {
+    container.className = 'day-detail has-custom-bg';
     container.style.setProperty('--day-bg-image', `url('${dayBg.url}')`);
-    container.classList.add('has-custom-bg');
   } else {
+    container.className = `day-detail ${day.destination}-bg`;
     container.style.removeProperty('--day-bg-image');
-    container.classList.remove('has-custom-bg');
   }
 
   const isFirst = currentDayIndex === 0;
