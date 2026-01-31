@@ -134,10 +134,7 @@ export function renderDayDetail() {
         <div class="day-header-date">Day ${day.dayNum} • ${day.label}</div>
         <h2 class="day-header-title">${day.theme}</h2>
         <div class="day-header-subtitle">${day.location} ${dest.city ? `• ${dest.city}, ${dest.country}` : ''}</div>
-        <button class="dinner-poll-btn" onclick="openDinnerPollModal()">
-          <span class="material-symbols-outlined">restaurant_menu</span>
-          What's for Dinner?
-        </button>
+        ${renderDinnerPollButton(day.date)}
       </div>
       <div class="day-meta-cards">
         ${day.estimatedSteps ? `
@@ -330,4 +327,27 @@ export function goToSlide(carouselId, index) {
   dots.forEach((dot, i) => {
     dot.classList.toggle('active', i === index);
   });
+}
+
+// Render dinner poll button with active indicator
+function renderDinnerPollButton(date) {
+  // Check if there's an active poll for this date
+  const activePoll = window.getActivePollForDate ? window.getActivePollForDate(date) : null;
+
+  if (activePoll) {
+    return `
+      <button class="dinner-poll-btn has-active-poll" onclick="openDinnerPollModal()">
+        <span class="poll-indicator"></span>
+        <span class="material-symbols-outlined">restaurant_menu</span>
+        Vote Now! (${activePoll.totalVotes || 0} votes)
+      </button>
+    `;
+  }
+
+  return `
+    <button class="dinner-poll-btn" onclick="openDinnerPollModal()">
+      <span class="material-symbols-outlined">restaurant_menu</span>
+      What's for Dinner?
+    </button>
+  `;
 }

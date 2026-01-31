@@ -301,6 +301,9 @@ window.closeOnboardingModal = onboarding.closeOnboardingModal;
 
 window.openDinnerPollModal = dinnerPoll.openDinnerPollModal;
 window.closeDinnerPollModal = dinnerPoll.closeDinnerPollModal;
+window.getActivePollForDate = dinnerPoll.getActivePollForDate;
+window.getActivePolls = dinnerPoll.getActivePolls;
+window.refreshActivePolls = dinnerPoll.refreshActivePolls;
 
 // ========================================
 // DEPENDENCY INJECTION
@@ -449,7 +452,7 @@ function init() {
   modals.initModalListeners();
 
   // Check access (will show lock screen or registration modal if needed)
-  auth.checkAccessOnLoad((session) => {
+  auth.checkAccessOnLoad(async (session) => {
     // Callback when access is granted
     console.log('[App] Access granted, session:', session);
 
@@ -459,6 +462,14 @@ function init() {
     // Load trip data from API if enabled
     if (isFeatureEnabled('USE_TABLE_STORAGE')) {
       refreshTripData();
+
+      // Load active dinner polls for button indicators
+      try {
+        await dinnerPoll.refreshActivePolls();
+        renderAll(); // Re-render to show poll indicators
+      } catch (e) {
+        console.log('[App] Could not load dinner polls:', e.message);
+      }
     }
 
     // Load photos

@@ -83,7 +83,7 @@ module.exports = async function (context, req) {
   }
 };
 
-// Generate AI restaurant recommendations
+// Generate AI restaurant recommendations (with historical data)
 async function generateRecommendations(context, tripId, body, headers) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -104,15 +104,30 @@ async function generateRecommendations(context, tripId, body, headers) {
     return;
   }
 
-  const cuisineList = filters.cuisineTypes?.length
-    ? filters.cuisineTypes.join(", ")
-    : "any cuisine";
-  const priceList = filters.priceRange?.length
-    ? filters.priceRange.join(", ")
-    : "any price range";
-  const deliveryReq = filters.deliveryOnly ? "Must offer delivery" : "Delivery optional";
+  // Get historical restaurants from past polls
+  const historicalRestaurants = await getHistoricalRestaurants(tripId, filters);
 
-  const prompt = `You are a restaurant recommendation expert for ${destination.city}, ${destination.country || ""}.
+  // Determine how many new AI options we need
+  const historicalCount = Math.min(historicalRestaurants.length, optionCount - 1);
+  const newOptionsNeeded = optionCount - historicalCount;
+
+  let aiOptions = [];
+
+  // Only call AI if we need new options
+  if (newOptionsNeeded > 0) {
+    const cuisineList = filters.cuisineTypes?.length
+      ? filters.cuisineTypes.join(", ")
+      : "any cuisine";
+    const priceList = filters.priceRange?.length
+      ? filters.priceRange.join(", ")
+      : "any price range";
+    const deliveryReq = filters.deliveryOnly ? "Must offer delivery" : "Delivery optional";
+
+    // Exclude restaurants we already have from history
+    const excludeNames = historicalRestaurants.map(r => r.name).join(", ");
+    const excludeClause = excludeNames ? `\n\nDo NOT include these restaurants (already suggested): ${excludeNames}` : "";
+
+    const prompt = `You are a restaurant recommendation expert for ${destination.city}, ${destination.country || ""}.
 
 Trip details:
 - Group size: ${travelerCount || "unknown"} people
@@ -122,9 +137,9 @@ Trip details:
 Filters:
 - Cuisine preferences: ${cuisineList}
 - Price range: ${priceList}
-- Delivery: ${deliveryReq}
+- Delivery: ${deliveryReq}${excludeClause}
 
-Generate exactly ${optionCount} restaurant recommendations. For each, provide these fields:
+Generate exactly ${newOptionsNeeded} restaurant recommendations. For each, provide these fields:
 1. name: Restaurant name (real restaurant in ${destination.city})
 2. cuisine: Type of cuisine
 3. priceRange: One of "$", "$$", "$$$", "$$$$"
@@ -138,67 +153,148 @@ Generate exactly ${optionCount} restaurant recommendations. For each, provide th
 Return ONLY a valid JSON array with no markdown formatting or explanation. Example format:
 [{"name":"...", "cuisine":"...", "priceRange":"...", "description":"...", "address":"...", "websiteUrl":"...", "phoneNumber":"...", "hasDelivery":true, "aiReason":"..."}]`;
 
-  try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01"
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 2048,
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error("AI API error:", data);
-      sendError(context, "AI service error", 500, headers);
-      return;
-    }
-
-    // Parse the AI response
-    const aiText = data.content?.[0]?.text || "";
-    let options;
-
     try {
-      // Extract JSON array from response
-      const jsonMatch = aiText.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        options = JSON.parse(jsonMatch[0]);
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01"
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 2048,
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const aiText = data.content?.[0]?.text || "";
+        try {
+          const jsonMatch = aiText.match(/\[[\s\S]*\]/);
+          if (jsonMatch) {
+            aiOptions = JSON.parse(jsonMatch[0]);
+          }
+        } catch (parseErr) {
+          console.error("Failed to parse AI response:", aiText);
+        }
       } else {
-        throw new Error("No JSON array found in response");
+        console.error("AI API error:", data);
       }
-    } catch (parseErr) {
-      console.error("Failed to parse AI response:", aiText);
-      sendError(context, "Failed to parse AI recommendations", 500, headers);
-      return;
+    } catch (err) {
+      console.error("AI recommendation error:", err);
+    }
+  }
+
+  // Format AI options
+  const formattedAiOptions = aiOptions.map((opt, idx) => ({
+    id: `opt_${Date.now()}_${idx}`,
+    name: opt.name,
+    cuisine: opt.cuisine,
+    priceRange: opt.priceRange,
+    description: opt.description,
+    address: opt.address,
+    mapsLink: buildMapsLink(opt.name, opt.address),
+    websiteUrl: opt.websiteUrl || null,
+    phoneNumber: opt.phoneNumber || null,
+    hasDelivery: opt.hasDelivery || false,
+    aiReason: opt.aiReason,
+    isNew: true,
+    historicalVotes: 0
+  }));
+
+  // Combine historical (sorted by votes) with new AI options
+  const allOptions = [
+    ...historicalRestaurants.slice(0, historicalCount),
+    ...formattedAiOptions
+  ];
+
+  sendSuccess(context, { options: allOptions }, 200, headers);
+}
+
+// Get restaurants from past polls that match current filters
+async function getHistoricalRestaurants(tripId, filters) {
+  try {
+    const allPolls = await queryByPartition(TABLES.DINNER_POLLS, tripId);
+
+    // Build a map of restaurant name -> aggregated data
+    const restaurantMap = {};
+
+    for (const poll of allPolls) {
+      let options = [];
+      let votes = [];
+
+      try {
+        options = typeof poll.options === "string" ? JSON.parse(poll.options) : (poll.options || []);
+        votes = typeof poll.votes === "string" ? JSON.parse(poll.votes) : (poll.votes || []);
+      } catch (e) {
+        continue;
+      }
+
+      // Count votes per option in this poll
+      const pollVoteCounts = {};
+      for (const vote of votes) {
+        pollVoteCounts[vote.optionId] = (pollVoteCounts[vote.optionId] || 0) + 1;
+      }
+
+      // Add each restaurant to our map
+      for (const opt of options) {
+        const key = opt.name.toLowerCase().trim();
+        const optionVotes = pollVoteCounts[opt.id] || 0;
+
+        if (!restaurantMap[key]) {
+          restaurantMap[key] = {
+            ...opt,
+            id: `hist_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+            historicalVotes: optionVotes,
+            pollCount: 1,
+            isNew: false
+          };
+        } else {
+          // Aggregate votes
+          restaurantMap[key].historicalVotes += optionVotes;
+          restaurantMap[key].pollCount += 1;
+        }
+      }
     }
 
-    // Add IDs and mapsLinks to each option
-    const formattedOptions = options.map((opt, idx) => ({
-      id: `opt_${Date.now()}_${idx}`,
-      name: opt.name,
-      cuisine: opt.cuisine,
-      priceRange: opt.priceRange,
-      description: opt.description,
-      address: opt.address,
-      mapsLink: buildMapsLink(opt.name, opt.address),
-      websiteUrl: opt.websiteUrl || null,
-      phoneNumber: opt.phoneNumber || null,
-      hasDelivery: opt.hasDelivery || false,
-      aiReason: opt.aiReason
+    // Convert to array and filter by current criteria
+    let restaurants = Object.values(restaurantMap);
+
+    // Filter by cuisine if specified
+    if (filters.cuisineTypes?.length && !filters.cuisineTypes.includes("any")) {
+      const cuisineLower = filters.cuisineTypes.map(c => c.toLowerCase());
+      restaurants = restaurants.filter(r =>
+        cuisineLower.some(c => r.cuisine?.toLowerCase().includes(c))
+      );
+    }
+
+    // Filter by price range if specified
+    if (filters.priceRange?.length) {
+      restaurants = restaurants.filter(r =>
+        filters.priceRange.includes(r.priceRange)
+      );
+    }
+
+    // Filter by delivery if required
+    if (filters.deliveryOnly) {
+      restaurants = restaurants.filter(r => r.hasDelivery);
+    }
+
+    // Sort by historical votes (descending)
+    restaurants.sort((a, b) => b.historicalVotes - a.historicalVotes);
+
+    // Rebuild mapsLink for each
+    return restaurants.map(r => ({
+      ...r,
+      mapsLink: buildMapsLink(r.name, r.address)
     }));
 
-    sendSuccess(context, { options: formattedOptions }, 200, headers);
-
   } catch (err) {
-    console.error("AI recommendation error:", err);
-    sendError(context, "Failed to generate recommendations", 500, headers);
+    console.error("Error getting historical restaurants:", err);
+    return [];
   }
 }
 

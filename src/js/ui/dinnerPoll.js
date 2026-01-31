@@ -27,6 +27,22 @@ export function setDinnerPollDeps(deps) {
   DESTINATIONS = deps.DESTINATIONS;
 }
 
+// Check if there's an active poll for a specific date
+export function getActivePollForDate(date) {
+  return activePolls.find(p => p.status === 'active' && p.date === date) || null;
+}
+
+// Get all active polls (for external use)
+export function getActivePolls() {
+  return activePolls.filter(p => p.status === 'active');
+}
+
+// Refresh active polls from API (can be called externally)
+export async function refreshActivePolls() {
+  await loadActivePolls();
+  return activePolls;
+}
+
 // ========================================
 // API CALLS
 // ========================================
@@ -303,7 +319,7 @@ function renderPreviewStep() {
 
       <div class="dinner-options-preview" id="optionsPreview">
         ${generatedOptions.map((opt, idx) => `
-          <div class="dinner-option-preview ${excludedOptions.has(opt.id) ? 'excluded' : ''}">
+          <div class="dinner-option-preview ${excludedOptions.has(opt.id) ? 'excluded' : ''} ${opt.historicalVotes > 0 ? 'has-history' : ''}">
             <label class="option-checkbox">
               <input type="checkbox" ${excludedOptions.has(opt.id) ? '' : 'checked'}
                 onchange="window.dinnerPollToggleOption('${opt.id}', this.checked)">
@@ -312,6 +328,8 @@ function renderPreviewStep() {
             <div class="option-details">
               <div class="option-header">
                 <span class="option-name">${opt.name}</span>
+                ${opt.historicalVotes > 0 ? `<span class="historical-votes"><span class="material-symbols-outlined">thumb_up</span>${opt.historicalVotes}</span>` : ''}
+                ${opt.isNew ? '<span class="new-option-badge">New</span>' : ''}
                 <span class="option-price">${opt.priceRange}</span>
               </div>
               <div class="option-cuisine">${opt.cuisine}${opt.hasDelivery ? ' • Delivery' : ''}</div>
