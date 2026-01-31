@@ -1,4 +1,5 @@
 const { BlobServiceClient, generateBlobSASQueryParameters, BlobSASPermissions, StorageSharedKeyCredential } = require("@azure/storage-blob");
+const { validateTravelerAccess } = require("../shared/validation");
 
 // Parse connection string to get account name and key for SAS generation
 function parseConnectionString(connStr) {
@@ -31,30 +32,6 @@ function generateSasUrl(containerClient, blobName, accountName, accountKey) {
   return `${blobClient.url}?${sasToken}`;
 }
 
-function validateRequest(req) {
-  const tripId = req.body?.tripId || req.query?.tripId;
-  const accessCode = req.body?.accessCode || req.query?.accessCode;
-
-  if (!tripId) return { valid: false, error: "Missing tripId" };
-  if (!accessCode) return { valid: false, error: "Missing accessCode" };
-
-  const codesJson = process.env.TRIP_ACCESS_CODES || "{}";
-  let codes;
-  try {
-    codes = JSON.parse(codesJson);
-  } catch (e) {
-    return { valid: false, error: "Server configuration error" };
-  }
-
-  const expectedCode = codes[tripId];
-  if (!expectedCode) return { valid: false, error: "Trip not found" };
-  if (accessCode.toLowerCase() !== expectedCode.toLowerCase()) {
-    return { valid: false, error: "Invalid access code" };
-  }
-
-  return { valid: true, tripId };
-}
-
 module.exports = async function (context, req) {
   const headers = {
     "Content-Type": "application/json",
@@ -68,11 +45,10 @@ module.exports = async function (context, req) {
     return;
   }
 
-  const auth = validateRequest(req);
+  // Validate access (supports both trip-level and traveler-specific codes)
+  const auth = await validateTravelerAccess(req);
   if (!auth.valid) {
-    const status = auth.error === "Trip not found" ? 404 :
-                   auth.error === "Invalid access code" ? 403 : 401;
-    context.res = { status, headers, body: { error: auth.error } };
+    context.res = { status: auth.status || 403, headers, body: { error: auth.error } };
     return;
   }
 

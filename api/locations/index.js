@@ -7,7 +7,7 @@ const {
 const {
   getHeaders,
   handleOptions,
-  requireAuth,
+  requireTravelerAuth,
   sendError,
   sendSuccess
 } = require("../shared/validation");
@@ -23,7 +23,7 @@ module.exports = async function (context, req) {
   const tripId = context.bindingData.tripId;
   const travelerId = context.bindingData.travelerId;
 
-  const auth = requireAuth(context, req, { methods: "GET, PUT, OPTIONS" });
+  const auth = await requireTravelerAuth(context, req, { methods: "GET, PUT, OPTIONS" });
   if (!auth) return;
 
   if (tripId !== auth.tripId) {

@@ -11,7 +11,7 @@ const {
   handleOptions,
   sendError,
   sendSuccess,
-  requireAuth
+  requireTravelerAuth
 } = require("../shared/validation");
 
 module.exports = async function (context, req) {
@@ -26,8 +26,8 @@ module.exports = async function (context, req) {
   const tripId = context.bindingData.tripId;
   const memberId = context.bindingData.memberId;
 
-  // Validate access (requires admin or creator role for modifications)
-  const auth = requireAuth(context, req, { methods: "GET, POST, PUT, DELETE, OPTIONS" });
+  // Validate access (supports both trip-level and traveler-specific codes)
+  const auth = await requireTravelerAuth(context, req, { methods: "GET, POST, PUT, DELETE, OPTIONS" });
   if (!auth) return;
 
   if (tripId !== auth.tripId) {
