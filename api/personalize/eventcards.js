@@ -139,6 +139,10 @@ Return JSON mapping event IDs to {style, queries}.`;
  * Generate configs and resolve images from Unsplash
  */
 async function generateEventCards(tripData) {
+  // Check Unsplash key upfront
+  const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
+  console.log(`[EventCards] Unsplash key available: ${!!unsplashKey}, length: ${unsplashKey?.length || 0}`);
+
   // Get AI-generated configs
   const configs = await generateEventCardConfigs(tripData);
 
@@ -161,18 +165,23 @@ async function generateEventCards(tripData) {
 
     const images = [];
     for (const query of queries.slice(0, 4)) {
-      const image = await searchUnsplash(query, { orientation: "landscape" });
-      if (image) {
-        images.push({
-          query,
-          url: image.url,
-          thumb: image.thumb,
-          credit: image.credit,
-          creditUrl: image.creditUrl,
-          color: image.color
-        });
+      try {
+        const image = await searchUnsplash(query, { orientation: "landscape" });
+        console.log(`[EventCards] Query "${query.slice(0, 30)}..." -> ${image ? 'found' : 'null'}`);
+        if (image) {
+          images.push({
+            query,
+            url: image.url,
+            thumb: image.thumb,
+            credit: image.credit,
+            creditUrl: image.creditUrl,
+            color: image.color
+          });
+        }
+      } catch (imgErr) {
+        console.error(`[EventCards] Image error for "${query}":`, imgErr.message);
       }
-      await new Promise(r => setTimeout(r, 150));
+      await new Promise(r => setTimeout(r, 200)); // Increase delay to avoid rate limits
     }
 
     eventCards[eventId] = { style, images };
