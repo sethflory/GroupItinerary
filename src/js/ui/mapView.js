@@ -165,10 +165,17 @@ function updateMarkers(locations) {
   locations.forEach(loc => {
     if (!loc.lat || !loc.lon) return;
 
-    const traveler = travelers.find(t => t.id === loc.travelerId);
+    // Find traveler in array, or create a fallback for users not in TRAVELERS (e.g., admin)
+    let traveler = travelers.find(t => t.id === loc.travelerId);
     if (!traveler) {
-      console.log('[MapView] No traveler found for ID:', loc.travelerId);
-      return;
+      // Create fallback traveler object from location data
+      traveler = {
+        id: loc.travelerId,
+        name: loc.displayName || loc.travelerId,
+        initials: (loc.displayName || loc.travelerId).substring(0, 2).toUpperCase(),
+        color: '#667085' // default gray
+      };
+      console.log('[MapView] Using fallback for:', loc.travelerId);
     }
 
     validPositions.push([loc.lat, loc.lon]);
