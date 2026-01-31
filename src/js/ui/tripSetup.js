@@ -897,18 +897,9 @@ function getRandomColor() {
 }
 
 // ========================================
-// EXPORTS
+// WINDOW EXPORTS
 // ========================================
 
-export {
-  loadTravelers,
-  wizardNext,
-  wizardBack,
-  wizardSkip,
-  wizardFinish
-};
-
-// Window exports for wizard navigation
 window.wizardNext = wizardNext;
 window.wizardBack = wizardBack;
 window.wizardSkip = wizardSkip;
