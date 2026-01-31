@@ -10,6 +10,8 @@
   <!-- Leaflet for interactive maps -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Google Identity Services for Sign-In -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <!-- External CSS - source of truth for styles -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -192,6 +194,11 @@
         <button class="menu-item" onclick="closeMenu(); openHowItWorks()">
           <span class="material-symbols-outlined">help</span>
           <span class="menu-item-label">How It Works</span>
+          <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
+        </button>
+        <button class="menu-item" onclick="logout()">
+          <span class="material-symbols-outlined">logout</span>
+          <span class="menu-item-label">Log Out</span>
           <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
         </button>
       </div>

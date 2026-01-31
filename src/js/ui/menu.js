@@ -117,6 +117,18 @@ export function openProfile() {
   }
 }
 
+export function logout() {
+  closeMenu();
+  if (typeof window.revokeAccess === 'function' && typeof window.currentTripId !== 'undefined') {
+    window.revokeAccess(window.currentTripId);
+  }
+  if (typeof window.showLockScreen === 'function') {
+    window.showLockScreen();
+  }
+  // Reload to clear all state
+  window.location.reload();
+}
+
 export function openTripStats() {
   closeMenu();
   if (typeof window.openStatsShareModal === 'function') {

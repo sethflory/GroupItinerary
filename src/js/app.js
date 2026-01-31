@@ -368,6 +368,7 @@ window.openTrivia = menu.openTrivia;
 window.openSwitchTrip = menu.openSwitchTrip;
 window.openTripSettings = menu.openTripSettings;
 window.openAiAssist = menu.openAiAssist;
+window.logout = menu.logout;
 
 // ========================================
 // CONTEXT BAR EXPORTS
