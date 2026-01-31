@@ -31,9 +31,7 @@
         padding: 16px;
       }
 
-      .day-header {
-        flex-direction: column;
-      }
+      /* day-header stays row - arrows must remain on left/right */
 
       .day-meta-cards {
         width: 100%;
