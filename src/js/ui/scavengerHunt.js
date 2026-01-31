@@ -391,10 +391,9 @@ export function showHuntSetup() {
       </div>
 
       <div class="hunt-form-group">
-        <label>Location Scope</label>
+        <label>Location</label>
         <select id="huntScope">
-          <option value="current">Current Location Only</option>
-          <option value="all">All Trip Destinations</option>
+          ${buildLocationOptions()}
         </select>
       </div>
 
@@ -438,9 +437,8 @@ export async function generateHuntItems() {
   `;
 
   try {
-    // Build context for AI
-    const currentLocation = getCurrentLocation();
-    const destinations = scope === 'all' ? Object.values(DESTINATIONS || {}) : [currentLocation];
+    // Build context for AI - get destinations based on selected scope
+    const destinations = getDestinationsByScope(scope);
 
     const themeNames = {
       photo_ops: 'photo opportunities',
@@ -872,6 +870,33 @@ function toggleHint(itemId) {
   }
 }
 window.toggleHint = toggleHint;
+
+function buildLocationOptions() {
+  const destinations = Object.entries(DESTINATIONS || {});
+  if (destinations.length === 0) {
+    return '<option value="all">All Locations</option>';
+  }
+
+  // Build options for each destination
+  const options = destinations.map(([key, dest]) => {
+    const label = dest.city || dest.name || key;
+    return `<option value="${key}">${label}</option>`;
+  });
+
+  // Add "All" option at the end
+  options.push('<option value="all">All Trip Destinations</option>');
+
+  return options.join('');
+}
+
+function getDestinationsByScope(scope) {
+  if (scope === 'all') {
+    return Object.values(DESTINATIONS || {});
+  }
+  // Return specific destination by key
+  const dest = DESTINATIONS?.[scope];
+  return dest ? [dest] : Object.values(DESTINATIONS || {});
+}
 
 function getCurrentLocation() {
   // Try to determine current location from trip data
