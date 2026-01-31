@@ -1,6 +1,10 @@
 {
   "routes": [
     {
+      "route": "/.auth/login/done",
+      "redirect": "/welcome.html"
+    },
+    {
       "route": "/login",
       "redirect": "/.auth/login/google"
     },
