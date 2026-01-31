@@ -382,7 +382,7 @@ export function editTraveler(id) {
       </div>
       <div class="form-group">
         <label>Color</label>
-        <input type="color" id="editTravelerColor" value="${traveler.color || '#667eea'}">
+        <input type="color" id="editTravelerColor" value="${traveler.color || '#134e5e'}">
       </div>
       <div class="form-actions">
         <button class="btn secondary" onclick="hideAddTravelerForm()">Cancel</button>
@@ -579,10 +579,20 @@ function getGroupClass(group) {
 }
 
 function getRandomColor() {
+  // Emerald Gold theme-aligned traveler colors
   const colors = [
-    '#e91e63', '#9c27b0', '#673ab7', '#3f51b5',
-    '#2196f3', '#03a9f4', '#00bcd4', '#009688',
-    '#4caf50', '#8bc34a', '#ff9800', '#ff5722'
+    '#134e5e', // Primary emerald
+    '#71b280', // Primary light
+    '#1a6b5a', // Primary mid
+    '#f0b429', // Gold accent
+    '#d4a012', // Gold rich
+    '#2c7a7b', // Teal
+    '#38a169', // Green
+    '#3182ce', // Blue
+    '#805ad5', // Purple
+    '#dd6b20', // Orange
+    '#e53e3e', // Red
+    '#319795'  // Cyan
   ];
   return colors[Math.floor(Math.random() * colors.length)];
 }

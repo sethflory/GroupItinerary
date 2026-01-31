@@ -6,8 +6,39 @@
   max-width: 520px;
 }
 
+.trip-setup-modal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.trip-setup-modal .modal-header h3 {
+  margin: 0;
+}
+
 .trip-setup-modal .modal-header h3 .material-symbols-outlined {
-  color: var(--color-charcoal);
+  color: var(--color-accent);
+}
+
+.trip-setup-modal .modal-close {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  cursor: pointer;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.trip-setup-modal .modal-close:hover {
+  background: rgba(255,255,255,0.3);
 }
 
 /* Settings button in header */
@@ -62,8 +93,8 @@
 }
 
 .modal-tabs .tab.active {
-  color: var(--color-sunrise);
-  border-bottom-color: var(--color-sunrise);
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
 }
 
 .modal-tabs .tab .material-symbols-outlined {
@@ -186,7 +217,7 @@
   align-items: center;
   gap: 6px;
   padding: 10px 16px;
-  background: var(--color-sunrise);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -198,7 +229,7 @@
 
 .add-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(19, 78, 94, 0.3);
 }
 
 /* Traveler form */
@@ -266,8 +297,8 @@
 .form-group input[type="text"]:focus,
 .form-group select:focus {
   outline: none;
-  border-color: var(--color-sunrise);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(19, 78, 94, 0.1);
 }
 
 .form-group input[type="color"] {
@@ -302,7 +333,7 @@
 }
 
 .btn.primary {
-  background: var(--color-sunrise);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
   color: white;
 }
 
@@ -445,7 +476,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   border-radius: 12px;
   flex-shrink: 0;
 }
