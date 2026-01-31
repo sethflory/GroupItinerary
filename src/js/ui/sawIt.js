@@ -1087,42 +1087,116 @@ window.sawItCloseSharePrompt = function() {
   document.getElementById('sharePromptModal')?.remove();
 };
 
-window.sawItShareToSocial = async function(itemId, itemName, photoUrl) {
-  // Use Web Share API if available
+window.sawItShareToSocial = function(itemId, itemName, photoUrl) {
+  // Close the initial prompt
+  window.sawItCloseSharePrompt();
+
+  // Open the post creation dialog
+  showPostCreationDialog(itemId, itemName, photoUrl);
+};
+
+function showPostCreationDialog(itemId, itemName, photoUrl) {
+  const modal = document.createElement('div');
+  modal.className = 'saw-it-post-modal';
+  modal.id = 'sawItPostModal';
+
+  const defaultText = `Saw it! Spotted ${itemName} on my trip! 📸\n\n#SawIt #TravelGame #Adventure`;
+
+  modal.innerHTML = `
+    <div class="saw-it-post-content">
+      <div class="saw-it-post-header">
+        <h4>Create Post</h4>
+        <button class="modal-close" onclick="window.sawItClosePostModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="saw-it-post-photo">
+        <img src="${photoUrl}" alt="${escapeAttr(itemName)}">
+      </div>
+
+      <div class="saw-it-post-form">
+        <textarea id="sawItPostText" placeholder="Write your post...">${defaultText}</textarea>
+        <div class="saw-it-post-char-count">
+          <span id="sawItPostCharCount">${defaultText.length}</span>/280
+        </div>
+      </div>
+
+      <div class="saw-it-post-actions">
+        <button class="saw-it-post-btn secondary" onclick="window.sawItCopyPost('${escapeAttr(itemName)}', '${photoUrl}')">
+          <span class="material-symbols-outlined">content_copy</span>
+          Copy Text
+        </button>
+        <button class="saw-it-post-btn primary" onclick="window.sawItDoShare('${itemId}', '${escapeAttr(itemName)}', '${photoUrl}')">
+          <span class="material-symbols-outlined">ios_share</span>
+          Share
+        </button>
+      </div>
+
+      <p class="saw-it-post-hint">
+        <span class="material-symbols-outlined">info</span>
+        Copy text and photo URL to share on your favorite platform
+      </p>
+    </div>
+  `;
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) window.sawItClosePostModal();
+  });
+
+  document.body.appendChild(modal);
+
+  // Update character count on input
+  const textarea = document.getElementById('sawItPostText');
+  textarea.addEventListener('input', () => {
+    document.getElementById('sawItPostCharCount').textContent = textarea.value.length;
+  });
+}
+
+window.sawItClosePostModal = function() {
+  document.getElementById('sawItPostModal')?.remove();
+};
+
+window.sawItCopyPost = async function(itemName, photoUrl) {
+  const text = document.getElementById('sawItPostText').value;
+  try {
+    await navigator.clipboard.writeText(`${text}\n\n${photoUrl}`);
+    showToast('Post text copied!', 'success');
+  } catch (err) {
+    showToast('Could not copy', 'error');
+  }
+};
+
+window.sawItDoShare = async function(itemId, itemName, photoUrl) {
+  const text = document.getElementById('sawItPostText').value;
+
+  // Try Web Share API for native sharing
   if (navigator.share) {
     try {
       await navigator.share({
         title: `Saw it! ${itemName}`,
-        text: `Spotted ${itemName} on my trip!`,
+        text: text,
         url: photoUrl
       });
-
-      // Record social share
-      await fetchSawItAPI(`game/${activeGame.eventId}/share`, 'POST', { itemId });
-      showToast('Posted! +1 bonus point', 'success');
-
-      // Refresh game data
-      const result = await fetchSawItAPI(`game/${activeGame.eventId}`, 'GET');
-      if (!result.error) {
-        activeGame = result;
-        renderCurrentStep();
-      }
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.log('Share failed:', err);
+      if (err.name === 'AbortError') {
+        return; // User cancelled
       }
-    }
-  } else {
-    // Fallback: copy to clipboard
-    try {
-      await navigator.clipboard.writeText(`Saw it! ${itemName} on my trip! ${photoUrl}`);
-      showToast('Link copied to clipboard!', 'success');
-    } catch (err) {
-      showToast('Could not share', 'error');
     }
   }
 
-  window.sawItCloseSharePrompt();
+  // Record social share for bonus point
+  await fetchSawItAPI(`game/${activeGame.eventId}/share`, 'POST', { itemId });
+  showToast('Posted! +1 bonus point', 'success');
+
+  // Refresh game data
+  const result = await fetchSawItAPI(`game/${activeGame.eventId}`, 'GET');
+  if (!result.error) {
+    activeGame = result;
+    renderCurrentStep();
+  }
+
+  window.sawItClosePostModal();
 };
 
 window.sawItEndGame = async function() {
