@@ -2,7 +2,7 @@
   "routes": [
     {
       "route": "/login",
-      "redirect": "/.auth/login/google?post_login_redirect_uri=/welcome.html"
+      "redirect": "/.auth/login/google"
     },
     {
       "route": "/logout",
@@ -32,6 +32,10 @@
         "registration": {
           "clientIdSettingName": "GOOGLE_CLIENT_ID",
           "clientSecretSettingName": "GOOGLE_CLIENT_SECRET"
+        },
+        "login": {
+          "nameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+          "scopes": ["openid", "profile", "email"]
         }
       }
     }

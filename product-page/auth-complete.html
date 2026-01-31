@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Completing login...</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #0d4a3f 0%, #1a6b5a 50%, #2a8a75 100%);
+      color: white;
+    }
+    .container {
+      text-align: center;
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(240, 180, 41, 0.2);
+      border-top-color: #f0b429;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="spinner"></div>
+    <p>Completing login...</p>
+  </div>
+  <script>
+    // Check auth and redirect
+    fetch('/.auth/me')
+      .then(r => r.json())
+      .then(data => {
+        console.log('Auth check:', data);
+        if (data.clientPrincipal) {
+          window.location.href = '/welcome.html';
+        } else {
+          window.location.href = '/get-started.html';
+        }
+      })
+      .catch(() => {
+        window.location.href = '/get-started.html';
+      });
+  </script>
+</body>
+</html>
