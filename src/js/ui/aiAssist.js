@@ -57,6 +57,79 @@ async function callPersonalizeApi(mode = 'auto') {
   return response.json();
 }
 
+/**
+ * Call a specific personalization endpoint
+ */
+async function callPersonalizeEndpoint(endpoint) {
+  const accessCode = getStoredAccessCode(currentTripId);
+  const url = `${API_BASE}/personalize/${endpoint}?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tripId: currentTripId, accessCode })
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    console.error(`[AI Assist] ${endpoint} error:`, response.status, text.slice(0, 500));
+    let error;
+    try {
+      error = JSON.parse(text);
+    } catch (e) {
+      throw new Error(`API error ${response.status}: ${text.slice(0, 200)}`);
+    }
+    throw new Error(error.error || `API error: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+// ========================================
+// MODULAR PERSONALIZATION
+// ========================================
+
+/**
+ * Generate just day nicknames
+ */
+export async function generateNicknames() {
+  if (isPersonalizing) return;
+
+  isPersonalizing = true;
+  showSimpleLoader('Naming your days...');
+
+  try {
+    const result = await callPersonalizeEndpoint('nicknames');
+
+    hidePersonalizationLoader();
+
+    if (result.nicknames) {
+      // Update global personalization
+      if (!window.tripPersonalization) {
+        window.tripPersonalization = {};
+      }
+      window.tripPersonalization.dayNicknames = result.nicknames;
+
+      // Refresh the view
+      if (window.renderDayDetail) {
+        window.renderDayDetail();
+      }
+
+      showSuccessToast(`Named ${Object.keys(result.nicknames).length} days!`);
+    }
+
+    return result;
+
+  } catch (err) {
+    console.error('[AI Assist] Nicknames error:', err);
+    hidePersonalizationLoader();
+    showErrorToast(err.message || 'Failed to generate nicknames');
+    throw err;
+  } finally {
+    isPersonalizing = false;
+  }
+}
+
 // ========================================
 // MAIN FLOW
 // ========================================
@@ -204,6 +277,48 @@ function hidePersonalizationLoader() {
   }
 }
 
+/**
+ * Show a simple loader with custom message
+ */
+function showSimpleLoader(message) {
+  hidePersonalizationLoader();
+
+  const loader = document.createElement('div');
+  loader.id = 'aiAssistLoader';
+  loader.className = 'ai-assist-loader';
+  loader.innerHTML = `
+    <div class="ai-assist-loader-content">
+      <div class="ai-assist-loader-spinner">
+        <span class="material-symbols-outlined spinning">auto_awesome</span>
+      </div>
+      <div class="ai-assist-loader-message">${message}</div>
+    </div>
+  `;
+
+  document.body.appendChild(loader);
+  requestAnimationFrame(() => loader.classList.add('visible'));
+}
+
+/**
+ * Show a success toast
+ */
+function showSuccessToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'ai-toast ai-toast-success';
+  toast.innerHTML = `
+    <span class="material-symbols-outlined">check_circle</span>
+    <span>${message}</span>
+  `;
+
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('visible'));
+
+  setTimeout(() => {
+    toast.classList.remove('visible');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
 // ========================================
 // AI ASSIST MODAL
 // ========================================
@@ -288,47 +403,58 @@ function renderAiAssistContent(hasPersonalization) {
       </div>
     `;
   } else {
-    // Not yet personalized - show intro
+    // Not yet personalized - show modular options
     body.innerHTML = `
       <div class="ai-assist-intro">
-        <div class="ai-assist-preview">
-          <div class="preview-card">
-            <div class="preview-day">Day 3</div>
-            <div class="preview-nickname">Walking with the Ancients</div>
-            <div class="preview-image"></div>
-          </div>
-        </div>
+        <p class="ai-intro-text">Choose what to personalize:</p>
+      </div>
 
-        <div class="ai-assist-features">
-          <div class="feature">
-            <span class="material-symbols-outlined">auto_stories</span>
-            <span>Smart day nicknames that tell your story</span>
+      <div class="ai-assist-options">
+        <button class="ai-option-btn" onclick="generateNicknames()">
+          <span class="material-symbols-outlined">auto_stories</span>
+          <div class="ai-option-info">
+            <span class="ai-option-title">Day Nicknames</span>
+            <span class="ai-option-desc">Creative chapter titles for each day</span>
           </div>
-          <div class="feature">
-            <span class="material-symbols-outlined">image</span>
-            <span>Background images matched to your activities</span>
+          <span class="material-symbols-outlined ai-option-arrow">chevron_right</span>
+        </button>
+
+        <button class="ai-option-btn" onclick="generateBackgrounds()" disabled>
+          <span class="material-symbols-outlined">image</span>
+          <div class="ai-option-info">
+            <span class="ai-option-title">Day Backgrounds</span>
+            <span class="ai-option-desc">Beautiful images for each day</span>
           </div>
-          <div class="feature">
-            <span class="material-symbols-outlined">palette</span>
-            <span>Color theme that complements your destinations</span>
+          <span class="ai-option-badge">Coming Soon</span>
+        </button>
+
+        <button class="ai-option-btn" onclick="generateEventCards()" disabled>
+          <span class="material-symbols-outlined">view_carousel</span>
+          <div class="ai-option-info">
+            <span class="ai-option-title">Event Cards</span>
+            <span class="ai-option-desc">Hero images, carousels & more</span>
           </div>
-        </div>
+          <span class="ai-option-badge">Coming Soon</span>
+        </button>
+
+        <button class="ai-option-btn" onclick="generateTheme()" disabled>
+          <span class="material-symbols-outlined">palette</span>
+          <div class="ai-option-info">
+            <span class="ai-option-title">Color Theme</span>
+            <span class="ai-option-desc">Colors that match your trip</span>
+          </div>
+          <span class="ai-option-badge">Coming Soon</span>
+        </button>
+      </div>
+
+      <div class="ai-assist-divider">
+        <span>or do it all at once</span>
       </div>
 
       <div class="ai-assist-buttons">
-        <button class="btn primary large" onclick="runAiAssist('auto')">
+        <button class="btn secondary" onclick="runAiAssist('auto')" disabled title="Fix in progress">
           <span class="material-symbols-outlined">bolt</span>
-          I Trust You, Go
-        </button>
-        <p class="btn-subtitle">AI will personalize everything automatically</p>
-
-        <div class="ai-assist-divider">
-          <span>or</span>
-        </div>
-
-        <button class="btn secondary" onclick="runAiAssist('review')">
-          <span class="material-symbols-outlined">tune</span>
-          Let Me Review Each Step
+          Full Personalization
         </button>
         <p class="btn-subtitle">Preview and adjust before applying</p>
       </div>
@@ -585,6 +711,7 @@ export function closePersonalizationSummary() {
 
 window.showPersonalizationSummary = showPersonalizationSummary;
 window.closePersonalizationSummary = closePersonalizationSummary;
+window.generateNicknames = generateNicknames;
 
 function showErrorToast(message) {
   const existing = document.querySelector('.error-toast');
