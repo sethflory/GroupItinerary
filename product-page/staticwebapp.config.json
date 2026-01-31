@@ -1,6 +1,22 @@
 {
   "routes": [
     {
+      "route": "/favicon.ico",
+      "allowedRoles": ["anonymous", "authenticated"]
+    },
+    {
+      "route": "/images/*",
+      "allowedRoles": ["anonymous", "authenticated"]
+    },
+    {
+      "route": "/css/*",
+      "allowedRoles": ["anonymous", "authenticated"]
+    },
+    {
+      "route": "/*.html",
+      "allowedRoles": ["anonymous", "authenticated"]
+    },
+    {
       "route": "/",
       "rewrite": "/index.html"
     },
