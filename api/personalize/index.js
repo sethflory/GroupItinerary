@@ -251,6 +251,8 @@ module.exports = async function (context, req) {
 
   } catch (err) {
     context.log.error("[Personalize] Error:", err);
-    sendError(context, "Personalization failed: " + err.message, 500, headers);
+    context.log.error("[Personalize] Stack:", err.stack);
+    // Return detailed error for debugging
+    sendError(context, "Personalization failed: " + err.message + " | Stack: " + (err.stack || "").split("\n").slice(0, 3).join(" <- "), 500, headers);
   }
 };
