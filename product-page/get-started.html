@@ -372,5 +372,35 @@
       </div>
     </section>
   </div>
+
+  <script>
+    // Debug logging
+    console.log('=== Get Started Page Debug ===');
+    console.log('Current URL:', window.location.href);
+    console.log('Host:', window.location.host);
+
+    // Log when Google button is clicked
+    document.querySelector('.btn-google').addEventListener('click', function(e) {
+      console.log('Google login clicked');
+      console.log('Navigating to:', this.href);
+    });
+
+    // Check if we're returning from auth
+    if (window.location.search.includes('error')) {
+      console.error('Auth error in URL:', window.location.search);
+    }
+
+    // Also check /.auth/me to see current auth state
+    fetch('/.auth/me')
+      .then(r => r.json())
+      .then(data => {
+        console.log('Current auth state:', JSON.stringify(data, null, 2));
+        if (data.clientPrincipal) {
+          console.log('Already authenticated, redirecting to welcome...');
+          window.location.href = '/welcome.html';
+        }
+      })
+      .catch(err => console.log('Auth check error:', err));
+  </script>
 </body>
 </html>

@@ -359,15 +359,27 @@
   </div>
 
   <script>
+    // Debug logging
+    console.log('=== Welcome Page Debug ===');
+    console.log('Current URL:', window.location.href);
+    console.log('Search params:', window.location.search);
+    console.log('Hash:', window.location.hash);
+    console.log('Referrer:', document.referrer);
+
     // Check authentication status
     async function checkAuth() {
+      console.log('Checking auth at /.auth/me...');
       try {
         const response = await fetch('/.auth/me');
+        console.log('Auth response status:', response.status);
         const data = await response.json();
+        console.log('Auth response data:', JSON.stringify(data, null, 2));
 
         if (data.clientPrincipal) {
+          console.log('User authenticated:', data.clientPrincipal);
           showSuccessState(data.clientPrincipal);
         } else {
+          console.log('No clientPrincipal found');
           showErrorState();
         }
       } catch (error) {
