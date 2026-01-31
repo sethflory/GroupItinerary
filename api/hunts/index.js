@@ -60,34 +60,16 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // Route: /hunts/list or /hunts - List all hunts
-    if (action === "list" || !action) {
-      if (req.method === "GET") {
-        return await listHunts(context, tripId, req.query, headers);
-      }
-      if (req.method === "POST" && !action) {
-        return await createHunt(context, tripId, req.body, auth, headers);
+    // Route: /hunts/{huntId}/claim/{itemId} - Claim an item (check BEFORE list route)
+    if (huntId && subAction === "claim" && itemId) {
+      if (req.method === "POST" || req.method === "PUT") {
+        return await claimItem(context, tripId, huntId, itemId, req.body, auth, headers);
       }
       sendError(context, "Method not allowed", 405, headers);
       return;
     }
 
-    // Route: /hunts/{huntId} - Single hunt operations
-    if (huntId && !subAction) {
-      if (req.method === "GET") {
-        return await getHunt(context, tripId, huntId, headers);
-      }
-      if (req.method === "PUT") {
-        return await updateHunt(context, tripId, huntId, req.body, auth, headers);
-      }
-      if (req.method === "DELETE") {
-        return await deleteHunt(context, tripId, huntId, auth, headers);
-      }
-      sendError(context, "Method not allowed", 405, headers);
-      return;
-    }
-
-    // Route: /hunts/{huntId}/items - Hunt items
+    // Route: /hunts/{huntId}/items - Hunt items (check BEFORE list route)
     if (huntId && subAction === "items") {
       if (!itemId) {
         if (req.method === "GET") {
@@ -111,10 +93,28 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // Route: /hunts/{huntId}/claim/{itemId} - Claim an item
-    if (huntId && subAction === "claim" && itemId) {
-      if (req.method === "POST" || req.method === "PUT") {
-        return await claimItem(context, tripId, huntId, itemId, req.body, auth, headers);
+    // Route: /hunts/{huntId} - Single hunt operations (check BEFORE list route)
+    if (huntId && !subAction) {
+      if (req.method === "GET") {
+        return await getHunt(context, tripId, huntId, headers);
+      }
+      if (req.method === "PUT") {
+        return await updateHunt(context, tripId, huntId, req.body, auth, headers);
+      }
+      if (req.method === "DELETE") {
+        return await deleteHunt(context, tripId, huntId, auth, headers);
+      }
+      sendError(context, "Method not allowed", 405, headers);
+      return;
+    }
+
+    // Route: /hunts/list or /hunts - List all hunts (AFTER huntId routes)
+    if (action === "list" || !action) {
+      if (req.method === "GET") {
+        return await listHunts(context, tripId, req.query, headers);
+      }
+      if (req.method === "POST") {
+        return await createHunt(context, tripId, req.body, auth, headers);
       }
       sendError(context, "Method not allowed", 405, headers);
       return;
