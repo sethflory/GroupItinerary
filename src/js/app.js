@@ -333,6 +333,23 @@ window.wizardBack = tripSetup.wizardBack;
 window.wizardSkip = tripSetup.wizardSkip;
 window.wizardFinish = tripSetup.wizardFinish;
 
+// Groups management
+window.showAddGroupForm = tripSetup.showAddGroupForm;
+window.hideGroupForm = tripSetup.hideGroupForm;
+window.submitAddGroup = tripSetup.submitAddGroup;
+window.editGroup = tripSetup.editGroup;
+window.submitEditGroup = tripSetup.submitEditGroup;
+window.confirmDeleteGroup = tripSetup.confirmDeleteGroup;
+window.selectGroupIcon = tripSetup.selectGroupIcon;
+
+// Games management
+window.toggleGame = tripSetup.toggleGame;
+window.openGameSettings = tripSetup.openGameSettings;
+window.closeGameSettings = tripSetup.closeGameSettings;
+window.saveGameSetting = tripSetup.saveGameSetting;
+window.getEnabledGames = tripSetup.getEnabledGames;
+window.isGameEnabled = tripSetup.isGameEnabled;
+
 // ========================================
 // RECEIPT UPLOAD EXPORTS
 // ========================================
@@ -381,6 +398,13 @@ window.openTrivia = menu.openTrivia;
 window.openSwitchTrip = menu.openSwitchTrip;
 window.openTripSettings = menu.openTripSettings;
 window.logout = menu.logout;
+window.updateGameMenuItems = menu.updateGameMenuItems;
+window.initGameMenuItems = menu.initGameMenuItems;
+
+// Placeholder functions for games not yet implemented
+window.openBingo = () => { alert('Travel Bingo coming soon!'); };
+window.openPredictions = () => { alert('Trip Predictions coming soon!'); };
+window.openChallenges = () => { alert('Daily Challenges coming soon!'); };
 
 // ========================================
 // CONTEXT BAR EXPORTS

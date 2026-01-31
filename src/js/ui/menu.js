@@ -186,6 +186,61 @@ export function initMenu() {
     }
   });
 
+  // Listen for game enable/disable changes
+  window.addEventListener('gamesChanged', (e) => {
+    updateGameMenuItems(e.detail.enabledGames);
+  });
+
   // Initialize toggle states
   updateMenuState();
+
+  // Initialize game menu visibility
+  initGameMenuItems();
 }
+
+// ========================================
+// GAME MENU MANAGEMENT
+// ========================================
+
+function initGameMenuItems() {
+  // Get enabled games from tripSetup
+  if (typeof window.getEnabledGames === 'function') {
+    const enabledGames = window.getEnabledGames();
+    updateGameMenuItems(enabledGames);
+  } else {
+    // Fallback: check localStorage directly
+    const tripId = window.currentTripId;
+    if (tripId) {
+      try {
+        const stored = localStorage.getItem(`tripGames_${tripId}`);
+        const enabledGames = stored ? JSON.parse(stored) : ['trivia', 'scavenger'];
+        updateGameMenuItems(enabledGames);
+      } catch (e) {
+        // Default games
+        updateGameMenuItems(['trivia', 'scavenger']);
+      }
+    }
+  }
+}
+
+function updateGameMenuItems(enabledGames) {
+  const gameItems = document.querySelectorAll('.game-menu-item');
+  let visibleCount = 0;
+
+  gameItems.forEach(item => {
+    const gameId = item.dataset.game;
+    const isEnabled = enabledGames.includes(gameId);
+    item.style.display = isEnabled ? '' : 'none';
+    if (isEnabled) visibleCount++;
+  });
+
+  // Hide entire games section if no games enabled
+  const gamesSection = document.getElementById('menuGamesSection');
+  if (gamesSection) {
+    // Always show section since Scoreboard is always visible
+    gamesSection.style.display = '';
+  }
+}
+
+// Re-export for external access
+export { updateGameMenuItems, initGameMenuItems };

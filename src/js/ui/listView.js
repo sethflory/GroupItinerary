@@ -146,7 +146,7 @@ async function updateListViewWeather() {
   // Fetch weather for each unique location
   for (const loc of locations) {
     try {
-      const weather = await fetchWeather(loc);
+      const weather = await fetchWeather(loc, DESTINATIONS);
       if (weather) {
         // Update all elements with this location
         document.querySelectorAll(`.list-day-weather[data-location="${loc}"]`).forEach(el => {

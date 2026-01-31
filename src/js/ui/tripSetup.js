@@ -14,9 +14,56 @@ import { renderPersonalizeContent, hasPersonalization } from './aiAssist.js';
 
 let activeTab = 'personalize';
 let travelers = [];
+let groups = []; // Custom groups
 let isLoading = false;
 let wizardMode = false;
 let wizardStep = 1; // 1: Welcome, 2: Travelers, 3: Personalize
+
+// Default groups that always exist
+const DEFAULT_GROUPS = [
+  { id: 'everyone', name: 'Everyone', color: '#6b7280', icon: 'group' }
+];
+
+// Available always-on games
+const AVAILABLE_GAMES = [
+  {
+    id: 'trivia',
+    name: 'Trip Trivia',
+    description: 'Test your travel knowledge with fun trivia questions about your destination',
+    icon: 'quiz',
+    color: '#8b5cf6'
+  },
+  {
+    id: 'scavenger',
+    name: 'Scavenger Hunt',
+    description: 'Find and photograph items around your destination to earn points',
+    icon: 'search',
+    color: '#f59e0b'
+  },
+  {
+    id: 'bingo',
+    name: 'Travel Bingo',
+    description: 'Mark off travel experiences on your bingo card to win',
+    icon: 'grid_view',
+    color: '#10b981'
+  },
+  {
+    id: 'predictions',
+    name: 'Trip Predictions',
+    description: 'Make predictions about the trip and earn points when they come true',
+    icon: 'psychology',
+    color: '#ec4899'
+  },
+  {
+    id: 'challenges',
+    name: 'Daily Challenges',
+    description: 'Complete fun daily challenges to earn bonus points',
+    icon: 'emoji_events',
+    color: '#3b82f6'
+  }
+];
+
+let enabledGames = [];
 
 // ========================================
 // API HELPERS
@@ -220,31 +267,43 @@ function renderWelcomeStep(container) {
 }
 
 function renderTravelersStep(container) {
+  const allGroups = getAllGroups();
+
   container.innerHTML = `
     <div class="wizard-travelers">
       <h3>Who's traveling?</h3>
       <p class="wizard-subtitle">Add everyone in your group so they can access the itinerary.</p>
 
       <div class="travelers-list wizard-travelers-list">
-        ${travelers.length > 0 ? travelers.map(t => `
-          <div class="traveler-item" data-id="${t.id}">
-            <div class="traveler-avatar" style="background: ${t.color}">${t.initials}</div>
-            <div class="traveler-info">
-              <span class="traveler-name">${escapeHtml(t.name)}</span>
-              <span class="traveler-group badge-${getGroupClass(t.group)}">${t.group || 'guest'}</span>
-            </div>
-            <div class="traveler-actions">
-              <button class="icon-btn" onclick="editTraveler('${t.id}')" title="Edit">
-                <span class="material-symbols-outlined">edit</span>
-              </button>
-              ${travelers.length > 1 ? `
-                <button class="icon-btn danger" onclick="confirmDeleteTraveler('${t.id}', '${escapeHtml(t.name)}')" title="Delete">
-                  <span class="material-symbols-outlined">delete</span>
+        ${travelers.length > 0 ? travelers.map(t => {
+          const travelerGroups = t.groups || [];
+          const groupBadges = travelerGroups.length > 0
+            ? travelerGroups.map(gId => {
+                const g = allGroups.find(grp => grp.id === gId);
+                return g ? `<span class="traveler-group-badge" style="background: ${g.color}">${escapeHtml(g.name)}</span>` : '';
+              }).join('')
+            : '';
+
+          return `
+            <div class="traveler-item" data-id="${t.id}">
+              <div class="traveler-avatar" style="background: ${t.color}">${t.initials}</div>
+              <div class="traveler-info">
+                <span class="traveler-name">${escapeHtml(t.name)}</span>
+                ${groupBadges ? `<div class="traveler-groups">${groupBadges}</div>` : ''}
+              </div>
+              <div class="traveler-actions">
+                <button class="icon-btn" onclick="editTraveler('${t.id}')" title="Edit">
+                  <span class="material-symbols-outlined">edit</span>
                 </button>
-              ` : ''}
+                ${travelers.length > 1 ? `
+                  <button class="icon-btn danger" onclick="confirmDeleteTraveler('${t.id}', '${escapeHtml(t.name)}')" title="Delete">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                ` : ''}
+              </div>
             </div>
-          </div>
-        `).join('') : '<p class="no-data">No travelers yet</p>'}
+          `;
+        }).join('') : '<p class="no-data">No travelers yet</p>'}
       </div>
 
       <div class="add-traveler-section">
@@ -357,8 +416,16 @@ function renderTabbedContent(container) {
         Personalize
       </button>
       <button class="tab ${activeTab === 'travelers' ? 'active' : ''}" data-tab="travelers" onclick="switchTripSetupTab('travelers')">
-        <span class="material-symbols-outlined">group</span>
+        <span class="material-symbols-outlined">person</span>
         Travelers
+      </button>
+      <button class="tab ${activeTab === 'groups' ? 'active' : ''}" data-tab="groups" onclick="switchTripSetupTab('groups')">
+        <span class="material-symbols-outlined">groups</span>
+        Groups
+      </button>
+      <button class="tab ${activeTab === 'games' ? 'active' : ''}" data-tab="games" onclick="switchTripSetupTab('games')">
+        <span class="material-symbols-outlined">sports_esports</span>
+        Games
       </button>
       <button class="tab ${activeTab === 'codes' ? 'active' : ''}" data-tab="codes" onclick="switchTripSetupTab('codes')">
         <span class="material-symbols-outlined">key</span>
@@ -432,6 +499,10 @@ function renderTabContent() {
     renderPersonalizeTab(body);
   } else if (activeTab === 'travelers') {
     renderTravelersTab(body);
+  } else if (activeTab === 'groups') {
+    renderGroupsTab(body);
+  } else if (activeTab === 'games') {
+    renderGamesTab(body);
   } else if (activeTab === 'codes') {
     renderCodesTab(body);
   } else if (activeTab === 'import') {
@@ -446,25 +517,37 @@ function renderPersonalizeTab(container) {
 }
 
 function renderTravelersTab(container) {
+  const allGroups = getAllGroups();
+
   container.innerHTML = `
     <div class="travelers-list">
-      ${travelers.length > 0 ? travelers.map(t => `
-        <div class="traveler-item" data-id="${t.id}">
-          <div class="traveler-avatar" style="background: ${t.color}">${t.initials}</div>
-          <div class="traveler-info">
-            <span class="traveler-name">${escapeHtml(t.name)}</span>
-            <span class="traveler-group badge-${getGroupClass(t.group)}">${t.group || 'guest'}</span>
+      ${travelers.length > 0 ? travelers.map(t => {
+        const travelerGroups = t.groups || [];
+        const groupBadges = travelerGroups.length > 0
+          ? travelerGroups.map(gId => {
+              const g = allGroups.find(grp => grp.id === gId);
+              return g ? `<span class="traveler-group-badge" style="background: ${g.color}">${escapeHtml(g.name)}</span>` : '';
+            }).join('')
+          : `<span class="traveler-group-badge muted">No groups</span>`;
+
+        return `
+          <div class="traveler-item" data-id="${t.id}">
+            <div class="traveler-avatar" style="background: ${t.color}">${t.initials}</div>
+            <div class="traveler-info">
+              <span class="traveler-name">${escapeHtml(t.name)}</span>
+              <div class="traveler-groups">${groupBadges}</div>
+            </div>
+            <div class="traveler-actions">
+              <button class="icon-btn" onclick="editTraveler('${t.id}')" title="Edit">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              <button class="icon-btn danger" onclick="confirmDeleteTraveler('${t.id}', '${escapeHtml(t.name)}')" title="Delete">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
           </div>
-          <div class="traveler-actions">
-            <button class="icon-btn" onclick="editTraveler('${t.id}')" title="Edit">
-              <span class="material-symbols-outlined">edit</span>
-            </button>
-            <button class="icon-btn danger" onclick="confirmDeleteTraveler('${t.id}', '${escapeHtml(t.name)}')" title="Delete">
-              <span class="material-symbols-outlined">delete</span>
-            </button>
-          </div>
-        </div>
-      `).join('') : '<p class="no-data">No travelers yet</p>'}
+        `;
+      }).join('') : '<p class="no-data">No travelers yet</p>'}
     </div>
     <div class="add-traveler-section">
       <button class="add-btn" onclick="showAddTravelerForm()">
@@ -552,11 +635,475 @@ function renderImportTab(container) {
 }
 
 // ========================================
+// GROUPS TAB
+// ========================================
+
+function renderGroupsTab(container) {
+  // Load groups from localStorage or use defaults
+  loadGroups();
+
+  const allGroups = [...DEFAULT_GROUPS, ...groups];
+
+  container.innerHTML = `
+    <div class="groups-section">
+      <p class="groups-intro">Create groups to organize travelers. Travelers can belong to multiple groups.</p>
+
+      <div class="groups-list">
+        ${allGroups.map(g => `
+          <div class="group-item ${g.id === 'everyone' ? 'default-group' : ''}" data-id="${g.id}">
+            <div class="group-info">
+              <span class="group-icon" style="background: ${g.color}">
+                <span class="material-symbols-outlined">${g.icon || 'group'}</span>
+              </span>
+              <span class="group-name">${escapeHtml(g.name)}</span>
+              <span class="group-count">${getGroupMemberCount(g.id)} travelers</span>
+            </div>
+            ${g.id !== 'everyone' ? `
+              <div class="group-actions">
+                <button class="icon-btn" onclick="editGroup('${g.id}')" title="Edit">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                <button class="icon-btn danger" onclick="confirmDeleteGroup('${g.id}', '${escapeHtml(g.name)}')" title="Delete">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            ` : '<span class="default-badge">Default</span>'}
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="add-group-section">
+        <button class="add-btn" onclick="showAddGroupForm()">
+          <span class="material-symbols-outlined">add_circle</span>
+          Add Group
+        </button>
+      </div>
+      <div id="groupFormContainer"></div>
+    </div>
+
+    <div class="groups-help">
+      <span class="material-symbols-outlined">info</span>
+      <p>Groups help filter the itinerary. "Everyone" includes all travelers and cannot be deleted.</p>
+    </div>
+  `;
+}
+
+function loadGroups() {
+  const stored = localStorage.getItem(`tripGroups_${currentTripId}`);
+  if (stored) {
+    try {
+      groups = JSON.parse(stored);
+    } catch (e) {
+      groups = [];
+    }
+  }
+}
+
+function saveGroups() {
+  localStorage.setItem(`tripGroups_${currentTripId}`, JSON.stringify(groups));
+}
+
+function getGroupMemberCount(groupId) {
+  if (groupId === 'everyone') {
+    return travelers.length;
+  }
+  return travelers.filter(t => (t.groups || []).includes(groupId)).length;
+}
+
+export function showAddGroupForm() {
+  const container = document.getElementById('groupFormContainer');
+  container.innerHTML = `
+    <div class="group-form">
+      <h4>Add Group</h4>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="newGroupName" placeholder="e.g., Family, Couples, Kids" maxlength="30">
+      </div>
+      <div class="form-group">
+        <label>Color</label>
+        <input type="color" id="newGroupColor" value="${getRandomGroupColor()}">
+      </div>
+      <div class="form-group">
+        <label>Icon</label>
+        <div class="icon-picker" id="groupIconPicker">
+          ${renderIconPicker('group')}
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn secondary" onclick="hideGroupForm()">Cancel</button>
+        <button class="btn primary" onclick="submitAddGroup()">Add</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('newGroupName').focus();
+}
+
+export function hideGroupForm() {
+  const container = document.getElementById('groupFormContainer');
+  if (container) container.innerHTML = '';
+}
+
+function renderIconPicker(selectedIcon = 'group') {
+  const icons = ['group', 'family_restroom', 'favorite', 'child_care', 'elderly', 'sports_esports', 'restaurant', 'flight', 'beach_access', 'hiking'];
+  return icons.map(icon => `
+    <button type="button" class="icon-option ${icon === selectedIcon ? 'selected' : ''}"
+            onclick="selectGroupIcon('${icon}')" data-icon="${icon}">
+      <span class="material-symbols-outlined">${icon}</span>
+    </button>
+  `).join('');
+}
+
+export function selectGroupIcon(icon) {
+  document.querySelectorAll('.icon-option').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.icon === icon);
+  });
+}
+
+function getSelectedIcon() {
+  const selected = document.querySelector('.icon-option.selected');
+  return selected ? selected.dataset.icon : 'group';
+}
+
+export function submitAddGroup() {
+  const name = document.getElementById('newGroupName').value.trim();
+  const color = document.getElementById('newGroupColor').value;
+  const icon = getSelectedIcon();
+
+  if (!name) {
+    alert('Please enter a group name');
+    return;
+  }
+
+  // Check for duplicate names
+  const allGroups = [...DEFAULT_GROUPS, ...groups];
+  if (allGroups.some(g => g.name.toLowerCase() === name.toLowerCase())) {
+    alert('A group with this name already exists');
+    return;
+  }
+
+  const newGroup = {
+    id: `group_${Date.now()}`,
+    name,
+    color,
+    icon
+  };
+
+  groups.push(newGroup);
+  saveGroups();
+  hideGroupForm();
+  renderTabContent();
+}
+
+export function editGroup(id) {
+  const group = groups.find(g => g.id === id);
+  if (!group) return;
+
+  const container = document.getElementById('groupFormContainer');
+  container.innerHTML = `
+    <div class="group-form">
+      <h4>Edit Group</h4>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="editGroupName" value="${escapeHtml(group.name)}" maxlength="30">
+      </div>
+      <div class="form-group">
+        <label>Color</label>
+        <input type="color" id="editGroupColor" value="${group.color}">
+      </div>
+      <div class="form-group">
+        <label>Icon</label>
+        <div class="icon-picker" id="groupIconPicker">
+          ${renderIconPicker(group.icon)}
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn secondary" onclick="hideGroupForm()">Cancel</button>
+        <button class="btn primary" onclick="submitEditGroup('${id}')">Save</button>
+      </div>
+    </div>
+  `;
+}
+
+export function submitEditGroup(id) {
+  const name = document.getElementById('editGroupName').value.trim();
+  const color = document.getElementById('editGroupColor').value;
+  const icon = getSelectedIcon();
+
+  if (!name) {
+    alert('Please enter a group name');
+    return;
+  }
+
+  const idx = groups.findIndex(g => g.id === id);
+  if (idx >= 0) {
+    groups[idx] = { ...groups[idx], name, color, icon };
+    saveGroups();
+    hideGroupForm();
+    renderTabContent();
+  }
+}
+
+export function confirmDeleteGroup(id, name) {
+  if (confirm(`Delete the "${name}" group? Travelers in this group will be unassigned from it.`)) {
+    deleteGroup(id);
+  }
+}
+
+function deleteGroup(id) {
+  groups = groups.filter(g => g.id !== id);
+  saveGroups();
+
+  // Remove this group from all travelers
+  travelers.forEach(t => {
+    if (t.groups) {
+      t.groups = t.groups.filter(gId => gId !== id);
+    }
+  });
+
+  renderTabContent();
+}
+
+function getRandomGroupColor() {
+  const colors = ['#134e5e', '#71b280', '#f0b429', '#3182ce', '#805ad5', '#dd6b20', '#e53e3e', '#38a169', '#2c7a7b'];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// Get all available groups for traveler assignment
+function getAllGroups() {
+  loadGroups();
+  return [...DEFAULT_GROUPS, ...groups];
+}
+
+// ========================================
+// GAMES TAB
+// ========================================
+
+function renderGamesTab(container) {
+  loadEnabledGames();
+
+  container.innerHTML = `
+    <div class="games-section">
+      <p class="games-intro">Enable games for your trip. Enabled games appear in the menu for all travelers.</p>
+
+      <div class="games-list">
+        ${AVAILABLE_GAMES.map(game => {
+          const isEnabled = enabledGames.includes(game.id);
+          return `
+            <div class="game-item ${isEnabled ? 'enabled' : ''}" data-game-id="${game.id}">
+              <div class="game-toggle">
+                <button class="toggle-btn ${isEnabled ? 'active' : ''}" onclick="toggleGame('${game.id}')">
+                  <span class="toggle-track"></span>
+                  <span class="toggle-thumb"></span>
+                </button>
+              </div>
+              <div class="game-icon" style="background: ${game.color}">
+                <span class="material-symbols-outlined">${game.icon}</span>
+              </div>
+              <div class="game-info">
+                <span class="game-name">${game.name}</span>
+                <span class="game-description">${game.description}</span>
+              </div>
+              ${isEnabled ? `
+                <button class="game-settings-btn" onclick="openGameSettings('${game.id}')" title="Settings">
+                  <span class="material-symbols-outlined">settings</span>
+                </button>
+              ` : ''}
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="games-help">
+        <span class="material-symbols-outlined">info</span>
+        <p>Enabled games will appear in the trip menu. Game progress is tracked on the Scoreboard.</p>
+      </div>
+    </div>
+  `;
+}
+
+function loadEnabledGames() {
+  const stored = localStorage.getItem(`tripGames_${currentTripId}`);
+  if (stored) {
+    try {
+      enabledGames = JSON.parse(stored);
+    } catch (e) {
+      enabledGames = [];
+    }
+  } else {
+    // Default: enable trivia and scavenger hunt
+    enabledGames = ['trivia', 'scavenger'];
+    saveEnabledGames();
+  }
+}
+
+function saveEnabledGames() {
+  localStorage.setItem(`tripGames_${currentTripId}`, JSON.stringify(enabledGames));
+  // Dispatch event so menu can update
+  window.dispatchEvent(new CustomEvent('gamesChanged', { detail: { enabledGames } }));
+}
+
+export function toggleGame(gameId) {
+  loadEnabledGames();
+
+  if (enabledGames.includes(gameId)) {
+    enabledGames = enabledGames.filter(id => id !== gameId);
+  } else {
+    enabledGames.push(gameId);
+  }
+
+  saveEnabledGames();
+  renderTabContent();
+}
+
+export function openGameSettings(gameId) {
+  const game = AVAILABLE_GAMES.find(g => g.id === gameId);
+  if (!game) return;
+
+  // For now, show a simple settings dialog
+  // This can be expanded with game-specific settings
+  const container = document.getElementById('tripSetupBody');
+  const existingSettings = container.querySelector('.game-settings-panel');
+  if (existingSettings) {
+    existingSettings.remove();
+  }
+
+  const settingsPanel = document.createElement('div');
+  settingsPanel.className = 'game-settings-panel';
+  settingsPanel.innerHTML = `
+    <div class="settings-panel-header">
+      <div class="settings-panel-title">
+        <span class="material-symbols-outlined" style="color: ${game.color}">${game.icon}</span>
+        ${game.name} Settings
+      </div>
+      <button class="settings-panel-close" onclick="closeGameSettings()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="settings-panel-body">
+      ${getGameSettingsContent(gameId)}
+    </div>
+  `;
+
+  container.appendChild(settingsPanel);
+}
+
+export function closeGameSettings() {
+  const panel = document.querySelector('.game-settings-panel');
+  if (panel) {
+    panel.remove();
+  }
+}
+
+function getGameSettingsContent(gameId) {
+  // Game-specific settings
+  switch (gameId) {
+    case 'trivia':
+      return `
+        <div class="setting-group">
+          <label>Default Category</label>
+          <select id="triviaDefaultCategory" onchange="saveGameSetting('trivia', 'defaultCategory', this.value)">
+            <option value="general">General</option>
+            <option value="funny">Funny</option>
+            <option value="historical">Historical</option>
+            <option value="food">Food & Cuisine</option>
+            <option value="expert">Expert</option>
+          </select>
+        </div>
+        <div class="setting-group">
+          <label>Points per Correct Answer</label>
+          <input type="number" id="triviaPoints" value="10" min="1" max="100"
+                 onchange="saveGameSetting('trivia', 'pointsPerAnswer', this.value)">
+        </div>
+      `;
+
+    case 'scavenger':
+      return `
+        <div class="setting-group">
+          <label>Points per Item Found</label>
+          <input type="number" id="scavengerPoints" value="10" min="1" max="100"
+                 onchange="saveGameSetting('scavenger', 'pointsPerItem', this.value)">
+        </div>
+        <div class="setting-group">
+          <label>Bonus for First Finder</label>
+          <input type="number" id="scavengerBonus" value="5" min="0" max="50"
+                 onchange="saveGameSetting('scavenger', 'firstFinderBonus', this.value)">
+        </div>
+      `;
+
+    case 'bingo':
+      return `
+        <div class="setting-group">
+          <label>Card Size</label>
+          <select id="bingoCardSize" onchange="saveGameSetting('bingo', 'cardSize', this.value)">
+            <option value="3x3">3x3 (9 squares)</option>
+            <option value="4x4">4x4 (16 squares)</option>
+            <option value="5x5" selected>5x5 (25 squares)</option>
+          </select>
+        </div>
+        <p class="setting-note">Bingo cards will be generated based on your trip itinerary.</p>
+      `;
+
+    case 'predictions':
+      return `
+        <div class="setting-group">
+          <label>Points for Correct Prediction</label>
+          <input type="number" id="predictionPoints" value="25" min="1" max="100"
+                 onchange="saveGameSetting('predictions', 'pointsPerPrediction', this.value)">
+        </div>
+        <p class="setting-note">Travelers can make predictions about what will happen during the trip.</p>
+      `;
+
+    case 'challenges':
+      return `
+        <div class="setting-group">
+          <label>Challenges per Day</label>
+          <select id="challengesPerDay" onchange="saveGameSetting('challenges', 'perDay', this.value)">
+            <option value="1">1 challenge</option>
+            <option value="2">2 challenges</option>
+            <option value="3" selected>3 challenges</option>
+          </select>
+        </div>
+        <p class="setting-note">Challenges are generated automatically each day based on your itinerary.</p>
+      `;
+
+    default:
+      return '<p>No settings available for this game.</p>';
+  }
+}
+
+export function saveGameSetting(gameId, setting, value) {
+  const settingsKey = `tripGameSettings_${currentTripId}_${gameId}`;
+  let settings = {};
+
+  try {
+    settings = JSON.parse(localStorage.getItem(settingsKey) || '{}');
+  } catch (e) {
+    settings = {};
+  }
+
+  settings[setting] = value;
+  localStorage.setItem(settingsKey, JSON.stringify(settings));
+}
+
+// Export for menu integration
+export function getEnabledGames() {
+  loadEnabledGames();
+  return enabledGames;
+}
+
+export function isGameEnabled(gameId) {
+  loadEnabledGames();
+  return enabledGames.includes(gameId);
+}
+
+// ========================================
 // TRAVELER CRUD
 // ========================================
 
 export function showAddTravelerForm() {
   const container = document.getElementById('travelerFormContainer');
+  const allGroups = getAllGroups();
+
   container.innerHTML = `
     <div class="traveler-form">
       <h4>Add Traveler</h4>
@@ -565,12 +1112,18 @@ export function showAddTravelerForm() {
         <input type="text" id="newTravelerName" placeholder="Enter name" maxlength="50">
       </div>
       <div class="form-group">
-        <label>Group</label>
-        <select id="newTravelerGroup">
-          <option value="guest">Guest</option>
-          <option value="family">Family</option>
-          <option value="couple">Couple</option>
-        </select>
+        <label>Groups</label>
+        <div class="group-checkboxes" id="newTravelerGroups">
+          ${allGroups.filter(g => g.id !== 'everyone').map(g => `
+            <label class="group-checkbox">
+              <input type="checkbox" value="${g.id}" data-group-name="${escapeHtml(g.name)}">
+              <span class="group-chip" style="--group-color: ${g.color}">
+                <span class="material-symbols-outlined">${g.icon || 'group'}</span>
+                ${escapeHtml(g.name)}
+              </span>
+            </label>
+          `).join('') || '<span class="no-groups">No custom groups yet. Add groups in the Groups tab.</span>'}
+        </div>
       </div>
       <div class="form-group">
         <label>Color</label>
@@ -593,8 +1146,14 @@ export function hideAddTravelerForm() {
 
 export async function submitAddTraveler(event) {
   const name = document.getElementById('newTravelerName').value.trim();
-  const group = document.getElementById('newTravelerGroup').value;
   const color = document.getElementById('newTravelerColor').value;
+
+  // Get selected groups from checkboxes
+  const groupCheckboxes = document.querySelectorAll('#newTravelerGroups input[type="checkbox"]:checked');
+  const selectedGroups = Array.from(groupCheckboxes).map(cb => cb.value);
+
+  // For backward compatibility, use first group name or 'guest'
+  const primaryGroup = groupCheckboxes.length > 0 ? groupCheckboxes[0].dataset.groupName : 'guest';
 
   if (!name) {
     alert('Please enter a name');
@@ -606,9 +1165,11 @@ export async function submitAddTraveler(event) {
   btn.textContent = 'Adding...';
 
   try {
-    const result = await fetchTripSetup('travelers', 'POST', { name, group, color });
+    const result = await fetchTripSetup('travelers', 'POST', { name, group: primaryGroup, groups: selectedGroups, color });
 
     if (result.id) {
+      // Ensure groups array is included
+      result.groups = selectedGroups;
       travelers.push(result);
       hideAddTravelerForm();
 
@@ -625,6 +1186,7 @@ export async function submitAddTraveler(event) {
           id: result.id,
           name: result.name,
           group: result.group,
+          groups: selectedGroups,
           color: result.color,
           initials: result.initials
         });
@@ -646,6 +1208,9 @@ export function editTraveler(id) {
   if (!traveler) return;
 
   const container = document.getElementById('travelerFormContainer');
+  const allGroups = getAllGroups();
+  const travelerGroups = traveler.groups || [];
+
   container.innerHTML = `
     <div class="traveler-form">
       <h4>Edit Traveler</h4>
@@ -660,12 +1225,18 @@ export function editTraveler(id) {
         </div>
       </div>
       <div class="form-group">
-        <label>Group</label>
-        <select id="editTravelerGroup">
-          <option value="guest" ${traveler.group === 'guest' ? 'selected' : ''}>Guest</option>
-          <option value="family" ${traveler.group === 'family' ? 'selected' : ''}>Family</option>
-          <option value="couple" ${traveler.group === 'couple' ? 'selected' : ''}>Couple</option>
-        </select>
+        <label>Groups</label>
+        <div class="group-checkboxes" id="editTravelerGroups">
+          ${allGroups.filter(g => g.id !== 'everyone').map(g => `
+            <label class="group-checkbox">
+              <input type="checkbox" value="${g.id}" ${travelerGroups.includes(g.id) ? 'checked' : ''} data-group-name="${escapeHtml(g.name)}">
+              <span class="group-chip" style="--group-color: ${g.color}">
+                <span class="material-symbols-outlined">${g.icon || 'group'}</span>
+                ${escapeHtml(g.name)}
+              </span>
+            </label>
+          `).join('') || '<span class="no-groups">No custom groups yet. Add groups in the Groups tab.</span>'}
+        </div>
       </div>
       <div class="form-group">
         <label>Color</label>
@@ -682,8 +1253,14 @@ export function editTraveler(id) {
 export async function submitEditTraveler(event, id) {
   const name = document.getElementById('editTravelerName').value.trim();
   const initials = document.getElementById('editTravelerInitials').value.trim().toUpperCase();
-  const group = document.getElementById('editTravelerGroup').value;
   const color = document.getElementById('editTravelerColor').value;
+
+  // Get selected groups from checkboxes
+  const groupCheckboxes = document.querySelectorAll('#editTravelerGroups input[type="checkbox"]:checked');
+  const selectedGroups = Array.from(groupCheckboxes).map(cb => cb.value);
+
+  // For backward compatibility, use first group name or 'guest'
+  const primaryGroup = groupCheckboxes.length > 0 ? groupCheckboxes[0].dataset.groupName : 'guest';
 
   if (!name) {
     alert('Please enter a name');
@@ -695,13 +1272,13 @@ export async function submitEditTraveler(event, id) {
   btn.textContent = 'Saving...';
 
   try {
-    const result = await fetchTripSetup(`travelers/${id}`, 'PUT', { name, initials, group, color });
+    const result = await fetchTripSetup(`travelers/${id}`, 'PUT', { name, initials, group: primaryGroup, groups: selectedGroups, color });
 
     if (result.id) {
       // Update local state
       const idx = travelers.findIndex(t => t.id === id);
       if (idx >= 0) {
-        travelers[idx] = { ...travelers[idx], ...result };
+        travelers[idx] = { ...travelers[idx], ...result, groups: selectedGroups };
       }
       hideAddTravelerForm();
 
@@ -716,7 +1293,7 @@ export async function submitEditTraveler(event, id) {
       if (window.TRAVELERS) {
         const globalIdx = window.TRAVELERS.findIndex(t => t.id === id);
         if (globalIdx >= 0) {
-          window.TRAVELERS[globalIdx] = { ...window.TRAVELERS[globalIdx], name, initials, group, color };
+          window.TRAVELERS[globalIdx] = { ...window.TRAVELERS[globalIdx], name, initials, group: primaryGroup, groups: selectedGroups, color };
         }
       }
     } else {
@@ -904,3 +1481,20 @@ window.wizardNext = wizardNext;
 window.wizardBack = wizardBack;
 window.wizardSkip = wizardSkip;
 window.wizardFinish = wizardFinish;
+
+// Group management exports
+window.showAddGroupForm = showAddGroupForm;
+window.hideGroupForm = hideGroupForm;
+window.submitAddGroup = submitAddGroup;
+window.editGroup = editGroup;
+window.submitEditGroup = submitEditGroup;
+window.confirmDeleteGroup = confirmDeleteGroup;
+window.selectGroupIcon = selectGroupIcon;
+
+// Game management exports
+window.toggleGame = toggleGame;
+window.openGameSettings = openGameSettings;
+window.closeGameSettings = closeGameSettings;
+window.saveGameSetting = saveGameSetting;
+window.getEnabledGames = getEnabledGames;
+window.isGameEnabled = isGameEnabled;

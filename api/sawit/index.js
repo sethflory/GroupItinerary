@@ -41,6 +41,14 @@ module.exports = async function (context, req) {
 
   try {
     switch (action) {
+      case "active":
+        // Get all active games for activity pills
+        if (req.method === "GET") {
+          return await getActiveGames(context, tripId, headers);
+        }
+        sendError(context, "Method not allowed", 405, headers);
+        return;
+
       case "generate":
         if (req.method !== "POST") {
           sendError(context, "Method not allowed", 405, headers);
@@ -108,6 +116,41 @@ module.exports = async function (context, req) {
     sendError(context, err.message, 500, headers);
   }
 };
+
+// Get all active games for a trip (for activity pills)
+async function getActiveGames(context, tripId, headers) {
+  try {
+    const allGames = await queryByPartition(TABLES.SAW_IT_GAMES, tripId);
+
+    // Filter to only active games
+    const activeGames = allGames.filter(g => g.status === "active");
+
+    // Format for activity pills (lightweight response)
+    const games = activeGames.map(g => {
+      let sightings = [];
+      try {
+        sightings = typeof g.sightings === "string" ? JSON.parse(g.sightings) : (g.sightings || []);
+      } catch (e) {
+        sightings = [];
+      }
+
+      return {
+        id: g.id || g.rowKey,
+        eventId: g.eventId,
+        eventTitle: g.eventTitle,
+        status: g.status,
+        playerCount: new Set(sightings.map(s => s.travelerId)).size,
+        sightings: sightings.length,
+        createdAt: g.createdAt
+      };
+    });
+
+    sendSuccess(context, { games }, 200, headers);
+  } catch (err) {
+    console.error("Error fetching active games:", err);
+    sendError(context, err.message, 500, headers);
+  }
+}
 
 // Generate AI sight recommendations
 async function generateSights(context, tripId, body, headers) {
