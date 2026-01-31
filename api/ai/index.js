@@ -1,57 +1,32 @@
-function validateRequest(req) {
-  const tripId = req.body?.tripId || req.query?.tripId;
-  const accessCode = req.body?.accessCode || req.query?.accessCode;
-
-  if (!tripId) return { valid: false, error: "Missing tripId" };
-  if (!accessCode) return { valid: false, error: "Missing accessCode" };
-
-  const codesJson = process.env.TRIP_ACCESS_CODES || "{}";
-  let codes;
-  try {
-    codes = JSON.parse(codesJson);
-  } catch (e) {
-    return { valid: false, error: "Server configuration error" };
-  }
-
-  const expectedCode = codes[tripId];
-  if (!expectedCode) return { valid: false, error: "Trip not found" };
-  if (accessCode.toLowerCase() !== expectedCode.toLowerCase()) {
-    return { valid: false, error: "Invalid access code" };
-  }
-
-  return { valid: true, tripId };
-}
+const {
+  getHeaders,
+  handleOptions,
+  requireTravelerAuth,
+  sendError,
+  sendSuccess
+} = require("../shared/validation");
 
 module.exports = async function (context, req) {
-  const headers = {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type"
-  };
+  const headers = getHeaders("POST, OPTIONS");
 
   if (req.method === "OPTIONS") {
-    context.res = { status: 204, headers };
+    handleOptions(context, "POST, OPTIONS");
     return;
   }
 
-  const auth = validateRequest(req);
-  if (!auth.valid) {
-    const status = auth.error === "Trip not found" ? 404 :
-                   auth.error === "Invalid access code" ? 403 : 401;
-    context.res = { status, headers, body: { error: auth.error } };
-    return;
-  }
+  // Use shared auth that accepts both trip-level and traveler-specific codes
+  const auth = await requireTravelerAuth(context, req, { methods: "POST, OPTIONS" });
+  if (!auth) return;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    context.res = { status: 500, headers, body: { error: "AI service not configured" } };
+    sendError(context, "AI service not configured", 500, headers);
     return;
   }
 
   const { system, messages, max_tokens = 1024 } = req.body || {};
   if (!messages || !Array.isArray(messages)) {
-    context.res = { status: 400, headers, body: { error: "Missing messages array" } };
+    sendError(context, "Missing messages array", 400, headers);
     return;
   }
 
@@ -74,13 +49,13 @@ module.exports = async function (context, req) {
     const data = await response.json();
 
     if (!response.ok) {
-      context.res = { status: response.status, headers, body: { error: "AI error", details: data } };
+      sendError(context, "AI error: " + (data.error?.message || "Unknown"), response.status, headers);
       return;
     }
 
-    context.res = { status: 200, headers, body: { content: data.content } };
+    sendSuccess(context, { content: data.content }, 200, headers);
 
   } catch (err) {
-    context.res = { status: 500, headers, body: { error: err.message } };
+    sendError(context, err.message, 500, headers);
   }
 };
