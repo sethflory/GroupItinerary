@@ -130,6 +130,48 @@ export async function generateNicknames() {
   }
 }
 
+/**
+ * Generate day background images
+ */
+export async function generateBackgrounds() {
+  if (isPersonalizing) return;
+
+  isPersonalizing = true;
+  showSimpleLoader('Finding beautiful images...');
+
+  try {
+    const result = await callPersonalizeEndpoint('backgrounds');
+
+    hidePersonalizationLoader();
+
+    if (result.backgrounds) {
+      // Update global personalization
+      if (!window.tripPersonalization) {
+        window.tripPersonalization = {};
+      }
+      window.tripPersonalization.dayBackgrounds = result.backgrounds;
+
+      // Refresh the view
+      if (window.renderDayDetail) {
+        window.renderDayDetail();
+      }
+
+      const resolvedCount = Object.values(result.backgrounds).filter(b => b.url).length;
+      showSuccessToast(`Found ${resolvedCount} background images!`);
+    }
+
+    return result;
+
+  } catch (err) {
+    console.error('[AI Assist] Backgrounds error:', err);
+    hidePersonalizationLoader();
+    showErrorToast(err.message || 'Failed to generate backgrounds');
+    throw err;
+  } finally {
+    isPersonalizing = false;
+  }
+}
+
 // ========================================
 // MAIN FLOW
 // ========================================
@@ -419,13 +461,13 @@ function renderAiAssistContent(hasPersonalization) {
           <span class="material-symbols-outlined ai-option-arrow">chevron_right</span>
         </button>
 
-        <button class="ai-option-btn" onclick="generateBackgrounds()" disabled>
+        <button class="ai-option-btn" onclick="generateBackgrounds()">
           <span class="material-symbols-outlined">image</span>
           <div class="ai-option-info">
             <span class="ai-option-title">Day Backgrounds</span>
             <span class="ai-option-desc">Beautiful images for each day</span>
           </div>
-          <span class="ai-option-badge">Coming Soon</span>
+          <span class="material-symbols-outlined ai-option-arrow">chevron_right</span>
         </button>
 
         <button class="ai-option-btn" onclick="generateEventCards()" disabled>
@@ -712,6 +754,7 @@ export function closePersonalizationSummary() {
 window.showPersonalizationSummary = showPersonalizationSummary;
 window.closePersonalizationSummary = closePersonalizationSummary;
 window.generateNicknames = generateNicknames;
+window.generateBackgrounds = generateBackgrounds;
 
 function showErrorToast(message) {
   const existing = document.querySelector('.error-toast');
