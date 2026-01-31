@@ -67,38 +67,17 @@ export function applyFeatureFlags() {
   }
 }
 
-// Trip registry
+// Trip registry - trips are loaded from database
+// Add your trip here or it will be fetched from the API
 export const TRIPS = {
-  'athens-bangalore-2026': {
-    id: 'athens-bangalore-2026',
-    name: 'Athens & Bangalore 2026',
-    subtitle: 'Our Journey',
-    dates: 'February 1 - 12, 2026',
-    description: 'Athens together, then S&P continue to India',
-    icon: '🇬🇷',
-    badge: 'production',
-    photoPrefix: '',
-    startDate: '2026-02-01T16:27:00-05:00',
-    endDate: '2026-02-12T23:59:00-05:00',
-    accessCode: 'athens2026'
-  },
-  'test-trip': {
-    id: 'test-trip',
-    name: 'Test Trip',
-    subtitle: 'Development Testing',
-    dates: 'Jan 1 - 3, 2025',
-    description: 'For testing features without affecting real trip',
-    icon: '🧪',
-    badge: 'test',
-    photoPrefix: 'test-',
-    startDate: '2025-01-01T09:00:00-05:00',
-    endDate: '2025-01-03T23:59:00-05:00',
-    accessCode: 'test123'
-  }
+  // Trips will be populated from database
 };
 
 // API base URL
 export const API_BASE = '/api';
+
+// Google OAuth
+export const GOOGLE_CLIENT_ID = '682287299289-355vgo3c4em0n6itjulcd6ab1a5p6o8t.apps.googleusercontent.com';
 
 // Photo settings
 export const MAX_RIBBON_PHOTOS = 12;
