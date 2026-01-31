@@ -312,6 +312,8 @@ window.refreshActivePolls = dinnerPoll.refreshActivePolls;
 
 window.openWhatsYouWillSee = sawIt.openWhatsYouWillSee;
 window.closeSawItModal = sawIt.closeSawItModal;
+window.hasEventSavedList = sawIt.hasEventSavedList;
+window.refreshSavedLists = sawIt.refreshSavedLists;
 
 // ========================================
 // DEPENDENCY INJECTION

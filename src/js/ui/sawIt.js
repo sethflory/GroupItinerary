@@ -8,13 +8,15 @@ import { getStoredAccessCode, getCurrentTravelerId, getDisplayName, isAdmin } fr
 import { uploadPhoto as apiUploadPhoto } from '../api.js';
 
 // State
-let currentStep = 'configure';  // configure, preview, game, results
+let currentStep = 'configure';  // configure, preview, game, results, savedList
 let selectedOrigin = null;      // { type, eventId?, name, lat, lon }
 let transportMode = 'walk';
 let generatedItems = [];
 let activeGame = null;
 let currentEventId = null;
 let currentEvent = null;
+let savedList = null;           // Personal saved list for current event
+let savedListEventIds = [];     // Cache of event IDs that have saved lists
 
 // Dependencies injected by app.js
 let DAYS, TRAVELERS, DESTINATIONS, HOTELS;
@@ -24,6 +26,31 @@ export function setSawItDeps(deps) {
   TRAVELERS = deps.TRAVELERS;
   DESTINATIONS = deps.DESTINATIONS;
   HOTELS = deps.HOTELS;
+
+  // Load saved lists on init
+  loadSavedListEventIds();
+}
+
+// Check if an event has a saved list (for icon display)
+export function hasEventSavedList(eventId) {
+  return savedListEventIds.includes(eventId);
+}
+
+// Load which events have saved lists
+async function loadSavedListEventIds() {
+  try {
+    const result = await fetchSawItAPI('lists', 'GET');
+    if (!result.error && result.eventIds) {
+      savedListEventIds = result.eventIds;
+    }
+  } catch (err) {
+    console.log('Could not load saved lists:', err.message);
+  }
+}
+
+// Refresh saved list cache (called after saving)
+export async function refreshSavedLists() {
+  await loadSavedListEventIds();
 }
 
 // ========================================
@@ -127,19 +154,37 @@ function renderCurrentStep() {
     case 'results':
       renderResultsStep();
       break;
+    case 'savedList':
+      renderSavedListStep();
+      break;
   }
 }
 
 async function checkExistingGame(eventId) {
-  const result = await fetchSawItAPI(`game/${eventId}`, 'GET');
+  // Check for active game first
+  const gameResult = await fetchSawItAPI(`game/${eventId}`, 'GET');
 
-  if (!result.error && result.id) {
-    activeGame = result;
-    if (result.status === 'active') {
+  if (!gameResult.error && gameResult.id) {
+    activeGame = gameResult;
+    if (gameResult.status === 'active') {
       currentStep = 'game';
+      renderCurrentStep();
+      return;
     } else {
       currentStep = 'results';
+      renderCurrentStep();
+      return;
     }
+  }
+
+  // Check for saved personal list
+  const listResult = await fetchSawItAPI(`list/${eventId}`, 'GET');
+
+  if (!listResult.error && listResult.id) {
+    savedList = listResult;
+    currentStep = 'savedList';
+    renderCurrentStep();
+    return;
   }
 
   renderCurrentStep();
@@ -458,6 +503,63 @@ function renderGameStep() {
   `;
 }
 
+function renderSavedListStep() {
+  const container = document.getElementById('sawItContent');
+  const list = savedList;
+
+  if (!list) {
+    container.innerHTML = '<p>Loading list...</p>';
+    return;
+  }
+
+  const items = parseJSON(list.items, []);
+
+  container.innerHTML = `
+    <div class="saw-it-step saved-list-step">
+      <div class="saw-it-step-header">
+        <div>
+          <h4>
+            <span class="material-symbols-outlined" style="color: var(--color-sky);">format_list_bulleted</span>
+            Your Saved List
+          </h4>
+          <p class="saw-it-subtitle">${list.transportMode === 'walk' ? 'Walking' : 'Driving'} to ${list.eventTitle || 'destination'}</p>
+        </div>
+      </div>
+
+      <div class="saw-it-items-preview">
+        ${items.map((item, idx) => `
+          <div class="saw-it-item-preview">
+            <div class="item-order">${idx + 1}</div>
+            <div class="item-details">
+              <div class="item-header">
+                <span class="item-name">${item.name}</span>
+                <span class="item-category ${item.category}">${(item.category || '').replace('_', ' ')}</span>
+              </div>
+              <div class="item-description">${item.description}</div>
+              <div class="item-look-for">
+                <span class="material-symbols-outlined">search</span>
+                <span>${item.lookFor}</span>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="saw-it-actions">
+        <button class="saw-it-action-btn secondary" onclick="window.sawItCreateNewList()">
+          <span class="material-symbols-outlined">refresh</span>
+          New List
+        </button>
+        <button class="saw-it-action-btn primary game" onclick="window.sawItStartGameFromSaved()">
+          <span class="material-symbols-outlined">sports_esports</span>
+          Start Game
+        </button>
+        <button class="saw-it-action-btn secondary" onclick="closeSawItModal()">Close</button>
+      </div>
+    </div>
+  `;
+}
+
 function renderResultsStep() {
   const container = document.getElementById('sawItContent');
   const game = activeGame;
@@ -612,6 +714,9 @@ window.sawItGoBack = function() {
   } else if (currentStep === 'game' || currentStep === 'results') {
     currentStep = 'configure';
     activeGame = null;
+  } else if (currentStep === 'savedList') {
+    currentStep = 'configure';
+    savedList = null;
   }
   renderCurrentStep();
 };
@@ -620,9 +725,97 @@ window.sawItRegenerate = function() {
   window.sawItGenerateList();
 };
 
-window.sawItJustForMe = function() {
-  showToast('List saved! Check these sights on your way.', 'success');
-  closeSawItModal();
+window.sawItJustForMe = async function() {
+  const container = document.getElementById('sawItContent');
+  container.innerHTML = `
+    <div class="saw-it-loading">
+      <div class="spinner"></div>
+      <p>Saving your list...</p>
+    </div>
+  `;
+
+  const event = currentEvent;
+  const coords = getDestinationCoords(event?.date);
+
+  const result = await fetchSawItAPI('list', 'POST', {
+    eventId: currentEventId,
+    eventTitle: event?.title || 'Destination',
+    origin: selectedOrigin,
+    destination: {
+      name: event?.title || 'Destination',
+      lat: event?.lat || coords?.lat,
+      lon: event?.lon || coords?.lon
+    },
+    transportMode,
+    items: generatedItems
+  });
+
+  if (result.error) {
+    showToast('Failed to save list: ' + result.error, 'error');
+    currentStep = 'preview';
+    renderCurrentStep();
+    return;
+  }
+
+  // Update saved list cache
+  if (!savedListEventIds.includes(currentEventId)) {
+    savedListEventIds.push(currentEventId);
+  }
+
+  // Update the dayView to show the list icon
+  if (window.renderDayDetail) {
+    window.renderDayDetail();
+  }
+
+  savedList = result;
+  currentStep = 'savedList';
+  renderCurrentStep();
+  showToast('List saved!', 'success');
+};
+
+window.sawItCreateNewList = function() {
+  savedList = null;
+  currentStep = 'configure';
+  renderCurrentStep();
+};
+
+window.sawItStartGameFromSaved = async function() {
+  if (!savedList) return;
+
+  const container = document.getElementById('sawItContent');
+  container.innerHTML = `
+    <div class="saw-it-loading">
+      <div class="spinner"></div>
+      <p>Starting game...</p>
+    </div>
+  `;
+
+  const items = parseJSON(savedList.items, []);
+
+  const result = await fetchSawItAPI('game', 'POST', {
+    eventId: savedList.eventId,
+    eventTitle: savedList.eventTitle,
+    origin: savedList.origin,
+    destination: savedList.destination,
+    transportMode: savedList.transportMode,
+    items
+  });
+
+  if (result.error) {
+    container.innerHTML = `
+      <div class="saw-it-error">
+        <span class="material-symbols-outlined">error</span>
+        <p>${result.error}</p>
+        <button class="saw-it-action-btn secondary" onclick="window.sawItGoBack()">Go Back</button>
+      </div>
+    `;
+    return;
+  }
+
+  activeGame = result;
+  currentStep = 'game';
+  renderCurrentStep();
+  showToast('Game started! Other travelers can now join.', 'success');
 };
 
 window.sawItStartGame = async function() {

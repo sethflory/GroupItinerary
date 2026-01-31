@@ -87,6 +87,15 @@
   color: var(--color-sky);
 }
 
+.event-see-btn.has-list {
+  color: var(--color-sky);
+  background: rgba(79, 172, 254, 0.1);
+}
+
+.event-see-btn.has-list:hover {
+  background: rgba(79, 172, 254, 0.2);
+}
+
 /* Origin Selection */
 .saw-it-origin-options {
   display: flex;

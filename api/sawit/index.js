@@ -34,8 +34,9 @@ module.exports = async function (context, req) {
 
   const tripId = auth.tripId;
 
-  // Ensure SawItGames table exists
+  // Ensure tables exist
   await ensureTable(TABLES.SAW_IT_GAMES);
+  await ensureTable(TABLES.SAW_IT_LISTS);
 
   try {
     switch (action) {
@@ -45,6 +46,31 @@ module.exports = async function (context, req) {
           return;
         }
         return await generateSights(context, tripId, req.body, headers);
+
+      case "list":
+        if (eventId) {
+          // Get specific list
+          if (req.method === "GET") {
+            return await getPersonalList(context, tripId, eventId, auth, headers);
+          }
+        } else {
+          // Create list or get all lists
+          if (req.method === "POST") {
+            return await savePersonalList(context, tripId, req.body, auth, headers);
+          } else if (req.method === "GET") {
+            return await getAllPersonalLists(context, tripId, auth, headers);
+          }
+        }
+        sendError(context, "Invalid request", 400, headers);
+        return;
+
+      case "lists":
+        // Get all lists for current user (alternate endpoint)
+        if (req.method === "GET") {
+          return await getAllPersonalLists(context, tripId, auth, headers);
+        }
+        sendError(context, "Method not allowed", 405, headers);
+        return;
 
       case "game":
         if (eventId) {
@@ -420,6 +446,109 @@ async function updateGame(context, tripId, eventId, body, auth, headers) {
   await upsertEntity(TABLES.SAW_IT_GAMES, game);
 
   sendSuccess(context, formatGame(game), 200, headers);
+}
+
+// Save a personal list for "Just for Me"
+async function savePersonalList(context, tripId, body, auth, headers) {
+  const { eventId, eventTitle, origin, destination, transportMode, items } = body;
+
+  if (!eventId) {
+    sendError(context, "Missing eventId", 400, headers);
+    return;
+  }
+
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    sendError(context, "Missing items", 400, headers);
+    return;
+  }
+
+  const travelerId = auth.travelerId || "admin";
+  const rowKey = `list_${eventId}_${travelerId}`;
+
+  const list = {
+    partitionKey: tripId,
+    rowKey: rowKey,
+    tripId,
+    eventId,
+    eventTitle: eventTitle || "Destination",
+    travelerId,
+    travelerName: auth.travelerName || "Admin",
+    createdAt: new Date().toISOString(),
+    origin: JSON.stringify(origin || {}),
+    destination: JSON.stringify(destination || {}),
+    transportMode: transportMode || "walk",
+    items: JSON.stringify(items)
+  };
+
+  await upsertEntity(TABLES.SAW_IT_LISTS, list);
+
+  sendSuccess(context, formatList(list), 201, headers);
+}
+
+// Get a personal list for an event
+async function getPersonalList(context, tripId, eventId, auth, headers) {
+  const travelerId = auth.travelerId || "admin";
+  const rowKey = `list_${eventId}_${travelerId}`;
+  const list = await getEntity(TABLES.SAW_IT_LISTS, tripId, rowKey);
+
+  if (!list) {
+    sendSuccess(context, { id: null }, 200, headers);
+    return;
+  }
+
+  sendSuccess(context, formatList(list), 200, headers);
+}
+
+// Get all personal lists for current user
+async function getAllPersonalLists(context, tripId, auth, headers) {
+  const travelerId = auth.travelerId || "admin";
+  const allLists = await queryByPartition(TABLES.SAW_IT_LISTS, tripId);
+
+  // Filter to only this user's lists
+  const userLists = allLists.filter(l => l.travelerId === travelerId);
+
+  // Return simplified format with just eventIds for quick lookup
+  const eventIds = userLists.map(l => l.eventId);
+
+  sendSuccess(context, {
+    lists: userLists.map(formatList),
+    eventIds
+  }, 200, headers);
+}
+
+// Format list entity for API response
+function formatList(entity) {
+  let origin = {};
+  let destination = {};
+  let items = [];
+
+  try {
+    if (entity.origin) {
+      origin = typeof entity.origin === "string" ? JSON.parse(entity.origin) : entity.origin;
+    }
+    if (entity.destination) {
+      destination = typeof entity.destination === "string" ? JSON.parse(entity.destination) : entity.destination;
+    }
+    if (entity.items) {
+      items = typeof entity.items === "string" ? JSON.parse(entity.items) : entity.items;
+    }
+  } catch (e) {
+    console.error("Error parsing list JSON fields:", e);
+  }
+
+  return {
+    id: entity.rowKey,
+    tripId: entity.tripId || entity.partitionKey,
+    eventId: entity.eventId,
+    eventTitle: entity.eventTitle,
+    travelerId: entity.travelerId,
+    travelerName: entity.travelerName,
+    createdAt: entity.createdAt,
+    origin,
+    destination,
+    transportMode: entity.transportMode,
+    items
+  };
 }
 
 // Format game entity for API response
