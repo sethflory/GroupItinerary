@@ -39,6 +39,8 @@ module.exports = async function (context, req) {
         partition,
         timestamp: latest.timestamp,
         contentLength: latest.contentLength,
+        systemPrompt: latest.systemPrompt || null,
+        userPrompt: latest.userPrompt || null,
         content: latest.content,
         // Also return recent entries list
         recentEntries: entries.slice(0, 5).map(e => ({

@@ -41,6 +41,17 @@ Return JSON mapping day numbers to Unsplash search queries.`;
 
   console.log("[Backgrounds] Prompt:", userPrompt);
 
+  // Save prompt to debug table
+  const debugRowKey = new Date().toISOString().replace(/[:.]/g, "-");
+  await upsertEntity(TABLES.DEBUG, {
+    partitionKey: "backgrounds",
+    rowKey: debugRowKey,
+    systemPrompt: SYSTEM_PROMPT,
+    userPrompt: userPrompt,
+    content: "PENDING...",
+    timestamp: new Date().toISOString()
+  }).catch(() => {});
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), AI_TIMEOUT);
 
@@ -71,10 +82,12 @@ Return JSON mapping day numbers to Unsplash search queries.`;
     const data = await response.json();
     const content = data.content?.[0]?.text;
 
-    // Save to debug table
+    // Update debug table with response
     await upsertEntity(TABLES.DEBUG, {
       partitionKey: "backgrounds",
-      rowKey: new Date().toISOString().replace(/[:.]/g, "-"),
+      rowKey: debugRowKey,
+      systemPrompt: SYSTEM_PROMPT,
+      userPrompt: userPrompt,
       content: content || "EMPTY",
       timestamp: new Date().toISOString()
     }).catch(() => {});

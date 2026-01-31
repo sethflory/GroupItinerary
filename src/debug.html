@@ -93,12 +93,30 @@
       border-radius: 8px;
       padding: 16px;
       overflow: auto;
-      max-height: 60vh;
+      max-height: 40vh;
+      margin-bottom: 16px;
     }
     .content-box h3 {
       margin: 0 0 12px;
       color: #71b280;
       font-size: 0.9rem;
+    }
+    #systemPromptBox {
+      border-color: #4a4a6a;
+      max-height: 25vh;
+    }
+    #systemPromptBox h3 {
+      color: #a0a0c0;
+    }
+    #userPromptBox {
+      border-color: #6a6a4a;
+      max-height: 25vh;
+    }
+    #userPromptBox h3 {
+      color: #c0c0a0;
+    }
+    #contentBox {
+      border-color: #4a6a4a;
     }
     pre {
       margin: 0;
@@ -163,8 +181,18 @@
 
   <div class="entries" id="entries"></div>
 
+  <div class="content-box" id="systemPromptBox" style="display:none;">
+    <h3>System Prompt</h3>
+    <pre id="systemPrompt"></pre>
+  </div>
+
+  <div class="content-box" id="userPromptBox" style="display:none;">
+    <h3>User Prompt (what was sent)</h3>
+    <pre id="userPrompt"></pre>
+  </div>
+
   <div class="content-box" id="contentBox" style="display:none;">
-    <h3>Response Content</h3>
+    <h3>Claude Response</h3>
     <div class="raw-toggle">
       <label>
         <input type="checkbox" id="rawToggle" onchange="renderContent()">
@@ -247,10 +275,31 @@
     }
 
     function renderContent() {
+      const systemPromptBox = document.getElementById('systemPromptBox');
+      const systemPromptEl = document.getElementById('systemPrompt');
+      const userPromptBox = document.getElementById('userPromptBox');
+      const userPromptEl = document.getElementById('userPrompt');
       const contentBox = document.getElementById('contentBox');
       const contentEl = document.getElementById('content');
       const rawToggle = document.getElementById('rawToggle');
 
+      // System Prompt
+      if (currentData && currentData.systemPrompt) {
+        systemPromptBox.style.display = 'block';
+        systemPromptEl.textContent = currentData.systemPrompt;
+      } else {
+        systemPromptBox.style.display = 'none';
+      }
+
+      // User Prompt
+      if (currentData && currentData.userPrompt) {
+        userPromptBox.style.display = 'block';
+        userPromptEl.textContent = currentData.userPrompt;
+      } else {
+        userPromptBox.style.display = 'none';
+      }
+
+      // Response Content
       if (!currentData || !currentData.content) {
         contentBox.style.display = 'none';
         return;
