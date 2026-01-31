@@ -1,5 +1,6 @@
 const {
   TABLES,
+  ensureTable,
   getEntity,
   queryEntities,
   queryByPartition,
@@ -33,6 +34,9 @@ module.exports = async function (context, req) {
   if (!auth) return;
 
   const tripId = auth.tripId;
+
+  // Ensure DinnerPolls table exists
+  await ensureTable(TABLES.DINNER_POLLS);
 
   try {
     switch (action) {
