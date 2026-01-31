@@ -4,32 +4,91 @@
 // ========================================
 
 // ========================================
+// CONSTANTS
+// ========================================
+
+const STORAGE_KEY = 'groupitinerary_theme';
+
+// Valid font styles
+const FONT_STYLES = ['modern', 'classic', 'playful', 'elegant', 'adventure'];
+
+// ========================================
+// THEME REGISTRY
+// ========================================
+
+const THEMES = {
+  emerald: {
+    id: 'emerald',
+    name: 'Emerald & Gold',
+    fontStyle: 'modern',
+    palette: {
+      primary: '#134e5e',
+      secondary: '#71b280',
+      accent: '#f0b429',
+      background: '#f8faf9',
+      surface: '#ffffff',
+      text: '#1a2420',
+      textMuted: '#6b7f75'
+    },
+    headerGradient: ['#134e5e', '#71b280']
+  },
+  ocean: {
+    id: 'ocean',
+    name: 'Ocean Blue',
+    fontStyle: 'modern',
+    palette: {
+      primary: '#1e3a5f',
+      secondary: '#3a7bd5',
+      accent: '#00b4d8',
+      background: '#f5f9fc',
+      surface: '#ffffff',
+      text: '#1a2a3a',
+      textMuted: '#5a7089'
+    },
+    headerGradient: ['#1e3a5f', '#3a7bd5']
+  },
+  sunset: {
+    id: 'sunset',
+    name: 'Sunset Coral',
+    fontStyle: 'modern',
+    palette: {
+      primary: '#e85d4c',
+      secondary: '#ff8a5b',
+      accent: '#feca57',
+      background: '#fef9f6',
+      surface: '#ffffff',
+      text: '#2d2424',
+      textMuted: '#7a6565'
+    },
+    headerGradient: ['#e85d4c', '#ff8a5b']
+  },
+  midnight: {
+    id: 'midnight',
+    name: 'Midnight',
+    fontStyle: 'elegant',
+    palette: {
+      primary: '#1a1a2e',
+      secondary: '#4a4a6a',
+      accent: '#e94560',
+      background: '#16162a',
+      surface: '#1f1f3a',
+      text: '#eaeaef',
+      textMuted: '#9a9ab0'
+    },
+    headerGradient: ['#1a1a2e', '#4a4a6a']
+  }
+};
+
+// Default theme - Emerald & Gold (matches CSS variables)
+const DEFAULT_THEME = THEMES.emerald;
+
+// ========================================
 // STATE
 // ========================================
 
 let currentTheme = null;
 let previewTheme_ = null;
 let isTransitioning = false;
-
-// Default theme (fallback)
-const DEFAULT_THEME = {
-  id: 'default',
-  name: 'Default',
-  fontStyle: 'modern',
-  palette: {
-    primary: '#667eea',
-    secondary: '#764ba2',
-    accent: '#f5af19',
-    background: '#f8f6f3',
-    surface: '#ffffff',
-    text: '#2c3e50',
-    textMuted: '#6b7280'
-  },
-  headerGradient: ['#667eea', '#764ba2']
-};
-
-// Valid font styles
-const FONT_STYLES = ['modern', 'classic', 'playful', 'elegant', 'adventure'];
 
 // ========================================
 // THEME APPLICATION
@@ -131,18 +190,21 @@ export function getCurrentTheme() {
 // ========================================
 
 /**
- * Initialize theme from stored personalization
+ * Initialize theme on app load
+ * Priority: 1) Trip personalization, 2) localStorage, 3) Default
  */
 export function initTheme() {
-  // Check if there's a stored personalization
+  // Check if there's a stored personalization from trip
   const personalization = window.tripPersonalization;
 
   if (personalization?.theme) {
-    // Apply saved theme without animation (instant on load)
+    // Apply trip-specific theme without animation (instant on load)
     applyTheme(personalization.theme, { animate: false });
   } else {
-    // Apply default theme
-    applyTheme(DEFAULT_THEME, { animate: false });
+    // Check localStorage for saved theme preference
+    const savedThemeId = getSavedThemeId();
+    const theme = savedThemeId ? getThemeById(savedThemeId) : DEFAULT_THEME;
+    applyTheme(theme, { animate: false });
   }
 }
 
@@ -201,10 +263,84 @@ function applyFontStyle(fontStyle) {
 }
 
 // ========================================
+// PERSISTENCE
+// ========================================
+
+/**
+ * Save theme preference to localStorage
+ * @param {string} themeId - Theme ID to save
+ */
+function saveThemePreference(themeId) {
+  try {
+    localStorage.setItem(STORAGE_KEY, themeId);
+  } catch (e) {
+    console.warn('[ThemeManager] Failed to save theme preference:', e);
+  }
+}
+
+/**
+ * Get saved theme ID from localStorage
+ * @returns {string|null} Theme ID or null if not set
+ */
+export function getSavedThemeId() {
+  try {
+    return localStorage.getItem(STORAGE_KEY);
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * Set and apply a theme by ID, saving preference to localStorage
+ * @param {string} themeId - Theme ID from THEMES registry
+ * @param {Object} options - { animate: boolean, duration: number }
+ */
+export async function setTheme(themeId, options = {}) {
+  const theme = getThemeById(themeId);
+  if (!theme) {
+    console.warn(`[ThemeManager] Unknown theme: ${themeId}`);
+    return;
+  }
+
+  saveThemePreference(themeId);
+  return applyTheme(theme, options);
+}
+
+// ========================================
+// THEME REGISTRY ACCESS
+// ========================================
+
+/**
+ * Get a theme by ID
+ * @param {string} themeId - Theme ID
+ * @returns {Object|null} Theme object or null if not found
+ */
+export function getThemeById(themeId) {
+  return THEMES[themeId] || null;
+}
+
+/**
+ * Get all available themes
+ * @returns {Object} THEMES registry object
+ */
+export function getAllThemes() {
+  return { ...THEMES };
+}
+
+/**
+ * Get theme IDs as array
+ * @returns {string[]} Array of theme IDs
+ */
+export function getThemeIds() {
+  return Object.keys(THEMES);
+}
+
+// ========================================
 // EXPORTS
 // ========================================
 
 export {
   DEFAULT_THEME,
+  THEMES,
   currentTheme
 };
