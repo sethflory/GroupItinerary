@@ -6,23 +6,11 @@
     },
     {
       "route": "/login",
-      "rewrite": "/.auth/login/google?post_login_redirect_uri=/welcome"
-    },
-    {
-      "route": "/login/google",
-      "rewrite": "/.auth/login/google?post_login_redirect_uri=/welcome"
+      "redirect": "/.auth/login/google?post_login_redirect_uri=/welcome.html"
     },
     {
       "route": "/logout",
-      "redirect": "/.auth/logout"
-    },
-    {
-      "route": "/.auth/login/google",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/.auth/me",
-      "allowedRoles": ["anonymous", "authenticated"]
+      "redirect": "/.auth/logout?post_logout_redirect_uri=/"
     }
   ],
   "navigationFallback": {
