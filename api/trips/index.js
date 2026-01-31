@@ -203,10 +203,13 @@ async function updateTraveler(context, tripId, travelerId, body, headers) {
     }
   }
 
+  // Exclude Azure metadata fields that can't be written
+  const { etag, timestamp, ...existingData } = existing;
+
   const updated = {
     partitionKey: tripId,
     rowKey: travelerId,
-    ...existing,
+    ...existingData,
     ...updates
   };
 
@@ -557,14 +560,18 @@ async function regenerateAccessCode(context, tripId, travelerId, headers) {
   // Generate new access code
   const newCode = generateAccessCode(existing.name);
 
+  // Exclude Azure metadata fields that can't be written
+  const { etag, timestamp, ...existingData } = existing;
+
   const updated = {
-    ...existing,
+    ...existingData,
     partitionKey: tripId,
     rowKey: travelerId,
     accessCode: newCode,
     codeUpdatedAt: new Date().toISOString()
   };
 
+  console.log("[Trips] Regenerating code for", travelerId, "new code:", newCode);
   await upsertEntity(TABLES.TRAVELERS, updated);
 
   // Also update TripMembers if exists
@@ -574,8 +581,13 @@ async function regenerateAccessCode(context, tripId, travelerId, headers) {
       m.legacyTravelerId === travelerId || m.rowKey === `member_${travelerId}`
     );
     if (memberToUpdate) {
-      memberToUpdate.tripCode = newCode;
-      await upsertEntity(TABLES.TRIP_MEMBERS, memberToUpdate);
+      const { etag: mEtag, timestamp: mTimestamp, ...memberData } = memberToUpdate;
+      const updatedMember = {
+        ...memberData,
+        tripCode: newCode
+      };
+      await upsertEntity(TABLES.TRIP_MEMBERS, updatedMember);
+      console.log("[Trips] Also updated TripMembers tripCode");
     }
   } catch (err) {
     console.log("TripMembers code update skipped:", err.message);
