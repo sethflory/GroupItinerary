@@ -153,15 +153,16 @@ export async function submitEventForm(e) {
     linkedPhotoUrl
   };
 
+  let createdEvent = null;
   if (isFeatureEnabled('USE_TABLE_STORAGE')) {
     try {
       if (dateChanged) {
         await deleteEventAPI(currentTripId, editingEventId);
-        await createEvent(currentTripId, { ...eventData, id: editingEventId });
+        createdEvent = await createEvent(currentTripId, { ...eventData, id: editingEventId });
       } else if (editingEventId) {
         await updateEvent(currentTripId, editingEventId, eventData);
       } else {
-        await createEvent(currentTripId, eventData);
+        createdEvent = await createEvent(currentTripId, eventData);
       }
     } catch (err) {
       alert('Failed to save event: ' + err.message);
@@ -191,8 +192,10 @@ export async function submitEventForm(e) {
           day.events[eventIndex] = { ...day.events[eventIndex], ...eventData };
         }
       } else {
+        // Use the ID from the API response if available, otherwise generate one
+        const newEventId = createdEvent?.id || ('evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6));
         const newEvent = {
-          id: 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+          id: newEventId,
           ...eventData
         };
         day.events.push(newEvent);
