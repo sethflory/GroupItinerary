@@ -10,7 +10,7 @@ const {
 const {
   getHeaders,
   handleOptions,
-  requireAuth,
+  requireTravelerAuth,
   sendError,
   sendSuccess
 } = require("../shared/validation");
@@ -28,8 +28,8 @@ module.exports = async function (context, req) {
   const tripId = context.bindingData.tripId;
   const eventId = context.bindingData.eventId;
 
-  // Validate access
-  const auth = requireAuth(context, req, { methods: "GET, POST, PUT, DELETE, OPTIONS" });
+  // Validate access (supports both trip-level and traveler-specific codes)
+  const auth = await requireTravelerAuth(context, req, { methods: "GET, POST, PUT, DELETE, OPTIONS" });
   if (!auth) return;
 
   // Verify tripId matches auth
