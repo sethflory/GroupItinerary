@@ -378,7 +378,7 @@ function renderConfigureStep() {
         <button class="saw-it-action-btn primary"
           ${!selectedOrigin ? 'disabled' : ''}
           onclick="window.sawItGenerateList()">
-          <span class="material-symbols-outlined">auto_awesome</span>
+          <img src="images/keys.png" alt="AI" class="ai-key-icon small">
           Generate List
         </button>
       </div>

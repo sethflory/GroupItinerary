@@ -3,7 +3,6 @@
 // ========================================
 
 import { getCurrentTrip } from '../state.js';
-import { getFlagHtml, getCountryCode } from '../utils/flags.js';
 
 let DAYS = [];
 let DESTINATIONS = [];
@@ -94,17 +93,6 @@ export function getCurrentLocation() {
   return currentDay?.location || DESTINATIONS[0]?.name || 'Your Trip';
 }
 
-export function getCurrentLocationFlag() {
-  const location = getCurrentLocation();
-  return getFlagHtml(location, { size: 18, fallback: '📍' });
-}
-
-export function getCurrentLocationFlagEmoji() {
-  // Legacy function for contexts that need emoji
-  const location = getCurrentLocation();
-  const code = getCountryCode(location);
-  return code ? `[${code}]` : '📍';
-}
 
 // ========================================
 // LOCAL TIME
@@ -307,7 +295,6 @@ function renderDuringContext(container) {
   const localTime = getLocalTime();
   const weather = getWeatherDisplay();
   const nextActivity = getNextActivity();
-  const flagHtml = getFlagHtml(location, { size: 24, fallback: '📍' });
 
   const nextText = nextActivity
     ? `Up next: ${nextActivity.title} (${nextActivity.time})`
@@ -315,7 +302,7 @@ function renderDuringContext(container) {
 
   container.innerHTML = `
     <div class="context-bar during">
-      <span class="context-icon">${flagHtml}</span>
+      <span class="context-icon">📍</span>
       <div class="context-main">
         <div class="context-title">Day ${dayNum} of ${totalDays} • ${location} • ${localTime}</div>
         <div class="context-sub">

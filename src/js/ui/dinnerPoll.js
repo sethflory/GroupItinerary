@@ -294,7 +294,7 @@ function renderConfigureStep() {
       <div class="dinner-actions">
         <button class="dinner-btn secondary" onclick="window.dinnerPollGoBack()">Back</button>
         <button class="dinner-btn primary" onclick="window.dinnerPollGenerateOptions()">
-          <span class="material-symbols-outlined">auto_awesome</span>
+          <img src="images/keys.png" alt="AI" class="ai-key-icon small">
           Generate Options
         </button>
       </div>

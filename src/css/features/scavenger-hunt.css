@@ -140,9 +140,32 @@
 }
 
 .hunt-item-check {
-  font-size: 1.2rem;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
-  line-height: 1;
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0;
+  background: white;
+  transition: all 0.2s;
+}
+
+.hunt-item.found .hunt-item-check {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  border-color: var(--color-primary);
+}
+
+.hunt-item.found .hunt-item-check::after {
+  content: '';
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
 }
 
 .hunt-item-content {
@@ -447,6 +470,22 @@
 .hunt-form-group select:focus {
   outline: none;
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(19, 78, 94, 0.1);
+}
+
+/* Emerald themed select styling */
+.hunt-form-group select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23134e5e'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 20px;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.hunt-form-group select:hover {
+  border-color: var(--color-primary-light);
 }
 
 .hunt-form-row {
@@ -756,6 +795,29 @@
   border-radius: var(--radius-sm);
   font-size: 0.95rem;
   font-family: inherit;
+  transition: all 0.2s;
+}
+
+.claim-form-group input:focus,
+.claim-form-group select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(19, 78, 94, 0.1);
+}
+
+.claim-form-group select {
+  appearance: none;
+  background-color: white;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23134e5e'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 20px;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.claim-form-group select:hover {
+  border-color: var(--color-primary-light);
 }
 
 .claim-actions {

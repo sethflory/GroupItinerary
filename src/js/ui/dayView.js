@@ -5,6 +5,7 @@
 import { currentTripId } from '../state.js';
 import { isFeatureEnabled } from '../config.js';
 import { isForTraveler, formatTime, renderTravelerPills, getEventIcon } from '../utils.js';
+import { getFlagHtml } from '../utils/flags.js';
 
 // These will be set by app.js
 let DAYS, TRAVELERS, DESTINATIONS, CAROUSELS, HOTEL, PHASES;
@@ -149,7 +150,10 @@ export function renderDayDetail() {
 
     ${day.destinationInfo ? `
       <div class="destination-card ${day.destination}">
-        <div class="destination-name">${dest.city || day.location}</div>
+        <div class="destination-name">
+          ${getFlagHtml(day.location || dest.city, { size: 24, fallback: '', className: 'destination-flag' })}
+          ${dest.city || day.location}
+        </div>
         <div class="destination-info">${day.destinationInfo}</div>
       </div>
     ` : ''}

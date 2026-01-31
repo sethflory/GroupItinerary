@@ -241,9 +241,7 @@ function renderHuntItem(item, isCompleted = false) {
 
   return `
     <div class="hunt-item ${isFound ? 'found' : ''}" data-item-id="${item.id}">
-      <div class="hunt-item-check">
-        ${isFound ? '✅' : '⬜'}
-      </div>
+      <div class="hunt-item-check"></div>
       <div class="hunt-item-content">
         <div class="hunt-item-description">${item.description}</div>
         <div class="hunt-item-meta">
@@ -422,7 +420,7 @@ export function showHuntSetup() {
       <div class="hunt-setup-actions">
         <button class="btn btn-secondary" onclick="renderHuntView()">Cancel</button>
         <button class="btn btn-primary" onclick="generateHuntItems()">
-          <span class="material-symbols-outlined">auto_awesome</span>
+          <img src="images/keys.png" alt="AI" class="ai-key-icon small">
           Generate Items with AI
         </button>
       </div>
@@ -443,7 +441,7 @@ export async function generateHuntItems() {
   content.innerHTML = `
     <div class="hunt-generating">
       <div class="hunt-generating-spinner">
-        <span class="material-symbols-outlined spinning">auto_awesome</span>
+        <img src="images/keys.png" alt="AI" class="ai-loader-key spinning">
       </div>
       <h4>Generating Hunt Items...</h4>
       <p>AI is creating ${itemCount} items based on your trip</p>

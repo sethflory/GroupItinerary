@@ -297,9 +297,9 @@ function showPersonalizationLoader() {
   loader.innerHTML = `
     <div class="ai-assist-loader-content">
       <div class="ai-assist-loader-spinner">
-        <span class="material-symbols-outlined spinning">auto_awesome</span>
+        <img src="images/keys.png" alt="AI" class="ai-loader-key spinning">
       </div>
-      <div class="ai-assist-loader-title">✨ Personalizing Your Trip</div>
+      <div class="ai-assist-loader-title">Personalizing Your Trip</div>
       <div class="ai-assist-loader-message" id="aiAssistLoaderMessage">
         ${loaderMessages[0]}
       </div>
@@ -373,7 +373,7 @@ function showSimpleLoader(message) {
   loader.innerHTML = `
     <div class="ai-assist-loader-content">
       <div class="ai-assist-loader-spinner">
-        <span class="material-symbols-outlined spinning">auto_awesome</span>
+        <img src="images/keys.png" alt="AI" class="ai-loader-key spinning">
       </div>
       <div class="ai-assist-loader-message">${message}</div>
     </div>
@@ -435,7 +435,7 @@ function createAiAssistModal() {
   modal.innerHTML = `
     <div class="modal ai-assist-modal">
       <div class="modal-header">
-        <h3><span class="material-symbols-outlined">auto_awesome</span> AI Assist</h3>
+        <h3><img src="images/keys.png" alt="AI" class="ai-key-icon"> AI Assist</h3>
         <button class="modal-close" onclick="closeAiAssistModal()">
           <span class="material-symbols-outlined">close</span>
         </button>
@@ -730,7 +730,7 @@ export function showPersonalizationSummary() {
   modal.innerHTML = `
     <div class="modal personalization-summary-modal">
       <div class="modal-header">
-        <h3><span class="material-symbols-outlined">auto_awesome</span> AI Assist Summary</h3>
+        <h3><img src="images/keys.png" alt="AI" class="ai-key-icon"> AI Assist Summary</h3>
         <button class="modal-close" onclick="closePersonalizationSummary()">
           <span class="material-symbols-outlined">close</span>
         </button>

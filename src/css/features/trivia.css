@@ -98,11 +98,35 @@
   margin-bottom: 16px;
 }
 
+.trivia-category-select label {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
 .trivia-category-select select {
-  padding: 8px 12px;
+  padding: 8px 36px 8px 12px;
   border: 2px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  appearance: none;
+  background-color: white;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23134e5e'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 20px;
+  transition: all 0.2s;
+}
+
+.trivia-category-select select:hover {
+  border-color: var(--color-primary-light);
+}
+
+.trivia-category-select select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(19, 78, 94, 0.1);
 }
 
 .trivia-start-btn {

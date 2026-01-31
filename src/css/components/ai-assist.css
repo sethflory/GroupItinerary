@@ -774,3 +774,116 @@ body.theme-transitioning .day-detail {
 .ai-toast-success .material-symbols-outlined {
   color: white;
 }
+
+/* ----------------------------------------
+   AI Key Icon (Golden Keys)
+   Replaces auto_awesome for AI indicators
+   ---------------------------------------- */
+
+/* Inline key icon - for use in text/headings */
+.ai-key-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-right: 6px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.ai-key-icon.small {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+}
+
+.ai-key-icon.large {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+/* Spinning animation for loading states */
+.ai-key-icon.spinning {
+  animation: key-spin 2s ease-in-out infinite;
+}
+
+@keyframes key-spin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* AI icon button - small button with key */
+.ai-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm, 6px);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-primary, #134e5e), var(--color-primary-light, #71b280));
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.ai-icon-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 3px 10px rgba(19, 78, 94, 0.3);
+}
+
+.ai-icon-btn img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+/* Larger AI key icon for loader spinner */
+.ai-loader-key {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px var(--ai-emerald-glow, rgba(113, 178, 128, 0.4)));
+}
+
+.ai-loader-key.spinning {
+  animation: key-spin 2s ease-in-out infinite;
+}
+
+/* AI key in buttons - ensure proper alignment */
+.btn .ai-key-icon,
+.dinner-btn .ai-key-icon,
+.saw-it-action-btn .ai-key-icon,
+.ai-action-btn .ai-key-icon {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Menu item AI key icon */
+.menu-item .ai-key-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 0;
+}
+
+/* Modal header AI key icon */
+.modal-header .ai-key-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+/* AI suggest button in image search */
+.ai-suggest-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.ai-suggest-btn .ai-key-icon {
+  margin: 0;
+}

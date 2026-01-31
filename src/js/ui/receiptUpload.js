@@ -104,7 +104,7 @@ Example:
 - Restaurant reservation details
 - Activity/tour tickets"></textarea>
           <button class="btn primary" onclick="handleTextInput()">
-            <span class="material-symbols-outlined">auto_awesome</span>
+            <img src="images/keys.png" alt="AI" class="ai-key-icon small">
             Extract Events
           </button>
         </div>
