@@ -1,15 +1,31 @@
     /* ========================================
-       NEW SLIM HEADER
+       NEW SLIM HEADER - Emerald with LV Pattern
        ======================================== */
     .header.header-slim {
-      background: linear-gradient(135deg, var(--header-gradient-start, var(--color-sunrise)) 0%, var(--header-gradient-end, var(--color-sunset)) 100%);
+      background: linear-gradient(135deg, var(--header-gradient-start, var(--color-primary)) 0%, var(--header-gradient-end, var(--color-primary-light)) 100%);
       padding: 12px 16px;
       color: white;
       position: relative;
+      overflow: hidden;
     }
 
+    /* LV-inspired pattern for slim header */
     .header.header-slim::before {
-      display: none;
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: -100%;
+      width: 300%;
+      height: 300%;
+      background-image:
+        url("../../images/keys.png"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg transform='translate(50,50)'%3E%3Cpath d='M0 -8 L2 0 L0 8 L-2 0 Z' fill='%23f0b429'/%3E%3Cpath d='M-8 0 L0 2 L8 0 L0 -2 Z' fill='%23f0b429'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: 100px 100px, 100px 100px;
+      background-position: 0 0, 50px 50px;
+      background-repeat: repeat;
+      opacity: 0.08;
+      transform: rotate(-33deg);
+      pointer-events: none;
     }
 
     .header.header-slim .header-content {
@@ -276,7 +292,7 @@
       font-weight: 600;
       text-transform: uppercase;
       padding: 2px 6px;
-      background: linear-gradient(135deg, #38ef7d, #11998e);
+      background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
       color: white;
       border-radius: 4px;
       animation: todayBadgePulse 2s ease-in-out infinite;
@@ -284,10 +300,10 @@
 
     @keyframes todayBadgePulse {
       0%, 100% {
-        box-shadow: 0 0 0 0 rgba(56, 239, 125, 0.4);
+        box-shadow: 0 0 0 0 rgba(113, 178, 128, 0.4);
       }
       50% {
-        box-shadow: 0 0 0 4px rgba(56, 239, 125, 0);
+        box-shadow: 0 0 0 4px rgba(113, 178, 128, 0);
       }
     }
 
@@ -656,23 +672,32 @@
        LEGACY HEADER STYLES (kept for reference)
        ======================================== */
 
-    /* Header */
+    /* Header - Emerald with LV Pattern */
     .header {
-      background: linear-gradient(135deg, var(--header-gradient-start, var(--color-sunrise)) 0%, var(--header-gradient-end, var(--color-sunset)) 50%, var(--color-sky) 100%);
+      background: linear-gradient(135deg, var(--header-gradient-start, var(--color-primary)) 0%, var(--header-gradient-end, var(--color-primary-light)) 100%);
       padding: 24px 20px 32px;
       color: white;
       position: relative;
       overflow: visible;
     }
 
+    /* LV-inspired pattern overlay */
     .header::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 80 Q25 60 50 70 T100 60 V100 H0Z' fill='rgba(255,255,255,0.1)'/%3E%3C/svg%3E") bottom/cover no-repeat;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background-image:
+        url("../../images/keys.png"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='142' height='142' viewBox='0 0 100 100'%3E%3Cg transform='translate(50,50)'%3E%3Cpath d='M0 -12 L3 0 L0 12 L-3 0 Z' fill='%23f0b429'/%3E%3Cpath d='M-12 0 L0 3 L12 0 L0 -3 Z' fill='%23f0b429'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: 142px 142px, 142px 142px;
+      background-position: 0 0, 71px 71px;
+      background-repeat: repeat;
+      opacity: 0.06;
+      transform: rotate(-33deg);
+      pointer-events: none;
     }
 
     .header-content {
@@ -1253,7 +1278,7 @@
       align-items: center;
       gap: 6px;
       padding: 8px 16px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
       color: white;
       border: none;
       border-radius: var(--radius-md);
@@ -1265,7 +1290,7 @@
 
     .trivia-header-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 12px rgba(19, 78, 94, 0.4);
     }
 
     .trivia-header-btn .material-symbols-outlined {
@@ -1438,16 +1463,16 @@
     }
 
     .stats-share-btn.map-btn {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
     }
 
     .stats-share-btn.map-btn:hover {
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 12px rgba(19, 78, 94, 0.4);
     }
 
     .stats-share-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 126, 95, 0.4);
+      box-shadow: 0 4px 12px rgba(19, 78, 94, 0.4);
     }
 
     .stats-share-btn .material-symbols-outlined {
