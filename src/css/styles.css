@@ -1244,21 +1244,55 @@
       .day-list {
         width: 100%;
         flex-direction: row;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         max-height: none;
+        overflow-x: auto;
         overflow-y: visible;
         padding-right: 0;
-        gap: 8px;
+        padding-bottom: 8px;
+        gap: 6px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+      }
+
+      .day-list::-webkit-scrollbar {
+        height: 4px;
       }
 
       .day-item {
-        flex: 1;
-        min-width: calc(50% - 4px);
-        max-width: calc(50% - 4px);
+        flex: 0 0 auto;
+        min-width: auto;
+        max-width: none;
+        padding: 8px 12px;
+        text-align: center;
+      }
+
+      .day-item-header {
+        flex-direction: column;
+        gap: 2px;
+        margin-bottom: 0;
+      }
+
+      .day-item-num {
+        font-size: 0.65rem;
+        padding: 2px 6px;
+      }
+
+      .day-item-date {
+        font-size: 0.65rem;
+        order: 1;
       }
 
       .day-item-title {
-        font-size: 0.8rem;
+        display: none;
+      }
+
+      .day-item-location {
+        display: none;
+      }
+
+      .day-item-pills {
+        display: none;
       }
     }
 
@@ -2793,15 +2827,20 @@
         flex-shrink: 0;
       }
 
-      /* Day items - single column or smaller */
+      /* Day items - compact chips for mobile */
       .day-item {
-        min-width: 100%;
-        max-width: 100%;
-        padding: 10px;
+        min-width: auto;
+        max-width: none;
+        padding: 6px 10px;
       }
 
-      .day-item-title {
-        font-size: 0.75rem;
+      .day-item-num {
+        font-size: 0.6rem;
+        padding: 2px 5px;
+      }
+
+      .day-item-date {
+        font-size: 0.6rem;
       }
 
       /* Event cards */
