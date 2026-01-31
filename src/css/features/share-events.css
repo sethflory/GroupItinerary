@@ -36,10 +36,32 @@
 
     .share-modal-header {
       padding: 16px 20px;
-      border-bottom: 1px solid var(--color-border);
+      border-bottom: none;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* LV-inspired pattern overlay */
+    .share-modal-header::before {
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: -100%;
+      width: 300%;
+      height: 300%;
+      background-image:
+        url("../../images/keys.png"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg transform='translate(50,50)'%3E%3Cpath d='M0 -8 L2 0 L0 8 L-2 0 Z' fill='%23f0b429'/%3E%3Cpath d='M-8 0 L0 2 L8 0 L0 -2 Z' fill='%23f0b429'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: 100px 100px, 100px 100px;
+      background-position: 0 0, 50px 50px;
+      background-repeat: repeat;
+      opacity: 0.08;
+      transform: rotate(-33deg);
+      pointer-events: none;
     }
 
     .share-modal-header h3 {
@@ -48,10 +70,17 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      color: white;
+      position: relative;
+      z-index: 1;
+    }
+
+    .share-modal-header h3 .material-symbols-outlined {
+      color: var(--color-accent);
     }
 
     .share-modal-close {
-      background: none;
+      background: rgba(255,255,255,0.2);
       border: none;
       cursor: pointer;
       padding: 4px;
@@ -59,16 +88,39 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      color: white;
+      position: relative;
+      z-index: 1;
     }
 
     .share-modal-close:hover {
-      background: var(--color-border);
+      background: rgba(255,255,255,0.3);
     }
 
     .share-modal-body {
       padding: 16px 20px;
       overflow-y: auto;
       flex: 1;
+      max-height: calc(85vh - 120px);
+    }
+
+    /* Ensure scrollbar is always visible when needed */
+    .share-modal-body::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .share-modal-body::-webkit-scrollbar-track {
+      background: var(--color-cream);
+      border-radius: 4px;
+    }
+
+    .share-modal-body::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: 4px;
+    }
+
+    .share-modal-body::-webkit-scrollbar-thumb:hover {
+      background: var(--color-text-muted);
     }
 
     .share-section {
@@ -135,8 +187,8 @@
     }
 
     .share-add-btn:hover {
-      border-color: var(--color-sunset);
-      color: var(--color-sunset);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
     }
 
     .share-event-picker {
@@ -202,7 +254,7 @@
 
     .share-textarea:focus {
       outline: none;
-      border-color: var(--color-sunset);
+      border-color: var(--color-primary);
     }
 
     .share-char-count {
@@ -274,8 +326,8 @@
     }
 
     .share-regenerate:hover {
-      border-color: var(--color-sunset);
-      color: var(--color-sunset);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
     }
 
     /* Share Map Section */
@@ -307,12 +359,12 @@
     }
 
     .map-mode-btn:hover {
-      border-color: var(--color-sunset);
-      color: var(--color-sunset);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
     }
 
     .map-mode-btn.active {
-      background: linear-gradient(135deg, var(--color-sunrise), var(--color-sunset));
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
       border-color: transparent;
       color: white;
     }
@@ -412,8 +464,8 @@
     .event-form-select:focus,
     .event-form-textarea:focus {
       outline: none;
-      border-color: var(--color-sunset);
-      box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(19, 78, 94, 0.1);
     }
 
     .event-form-textarea {
@@ -441,13 +493,13 @@
     }
 
     .event-form-traveler:hover {
-      border-color: var(--color-sunset);
+      border-color: var(--color-primary);
     }
 
     .event-form-traveler.selected {
-      background: var(--color-sunset);
+      background: var(--color-primary);
       color: white;
-      border-color: var(--color-sunset);
+      border-color: var(--color-primary);
     }
 
     .event-form-actions {
@@ -468,13 +520,13 @@
     }
 
     .event-form-btn.primary {
-      background: var(--color-sunset);
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
       color: white;
       border: none;
     }
 
     .event-form-btn.primary:hover {
-      background: #e85a5a;
+      background: linear-gradient(135deg, var(--color-primary-mid), var(--color-primary));
     }
 
     .event-form-btn.secondary {
@@ -515,9 +567,9 @@
     }
 
     .add-event-btn:hover {
-      border-color: var(--color-sunset);
-      color: var(--color-sunset);
-      background: rgba(255, 107, 107, 0.05);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      background: rgba(19, 78, 94, 0.05);
     }
 
     .add-event-btn .material-symbols-outlined {

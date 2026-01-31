@@ -98,7 +98,7 @@
 
     .day-meta-card .material-symbols-outlined {
       font-size: 18px;
-      color: var(--color-sunrise);
+      color: var(--color-primary);
     }
 
     .day-meta-card strong {
@@ -110,9 +110,9 @@
       font-size: 0.75rem;
     }
 
-    /* Destination Card */
+    /* Destination Card - Welcome to ATH/DBX/BGL badges */
     .destination-card {
-      background: linear-gradient(135deg, var(--color-sky) 0%, var(--color-ocean) 100%);
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
       border-radius: var(--radius-lg);
       padding: 20px;
       color: white;
@@ -121,28 +121,31 @@
       overflow: hidden;
     }
 
-    .destination-card.athens {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .destination-card.bangalore {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
-
+    /* All destination variants use emerald theme */
+    .destination-card.athens,
+    .destination-card.bangalore,
+    .destination-card.dubai,
     .destination-card.travel {
-      background: linear-gradient(135deg, var(--color-sunrise) 0%, var(--color-sunset) 100%);
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
     }
 
+    /* LV-inspired pattern overlay for destination cards */
     .destination-card::before {
       content: '';
       position: absolute;
-      top: 0;
-      right: 0;
-      width: 150px;
-      height: 150px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 50%;
-      transform: translate(30%, -30%);
+      top: -100%;
+      left: -100%;
+      width: 300%;
+      height: 300%;
+      background-image:
+        url("../../images/keys.png"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg transform='translate(50,50)'%3E%3Cpath d='M0 -8 L2 0 L0 8 L-2 0 Z' fill='%23f0b429'/%3E%3Cpath d='M-8 0 L0 2 L8 0 L0 -2 Z' fill='%23f0b429'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: 100px 100px, 100px 100px;
+      background-position: 0 0, 50px 50px;
+      background-repeat: repeat;
+      opacity: 0.08;
+      transform: rotate(-33deg);
+      pointer-events: none;
     }
 
     .destination-name {
@@ -468,14 +471,14 @@
       pointer-events: none;
     }
 
-    /* Destination info card images */
+    /* Destination info card images - Emerald overlay */
     .destination-card.athens {
-      background: linear-gradient(135deg, rgba(102,126,234,0.95) 0%, rgba(118,75,162,0.95) 100%),
+      background: linear-gradient(135deg, rgba(19,78,94,0.95) 0%, rgba(113,178,128,0.95) 100%),
                   url('https://images.unsplash.com/photo-1555993539-1732b0258235?w=800&q=80') center/cover;
     }
 
     .destination-card.fresh-hotel-card {
-      background: linear-gradient(135deg, rgba(107,91,149,0.92) 0%, rgba(255,126,95,0.88) 100%),
+      background: linear-gradient(135deg, rgba(19,78,94,0.92) 0%, rgba(113,178,128,0.88) 100%),
                   url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80') center/cover;
     }
 
