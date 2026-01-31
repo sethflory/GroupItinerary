@@ -92,7 +92,7 @@ export function renderDayDetail() {
   if (!container || !DAYS[currentDayIndex]) return;
 
   const day = DAYS[currentDayIndex];
-  const dest = DESTINATIONS[day.destination] || {};
+  const dest = DESTINATIONS[day.location] || {};
   const events = day.events || [];
 
   // Get personalization data if available
