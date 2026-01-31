@@ -141,19 +141,36 @@ export function setView(view) {
 
   const journeyView = document.getElementById('journeyView');
   const listView = document.getElementById('listView');
-  const journeyBtn = document.getElementById('journeyViewBtn');
-  const listBtn = document.getElementById('listViewBtn');
+  const mapView = document.getElementById('mapView');
 
+  // Update mini view toggle buttons
+  document.querySelectorAll('.view-btn-mini').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.view === view);
+  });
+
+  // Handle view visibility
   if (view === 'journey') {
     journeyView?.classList.remove('hidden');
     listView?.classList.remove('visible');
-    journeyBtn?.classList.add('active');
-    listBtn?.classList.remove('active');
-  } else {
+    mapView?.classList.remove('visible');
+  } else if (view === 'list') {
     journeyView?.classList.add('hidden');
     listView?.classList.add('visible');
-    journeyBtn?.classList.remove('active');
-    listBtn?.classList.add('active');
+    mapView?.classList.remove('visible');
+  } else if (view === 'map') {
+    journeyView?.classList.add('hidden');
+    listView?.classList.remove('visible');
+    mapView?.classList.add('visible');
+
+    // Trigger map initialization/show
+    if (window.showMapView) {
+      window.showMapView();
+    }
+  }
+
+  // Hide map when switching away
+  if (view !== 'map' && window.hideMapView) {
+    window.hideMapView();
   }
 
   if (onViewChange) onViewChange(view);

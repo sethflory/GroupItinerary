@@ -112,11 +112,8 @@ export function toggleListView() {
 
 export function openProfile() {
   closeMenu();
-  // TODO: Implement profile modal
   if (typeof window.openProfileModal === 'function') {
     window.openProfileModal();
-  } else {
-    console.log('Profile modal not yet implemented');
   }
 }
 

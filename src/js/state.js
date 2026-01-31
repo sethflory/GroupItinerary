@@ -137,3 +137,15 @@ export let tripPhotosCache = [];
 export function setTripPhotosCache(photos) {
   tripPhotosCache = photos;
 }
+
+// Location sharing state
+let locationSharingEnabled = localStorage.getItem('locationSharingEnabled') === 'true';
+
+export function getLocationSharingEnabled() {
+  return locationSharingEnabled;
+}
+
+export function setLocationSharingEnabled(enabled) {
+  locationSharingEnabled = enabled;
+  localStorage.setItem('locationSharingEnabled', enabled.toString());
+}

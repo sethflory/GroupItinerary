@@ -109,6 +109,9 @@
         <button class="view-btn-mini" data-view="list" title="List View">
           <span class="material-symbols-outlined">list</span>
         </button>
+        <button class="view-btn-mini" data-view="map" title="Map View">
+          <span class="material-symbols-outlined">map</span>
+        </button>
       </div>
     </div>
   </div>
@@ -286,6 +289,19 @@
       </div>
       <div class="list-days" id="listDays">
         <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Map View - Traveler Locations -->
+    <div class="map-view" id="mapView">
+      <div class="map-view-header">
+        <h3><span class="material-symbols-outlined">group</span> Group Location</h3>
+        <div class="map-view-legend">
+          <span class="legend-item"><span class="material-symbols-outlined" style="color: var(--color-primary);">location_on</span> Travelers sharing location</span>
+        </div>
+      </div>
+      <div class="map-view-container" id="mapViewMap">
+        <!-- Leaflet map rendered here -->
       </div>
     </div>
 

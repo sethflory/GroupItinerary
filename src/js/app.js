@@ -35,6 +35,9 @@ import * as aiAssist from './ui/aiAssist.js';
 import * as themeManager from './ui/themeManager.js';
 import * as notifications from './ui/notifications.js';
 import * as scavengerHunt from './ui/scavengerHunt.js';
+import * as locationService from './ui/location.js';
+import * as travelerProfile from './ui/travelerProfile.js';
+import * as mapView from './ui/mapView.js';
 
 // ========================================
 // GLOBAL STATE
@@ -78,6 +81,8 @@ window.getCurrentPhotoPrefix = state.getCurrentPhotoPrefix;
 window.isTestTrip = state.isTestTrip;
 window.setCurrentTripId = state.setCurrentTripId;
 window.state = state;
+window.getLocationSharingEnabled = state.getLocationSharingEnabled;
+window.setLocationSharingEnabled = state.setLocationSharingEnabled;
 
 // ========================================
 // AUTH EXPORTS
@@ -133,6 +138,8 @@ window.createHunt = api.createHunt;
 window.endHunt = api.endHunt;
 window.claimHuntItem = api.claimHuntItem;
 window.addHuntItem = api.addHuntItem;
+window.updateMyLocationAPI = api.updateMyLocation;
+window.fetchLocations = api.fetchLocations;
 
 // ========================================
 // UTILS EXPORTS
@@ -426,6 +433,29 @@ window.showHuntSetup = scavengerHunt.showHuntSetup;
 window.generateHuntItems = scavengerHunt.generateHuntItems;
 
 // ========================================
+// LOCATION SHARING EXPORTS
+// ========================================
+
+window.initLocationService = locationService.initLocationService;
+window.startLocationUpdates = locationService.startLocationUpdates;
+window.stopLocationUpdates = locationService.stopLocationUpdates;
+
+// ========================================
+// TRAVELER PROFILE EXPORTS
+// ========================================
+
+window.openProfileModal = travelerProfile.openProfileModal;
+window.closeProfileModal = travelerProfile.closeProfileModal;
+
+// ========================================
+// MAP VIEW EXPORTS
+// ========================================
+
+window.initMapView = mapView.initMapView;
+window.showMapView = mapView.showMapView;
+window.hideMapView = mapView.hideMapView;
+
+// ========================================
 // DEPENDENCY INJECTION
 // ========================================
 
@@ -591,6 +621,10 @@ function init() {
   activityPills.initActivityPills();
   timezoneClocks.initTimezoneClocks();
   notifications.initNotifications();
+
+  // Initialize location sharing service
+  locationService.initLocationService();
+  mapView.initMapView();
 
   // Check access (will show lock screen or registration modal if needed)
   auth.checkAccessOnLoad(async (session) => {

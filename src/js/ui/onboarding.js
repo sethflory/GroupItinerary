@@ -96,9 +96,9 @@ function showWelcomeStep() {
       ${dateRange ? `<p class="onboarding-dates">${dateRange}</p>` : ''}
 
       <div class="onboarding-actions">
-        <button class="btn primary" onclick="onboardingAddEvents()">
-          <span class="material-symbols-outlined">add_circle</span>
-          Add My Events
+        <button class="btn primary" onclick="onboardingContinueToLocation()">
+          <span class="material-symbols-outlined">arrow_forward</span>
+          Continue
         </button>
         <button class="btn secondary" onclick="onboardingSkip()">
           Just Browse
@@ -108,8 +108,93 @@ function showWelcomeStep() {
   `;
 
   // Expose functions for onclick handlers
-  window.onboardingAddEvents = showAddEventsStep;
+  window.onboardingContinueToLocation = showLocationSharingStep;
   window.onboardingSkip = skipOnboarding;
+}
+
+// ========================================
+// STEP 1.5: LOCATION SHARING
+// ========================================
+
+function showLocationSharingStep() {
+  currentStep = 'locationSharing';
+  const body = document.getElementById('onboardingBody');
+
+  body.innerHTML = `
+    <div class="onboarding-location">
+      <button class="onboarding-back-btn" onclick="onboardingBackToWelcome()">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+
+      <div class="onboarding-icon">
+        <span class="material-symbols-outlined" style="font-size: 48px; color: var(--color-primary);">location_on</span>
+      </div>
+
+      <h2>Stay Connected</h2>
+      <p class="onboarding-subtitle">Share your location with the group so everyone can find each other on the map.</p>
+
+      <div class="onboarding-location-benefits">
+        <div class="benefit">
+          <span class="material-symbols-outlined">group</span>
+          <span>See where your travel companions are</span>
+        </div>
+        <div class="benefit">
+          <span class="material-symbols-outlined">security</span>
+          <span>Only shared with your trip group</span>
+        </div>
+        <div class="benefit">
+          <span class="material-symbols-outlined">settings</span>
+          <span>Turn off anytime in settings</span>
+        </div>
+      </div>
+
+      <div class="onboarding-actions">
+        <button class="btn primary" onclick="onboardingEnableLocation()" id="onboardingLocationBtn">
+          <span class="material-symbols-outlined">location_on</span>
+          Enable Sharing
+        </button>
+        <button class="btn secondary" onclick="onboardingSkipLocation()">
+          Not Now
+        </button>
+      </div>
+
+      <div class="onboarding-location-status" id="onboardingLocationStatus"></div>
+    </div>
+  `;
+
+  // Expose functions
+  window.onboardingBackToWelcome = showWelcomeStep;
+  window.onboardingEnableLocation = handleEnableLocation;
+  window.onboardingSkipLocation = () => showAddEventsStep();
+}
+
+async function handleEnableLocation() {
+  const btn = document.getElementById('onboardingLocationBtn');
+  const status = document.getElementById('onboardingLocationStatus');
+
+  try {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span> Requesting...';
+    status.innerHTML = '';
+
+    // Import and use location service
+    const { enableLocationSharing } = await import('./location.js');
+    const { setLocationSharingEnabled } = await import('../state.js');
+
+    await enableLocationSharing();
+    setLocationSharingEnabled(true);
+
+    status.innerHTML = '<span class="status-success"><span class="material-symbols-outlined">check_circle</span> Location sharing enabled!</span>';
+
+    // Continue after brief delay
+    setTimeout(() => {
+      showAddEventsStep();
+    }, 1000);
+  } catch (error) {
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined">location_on</span> Enable Sharing';
+    status.innerHTML = `<span class="status-error"><span class="material-symbols-outlined">error</span> ${escapeHtml(error.message)}</span>`;
+  }
 }
 
 // ========================================

@@ -382,6 +382,42 @@ export async function deleteHunt(tripId, huntId) {
 }
 
 // ========================================
+// LOCATION SHARING API
+// ========================================
+
+export async function updateMyLocation(tripId, travelerId, lat, lon, accuracy) {
+  const accessCode = getStoredAccessCode(tripId);
+  const url = `${API_BASE}/trips/${tripId}/locations/${travelerId}?tripId=${encodeURIComponent(tripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ lat, lon, accuracy })
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error || 'Failed to update location');
+  }
+
+  return await response.json();
+}
+
+export async function fetchLocations(tripId) {
+  const accessCode = getStoredAccessCode(tripId);
+  const url = `${API_BASE}/trips/${tripId}/locations?tripId=${encodeURIComponent(tripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch locations');
+  }
+
+  const data = await response.json();
+  return data.locations || [];
+}
+
+// ========================================
 // WEATHER API
 // ========================================
 
