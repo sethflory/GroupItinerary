@@ -19,36 +19,13 @@
       align-items: center;
       gap: 12px;
       margin-bottom: 20px;
-      flex-wrap: nowrap;
-    }
-
-    /* Ensure arrows stay fixed on sides at narrow widths */
-    @media (max-width: 480px) {
-      .day-header {
-        gap: 8px;
-      }
-
-      .day-nav-arrow {
-        width: 36px;
-        height: 36px;
-        min-width: 36px;
-      }
-
-      .day-header-main {
-        overflow: hidden;
-      }
-
-      .day-header-title {
-        font-size: 1.35rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
+      flex-wrap: nowrap !important;
     }
 
     .day-nav-arrow {
       width: 44px;
       height: 44px;
+      min-width: 44px;
       border: none;
       background: var(--color-cream);
       border-radius: 50%;
@@ -58,7 +35,7 @@
       justify-content: center;
       color: var(--color-text);
       transition: all 0.2s;
-      flex-shrink: 0;
+      flex: 0 0 44px;
     }
 
     .day-nav-arrow:hover:not(:disabled) {
@@ -77,9 +54,10 @@
     }
 
     .day-header-main {
-      flex: 1;
+      flex: 1 1 auto;
       min-width: 0;
       text-align: center;
+      overflow: hidden;
     }
 
     .day-header-top {
@@ -87,6 +65,7 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .day-header-date {
@@ -107,6 +86,36 @@
       font-size: 1.75rem;
       font-weight: 700;
       margin: 4px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Mobile: Smaller arrows, compact header */
+    @media (max-width: 480px) {
+      .day-header {
+        gap: 8px;
+      }
+
+      .day-nav-arrow {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        flex: 0 0 36px;
+      }
+
+      .day-nav-arrow .material-symbols-outlined {
+        font-size: 20px;
+      }
+
+      .day-header-title {
+        font-size: 1.1rem;
+      }
+
+      .day-header-date,
+      .day-header-label {
+        font-size: 0.75rem;
+      }
     }
 
     .day-meta-cards {
