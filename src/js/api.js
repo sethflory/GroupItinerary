@@ -367,6 +367,20 @@ export async function addHuntItem(tripId, huntId, itemData) {
   return await response.json();
 }
 
+export async function deleteHunt(tripId, huntId) {
+  const accessCode = getStoredAccessCode(tripId);
+  const url = `${API_BASE}/hunts/${huntId}?tripId=${encodeURIComponent(tripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+
+  const response = await fetch(url, { method: 'DELETE' });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error || 'Failed to delete hunt');
+  }
+
+  return await response.json();
+}
+
 // ========================================
 // WEATHER API
 // ========================================

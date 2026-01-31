@@ -2,7 +2,7 @@
 // SCAVENGER HUNT UI
 // ========================================
 
-import { fetchActiveHunt, fetchHunts, fetchHunt, createHunt, endHunt, claimHuntItem, addHuntItem, sendAIMessage } from '../api.js';
+import { fetchActiveHunt, fetchHunts, fetchHunt, createHunt, endHunt, deleteHunt, claimHuntItem, addHuntItem, sendAIMessage } from '../api.js';
 import { currentTripId } from '../state.js';
 import { pushNotification } from './notifications.js';
 
@@ -188,6 +188,9 @@ function renderActiveHuntView(content) {
       </button>
       <button class="btn btn-danger" onclick="confirmEndHunt()">
         <span class="material-symbols-outlined">stop</span> End Hunt
+      </button>
+      <button class="btn btn-danger" onclick="confirmDeleteHunt()" style="background:#666;">
+        <span class="material-symbols-outlined">delete</span> Delete
       </button>
     </div>
   `;
@@ -798,6 +801,29 @@ async function endHuntNow() {
     });
   } catch (err) {
     alert('Failed to end hunt: ' + err.message);
+  }
+}
+
+window.confirmDeleteHunt = function() {
+  if (confirm('Are you sure you want to DELETE this hunt? This cannot be undone.')) {
+    deleteHuntNow();
+  }
+};
+
+async function deleteHuntNow() {
+  try {
+    await deleteHunt(currentTripId, currentHunt.id);
+    currentHunt = null;
+    currentItems = [];
+    await refreshHuntData();
+
+    pushNotification({
+      type: 'hunt_deleted',
+      message: 'Scavenger hunt deleted',
+      icon: '🗑️'
+    });
+  } catch (err) {
+    alert('Failed to delete hunt: ' + err.message);
   }
 }
 
