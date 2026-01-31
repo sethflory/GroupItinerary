@@ -90,7 +90,7 @@ async function getTravelerLocation(context, tripId, travelerId, headers) {
 
 // Update traveler location
 async function updateLocation(context, tripId, travelerId, body, headers) {
-  const { lat, lon, accuracy, label, isSharing } = body;
+  const { lat, lon, accuracy, label, isSharing, displayName } = body;
 
   // Validate coordinates if provided
   if (lat !== undefined || lon !== undefined) {
@@ -122,6 +122,7 @@ async function updateLocation(context, tripId, travelerId, body, headers) {
       lon: null,
       accuracy: null,
       label: null,
+      displayName: null,
       isSharing: true,
       createdAt: new Date().toISOString()
     };
@@ -132,6 +133,7 @@ async function updateLocation(context, tripId, travelerId, body, headers) {
   if (lon !== undefined) entity.lon = lon;
   if (accuracy !== undefined) entity.accuracy = accuracy;
   if (label !== undefined) entity.label = label;
+  if (displayName !== undefined) entity.displayName = displayName;
   if (isSharing !== undefined) entity.isSharing = isSharing;
   entity.updatedAt = new Date().toISOString();
 
@@ -148,6 +150,7 @@ function formatLocation(entity) {
     lon: entity.lon,
     accuracy: entity.accuracy,
     label: entity.label,
+    displayName: entity.displayName,
     isSharing: entity.isSharing !== false,
     updatedAt: entity.updatedAt || entity.createdAt
   };

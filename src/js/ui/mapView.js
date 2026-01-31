@@ -147,7 +147,7 @@ async function initializeMap() {
 async function refreshLocations() {
   try {
     const locations = await fetchLocations(currentTripId);
-    console.log('[MapView] Fetched locations:', locations.length);
+    console.log('[MapView] Fetched locations:', locations.length, locations);
     updateMarkers(locations);
   } catch (error) {
     console.warn('[MapView] Failed to fetch locations:', error.message);

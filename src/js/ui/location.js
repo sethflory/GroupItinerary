@@ -3,7 +3,7 @@
 // ========================================
 
 import { currentTripId, getLocationSharingEnabled } from '../state.js';
-import { getCurrentTravelerId } from '../auth.js';
+import { getCurrentTravelerId, getCurrentUserId, getDisplayName } from '../auth.js';
 import { updateMyLocation as updateLocationAPI } from '../api.js';
 
 // Constants
@@ -63,9 +63,10 @@ export async function updateMyLocation() {
     return;
   }
 
-  const travelerId = getCurrentTravelerId();
+  // Use travelerId if available, otherwise use userId (for admins/non-travelers)
+  const travelerId = getCurrentTravelerId() || getCurrentUserId();
   if (!travelerId) {
-    console.log('[Location] No traveler ID, skipping update');
+    console.log('[Location] No traveler ID or user ID, skipping update');
     return;
   }
 
@@ -78,8 +79,9 @@ export async function updateMyLocation() {
   try {
     const position = await getCurrentPosition();
     const { latitude, longitude, accuracy } = position.coords;
+    const displayName = getDisplayName();
 
-    console.log('[Location] Got position:', { latitude, longitude, accuracy });
+    console.log('[Location] Got position:', { latitude, longitude, accuracy, travelerId, displayName });
 
     // Send to API
     await updateLocationAPI(
@@ -87,7 +89,8 @@ export async function updateMyLocation() {
       travelerId,
       latitude,
       longitude,
-      accuracy
+      accuracy,
+      displayName
     );
 
     console.log('[Location] Location updated successfully');

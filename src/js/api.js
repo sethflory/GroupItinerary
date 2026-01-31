@@ -385,14 +385,14 @@ export async function deleteHunt(tripId, huntId) {
 // LOCATION SHARING API
 // ========================================
 
-export async function updateMyLocation(tripId, travelerId, lat, lon, accuracy) {
+export async function updateMyLocation(tripId, travelerId, lat, lon, accuracy, displayName) {
   const accessCode = getStoredAccessCode(tripId);
   const url = `${API_BASE}/trips/${tripId}/locations/${travelerId}?tripId=${encodeURIComponent(tripId)}&accessCode=${encodeURIComponent(accessCode)}`;
 
   const response = await fetch(url, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ lat, lon, accuracy })
+    body: JSON.stringify({ lat, lon, accuracy, displayName })
   });
 
   if (!response.ok) {
