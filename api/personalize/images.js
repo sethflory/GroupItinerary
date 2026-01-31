@@ -7,6 +7,7 @@
 
 const UNSPLASH_API = "https://api.unsplash.com";
 const REQUEST_TIMEOUT = 10000; // 10 seconds per request
+const logger = require("../shared/logger");
 
 // Allowed image hosts (security)
 const ALLOWED_HOSTS = [
@@ -80,7 +81,8 @@ async function searchUnsplash(query, options = {}) {
     clearTimeout(timeout);
 
     if (!response.ok) {
-      console.warn(`[Images] Unsplash API error: ${response.status}`);
+      const errorText = await response.text().catch(() => "");
+      await logger.error("unsplash", `API error ${response.status}: ${errorText.slice(0, 200)}`, { query });
       return null;
     }
 
@@ -88,7 +90,7 @@ async function searchUnsplash(query, options = {}) {
     const results = data.results || [];
 
     if (results.length === 0) {
-      console.log(`[Images] No results for query: "${query}"`);
+      await logger.warn("unsplash", `No results for: ${query}`, { total: data.total || 0 });
       return null;
     }
 
@@ -120,9 +122,9 @@ async function searchUnsplash(query, options = {}) {
     clearTimeout(timeout);
 
     if (err.name === "AbortError") {
-      console.warn("[Images] Unsplash request timed out for:", query);
+      await logger.error("unsplash", `Timeout for: ${query}`);
     } else {
-      console.warn("[Images] Unsplash request failed:", err.message);
+      await logger.error("unsplash", `Request failed: ${err.message}`, { query });
     }
     return null;
   }
