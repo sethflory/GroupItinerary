@@ -1,7 +1,6 @@
 // ========================================
 // MAP VIEW - Traveler Locations
 // ========================================
-console.log('[MapView] MODULE LOADED v2');
 
 import { currentTripId } from '../state.js';
 import { fetchLocations } from '../api.js';
@@ -156,7 +155,6 @@ async function initializeMap() {
 async function refreshLocations() {
   try {
     const locations = await fetchLocations(currentTripId);
-    console.log('[MapView] Fetched locations:', locations.length, locations);
     updateMarkers(locations);
   } catch (error) {
     console.warn('[MapView] Failed to fetch locations:', error.message);
@@ -164,33 +162,20 @@ async function refreshLocations() {
 }
 
 function updateMarkers(locations) {
-  console.log('[MapView] updateMarkers called, map exists:', !!map);
-  if (!map) {
-    console.log('[MapView] No map, returning');
-    return;
-  }
+  if (!map) return;
 
   const travelers = getTravelers();
-  console.log('[MapView] Travelers:', travelers.length);
   const hotel = getHotel();
   const validPositions = [];
 
-  // Apply jitter to locations that are too close together
-  console.log('[MapView] Applying jitter...');
-  const jitteredLocations = applyLocationJitter(locations);
-  console.log('[MapView] Jittered locations:', jitteredLocations);
-
-  // Update or create markers for each location
-  console.log('[MapView] Creating markers for', jitteredLocations.length, 'locations');
+  // Jitter disabled for testing stacked markers
+  // const jitteredLocations = applyLocationJitter(locations);
+  const jitteredLocations = locations;
 
   for (let i = 0; i < jitteredLocations.length; i++) {
     const loc = jitteredLocations[i];
-    console.log('[MapView] Marker', i + 1, ':', loc.displayName, loc.lat, loc.lon);
 
-    if (!loc.lat || !loc.lon) {
-      console.log('[MapView] Skipping - no coords');
-      continue;
-    }
+    if (!loc.lat || !loc.lon) continue;
 
     // Find traveler in array, or create fallback
     let traveler = travelers.find(t => t.id === loc.travelerId);
@@ -207,38 +192,44 @@ function updateMarkers(locations) {
 
     try {
       const markerKey = loc.travelerId;
-      console.log('[MapView] Marker key:', markerKey, 'exists?', !!markers[markerKey]);
+      const lastSeen = formatLastSeen(loc.updatedAt);
+      const tooltipContent = `<strong>${traveler.name}</strong><br><span class="tooltip-time">Last seen ${lastSeen}</span>`;
+      const popupContent = `
+        <div class="traveler-popup">
+          <strong>${traveler.name}</strong>
+          <div class="popup-last-seen">Last seen ${lastSeen}</div>
+          ${loc.accuracy ? `<div class="popup-accuracy">Accuracy: ~${Math.round(loc.accuracy)}m</div>` : ''}
+        </div>
+      `;
 
       if (markers[markerKey]) {
         markers[markerKey].setLatLng([loc.lat, loc.lon]);
-        console.log('[MapView] Updated marker for', loc.displayName);
+        markers[markerKey].setTooltipContent(tooltipContent);
+        markers[markerKey].setPopupContent(popupContent);
       } else {
         const color = traveler.color || '#ff0000';
-        console.log('[MapView] Creating marker:', {
-          name: loc.displayName,
-          key: markerKey,
-          lat: loc.lat,
-          lon: loc.lon,
-          color: color
-        });
 
         const marker = L.circleMarker([loc.lat, loc.lon], {
           radius: 20,
           fillColor: color,
-          color: '#000',
+          color: '#fff',
           weight: 3,
-          fillOpacity: 1
-        }).addTo(map);
+          fillOpacity: 0.9
+        })
+          .addTo(map)
+          .bindTooltip(tooltipContent, {
+            direction: 'top',
+            offset: [0, -10],
+            className: 'traveler-tooltip'
+          })
+          .bindPopup(popupContent);
 
         markers[markerKey] = marker;
-        console.log('[MapView] Created marker, total now:', Object.keys(markers));
       }
     } catch (err) {
       console.error('[MapView] Error creating marker:', err);
     }
   }
-
-  console.log('[MapView] Total markers in map:', Object.keys(markers).length);
 
   // Remove markers for travelers no longer sharing
   const activeIds = locations.map(l => l.travelerId);

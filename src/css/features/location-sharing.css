@@ -444,13 +444,45 @@
   height: 100%;
 }
 
-/* Circle marker tooltip for initials */
-.marker-tooltip {
-  background: transparent;
+/* Traveler tooltip (hover) */
+.traveler-tooltip {
+  background: white;
   border: none;
-  box-shadow: none;
-  color: white;
-  font-weight: 600;
-  font-size: 12px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  padding: 8px 12px;
+  font-family: inherit;
+}
+
+.traveler-tooltip strong {
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.traveler-tooltip .tooltip-time {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+/* Popup (click) */
+.traveler-popup {
+  text-align: center;
+  min-width: 120px;
+}
+
+.traveler-popup strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.popup-last-seen {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.popup-accuracy {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
 }
