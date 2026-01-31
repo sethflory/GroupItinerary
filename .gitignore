@@ -11,6 +11,9 @@ api/.env
 dist/
 .output/
 
+# Test coverage
+coverage/
+
 # IDE
 .vscode/
 .idea/
