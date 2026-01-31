@@ -134,6 +134,10 @@ export function renderDayDetail() {
         <div class="day-header-date">Day ${day.dayNum} • ${day.label}</div>
         <h2 class="day-header-title">${day.theme}</h2>
         <div class="day-header-subtitle">${day.location} ${dest.city ? `• ${dest.city}, ${dest.country}` : ''}</div>
+        <button class="dinner-poll-btn" onclick="openDinnerPollModal()">
+          <span class="material-symbols-outlined">restaurant_menu</span>
+          What's for Dinner?
+        </button>
       </div>
       <div class="day-meta-cards">
         ${day.estimatedSteps ? `

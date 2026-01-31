@@ -24,6 +24,7 @@ import * as trivia from './ui/trivia.js';
 import * as tripSetup from './ui/tripSetup.js';
 import * as receiptUpload from './ui/receiptUpload.js';
 import * as onboarding from './ui/onboarding.js';
+import * as dinnerPoll from './ui/dinnerPoll.js';
 
 // ========================================
 // GLOBAL STATE
@@ -295,6 +296,13 @@ window.openOnboardingModal = onboarding.openOnboardingModal;
 window.closeOnboardingModal = onboarding.closeOnboardingModal;
 
 // ========================================
+// DINNER POLL EXPORTS
+// ========================================
+
+window.openDinnerPollModal = dinnerPoll.openDinnerPollModal;
+window.closeDinnerPollModal = dinnerPoll.closeDinnerPollModal;
+
+// ========================================
 // DEPENDENCY INJECTION
 // ========================================
 
@@ -317,6 +325,7 @@ function injectDependencies() {
   navigation.setNavigationDeps(deps);
   stats.setStatsDeps(deps);
   countdown.setCountdownDeps(deps);
+  dinnerPoll.setDinnerPollDeps(deps);
 }
 
 // ========================================
