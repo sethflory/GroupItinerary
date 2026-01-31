@@ -163,7 +163,7 @@ async function generateEventCards(tripData) {
     const queries = config.queries || [];
 
     if (style === "minimal" || queries.length === 0) {
-      eventCards[eventId] = { style, images: [] };
+      eventCards[eventId] = { cardStyle: style, images: [] };
       continue;
     }
 
@@ -195,7 +195,7 @@ async function generateEventCards(tripData) {
       await new Promise(r => setTimeout(r, 200));
     }
 
-    eventCards[eventId] = { style, images };
+    eventCards[eventId] = { cardStyle: style, images };
   }
 
   await logger.info("eventcards", `Done: ${totalQueries} queries, ${resolvedImages} images resolved`);
