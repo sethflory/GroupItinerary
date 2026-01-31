@@ -2,9 +2,14 @@
 // TRAVELER PROFILE MODAL
 // ========================================
 
-import { getLocationSharingEnabled, setLocationSharingEnabled, TRAVELERS } from '../state.js';
+import { getLocationSharingEnabled, setLocationSharingEnabled } from '../state.js';
 import { getCurrentTravelerId, getDisplayName } from '../auth.js';
 import { enableLocationSharing, disableLocationSharing } from './location.js';
+
+// Get TRAVELERS from window (set by app.js after data loads)
+function getTravelers() {
+  return window.TRAVELERS || [];
+}
 
 // ========================================
 // MODAL MANAGEMENT
@@ -60,8 +65,9 @@ function populateProfileModal() {
   const body = document.getElementById('profileModalBody');
   if (!body) return;
 
+  const travelers = getTravelers();
   const travelerId = getCurrentTravelerId();
-  const traveler = TRAVELERS.find(t => t.id === travelerId);
+  const traveler = travelers.find(t => t.id === travelerId);
   const displayName = getDisplayName();
   const locationEnabled = getLocationSharingEnabled();
 
@@ -105,7 +111,7 @@ function populateProfileModal() {
       <div class="profile-section-title">Trip Info</div>
       <div class="profile-stat">
         <span class="material-symbols-outlined">group</span>
-        <span>Traveling with ${TRAVELERS.length} ${TRAVELERS.length === 1 ? 'person' : 'people'}</span>
+        <span>Traveling with ${travelers.length} ${travelers.length === 1 ? 'person' : 'people'}</span>
       </div>
     </div>
 
