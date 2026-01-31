@@ -477,8 +477,8 @@ export async function generateHuntItems() {
     // Parse AI response
     const items = parseAIHuntItems(response, itemCount);
 
-    // Show preview
-    showHuntPreview(title, items, { theme, difficulty, endCondition });
+    // Show preview - include scope (location) for map centering
+    showHuntPreview(title, items, { theme, difficulty, endCondition, scope });
 
   } catch (err) {
     console.error('[ScavengerHunt] AI generation failed:', err);
@@ -654,6 +654,7 @@ window.launchHunt = async function() {
       theme: options.theme,
       difficulty: options.difficulty,
       endCondition: options.endCondition,
+      location: options.scope,  // Store selected destination for map
       items
     };
 
@@ -1028,10 +1029,17 @@ function initTreasureMap() {
   const container = document.getElementById('treasureMapLeaflet');
   if (!container) return;
 
-  // Get the current destination for center point
-  const currentDest = getCurrentLocation();
-  const centerLat = currentDest.lat || 37.9838;  // Default to Athens
-  const centerLon = currentDest.lon || 23.7275;
+  // Get the hunt's destination for center point
+  // Use the hunt's stored location, fallback to current location
+  let huntDest = null;
+  if (currentHunt?.location && DESTINATIONS) {
+    huntDest = DESTINATIONS[currentHunt.location];
+  }
+  if (!huntDest) {
+    huntDest = getCurrentLocation();
+  }
+  const centerLat = huntDest.lat || 37.9838;  // Default to Athens
+  const centerLon = huntDest.lon || 23.7275;
 
   // If map exists, just update markers
   if (treasureMap) {
@@ -1070,10 +1078,16 @@ function updateTreasureMarkers() {
   mapMarkers.forEach(m => treasureMap.removeLayer(m));
   mapMarkers = [];
 
-  // Get current destination as fallback for items without coords
-  const currentDest = getCurrentLocation();
-  const baseLat = currentDest.lat || 37.9838;
-  const baseLon = currentDest.lon || 23.7275;
+  // Get hunt's destination for items without coords
+  let huntDest = null;
+  if (currentHunt?.location && DESTINATIONS) {
+    huntDest = DESTINATIONS[currentHunt.location];
+  }
+  if (!huntDest) {
+    huntDest = getCurrentLocation();
+  }
+  const baseLat = huntDest.lat || 37.9838;
+  const baseLon = huntDest.lon || 23.7275;
 
   currentItems.forEach((item, index) => {
     // Use item's lat/lon or scatter around the destination

@@ -184,7 +184,7 @@ async function createHunt(context, tripId, body, auth, headers) {
     return;
   }
 
-  const { title, description, theme, difficulty, endCondition, items } = body;
+  const { title, description, theme, difficulty, endCondition, location, items } = body;
 
   if (!title) {
     sendError(context, "Missing required field: title", 400, headers);
@@ -209,6 +209,7 @@ async function createHunt(context, tripId, body, auth, headers) {
     completedAt: null,
     theme: theme || null,
     difficulty: difficulty || "medium",
+    location: location || null,  // Destination key for map centering
     finalScores: null
   };
 
@@ -551,6 +552,7 @@ function formatHunt(entity) {
     completedAt: entity.completedAt,
     theme: entity.theme,
     difficulty: entity.difficulty,
+    location: entity.location,  // Destination key for map
     finalScores
   };
 }
