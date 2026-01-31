@@ -217,6 +217,93 @@
   color: var(--color-sky);
 }
 
+/* Path Facts */
+.saw-it-path-facts {
+  margin-top: 1rem;
+  background: linear-gradient(135deg, rgba(79, 172, 254, 0.05), rgba(0, 242, 254, 0.05));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+}
+
+.path-facts-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-sky);
+  margin-bottom: 0.75rem;
+}
+
+.path-facts-header .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+.path-facts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.path-fact {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-cream);
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+}
+
+.path-fact .material-symbols-outlined {
+  color: var(--color-sky);
+  font-size: 1.25rem;
+}
+
+.path-fact-value {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.path-fact-label {
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+}
+
+.path-facts-route {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.path-point {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.path-point.origin .material-symbols-outlined {
+  color: var(--color-sky);
+  font-size: 0.9rem;
+}
+
+.path-point.destination .material-symbols-outlined {
+  color: var(--color-sunset);
+  font-size: 1rem;
+}
+
+.path-line {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-sky), var(--color-sunset));
+  min-width: 20px;
+}
+
 .transport-btn .material-symbols-outlined {
   font-size: 1.25rem;
 }

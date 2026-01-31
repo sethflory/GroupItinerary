@@ -54,6 +54,50 @@ export async function refreshSavedLists() {
 }
 
 // ========================================
+// HELPERS
+// ========================================
+
+// Calculate distance between two coordinates (Haversine formula)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c; // Distance in km
+}
+
+// Get estimated time based on distance and transport mode
+function getEstimatedTime(distanceKm, mode) {
+  if (!distanceKm) return null;
+  // Walking: ~5 km/h, Driving in city: ~25 km/h
+  const speedKmh = mode === 'walk' ? 5 : 25;
+  const hours = distanceKm / speedKmh;
+  const minutes = Math.round(hours * 60);
+
+  if (minutes < 60) {
+    return `${minutes} min`;
+  } else {
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
+  }
+}
+
+// Format distance for display
+function formatDistance(distanceKm) {
+  if (!distanceKm) return null;
+  if (distanceKm < 1) {
+    return `${Math.round(distanceKm * 1000)} m`;
+  }
+  return `${distanceKm.toFixed(1)} km`;
+}
+
+// ========================================
 // API CALLS
 // ========================================
 
@@ -327,6 +371,8 @@ function renderConfigureStep() {
         </div>
       </div>
 
+      ${renderPathFacts(event)}
+
       <div class="saw-it-actions">
         <button class="saw-it-action-btn secondary" onclick="closeSawItModal()">Cancel</button>
         <button class="saw-it-action-btn primary"
@@ -335,6 +381,59 @@ function renderConfigureStep() {
           <span class="material-symbols-outlined">auto_awesome</span>
           Generate List
         </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderPathFacts(event) {
+  if (!selectedOrigin || !event) return '';
+
+  // Get destination coordinates from event
+  const destLat = event.lat || getDestinationCoords(event.date)?.lat;
+  const destLon = event.lon || getDestinationCoords(event.date)?.lon;
+  const originLat = selectedOrigin.lat;
+  const originLon = selectedOrigin.lon;
+
+  // Calculate distance
+  const distance = calculateDistance(originLat, originLon, destLat, destLon);
+  const formattedDistance = formatDistance(distance);
+  const estimatedTime = getEstimatedTime(distance, transportMode);
+
+  if (!formattedDistance) return '';
+
+  return `
+    <div class="saw-it-path-facts">
+      <div class="path-facts-header">
+        <span class="material-symbols-outlined">route</span>
+        <span>Route Overview</span>
+      </div>
+      <div class="path-facts-grid">
+        <div class="path-fact">
+          <span class="material-symbols-outlined">straighten</span>
+          <div>
+            <div class="path-fact-value">${formattedDistance}</div>
+            <div class="path-fact-label">Distance</div>
+          </div>
+        </div>
+        <div class="path-fact">
+          <span class="material-symbols-outlined">schedule</span>
+          <div>
+            <div class="path-fact-value">${estimatedTime || '--'}</div>
+            <div class="path-fact-label">Est. ${transportMode === 'walk' ? 'Walking' : 'Driving'}</div>
+          </div>
+        </div>
+      </div>
+      <div class="path-facts-route">
+        <div class="path-point origin">
+          <span class="material-symbols-outlined">radio_button_checked</span>
+          <span>${selectedOrigin.name}</span>
+        </div>
+        <div class="path-line"></div>
+        <div class="path-point destination">
+          <span class="material-symbols-outlined">location_on</span>
+          <span>${event.title}</span>
+        </div>
       </div>
     </div>
   `;
@@ -891,7 +990,7 @@ window.sawItSpotWithPhoto = async function(itemId) {
 
         // Upload photo
         const photoResult = await apiUploadPhoto(currentTripId, {
-          fileName: `sawit_${activeGame.id}_${itemId}_${Date.now()}.jpg`,
+          fileName: `sawit_${activeGame.eventId}_${itemId}_${Date.now()}.jpg`,
           fileData,
           caption: `Saw it! ${getItemName(itemId)}`,
           uploadedBy: getDisplayName()
@@ -924,7 +1023,7 @@ window.sawItSpotNoPhoto = async function(itemId) {
 };
 
 async function recordSighting(itemId, photoUrl) {
-  const result = await fetchSawItAPI(`game/${activeGame.id}/sight`, 'POST', {
+  const result = await fetchSawItAPI(`game/${activeGame.eventId}/sight`, 'POST', {
     itemId,
     photoUrl
   });
@@ -995,11 +1094,11 @@ window.sawItShareToSocial = async function(itemId, itemName, photoUrl) {
       });
 
       // Record social share
-      await fetchSawItAPI(`game/${activeGame.id}/share`, 'POST', { itemId });
+      await fetchSawItAPI(`game/${activeGame.eventId}/share`, 'POST', { itemId });
       showToast('Shared! +1 bonus point', 'success');
 
       // Refresh game data
-      const result = await fetchSawItAPI(`game/${activeGame.id}`, 'GET');
+      const result = await fetchSawItAPI(`game/${activeGame.eventId}`, 'GET');
       if (!result.error) {
         activeGame = result;
         renderCurrentStep();
@@ -1028,7 +1127,7 @@ window.sawItEndGame = async function() {
     'This will close the game and show final results.',
     'End Game',
     async () => {
-      const result = await fetchSawItAPI(`game/${activeGame.id}`, 'PUT', { action: 'complete' });
+      const result = await fetchSawItAPI(`game/${activeGame.eventId}`, 'PUT', { action: 'complete' });
 
       if (result.error) {
         showToast(result.error, 'error');
