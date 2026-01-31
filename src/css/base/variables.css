@@ -35,4 +35,13 @@
   --shadow-soft: 0 2px 12px rgba(0,0,0,0.08);
   --shadow-card: 0 4px 20px rgba(0,0,0,0.1);
   --shadow-elevated: 0 8px 32px rgba(0,0,0,0.12);
+
+  /* AI Emerald Theme */
+  --ai-emerald-dark: #134e5e;
+  --ai-emerald-light: #71b280;
+  --ai-emerald-mid: #2d7a6d;
+  --ai-emerald-glow: rgba(113, 178, 128, 0.4);
+  --ai-gradient: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+  --ai-shadow: 0 4px 20px rgba(19, 78, 94, 0.35);
+  --ai-shadow-hover: 0 6px 28px rgba(19, 78, 94, 0.45);
 }

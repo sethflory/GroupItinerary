@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Button Implementation - Emerald Theme</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  <style>
+    :root {
+      /* Emerald palette */
+      --emerald-dark: #134e5e;
+      --emerald-light: #71b280;
+      --emerald-mid: #2d7a6d;
+      --emerald-glow: rgba(113, 178, 128, 0.4);
+
+      /* App colors (matching GroupItinerary) */
+      --color-cream: #fdfbf7;
+      --color-text: #1a1a2e;
+      --color-text-light: #666;
+      --color-border: #e8e4dc;
+      --color-sky: #4facfe;
+      --color-sunset: #ff7e5f;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--color-cream);
+      color: var(--color-text);
+      line-height: 1.5;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--emerald-dark), var(--emerald-light));
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      opacity: 0.9;
+    }
+
+    /* Main content */
+    .main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .section {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .section h2 {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section h2 .material-symbols-outlined {
+      color: var(--emerald-mid);
+    }
+
+    .section > p {
+      color: var(--color-text-light);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .subsection {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .subsection h3 {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      color: var(--color-text-light);
+    }
+
+    /* ========================================
+       EMERALD VARIATIONS
+       ======================================== */
+
+    .variations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .variation {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .variation-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .variation-code {
+      font-size: 0.7rem;
+      color: var(--color-text-light);
+      font-family: monospace;
+    }
+
+    /* ========================================
+       FLOATING CHAT BUTTON
+       ======================================== */
+
+    .ai-chat-btn {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .ai-chat-btn img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+    }
+
+    .ai-chat-btn:hover {
+      transform: scale(1.08);
+    }
+
+    /* Emerald variations */
+    .emerald-gradient {
+      background: linear-gradient(135deg, var(--emerald-dark) 0%, var(--emerald-light) 100%);
+      box-shadow: 0 4px 20px rgba(19, 78, 94, 0.35);
+    }
+    .emerald-gradient:hover {
+      box-shadow: 0 6px 28px rgba(19, 78, 94, 0.45);
+    }
+
+    .emerald-dark-gradient {
+      background: linear-gradient(135deg, #0d3d3d 0%, #1a6b5a 100%);
+      box-shadow: 0 4px 20px rgba(13, 61, 61, 0.4);
+    }
+
+    .emerald-rich {
+      background: linear-gradient(135deg, #1a5c4a 0%, #3d9970 100%);
+      box-shadow: 0 4px 20px rgba(26, 92, 74, 0.35);
+    }
+
+    .emerald-teal {
+      background: linear-gradient(145deg, #0f4c5c 0%, #5fa8a0 100%);
+      box-shadow: 0 4px 20px rgba(15, 76, 92, 0.35);
+    }
+
+    .emerald-forest {
+      background: linear-gradient(135deg, #1e453e 0%, #528a6e 100%);
+      box-shadow: 0 4px 20px rgba(30, 69, 62, 0.4);
+    }
+
+    .emerald-solid {
+      background: var(--emerald-mid);
+      box-shadow: 0 4px 20px rgba(45, 122, 109, 0.35);
+    }
+
+    /* Glow effect */
+    .with-glow {
+      box-shadow: 0 4px 20px rgba(19, 78, 94, 0.35), 0 0 30px var(--emerald-glow);
+    }
+    .with-glow:hover {
+      box-shadow: 0 6px 28px rgba(19, 78, 94, 0.45), 0 0 40px var(--emerald-glow);
+    }
+
+    /* Pulse animation */
+    @keyframes emerald-pulse {
+      0% { box-shadow: 0 4px 20px rgba(19, 78, 94, 0.35), 0 0 0 0 var(--emerald-glow); }
+      70% { box-shadow: 0 4px 20px rgba(19, 78, 94, 0.35), 0 0 0 15px rgba(113, 178, 128, 0); }
+      100% { box-shadow: 0 4px 20px rgba(19, 78, 94, 0.35), 0 0 0 0 rgba(113, 178, 128, 0); }
+    }
+    .with-pulse {
+      animation: emerald-pulse 2.5s infinite;
+    }
+
+    /* Size variants */
+    .size-sm { width: 48px; height: 48px; }
+    .size-sm img { width: 28px; height: 28px; }
+    .size-lg { width: 68px; height: 68px; }
+    .size-lg img { width: 42px; height: 42px; }
+
+    /* ========================================
+       WORKFLOW ACTION BUTTONS
+       ======================================== */
+
+    .ai-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius-md);
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: white;
+      background: linear-gradient(135deg, var(--emerald-dark), var(--emerald-light));
+      transition: all 0.2s ease;
+    }
+
+    .ai-action-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(19, 78, 94, 0.3);
+    }
+
+    .ai-action-btn img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+
+    /* Outlined variant */
+    .ai-action-btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.875rem;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--emerald-mid);
+      background: transparent;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--emerald-mid);
+      transition: all 0.2s ease;
+    }
+
+    .ai-action-btn-outline:hover {
+      background: rgba(45, 122, 109, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .ai-action-btn-outline img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+    }
+
+    /* Pill variant */
+    .ai-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.875rem 0.4rem 0.5rem;
+      border-radius: 100px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: white;
+      background: linear-gradient(135deg, var(--emerald-dark), var(--emerald-mid));
+      transition: all 0.2s ease;
+    }
+
+    .ai-pill-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(19, 78, 94, 0.3);
+    }
+
+    .ai-pill-btn img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }
+
+    /* Small icon button */
+    .ai-icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--emerald-dark), var(--emerald-light));
+      transition: all 0.2s ease;
+    }
+
+    .ai-icon-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 3px 10px rgba(19, 78, 94, 0.3);
+    }
+
+    .ai-icon-btn img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+
+    /* ========================================
+       IMPLEMENTATION DEMOS
+       ======================================== */
+
+    .demo-app {
+      background: var(--color-cream);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .demo-app-header {
+      background: white;
+      padding: 1rem;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .demo-app-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+    }
+
+    .demo-app-content {
+      padding: 1.5rem;
+      min-height: 200px;
+      position: relative;
+    }
+
+    .demo-app-content p {
+      color: var(--color-text-light);
+      font-size: 0.9rem;
+    }
+
+    .demo-floating-btn {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+    }
+
+    /* Form demo */
+    .demo-form {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .demo-form-title {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .demo-field {
+      margin-bottom: 1rem;
+    }
+
+    .demo-field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--color-text-light);
+      margin-bottom: 0.375rem;
+    }
+
+    .demo-field input, .demo-field textarea {
+      width: 100%;
+      padding: 0.625rem 0.875rem;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+
+    .demo-field textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .demo-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--color-border);
+      flex-wrap: wrap;
+    }
+
+    .demo-btn {
+      padding: 0.6rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .demo-btn-secondary {
+      background: var(--color-cream);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-light);
+    }
+
+    .demo-btn-primary {
+      background: var(--color-sky);
+      color: white;
+    }
+
+    .ai-left {
+      margin-right: auto;
+    }
+
+    /* Event card demo */
+    .demo-event-card {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .demo-event-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #ff7e5f22, #feb47b22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-sunset);
+    }
+
+    .demo-event-content {
+      flex: 1;
+    }
+
+    .demo-event-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .demo-event-meta {
+      font-size: 0.8rem;
+      color: var(--color-text-light);
+    }
+
+    .demo-event-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .demo-event-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: var(--color-cream);
+      color: var(--color-text-light);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .demo-event-btn:hover {
+      background: #eee;
+    }
+
+    .demo-event-btn .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    /* Chat panel demo */
+    .demo-chat-panel {
+      background: white;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      width: 320px;
+    }
+
+    .demo-chat-header {
+      background: linear-gradient(135deg, var(--emerald-dark), var(--emerald-light));
+      color: white;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .demo-chat-header img {
+      width: 32px;
+      height: 32px;
+    }
+
+    .demo-chat-header-text h4 {
+      font-size: 0.95rem;
+      margin-bottom: 0.125rem;
+    }
+
+    .demo-chat-header-text span {
+      font-size: 0.75rem;
+      opacity: 0.85;
+    }
+
+    .demo-chat-messages {
+      padding: 1rem;
+      background: #f9f9f9;
+      min-height: 150px;
+    }
+
+    .demo-chat-bubble {
+      background: white;
+      padding: 0.75rem 1rem;
+      border-radius: 12px 12px 12px 4px;
+      font-size: 0.85rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      max-width: 85%;
+    }
+
+    .demo-chat-input {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .demo-chat-input input {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--color-border);
+      border-radius: 100px;
+      font-size: 0.85rem;
+    }
+
+    .demo-chat-send {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, var(--emerald-dark), var(--emerald-light));
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Tooltip */
+    .tooltip-demo {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip-demo:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      right: calc(100% + 10px);
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--color-text);
+      color: white;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Recommendation badge */
+    .recommended {
+      position: relative;
+    }
+    .recommended::before {
+      content: "★ Recommended";
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--emerald-mid);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    /* Grid layouts */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 700px) {
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .button-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>AI Button Implementation</h1>
+    <p>Emerald Theme with Golden Keys</p>
+  </div>
+
+  <div class="main">
+
+    <!-- Section 1: Emerald Variations -->
+    <div class="section">
+      <h2><span class="material-symbols-outlined">palette</span> Emerald Variations</h2>
+      <p>Different emerald gradients to choose from for the floating chat button.</p>
+
+      <div class="variations-grid">
+        <div class="variation recommended">
+          <button class="ai-chat-btn emerald-gradient">
+            <img src="keys.png" alt="AI">
+          </button>
+          <span class="variation-label">Original Emerald</span>
+          <span class="variation-code">#134e5e → #71b280</span>
+        </div>
+
+        <div class="variation">
+          <button class="ai-chat-btn emerald-dark-gradient">
+            <img src="keys.png" alt="AI">
+          </button>
+          <span class="variation-label">Dark Emerald</span>
+          <span class="variation-code">#0d3d3d → #1a6b5a</span>
+        </div>
+
+        <div class="variation">
+          <button class="ai-chat-btn emerald-rich">
+            <img src="keys.png" alt="AI">
+          </button>
+          <span class="variation-label">Rich Emerald</span>
+          <span class="variation-code">#1a5c4a → #3d9970</span>
+        </div>
+
+        <div class="variation">
+          <button class="ai-chat-btn emerald-teal">
+            <img src="keys.png" alt="AI">
+          </button>
+          <span class="variation-label">Teal Emerald</span>
+          <span class="variation-code">#0f4c5c → #5fa8a0</span>
+        </div>
+
+        <div class="variation">
+          <button class="ai-chat-btn emerald-forest">
+            <img src="keys.png" alt="AI">
+          </button>
+          <span class="variation-label">Forest</span>
+          <span class="variation-code">#1e453e → #528a6e</span>
+        </div>
+
+        <div class="variation">
+          <button class="ai-chat-btn emerald-solid">
+            <img src="keys.png" alt="AI">
+          </button>
+          <span class="variation-label">Solid</span>
+          <span class="variation-code">#2d7a6d</span>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>With Effects</h3>
+        <div class="variations-grid">
+          <div class="variation">
+            <button class="ai-chat-btn emerald-gradient with-glow">
+              <img src="keys.png" alt="AI">
+            </button>
+            <span class="variation-label">With Glow</span>
+          </div>
+
+          <div class="variation">
+            <button class="ai-chat-btn emerald-gradient with-pulse">
+              <img src="keys.png" alt="AI">
+            </button>
+            <span class="variation-label">With Pulse</span>
+          </div>
+
+          <div class="variation">
+            <button class="ai-chat-btn emerald-gradient size-sm">
+              <img src="keys.png" alt="AI">
+            </button>
+            <span class="variation-label">Small (48px)</span>
+          </div>
+
+          <div class="variation">
+            <button class="ai-chat-btn emerald-gradient size-lg">
+              <img src="keys.png" alt="AI">
+            </button>
+            <span class="variation-label">Large (68px)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Workflow Buttons -->
+    <div class="section">
+      <h2><span class="material-symbols-outlined">smart_button</span> Workflow Action Buttons</h2>
+      <p>Buttons for dialogs and forms where AI assistance is optional.</p>
+
+      <div class="button-row">
+        <button class="ai-action-btn">
+          <img src="keys.png" alt="AI">
+          Ask AI
+        </button>
+
+        <button class="ai-action-btn">
+          <img src="keys.png" alt="AI">
+          AI Assist
+        </button>
+
+        <button class="ai-action-btn">
+          <img src="keys.png" alt="AI">
+          Let AI Complete
+        </button>
+      </div>
+
+      <div class="subsection">
+        <h3>Outlined (Subtle)</h3>
+        <div class="button-row">
+          <button class="ai-action-btn-outline">
+            <img src="keys.png" alt="AI">
+            Ask AI Instead
+          </button>
+
+          <button class="ai-action-btn-outline">
+            <img src="keys.png" alt="AI">
+            Get AI Suggestions
+          </button>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Pill Style</h3>
+        <div class="button-row">
+          <button class="ai-pill-btn">
+            <img src="keys.png" alt="AI">
+            AI Magic
+          </button>
+
+          <button class="ai-pill-btn">
+            <img src="keys.png" alt="AI">
+            Smart Fill
+          </button>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Icon Only (Small)</h3>
+        <div class="button-row">
+          <button class="ai-icon-btn">
+            <img src="keys.png" alt="AI">
+          </button>
+          <span style="color: var(--color-text-light); font-size: 0.85rem;">34px - for tight spaces like toolbars</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Implementation - Floating Button -->
+    <div class="section">
+      <h2><span class="material-symbols-outlined">chat</span> Implementation: Floating Chat Button</h2>
+      <p>How the AI chat button appears floating over the app content.</p>
+
+      <div class="demo-app">
+        <div class="demo-app-header">
+          <span class="demo-app-title">Athens & Bangalore 2026</span>
+          <span class="material-symbols-outlined">menu</span>
+        </div>
+        <div class="demo-app-content">
+          <p>Day 3 • Acropolis & Plaka</p>
+          <p style="margin-top: 0.5rem; font-size: 0.85rem;">Explore ancient ruins and winding streets...</p>
+
+          <div class="demo-floating-btn tooltip-demo" data-tooltip="Chat with AI">
+            <button class="ai-chat-btn emerald-gradient">
+              <img src="keys.png" alt="AI">
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>With Active Indicator</h3>
+        <div class="demo-app">
+          <div class="demo-app-header">
+            <span class="demo-app-title">Athens & Bangalore 2026</span>
+            <span class="material-symbols-outlined">menu</span>
+          </div>
+          <div class="demo-app-content">
+            <p>Your itinerary content here...</p>
+
+            <div class="demo-floating-btn">
+              <button class="ai-chat-btn emerald-gradient with-pulse">
+                <img src="keys.png" alt="AI">
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Implementation - Add Event Form -->
+    <div class="section">
+      <h2><span class="material-symbols-outlined">add_circle</span> Implementation: Add Event Dialog</h2>
+      <p>User can fill manually or ask AI to complete the task with additional info and photos.</p>
+
+      <div class="two-col">
+        <div>
+          <h3 style="font-size: 0.9rem; margin-bottom: 1rem; color: var(--color-text-light);">Option A: AI button on left</h3>
+          <div class="demo-form">
+            <div class="demo-form-title">
+              <span class="material-symbols-outlined">add_circle</span>
+              Add Event
+            </div>
+            <div class="demo-field">
+              <label>Event Title</label>
+              <input type="text" placeholder="e.g., Visit the Parthenon">
+            </div>
+            <div class="demo-field">
+              <label>Time</label>
+              <input type="text" placeholder="e.g., 10:00 AM">
+            </div>
+            <div class="demo-actions">
+              <button class="ai-action-btn-outline ai-left">
+                <img src="keys.png" alt="AI">
+                Let AI Complete
+              </button>
+              <button class="demo-btn demo-btn-secondary">Cancel</button>
+              <button class="demo-btn demo-btn-primary">Add</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="font-size: 0.9rem; margin-bottom: 1rem; color: var(--color-text-light);">Option B: AI as primary action</h3>
+          <div class="demo-form">
+            <div class="demo-form-title">
+              <span class="material-symbols-outlined">add_circle</span>
+              Add Event
+            </div>
+            <div class="demo-field">
+              <label>What do you want to do?</label>
+              <input type="text" placeholder="e.g., Visit the Acropolis">
+            </div>
+            <div class="demo-actions">
+              <button class="demo-btn demo-btn-secondary">Cancel</button>
+              <button class="demo-btn demo-btn-secondary">Add Simple</button>
+              <button class="ai-action-btn">
+                <img src="keys.png" alt="AI">
+                AI Create
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>Option C: Pill button inline</h3>
+        <div class="demo-form" style="max-width: 400px;">
+          <div class="demo-form-title">
+            <span class="material-symbols-outlined">add_circle</span>
+            Add Event
+          </div>
+          <div class="demo-field">
+            <label>Event Title</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" placeholder="e.g., Visit the Parthenon" style="flex: 1;">
+              <button class="ai-pill-btn">
+                <img src="keys.png" alt="AI">
+                AI
+              </button>
+            </div>
+          </div>
+          <div class="demo-field">
+            <label>Details</label>
+            <textarea placeholder="Description, tips, what to expect..."></textarea>
+          </div>
+          <div class="demo-actions">
+            <button class="demo-btn demo-btn-secondary">Cancel</button>
+            <button class="demo-btn demo-btn-primary">Add Event</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5: Implementation - Event Card -->
+    <div class="section">
+      <h2><span class="material-symbols-outlined">event</span> Implementation: Event Card Actions</h2>
+      <p>Small AI button in event card action row for getting insights.</p>
+
+      <div class="demo-event-card" style="max-width: 500px;">
+        <div class="demo-event-icon">
+          <span class="material-symbols-outlined">temple_hindu</span>
+        </div>
+        <div class="demo-event-content">
+          <div class="demo-event-title">Visit the Parthenon</div>
+          <div class="demo-event-meta">10:00 AM • Acropolis, Athens</div>
+        </div>
+        <div class="demo-event-actions">
+          <button class="ai-icon-btn" title="AI Insights">
+            <img src="keys.png" alt="AI">
+          </button>
+          <button class="demo-event-btn" title="Share">
+            <span class="material-symbols-outlined">share</span>
+          </button>
+          <button class="demo-event-btn" title="Edit">
+            <span class="material-symbols-outlined">edit</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 6: Implementation - Chat Panel -->
+    <div class="section">
+      <h2><span class="material-symbols-outlined">forum</span> Implementation: Chat Panel</h2>
+      <p>When the floating button is clicked, the chat panel opens.</p>
+
+      <div class="demo-chat-panel">
+        <div class="demo-chat-header">
+          <img src="keys.png" alt="AI">
+          <div class="demo-chat-header-text">
+            <h4>MyConcierge</h4>
+          </div>
+        </div>
+        <div class="demo-chat-messages">
+          <div class="demo-chat-bubble">
+            Hello! I'm your trip assistant. Ask me anything about Athens, Bangalore, or your itinerary!
+          </div>
+        </div>
+        <div class="demo-chat-input">
+          <input type="text" placeholder="Ask anything...">
+          <button class="demo-chat-send">
+            <span class="material-symbols-outlined">send</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 7: CSS Variables -->
+    <div class="section">
+      <h2><span class="material-symbols-outlined">code</span> CSS Implementation</h2>
+      <p>Copy these CSS variables to implement the emerald theme.</p>
+
+      <pre style="background: #1a1a2e; color: #71b280; padding: 1.5rem; border-radius: var(--radius-md); overflow-x: auto; font-size: 0.85rem;">
+:root {
+  /* Emerald AI Theme */
+  --ai-emerald-dark: #134e5e;
+  --ai-emerald-light: #71b280;
+  --ai-emerald-mid: #2d7a6d;
+  --ai-emerald-glow: rgba(113, 178, 128, 0.4);
+
+  /* Gradient */
+  --ai-gradient: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+
+  /* Shadow */
+  --ai-shadow: 0 4px 20px rgba(19, 78, 94, 0.35);
+  --ai-shadow-hover: 0 6px 28px rgba(19, 78, 94, 0.45);
+}</pre>
+    </div>
+
+  </div>
+
+</body>
+</html>

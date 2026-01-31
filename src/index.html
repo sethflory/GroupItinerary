@@ -272,25 +272,28 @@
       </div>
     </div>
 
-    <!-- FEATURE: AI Chat (STUB) -->
+    <!-- FEATURE: AI Chat - MyConcierge -->
     <div class="ai-chat-section" id="aiChatSection">
-      <button class="ai-chat-toggle" onclick="toggleAiChat()">
-        <span class="material-symbols-outlined">smart_toy</span>
+      <button class="ai-chat-toggle" onclick="toggleAiChat()" title="Chat with MyConcierge">
+        <img src="images/keys.png" alt="MyConcierge">
       </button>
       <div class="ai-chat-window" id="aiChatWindow">
         <div class="ai-chat-header">
-          <span><strong>Trip Assistant</strong> • AI Powered</span>
-          <button onclick="toggleAiChat()" style="background:none;border:none;color:white;cursor:pointer">
+          <img src="images/keys.png" alt="" class="ai-chat-header-icon">
+          <div class="ai-chat-header-text">
+            <h4>MyConcierge</h4>
+          </div>
+          <button class="ai-chat-close" onclick="toggleAiChat()">
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
         <div class="ai-chat-messages" id="aiChatMessages">
           <div class="ai-chat-message assistant">
-            Hi! I'm your trip assistant. Ask me anything about Athens, Bangalore, your itinerary, or travel tips! 🌍
+            Hello! I'm MyConcierge. Ask me anything about your destinations, itinerary, or travel tips!
           </div>
         </div>
         <div class="ai-chat-input-area">
-          <input type="text" class="ai-chat-input" id="aiChatInput" placeholder="Ask about your trip..." onkeypress="if(event.key==='Enter')sendAiMessage()">
+          <input type="text" class="ai-chat-input" id="aiChatInput" placeholder="Ask anything..." onkeypress="if(event.key==='Enter')sendAiMessage()">
           <button class="ai-chat-send" onclick="sendAiMessage()">
             <span class="material-symbols-outlined">send</span>
           </button>
