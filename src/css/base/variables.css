@@ -1,47 +1,82 @@
 /* ========================================
    CSS Variables / Design Tokens
+   Emerald Theme (Default)
    ======================================== */
 
 :root {
-  /* Brand Colors */
+  /* Primary - Emerald Theme */
+  --color-primary: #134e5e;
+  --color-primary-light: #71b280;
+  --color-primary-mid: #1a6b5a;
+  --color-primary-pale: #a8d5ba;
+  --color-primary-glow: rgba(113, 178, 128, 0.3);
+  --color-primary-gradient: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+
+  /* Accent - Gold */
+  --color-accent: #f0b429;
+  --color-accent-rich: #d4a012;
+  --color-accent-deep: #b8860b;
+
+  /* Legacy Brand Colors (for backward compatibility) */
   --color-sunrise: #ff7e5f;
   --color-sunset: #feb47b;
-  --color-sky: #4facfe;
-  --color-ocean: #00f2fe;
-  --color-forest: #38ef7d;
+  --color-sky: #134e5e;
+  --color-ocean: #71b280;
+  --color-forest: #71b280;
   --color-earth: #8b7355;
-  --color-night: #1a1a2e;
-  --color-cream: #faf8f5;
-  --color-warm-white: #fff9f0;
-  --color-charcoal: #2d2d2d;
+  --color-night: #1a2420;
+  --color-cream: #f8faf9;
+  --color-warm-white: #f0f4f2;
+  --color-charcoal: #1a2420;
+
+  /* Neutrals */
+  --color-white: #ffffff;
+  --color-off-white: #f8faf9;
+  --color-surface: #f0f4f2;
+  --gray-50: #f0f4f2;
+  --gray-100: #e2e8e5;
+  --gray-200: #c5d1cc;
+  --gray-300: #9aaba3;
+  --gray-500: #6b7f75;
+  --gray-700: #3d4a45;
+  --gray-900: #1a2420;
 
   /* Text Colors */
-  --color-text: #2d2d2d;
-  --color-text-muted: #6b6b6b;
-  --color-border: #e8e4df;
+  --color-text: #1a2420;
+  --color-text-muted: #6b7f75;
+  --color-text-secondary: #3d4a45;
+  --color-border: #c5d1cc;
 
   /* Group Colors */
-  --group-all: #4facfe;
-  --group-guys: #38ef7d;
-  --group-girls: #feb47b;
+  --group-all: #134e5e;
+  --group-guys: #71b280;
+  --group-girls: #f0b429;
 
   /* Border Radius */
-  --radius-sm: 8px;
+  --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 20px;
-  --radius-xl: 28px;
+  --radius-xl: 32px;
 
-  /* Shadows */
-  --shadow-soft: 0 2px 12px rgba(0,0,0,0.08);
-  --shadow-card: 0 4px 20px rgba(0,0,0,0.1);
-  --shadow-elevated: 0 8px 32px rgba(0,0,0,0.12);
+  /* Shadows - Emerald tinted */
+  --shadow-sm: 0 2px 8px rgba(19, 78, 94, 0.08);
+  --shadow-soft: 0 2px 12px rgba(19, 78, 94, 0.08);
+  --shadow-md: 0 4px 20px rgba(19, 78, 94, 0.12);
+  --shadow-card: 0 4px 20px rgba(19, 78, 94, 0.12);
+  --shadow-lg: 0 8px 40px rgba(19, 78, 94, 0.16);
+  --shadow-elevated: 0 8px 32px rgba(19, 78, 94, 0.16);
+  --shadow-emerald: 0 4px 24px rgba(19, 78, 94, 0.25);
 
-  /* AI Emerald Theme */
+  /* AI Theme (same as primary for consistency) */
   --ai-emerald-dark: #134e5e;
   --ai-emerald-light: #71b280;
-  --ai-emerald-mid: #2d7a6d;
+  --ai-emerald-mid: #1a6b5a;
   --ai-emerald-glow: rgba(113, 178, 128, 0.4);
   --ai-gradient: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
   --ai-shadow: 0 4px 20px rgba(19, 78, 94, 0.35);
   --ai-shadow-hover: 0 6px 28px rgba(19, 78, 94, 0.45);
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
 }
