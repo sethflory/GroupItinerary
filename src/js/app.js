@@ -23,6 +23,7 @@ import * as modals from './ui/modals.js';
 import * as trivia from './ui/trivia.js';
 import * as tripSetup from './ui/tripSetup.js';
 import * as receiptUpload from './ui/receiptUpload.js';
+import * as onboarding from './ui/onboarding.js';
 
 // ========================================
 // GLOBAL STATE
@@ -287,6 +288,13 @@ window.openReceiptUploadModal = receiptUpload.openReceiptUploadModal;
 window.closeReceiptUploadModal = receiptUpload.closeReceiptUploadModal;
 
 // ========================================
+// ONBOARDING EXPORTS
+// ========================================
+
+window.openOnboardingModal = onboarding.openOnboardingModal;
+window.closeOnboardingModal = onboarding.closeOnboardingModal;
+
+// ========================================
 // DEPENDENCY INJECTION
 // ========================================
 
@@ -400,9 +408,15 @@ function onRegistrationComplete(result) {
   // Re-render UI
   renderAll();
 
-  // Show welcome toast (could be enhanced with actual toast UI)
-  const displayName = auth.getDisplayName();
-  console.log(`[App] Welcome, ${displayName}!`);
+  // Show onboarding modal for new travelers who haven't completed it
+  if (!result.onboardingComplete) {
+    const trip = state.getCurrentTrip();
+    onboarding.openOnboardingModal(result, {
+      trip,
+      travelers: TRAVELERS,
+      days: DAYS
+    });
+  }
 }
 
 // Expose to window for auth module

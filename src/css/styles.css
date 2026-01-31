@@ -5486,3 +5486,228 @@
       color: #666;
       margin: 0 0 20px;
     }
+
+    /* ========================================
+       ONBOARDING MODAL
+       ======================================== */
+
+    .onboarding-modal {
+      max-width: 420px;
+    }
+
+    .onboarding-modal .modal-body {
+      padding: 0;
+    }
+
+    /* Welcome Step */
+    .onboarding-welcome {
+      text-align: center;
+      padding: 2rem 1.5rem;
+    }
+
+    .onboarding-icon {
+      font-size: 3rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .onboarding-welcome h2 {
+      font-size: 1.5rem;
+      margin: 0 0 0.5rem;
+      color: var(--color-charcoal);
+    }
+
+    .onboarding-subtitle {
+      color: #666;
+      margin: 0 0 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .onboarding-stats {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .onboarding-stat {
+      text-align: center;
+    }
+
+    .onboarding-stat .value {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--color-sunrise);
+      line-height: 1.2;
+    }
+
+    .onboarding-stat .label {
+      font-size: 0.8rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .onboarding-dates {
+      color: #888;
+      font-size: 0.9rem;
+      margin: 0 0 1.5rem;
+    }
+
+    .onboarding-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .onboarding-actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Add Events Step */
+    .onboarding-add-events {
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    .onboarding-back-btn {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      color: #666;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s;
+    }
+
+    .onboarding-back-btn:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--color-charcoal);
+    }
+
+    .onboarding-add-events h2 {
+      text-align: center;
+      font-size: 1.25rem;
+      margin: 0.5rem 0 0.5rem;
+    }
+
+    .onboarding-add-events .onboarding-subtitle {
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .onboarding-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .onboarding-option {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--color-cream);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      width: 100%;
+    }
+
+    .onboarding-option:hover {
+      background: #f8f9fa;
+      border-color: var(--color-sunrise);
+    }
+
+    .onboarding-option .option-icon {
+      font-size: 1.5rem;
+      color: var(--color-sunrise);
+      flex-shrink: 0;
+    }
+
+    .onboarding-option .option-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .onboarding-option .option-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--color-charcoal);
+    }
+
+    .onboarding-option .option-desc {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 2px;
+    }
+
+    .onboarding-option .option-arrow {
+      color: #999;
+      flex-shrink: 0;
+    }
+
+    .skip-link {
+      display: block;
+      width: 100%;
+      text-align: center;
+      color: #666;
+      font-size: 0.9rem;
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+
+    .skip-link:hover {
+      color: var(--color-charcoal);
+    }
+
+    /* Completion Step */
+    .onboarding-completion {
+      text-align: center;
+      padding: 2rem 1.5rem;
+    }
+
+    .completion-icon .material-symbols-outlined {
+      font-size: 4rem;
+      color: #22c55e;
+    }
+
+    .onboarding-completion h2 {
+      font-size: 1.5rem;
+      margin: 0.75rem 0 0.5rem;
+    }
+
+    .onboarding-tips {
+      text-align: left;
+      background: var(--color-cream);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin: 1.25rem 0;
+    }
+
+    .onboarding-tips .tip {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .onboarding-tips .tip:not(:last-child) {
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .onboarding-tips .tip .material-symbols-outlined {
+      font-size: 1.25rem;
+      color: var(--color-sunrise);
+      flex-shrink: 0;
+    }
