@@ -135,6 +135,35 @@ export function openPhotoGallery() {
   }
 }
 
+let ribbonVisible = localStorage.getItem('ribbonVisible') !== 'false';
+
+export function togglePhotoRibbon() {
+  ribbonVisible = !ribbonVisible;
+  localStorage.setItem('ribbonVisible', ribbonVisible.toString());
+  updateRibbonVisibility();
+}
+
+export function updateRibbonVisibility() {
+  const ribbon = document.getElementById('photoRibbon');
+  const toggleIcon = document.getElementById('ribbonToggleIcon');
+  const toggleBtn = document.getElementById('ribbonToggleBtn');
+
+  if (ribbon) {
+    ribbon.style.display = ribbonVisible ? '' : 'none';
+  }
+  if (toggleIcon) {
+    toggleIcon.textContent = ribbonVisible ? 'photo_library' : 'hide_image';
+  }
+  if (toggleBtn) {
+    toggleBtn.title = ribbonVisible ? 'Hide Photos' : 'Show Photos';
+  }
+}
+
+// Initialize ribbon visibility on load
+export function initRibbonVisibility() {
+  updateRibbonVisibility();
+}
+
 export function openUploadModal() {
   document.getElementById('uploadModal').classList.add('active');
   resetUploadForm();

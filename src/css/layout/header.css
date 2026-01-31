@@ -142,10 +142,34 @@
     .action-bar-content {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 6px;
       padding: 10px 16px;
       max-width: 1200px;
       margin: 0 auto;
+    }
+
+    .day-nav-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-muted);
+      transition: all 0.2s;
+    }
+
+    .day-nav-btn:hover:not(:disabled) {
+      background: var(--color-cream);
+      color: var(--color-text);
+    }
+
+    .day-nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
     }
 
     .action-dropdown {

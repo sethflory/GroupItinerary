@@ -135,6 +135,14 @@
   color: var(--color-text-muted) !important;
 }
 
+.menu-item.highlight {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 179, 71, 0.15));
+}
+
+.menu-item.highlight .material-symbols-outlined {
+  color: #b8860b;
+}
+
 /* Menu Toggle Items */
 .menu-toggle {
   display: flex;

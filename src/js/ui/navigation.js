@@ -343,3 +343,36 @@ function addDays(date, days) {
   result.setDate(result.getDate() + days);
   return result;
 }
+
+// ========================================
+// DAY NAVIGATION (Prev/Next)
+// ========================================
+
+export function goToPrevDay() {
+  if (currentDayIndex > 0) {
+    selectDay(currentDayIndex - 1);
+  }
+  updateDayNavButtons();
+}
+
+export function goToNextDay() {
+  if (DAYS && currentDayIndex < DAYS.length - 1) {
+    selectDay(currentDayIndex + 1);
+  }
+  updateDayNavButtons();
+}
+
+export function updateDayNavButtons() {
+  const prevBtn = document.getElementById('prevDayBtn');
+  const nextBtn = document.getElementById('nextDayBtn');
+  const prevBtnBottom = document.getElementById('prevDayBtnBottom');
+  const nextBtnBottom = document.getElementById('nextDayBtnBottom');
+
+  const isFirst = currentDayIndex === 0;
+  const isLast = !DAYS || currentDayIndex >= DAYS.length - 1;
+
+  if (prevBtn) prevBtn.disabled = isFirst;
+  if (nextBtn) nextBtn.disabled = isLast;
+  if (prevBtnBottom) prevBtnBottom.disabled = isFirst;
+  if (nextBtnBottom) nextBtnBottom.disabled = isLast;
+}

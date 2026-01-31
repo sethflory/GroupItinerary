@@ -60,10 +60,16 @@
   <!-- Action Bar - Day Nav + Quick Actions -->
   <div class="action-bar">
     <div class="action-bar-content">
+      <button class="day-nav-btn" onclick="goToPrevDay()" title="Previous Day" id="prevDayBtn">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
       <button class="action-dropdown" id="dayDropdown" onclick="toggleDayDropdown()">
         <span class="material-symbols-outlined">calendar_today</span>
         <span id="dayDropdownLabel">Day 1</span>
         <span class="material-symbols-outlined dropdown-arrow">expand_more</span>
+      </button>
+      <button class="day-nav-btn" onclick="goToNextDay()" title="Next Day" id="nextDayBtn">
+        <span class="material-symbols-outlined">chevron_right</span>
       </button>
       <div class="day-dropdown-menu" id="dayDropdownMenu">
         <!-- Populated by JS -->
@@ -71,11 +77,8 @@
 
       <div class="action-divider"></div>
 
-      <button class="action-icon-btn" onclick="openPhotoGallery()" title="Trip Memories">
-        <span class="material-symbols-outlined">photo_library</span>
-      </button>
-      <button class="action-icon-btn" onclick="openUploadModal()" title="Add Photo">
-        <span class="material-symbols-outlined">add_photo_alternate</span>
+      <button class="action-icon-btn" onclick="togglePhotoRibbon()" title="Toggle Photos" id="ribbonToggleBtn">
+        <span class="material-symbols-outlined" id="ribbonToggleIcon">photo_library</span>
       </button>
       <button class="action-icon-btn highlight" onclick="openScoreboard()" title="Scoreboard">
         <span class="material-symbols-outlined">emoji_events</span>
@@ -122,6 +125,29 @@
         </button>
       </div>
       <div class="menu-section">
+        <div class="menu-section-title">Group Features</div>
+        <button class="menu-item" onclick="closeMenu(); openDinnerPollModal()">
+          <span class="material-symbols-outlined">restaurant</span>
+          <span class="menu-item-label">What's for Dinner?</span>
+          <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
+        </button>
+        <button class="menu-item" onclick="closeMenu(); openWhatsYouWillSee()">
+          <span class="material-symbols-outlined">visibility</span>
+          <span class="menu-item-label">What Will We See?</span>
+          <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
+        </button>
+        <button class="menu-item" onclick="openTrivia()">
+          <span class="material-symbols-outlined">quiz</span>
+          <span class="menu-item-label">Trip Trivia</span>
+          <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
+        </button>
+        <button class="menu-item highlight" onclick="openScoreboard()">
+          <span class="material-symbols-outlined">emoji_events</span>
+          <span class="menu-item-label">Scoreboard</span>
+          <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
+        </button>
+      </div>
+      <div class="menu-section">
         <button class="menu-item" onclick="openTripStats()">
           <span class="material-symbols-outlined">bar_chart</span>
           <span class="menu-item-label">Trip Stats</span>
@@ -130,11 +156,6 @@
         <button class="menu-item" onclick="openShareMap()">
           <span class="material-symbols-outlined">map</span>
           <span class="menu-item-label">Share Map</span>
-          <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
-        </button>
-        <button class="menu-item" onclick="openTrivia()">
-          <span class="material-symbols-outlined">quiz</span>
-          <span class="menu-item-label">Trip Trivia</span>
           <span class="material-symbols-outlined menu-item-arrow">chevron_right</span>
         </button>
         <button class="menu-item" onclick="closeMenu(); openHowItWorks()">
@@ -192,7 +213,13 @@
             <span class="material-symbols-outlined">photo_library</span>
             Trip Memories
           </span>
-          <span class="photo-ribbon-count" id="ribbonCount">Loading...</span>
+          <div class="photo-ribbon-actions">
+            <span class="photo-ribbon-count" id="ribbonCount">Loading...</span>
+            <button class="ribbon-add-btn" onclick="openUploadModal()" title="Add Photo">
+              <span class="material-symbols-outlined">add_photo_alternate</span>
+              Add
+            </button>
+          </div>
         </div>
         <div class="photo-ribbon-track">
           <div class="photo-ribbon-scroll" id="ribbonScroll">

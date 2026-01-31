@@ -56,12 +56,42 @@
       color: var(--color-sky);
     }
 
+    .photo-ribbon-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     .photo-ribbon-count {
       font-size: 0.75rem;
       color: var(--color-text-muted);
       background: white;
       padding: 4px 10px;
       border-radius: 12px;
+    }
+
+    .ribbon-add-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      background: linear-gradient(135deg, var(--color-sky), var(--color-ocean));
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ribbon-add-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(79, 172, 254, 0.4);
+    }
+
+    .ribbon-add-btn .material-symbols-outlined {
+      font-size: 16px;
     }
 
     .photo-ribbon-track {

@@ -175,6 +175,8 @@ window.uploadPhotoHandler = photos.uploadPhotoHandler;
 window.openLightbox = photos.openLightbox;
 window.closeLightbox = photos.closeLightbox;
 window.addMomentFromPhoto = photos.addMomentFromPhoto;
+window.togglePhotoRibbon = photos.togglePhotoRibbon;
+window.initRibbonVisibility = photos.initRibbonVisibility;
 
 // ========================================
 // EVENTS EXPORTS
@@ -236,6 +238,9 @@ window.toggleDayDropdown = navigation.toggleDayDropdown;
 window.selectDay = navigation.selectDay;
 window.renderDayDropdown = navigation.renderDayDropdown;
 window.setCurrentDayIndex = navigation.setCurrentDayIndex;
+window.goToPrevDay = navigation.goToPrevDay;
+window.goToNextDay = navigation.goToNextDay;
+window.updateDayNavButtons = navigation.updateDayNavButtons;
 
 // ========================================
 // STATS EXPORTS
@@ -557,6 +562,10 @@ function init() {
 
   // Sync the day dropdown with the current day
   navigation.setCurrentDayIndex(dayView.getCurrentDayIndex());
+  navigation.updateDayNavButtons();
+
+  // Initialize photo ribbon visibility from localStorage
+  photos.initRibbonVisibility();
 
   // Start timers
   countdown.startTimers();
