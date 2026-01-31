@@ -753,9 +753,23 @@
   padding: 0.5rem 1rem;
   background: rgba(34, 197, 94, 0.1);
   border-radius: var(--radius-md);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   color: #22c55e;
   font-weight: 600;
+}
+
+.share-prompt-saved {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--color-sky);
+  margin-bottom: 1rem;
+}
+
+.share-prompt-saved .material-symbols-outlined {
+  font-size: 1rem;
 }
 
 .share-prompt-actions {

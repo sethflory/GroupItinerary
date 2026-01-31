@@ -1063,12 +1063,16 @@ function showSharePrompt(itemId, photoUrl, points) {
         <span class="material-symbols-outlined">add</span>
         ${points} points earned!
       </div>
-      <p>Share for +1 bonus point?</p>
+      <div class="share-prompt-saved">
+        <span class="material-symbols-outlined">check_circle</span>
+        Photo saved to Trip Memories
+      </div>
+      <p>Post to social media for +1 bonus point?</p>
       <div class="share-prompt-actions">
-        <button class="share-prompt-btn secondary" onclick="window.sawItCloseSharePrompt()">Skip</button>
+        <button class="share-prompt-btn secondary" onclick="window.sawItCloseSharePrompt()">Done</button>
         <button class="share-prompt-btn primary" onclick="window.sawItShareToSocial('${itemId}', '${escapeAttr(item?.name || '')}', '${photoUrl}')">
-          <span class="material-symbols-outlined">share</span>
-          Share
+          <span class="material-symbols-outlined">ios_share</span>
+          Post to Social
         </button>
       </div>
     </div>
@@ -1095,7 +1099,7 @@ window.sawItShareToSocial = async function(itemId, itemName, photoUrl) {
 
       // Record social share
       await fetchSawItAPI(`game/${activeGame.eventId}/share`, 'POST', { itemId });
-      showToast('Shared! +1 bonus point', 'success');
+      showToast('Posted! +1 bonus point', 'success');
 
       // Refresh game data
       const result = await fetchSawItAPI(`game/${activeGame.eventId}`, 'GET');
