@@ -418,6 +418,35 @@ export async function fetchLocations(tripId) {
 }
 
 // ========================================
+// IMAGE SEARCH API
+// ========================================
+
+export async function searchImages(tripId, query, options = {}) {
+  const accessCode = getStoredAccessCode(tripId);
+  const { count = 8, orientation = 'landscape' } = options;
+
+  const params = new URLSearchParams({
+    tripId,
+    accessCode,
+    q: query,
+    count: count.toString(),
+    orientation
+  });
+
+  const url = `${API_BASE}/images/search?${params}`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error || 'Image search failed');
+  }
+
+  const data = await response.json();
+  return data.images || [];
+}
+
+// ========================================
 // WEATHER API
 // ========================================
 

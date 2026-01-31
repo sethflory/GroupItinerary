@@ -654,6 +654,34 @@
           </div>
         </div>
 
+        <!-- Image Search Section -->
+        <div class="event-form-section">
+          <label class="event-form-label">Event Image</label>
+          <div class="image-search-container">
+            <div class="image-search-input-row">
+              <input type="text" class="event-form-input" id="eventImageQuery" placeholder="Search for an image...">
+              <button type="button" class="image-search-btn secondary" onclick="suggestImageFromTitle()" title="Suggest from title">
+                <span class="material-symbols-outlined">auto_awesome</span>
+              </button>
+              <button type="button" class="image-search-btn" onclick="searchEventImages()" title="Search">
+                <span class="material-symbols-outlined">search</span>
+              </button>
+            </div>
+            <div class="image-search-hint">Search Unsplash for a cover image, or click ✨ to suggest from title</div>
+            <div class="image-search-results" id="imageSearchResults">
+              <!-- Populated by JS -->
+            </div>
+            <input type="hidden" id="eventFormLinkedPhoto" value="">
+            <div class="selected-image-preview" id="selectedImagePreview" style="display: none;">
+              <img id="selectedImageImg" src="" alt="Selected">
+              <button type="button" class="remove-image-btn" onclick="clearSelectedImage()">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+              <div class="image-credit" id="selectedImageCredit"></div>
+            </div>
+          </div>
+        </div>
+
         <div class="event-form-section">
           <label class="event-form-label">Who's Going?</label>
           <div class="event-form-travelers" id="eventFormTravelers">

@@ -5,7 +5,11 @@
 import { currentTripId } from '../state.js';
 import { isFeatureEnabled } from '../config.js';
 import { getStoredAccessCode } from '../auth.js';
-import { createEvent, updateEvent, deleteEventAPI } from '../api.js';
+import { createEvent, updateEvent, deleteEventAPI, searchImages } from '../api.js';
+
+// Image search state
+let selectedImage = null;
+let isSearching = false;
 
 let DAYS, TRAVELERS;
 let editingEventId = null;
@@ -28,6 +32,7 @@ export function openAddEventForm(date) {
   editingEventId = null;
   editingEventDate = date;
   selectedEventTravelers = ['all'];
+  selectedImage = null;
 
   document.getElementById('eventFormTitle').innerHTML = '<span class="material-symbols-outlined">add_circle</span> Add Event';
   document.getElementById('eventFormSubmitBtn').textContent = 'Add Event';
@@ -35,6 +40,10 @@ export function openAddEventForm(date) {
   document.getElementById('eventForm').reset();
   document.getElementById('eventFormId').value = '';
   document.getElementById('eventFormOriginalDate').value = date;
+
+  // Clear image search state
+  clearImageSearch();
+  setupImageSearchKeyHandler();
 
   populateDayDropdown(date);
   renderEventFormTravelers();
@@ -65,6 +74,23 @@ export function openEditEventForm(eventId) {
   document.getElementById('eventFormWhere').value = event.where || '';
   document.getElementById('eventFormStatus').value = event.status || 'confirmed';
   document.getElementById('eventFormDetails').value = event.details || '';
+
+  // Handle existing image
+  clearImageSearch();
+  setupImageSearchKeyHandler();
+
+  if (event.linkedPhotoUrl) {
+    selectedImage = { url: event.linkedPhotoUrl, thumb: event.linkedPhotoUrl };
+    document.getElementById('eventFormLinkedPhoto').value = event.linkedPhotoUrl;
+
+    const preview = document.getElementById('selectedImagePreview');
+    const img = document.getElementById('selectedImageImg');
+    const creditEl = document.getElementById('selectedImageCredit');
+
+    img.src = event.linkedPhotoUrl;
+    creditEl.innerHTML = 'Existing image';
+    preview.style.display = 'block';
+  }
 
   populateDayDropdown(day.date);
   renderEventFormTravelers();
@@ -258,4 +284,129 @@ export async function deleteEvent(eventId) {
 
   if (window.renderDayDetail) window.renderDayDetail();
   if (window.renderListView) window.renderListView();
+}
+
+// ========================================
+// IMAGE SEARCH
+// ========================================
+
+export async function searchEventImages() {
+  const queryInput = document.getElementById('eventImageQuery');
+  const resultsContainer = document.getElementById('imageSearchResults');
+  const query = queryInput?.value?.trim();
+
+  if (!query || query.length < 2) {
+    resultsContainer.innerHTML = '<div class="image-search-empty">Enter at least 2 characters to search</div>';
+    return;
+  }
+
+  if (isSearching) return;
+  isSearching = true;
+
+  resultsContainer.innerHTML = '<div class="image-search-loading"><span class="material-symbols-outlined spinning">progress_activity</span> Searching...</div>';
+
+  try {
+    const images = await searchImages(currentTripId, query, { count: 8 });
+
+    if (images.length === 0) {
+      resultsContainer.innerHTML = '<div class="image-search-empty">No images found. Try different keywords.</div>';
+      return;
+    }
+
+    resultsContainer.innerHTML = images.map(img => `
+      <div class="image-search-item" onclick="selectEventImage('${img.url}', '${img.thumb}', '${escapeAttr(img.credit)}', '${escapeAttr(img.creditUrl || '')}')">
+        <img src="${img.thumb}" alt="${escapeAttr(img.description || '')}" loading="lazy">
+      </div>
+    `).join('');
+
+  } catch (err) {
+    console.error('[Events] Image search error:', err);
+    resultsContainer.innerHTML = `<div class="image-search-error">Search failed: ${err.message}</div>`;
+  } finally {
+    isSearching = false;
+  }
+}
+
+export function selectEventImage(url, thumb, credit, creditUrl) {
+  selectedImage = { url, thumb, credit, creditUrl };
+
+  // Update hidden input
+  document.getElementById('eventFormLinkedPhoto').value = url;
+
+  // Show preview
+  const preview = document.getElementById('selectedImagePreview');
+  const img = document.getElementById('selectedImageImg');
+  const creditEl = document.getElementById('selectedImageCredit');
+
+  img.src = thumb || url;
+  creditEl.innerHTML = creditUrl
+    ? `Photo by <a href="${creditUrl}" target="_blank" rel="noopener">${credit}</a> on Unsplash`
+    : `Photo by ${credit} on Unsplash`;
+
+  preview.style.display = 'block';
+
+  // Clear search results
+  document.getElementById('imageSearchResults').innerHTML = '';
+  document.getElementById('eventImageQuery').value = '';
+}
+
+export function clearSelectedImage() {
+  selectedImage = null;
+  document.getElementById('eventFormLinkedPhoto').value = '';
+  document.getElementById('selectedImagePreview').style.display = 'none';
+  document.getElementById('selectedImageImg').src = '';
+}
+
+function clearImageSearch() {
+  selectedImage = null;
+  const queryInput = document.getElementById('eventImageQuery');
+  const resultsContainer = document.getElementById('imageSearchResults');
+  const linkedPhotoInput = document.getElementById('eventFormLinkedPhoto');
+  const preview = document.getElementById('selectedImagePreview');
+
+  if (queryInput) queryInput.value = '';
+  if (resultsContainer) resultsContainer.innerHTML = '';
+  if (linkedPhotoInput) linkedPhotoInput.value = '';
+  if (preview) preview.style.display = 'none';
+}
+
+function escapeAttr(str) {
+  if (!str) return '';
+  return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+function setupImageSearchKeyHandler() {
+  const queryInput = document.getElementById('eventImageQuery');
+  if (queryInput) {
+    queryInput.onkeypress = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchEventImages();
+      }
+    };
+  }
+}
+
+export function suggestImageFromTitle() {
+  const titleInput = document.getElementById('eventFormTitleInput');
+  const queryInput = document.getElementById('eventImageQuery');
+  const type = document.getElementById('eventFormType')?.value;
+
+  if (titleInput && queryInput) {
+    let query = titleInput.value.trim();
+
+    // Enhance query based on event type
+    if (type === 'meal' && !query.toLowerCase().includes('restaurant') && !query.toLowerCase().includes('food')) {
+      query += ' restaurant food';
+    } else if (type === 'hotel' && !query.toLowerCase().includes('hotel')) {
+      query += ' hotel room';
+    } else if (type === 'flight' && !query.toLowerCase().includes('airport') && !query.toLowerCase().includes('plane')) {
+      query += ' airplane travel';
+    }
+
+    queryInput.value = query;
+    if (query.length >= 2) {
+      searchEventImages();
+    }
+  }
 }

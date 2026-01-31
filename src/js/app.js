@@ -213,6 +213,10 @@ window.toggleEventTraveler = events.toggleEventTraveler;
 window.submitEventForm = events.submitEventForm;
 window.deleteEventFromForm = events.deleteEventFromForm;
 window.deleteEvent = events.deleteEvent;
+window.searchEventImages = events.searchEventImages;
+window.selectEventImage = events.selectEventImage;
+window.clearSelectedImage = events.clearSelectedImage;
+window.suggestImageFromTitle = events.suggestImageFromTitle;
 
 // ========================================
 // SHARE EXPORTS
