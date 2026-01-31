@@ -395,9 +395,10 @@
     }
 
     /* Custom AI-generated background */
+    /* TODO: Change opacity back to 0.12 after Unsplash approval */
     .day-detail.has-custom-bg::before {
       background-image: var(--day-bg-image);
-      opacity: 0.12;
+      opacity: 0.35;
       filter: grayscale(20%) contrast(1.1);
     }
 
