@@ -7,6 +7,7 @@ import { currentTripId } from '../state.js';
 import { API_BASE } from '../config.js';
 import { getStoredAccessCode, isAdmin } from '../auth.js';
 import { renderPersonalizeContent, hasPersonalization } from './aiAssist.js';
+import { getCurrentTheme } from './themeManager.js';
 
 // ========================================
 // STATE
@@ -1433,23 +1434,49 @@ function getGroupClass(group) {
   return classes[group] || 'guest';
 }
 
-function getRandomColor() {
-  // Emerald Gold theme-aligned traveler colors
-  const colors = [
-    '#134e5e', // Primary emerald
-    '#71b280', // Primary light
-    '#1a6b5a', // Primary mid
-    '#f0b429', // Gold accent
-    '#d4a012', // Gold rich
+function getNextTravelerColor() {
+  // Get colors based on current theme
+  const theme = getCurrentTheme();
+  const themePalette = theme?.palette || {};
+
+  // Build color palette from theme + complementary colors
+  const themeColors = [
+    themePalette.primary || '#134e5e',
+    themePalette.secondary || '#71b280',
+    themePalette.accent || '#f0b429'
+  ];
+
+  // Additional colors that complement most themes
+  const additionalColors = [
     '#2c7a7b', // Teal
-    '#38a169', // Green
-    '#3182ce', // Blue
     '#805ad5', // Purple
     '#dd6b20', // Orange
+    '#3182ce', // Blue
+    '#38a169', // Green
     '#e53e3e', // Red
-    '#319795'  // Cyan
+    '#319795', // Cyan
+    '#d69e2e'  // Gold
   ];
-  return colors[Math.floor(Math.random() * colors.length)];
+
+  const allColors = [...themeColors, ...additionalColors];
+
+  // Get colors already used by existing travelers
+  const usedColors = travelers.map(t => t.color?.toLowerCase());
+
+  // Find first unused color
+  for (const color of allColors) {
+    if (!usedColors.includes(color.toLowerCase())) {
+      return color;
+    }
+  }
+
+  // If all colors used, cycle based on traveler count
+  return allColors[travelers.length % allColors.length];
+}
+
+// Legacy alias for backward compatibility
+function getRandomColor() {
+  return getNextTravelerColor();
 }
 
 // ========================================
