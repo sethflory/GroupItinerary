@@ -277,12 +277,18 @@ function renderPreTripContext(container) {
     year: 'numeric'
   });
 
+  // Get first activity of the trip
+  const firstActivity = getNextActivity();
+  const firstActivityText = firstActivity
+    ? `First up: ${firstActivity.title}`
+    : `Departing ${dateStr}`;
+
   container.innerHTML = `
     <div class="context-bar pre-trip">
       <span class="context-icon">✈️</span>
       <div class="context-main">
         <div class="context-title">${countdown.days} days • ${countdown.hours} hours until departure</div>
-        <div class="context-sub">Departing ${dateStr}</div>
+        <div class="context-sub">${firstActivityText}</div>
       </div>
     </div>
   `;
