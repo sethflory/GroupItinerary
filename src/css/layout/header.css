@@ -412,63 +412,29 @@
 
     .tz-clock {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 2px;
+      gap: 4px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      transition: background 0.2s;
     }
 
-    .clock-face {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: white;
-      border: 2px solid var(--color-border);
-      position: relative;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .clock-face::before {
-      content: '';
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      background: var(--color-text);
-      border-radius: 50%;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 3;
-    }
-
-    .clock-hand {
-      position: absolute;
-      bottom: 50%;
-      left: 50%;
-      transform-origin: bottom center;
-      background: var(--color-text);
-      border-radius: 2px;
-    }
-
-    .clock-hand.hour {
-      width: 2px;
-      height: 8px;
-      margin-left: -1px;
-    }
-
-    .clock-hand.minute {
-      width: 1.5px;
-      height: 11px;
-      margin-left: -0.75px;
-      background: var(--color-text-muted);
+    .tz-clock:hover {
+      background: rgba(0, 0, 0, 0.05);
     }
 
     .sun-moon {
-      position: absolute;
-      top: -2px;
-      right: -2px;
-      font-size: 10px;
+      font-size: 12px;
       line-height: 1;
-      z-index: 5;
+    }
+
+    .clock-time {
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--color-text);
+      white-space: nowrap;
     }
 
     .clock-city {
@@ -481,7 +447,6 @@
 
     /* Add timezone button */
     .tz-clock-add {
-      cursor: pointer;
       opacity: 0.5;
       transition: opacity 0.2s;
     }
@@ -490,25 +455,15 @@
       opacity: 1;
     }
 
-    .clock-face-add {
-      border-style: dashed;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .clock-face-add::before {
-      display: none;
-    }
-
-    .clock-face-add .material-symbols-outlined {
-      font-size: 16px;
+    .clock-add-icon {
+      font-size: 18px;
       color: var(--color-text-muted);
     }
 
     /* Third timezone when active */
-    .tz-clock.tz-clock-custom .clock-face {
-      border-color: var(--color-sky);
+    .tz-clock.tz-clock-custom {
+      border-left: 2px solid var(--color-sky);
+      padding-left: 10px;
     }
 
     /* Timezone Picker Modal */
@@ -652,25 +607,20 @@
 
     @media (max-width: 600px) {
       .timezone-clocks {
-        gap: 8px;
+        gap: 6px;
         margin-right: 8px;
       }
 
-      .clock-face {
-        width: 28px;
-        height: 28px;
+      .tz-clock {
+        padding: 2px 4px;
       }
 
-      .clock-hand.hour {
-        height: 7px;
-      }
-
-      .clock-hand.minute {
-        height: 9px;
+      .clock-time {
+        font-size: 0.75rem;
       }
 
       .clock-city {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
       }
 
       .tz-clock-add {

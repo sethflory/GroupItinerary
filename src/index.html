@@ -13,7 +13,7 @@
   <!-- Google Identity Services for Sign-In -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <!-- External CSS - source of truth for styles -->
-  <link rel="stylesheet" href="css/styles.css?v=4">
+  <link rel="stylesheet" href="css/styles.css?v=5">
 </head>
 <body>
   <!-- Access Code Lock Screen -->
@@ -62,25 +62,17 @@
       <!-- Timezone Clocks Widget -->
       <div class="timezone-clocks" id="timezoneClocks">
         <div class="tz-clock" id="tzClock1" data-timezone="America/Chicago" data-city="Home">
-          <div class="clock-face">
-            <div class="clock-hand hour" id="tzHour1"></div>
-            <div class="clock-hand minute" id="tzMinute1"></div>
-            <span class="sun-moon" id="tzSunMoon1">☀️</span>
-          </div>
+          <span class="sun-moon" id="tzSunMoon1">☀️</span>
+          <span class="clock-time" id="tzTime1">--:--</span>
           <span class="clock-city" id="tzCity1">Home</span>
         </div>
         <div class="tz-clock" id="tzClock2" data-timezone="Europe/Athens" data-city="Athens">
-          <div class="clock-face">
-            <div class="clock-hand hour" id="tzHour2"></div>
-            <div class="clock-hand minute" id="tzMinute2"></div>
-            <span class="sun-moon" id="tzSunMoon2">☀️</span>
-          </div>
+          <span class="sun-moon" id="tzSunMoon2">☀️</span>
+          <span class="clock-time" id="tzTime2">--:--</span>
           <span class="clock-city" id="tzCity2">Athens</span>
         </div>
         <div class="tz-clock tz-clock-add" id="tzClock3" onclick="addTimezone()" title="Add timezone">
-          <div class="clock-face clock-face-add">
-            <span class="material-symbols-outlined">add</span>
-          </div>
+          <span class="material-symbols-outlined clock-add-icon">add</span>
           <span class="clock-city">Add</span>
         </div>
       </div>
@@ -469,7 +461,7 @@
   </div>
 
   <!-- ES Module - All JavaScript loaded from modular files -->
-  <script type="module" src="js/app.js?v=16"></script>
+  <script type="module" src="js/app.js?v=17"></script>
 
   <!-- INLINE SCRIPTS REMOVED - migrated to ES modules
        All functionality now in src/js/ modules:

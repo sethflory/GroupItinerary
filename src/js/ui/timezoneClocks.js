@@ -109,12 +109,18 @@ function getCurrentLocationTimezone() {
 function getTimeInTimezone(timezone) {
   try {
     const now = new Date();
-    const options = { timeZone: timezone, hour: 'numeric', minute: 'numeric', hour12: false };
-    const timeStr = now.toLocaleTimeString('en-US', options);
-    const [hours24, minutes] = timeStr.split(':').map(Number);
-    return { hours: hours24 % 12, minutes, hours24 };
+    // Get 24-hour format for day/night detection
+    const options24 = { timeZone: timezone, hour: 'numeric', minute: 'numeric', hour12: false };
+    const timeStr24 = now.toLocaleTimeString('en-US', options24);
+    const [hours24, minutes] = timeStr24.split(':').map(Number);
+
+    // Get 12-hour format for display
+    const options12 = { timeZone: timezone, hour: 'numeric', minute: '2-digit', hour12: true };
+    const displayTime = now.toLocaleTimeString('en-US', options12);
+
+    return { hours24, minutes, displayTime };
   } catch (e) {
-    return { hours: 0, minutes: 0, hours24: 12 };
+    return { hours24: 12, minutes: 0, displayTime: '--:--' };
   }
 }
 
@@ -123,21 +129,14 @@ function isDaytime(hours24) {
   return hours24 >= 6 && hours24 < 20;
 }
 
-function updateClockHands(clockId, timezone) {
-  const { hours, minutes, hours24 } = getTimeInTimezone(timezone);
+function updateClockDisplay(clockId, timezone) {
+  const { hours24, displayTime } = getTimeInTimezone(timezone);
 
-  const hourHand = document.getElementById(`tzHour${clockId}`);
-  const minuteHand = document.getElementById(`tzMinute${clockId}`);
+  const timeEl = document.getElementById(`tzTime${clockId}`);
   const sunMoon = document.getElementById(`tzSunMoon${clockId}`);
 
-  if (hourHand) {
-    const hourDeg = (hours * 30) + (minutes * 0.5);
-    hourHand.style.transform = `rotate(${hourDeg}deg)`;
-  }
-
-  if (minuteHand) {
-    const minuteDeg = minutes * 6;
-    minuteHand.style.transform = `rotate(${minuteDeg}deg)`;
+  if (timeEl) {
+    timeEl.textContent = displayTime;
   }
 
   if (sunMoon) {
@@ -147,13 +146,13 @@ function updateClockHands(clockId, timezone) {
 
 function updateAllClocks() {
   // Clock 1 - Home timezone
-  updateClockHands('1', homeTimezone);
+  updateClockDisplay('1', homeTimezone);
   const cityLabel1 = document.getElementById('tzCity1');
   if (cityLabel1) cityLabel1.textContent = homeCity;
 
   // Clock 2 - Current destination (auto-detected)
   const currentLoc = getCurrentLocationTimezone();
-  updateClockHands('2', currentLoc.tz);
+  updateClockDisplay('2', currentLoc.tz);
   const cityLabel2 = document.getElementById('tzCity2');
   if (cityLabel2) cityLabel2.textContent = currentLoc.city;
 
@@ -168,7 +167,7 @@ function updateAllClocks() {
   if (customTimezone) {
     const clock3 = document.getElementById('tzClock3');
     if (clock3 && clock3.classList.contains('tz-clock-custom')) {
-      updateClockHands('3', customTimezone);
+      updateClockDisplay('3', customTimezone);
     }
   }
 }
@@ -269,11 +268,8 @@ export function selectTimezone(timezone, city) {
       clock3.onclick = addTimezone;
       clock3.title = 'Change timezone';
       clock3.innerHTML = `
-        <div class="clock-face">
-          <div class="clock-hand hour" id="tzHour3"></div>
-          <div class="clock-hand minute" id="tzMinute3"></div>
-          <span class="sun-moon" id="tzSunMoon3">☀️</span>
-        </div>
+        <span class="sun-moon" id="tzSunMoon3">☀️</span>
+        <span class="clock-time" id="tzTime3">--:--</span>
         <span class="clock-city" id="tzCity3">${city}</span>
       `;
     }
@@ -297,9 +293,7 @@ export function removeCustomTimezone() {
     clock3.onclick = addTimezone;
     clock3.title = 'Add timezone';
     clock3.innerHTML = `
-      <div class="clock-face clock-face-add">
-        <span class="material-symbols-outlined">add</span>
-      </div>
+      <span class="material-symbols-outlined clock-add-icon">add</span>
       <span class="clock-city">Add</span>
     `;
   }
