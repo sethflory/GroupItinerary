@@ -27,8 +27,8 @@ async function fetchScores() {
     });
 
     if (!response.ok) {
-      // Return demo data if API not available
-      return getDemoScores();
+      // Return empty data if API not available
+      return { scores: [], activity: [] };
     }
 
     const data = await response.json();
@@ -38,28 +38,8 @@ async function fetchScores() {
     return { scores: cachedScores, activity: cachedActivity };
   } catch (error) {
     console.error('Error fetching scores:', error);
-    return getDemoScores();
+    return { scores: [], activity: [] };
   }
-}
-
-function getDemoScores() {
-  // Generate scores from travelers if no API
-  const scores = TRAVELERS.map((traveler, index) => ({
-    travelerId: traveler.id,
-    name: traveler.name,
-    points: Math.floor(Math.random() * 60) + 10,
-    gamePoints: Math.floor(Math.random() * 20),
-    triviaPoints: Math.floor(Math.random() * 20),
-    huntPoints: Math.floor(Math.random() * 20)
-  })).sort((a, b) => b.points - a.points);
-
-  const activity = [
-    { type: 'hunt', traveler: scores[0]?.name || 'Someone', action: 'found "Blue Door Cafe"', points: 5, time: '2 min ago' },
-    { type: 'game', traveler: scores[1]?.name || 'Someone', action: 'spotted "Hadrian\'s Arch"', points: 4, time: '15 min ago' },
-    { type: 'trivia', traveler: scores[2]?.name || 'Someone', action: 'won Trivia Round 3', points: 10, time: '1 hr ago' }
-  ];
-
-  return { scores, activity };
 }
 
 function buildScoreBreakdown(score) {
