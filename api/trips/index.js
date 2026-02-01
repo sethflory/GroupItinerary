@@ -98,6 +98,10 @@ module.exports = async function (context, req) {
       if (req.method === "GET") {
         return await getDays(context, auth.tripId, headers);
       }
+      // POST /api/trips/{tripId}/days/sync - Sync days from events (create missing days)
+      if (req.method === "POST" && resourceId === "sync") {
+        return await syncDaysFromEvents(context, auth.tripId, headers);
+      }
     } else if (resource === "destinations") {
       // GET /api/trips/{tripId}/destinations - Get all destinations
       if (req.method === "GET") {
@@ -244,6 +248,97 @@ async function getDays(context, tripId, headers) {
     .sort((a, b) => a.date.localeCompare(b.date));
 
   sendSuccess(context, { days }, 200, headers);
+}
+
+// Sync days from events - creates days for all event dates and fills gaps
+async function syncDaysFromEvents(context, tripId, headers) {
+  // Get all events for trip
+  const events = await queryEntities(
+    TABLES.EVENTS,
+    `PartitionKey ge '${tripId}_' and PartitionKey lt '${tripId}~'`
+  );
+
+  if (events.length === 0) {
+    sendSuccess(context, {
+      success: true,
+      message: "No events found",
+      daysCreated: 0
+    }, 200, headers);
+    return;
+  }
+
+  // Get existing days
+  const existingDays = await queryByPartition(TABLES.DAYS, tripId);
+  const existingDates = new Set(existingDays.map(d => d.date || d.rowKey.replace('day_', '')));
+
+  // Get all unique dates from events and find date range
+  const eventDates = [...new Set(events.map(e => {
+    // Extract date from partition key (format: tripId_date)
+    const parts = e.partitionKey.split('_');
+    return parts[parts.length - 1];
+  }))].filter(d => d && d.match(/^\d{4}-\d{2}-\d{2}$/)).sort();
+
+  if (eventDates.length === 0) {
+    sendSuccess(context, {
+      success: true,
+      message: "No valid event dates found",
+      daysCreated: 0
+    }, 200, headers);
+    return;
+  }
+
+  const minDate = new Date(eventDates[0] + 'T12:00:00Z');
+  const maxDate = new Date(eventDates[eventDates.length - 1] + 'T12:00:00Z');
+
+  // Create days for all dates in range
+  let daysCreated = 0;
+  let dayNumber = existingDays.length;
+  const currentDate = new Date(minDate);
+
+  while (currentDate <= maxDate) {
+    const dateStr = currentDate.toISOString().split('T')[0];
+
+    if (!existingDates.has(dateStr)) {
+      dayNumber++;
+
+      // Parse date for label
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const dayOfWeek = dayNames[currentDate.getUTCDay()];
+      const month = monthNames[currentDate.getUTCMonth()];
+      const dayOfMonth = currentDate.getUTCDate();
+
+      // Find event on this date to get location
+      const eventOnDate = events.find(e => e.partitionKey.endsWith('_' + dateStr));
+      const location = eventOnDate?.to || eventOnDate?.from || eventOnDate?.location || null;
+
+      const day = {
+        partitionKey: tripId,
+        rowKey: `day_${dateStr}`,
+        date: dateStr,
+        dayNum: dayNumber,
+        label: `${dayOfWeek}, ${month} ${dayOfMonth}`,
+        location,
+        destination: location,
+        theme: `Day ${dayNumber}`,
+        createdAt: new Date().toISOString()
+      };
+
+      await upsertEntity(TABLES.DAYS, day);
+      daysCreated++;
+    }
+
+    currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+  }
+
+  console.log(`[Trips] Synced days for ${tripId}: created ${daysCreated} days`);
+
+  sendSuccess(context, {
+    success: true,
+    message: `Created ${daysCreated} days`,
+    daysCreated,
+    dateRange: { from: eventDates[0], to: eventDates[eventDates.length - 1] }
+  }, 200, headers);
 }
 
 // Get all destinations (global reference data)

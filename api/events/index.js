@@ -155,6 +155,9 @@ async function createEvent(context, tripId, body, headers) {
     return;
   }
 
+  // Auto-create day if it doesn't exist
+  await ensureDayExists(tripId, date, body);
+
   // Generate event ID
   const eventId = body.id || generateRowKey("evt");
   const partitionKey = `${tripId}_${date}`;
@@ -286,6 +289,74 @@ async function deleteEventHandler(context, tripId, eventId, headers) {
   await deleteEntity(TABLES.EVENTS, existing.partitionKey, existing.rowKey);
 
   sendSuccess(context, { success: true, deleted: eventId }, 200, headers);
+}
+
+// Ensure a day record exists for the given date
+async function ensureDayExists(tripId, date, eventData = {}) {
+  const dayRowKey = `day_${date}`;
+
+  // Check if day already exists
+  const existingDay = await getEntity(TABLES.DAYS, tripId, dayRowKey);
+  if (existingDay) {
+    return existingDay;
+  }
+
+  // Parse date to create label
+  const dateObj = new Date(date + 'T12:00:00Z');
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const dayOfWeek = dayNames[dateObj.getUTCDay()];
+  const month = monthNames[dateObj.getUTCMonth()];
+  const dayNum = dateObj.getUTCDate();
+
+  // Calculate day number by counting existing days + 1
+  const existingDays = await queryByPartition(TABLES.DAYS, tripId);
+  const dayNumber = existingDays.length + 1;
+
+  // Determine location from event data (flight destination or from field)
+  let location = eventData.to || eventData.from || eventData.location || null;
+
+  // Create day record
+  const day = {
+    partitionKey: tripId,
+    rowKey: dayRowKey,
+    date,
+    dayNum: dayNumber,
+    label: `${dayOfWeek}, ${month} ${dayNum}`,
+    location,
+    destination: location,
+    theme: `Day ${dayNumber}`,
+    createdAt: new Date().toISOString()
+  };
+
+  await upsertEntity(TABLES.DAYS, day);
+  console.log(`[Events] Auto-created day for ${date}`);
+
+  return day;
+}
+
+// Ensure days exist for a date range (fills gaps between min and max dates)
+async function ensureDaysForRange(tripId, events) {
+  if (!events || events.length === 0) return;
+
+  // Get all unique dates from events
+  const dates = [...new Set(events.map(e => e.date))].sort();
+  if (dates.length === 0) return;
+
+  const minDate = new Date(dates[0] + 'T12:00:00Z');
+  const maxDate = new Date(dates[dates.length - 1] + 'T12:00:00Z');
+
+  // Create days for every date in range
+  const currentDate = new Date(minDate);
+  while (currentDate <= maxDate) {
+    const dateStr = currentDate.toISOString().split('T')[0];
+
+    // Find any event on this date to get location info
+    const eventOnDate = events.find(e => e.date === dateStr);
+    await ensureDayExists(tripId, dateStr, eventOnDate || {});
+
+    currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+  }
 }
 
 // Format event entity to API response
