@@ -331,12 +331,41 @@ async function syncDaysFromEvents(context, tripId, headers) {
     currentDate.setUTCDate(currentDate.getUTCDate() + 1);
   }
 
-  console.log(`[Trips] Synced days for ${tripId}: created ${daysCreated} days`);
+  // Renumber all days by date order
+  const allDays = await queryByPartition(TABLES.DAYS, tripId);
+  allDays.sort((a, b) => {
+    const dateA = a.date || a.rowKey.replace('day_', '');
+    const dateB = b.date || b.rowKey.replace('day_', '');
+    return dateA.localeCompare(dateB);
+  });
+
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  for (let i = 0; i < allDays.length; i++) {
+    const day = allDays[i];
+    const dayDate = day.date || day.rowKey.replace('day_', '');
+    const dateObj = new Date(dayDate + 'T12:00:00Z');
+
+    day.dayNum = i + 1;
+    day.date = dayDate;
+    day.label = `${dayNames[dateObj.getUTCDay()]}, ${monthNames[dateObj.getUTCMonth()]} ${dateObj.getUTCDate()}`;
+
+    // Only update theme if it's a generic "Day N" theme
+    if (!day.theme || day.theme.startsWith('Day ')) {
+      day.theme = `Day ${i + 1}`;
+    }
+
+    await upsertEntity(TABLES.DAYS, day);
+  }
+
+  console.log(`[Trips] Synced days for ${tripId}: created ${daysCreated} days, renumbered ${allDays.length} total`);
 
   sendSuccess(context, {
     success: true,
     message: `Created ${daysCreated} days`,
     daysCreated,
+    totalDays: allDays.length,
     dateRange: { from: eventDates[0], to: eventDates[eventDates.length - 1] }
   }, 200, headers);
 }
