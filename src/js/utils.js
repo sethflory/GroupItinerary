@@ -26,20 +26,84 @@ export function getGroupLabel(travelers) {
 }
 
 export function renderTravelerPills(travelers, compact = false) {
-  const travelerList = (!travelers || travelers.includes('all'))
-    ? TRAVELERS.map(t => t.id)
-    : travelers;
+  // If "all" or includes all travelers, show "Everyone" badge
+  if (!travelers || travelers.includes('all') || travelers.length === TRAVELERS.length) {
+    const allIncluded = !travelers || travelers.includes('all') ||
+      TRAVELERS.every(t => travelers.includes(t.id));
 
-  return `
-    <span class="traveler-pills">
-      ${TRAVELERS.map(t => {
-        const isActive = travelerList.includes(t.id);
-        return `<span class="traveler-pill ${isActive ? 'active' : 'inactive'} ${t.id}"
-                      style="${isActive ? `background-color: ${t.color}` : ''}"
-                      title="${t.name}">${t.initials}</span>`;
+    if (allIncluded) {
+      return `<span class="traveler-pills">
+        <span class="traveler-pill group-pill everyone" title="Everyone">Everyone</span>
+      </span>`;
+    }
+  }
+
+  // Get groups from localStorage
+  const storedGroups = localStorage.getItem(`tripGroups_${window.state?.currentTripId || ''}`);
+  const customGroups = storedGroups ? JSON.parse(storedGroups) : [];
+
+  // Build list of what to display
+  const displayItems = [];
+  const coveredTravelerIds = new Set();
+
+  // Check each group to see if all its members are in the travelers list
+  for (const group of customGroups) {
+    const groupMembers = TRAVELERS.filter(t => (t.groups || []).includes(group.id));
+    if (groupMembers.length > 0) {
+      const allMembersIncluded = groupMembers.every(t => travelers.includes(t.id));
+      if (allMembersIncluded) {
+        displayItems.push({
+          type: 'group',
+          id: group.id,
+          name: group.name,
+          color: group.color,
+          icon: group.icon
+        });
+        groupMembers.forEach(t => coveredTravelerIds.add(t.id));
+      }
+    }
+  }
+
+  // Add individual travelers who aren't covered by any displayed group
+  for (const travelerId of travelers) {
+    if (!coveredTravelerIds.has(travelerId)) {
+      const traveler = TRAVELERS.find(t => t.id === travelerId);
+      if (traveler) {
+        displayItems.push({
+          type: 'individual',
+          id: traveler.id,
+          name: traveler.name,
+          initials: traveler.initials,
+          color: traveler.color
+        });
+      }
+    }
+  }
+
+  // If nothing to display (shouldn't happen), fall back to showing all active travelers
+  if (displayItems.length === 0) {
+    return `<span class="traveler-pills">
+      ${travelers.map(id => {
+        const t = TRAVELERS.find(tr => tr.id === id);
+        if (!t) return '';
+        return `<span class="traveler-pill active" style="background-color: ${t.color}" title="${t.name}">${t.initials}</span>`;
       }).join('')}
-    </span>
-  `;
+    </span>`;
+  }
+
+  // Render the display items
+  return `<span class="traveler-pills">
+    ${displayItems.map(item => {
+      if (item.type === 'group') {
+        return `<span class="traveler-pill group-pill" style="background-color: ${item.color}" title="${item.name}">
+          <span class="material-symbols-outlined" style="font-size: 14px">${item.icon || 'group'}</span>
+          ${compact ? '' : item.name}
+        </span>`;
+      } else {
+        return `<span class="traveler-pill active" style="background-color: ${item.color}" title="${item.name}">${item.initials}</span>`;
+      }
+    }).join('')}
+  </span>`;
 }
 
 // ========================================

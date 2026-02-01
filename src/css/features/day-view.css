@@ -424,6 +424,21 @@
     .traveler-pill.active.paul { background: #4a90d9; }
     .traveler-pill.active.sheri { background: #d94a8c; }
 
+    /* Group Pills */
+    .traveler-pill.group-pill {
+      width: auto;
+      padding: 2px 8px;
+      gap: 4px;
+      display: inline-flex;
+      align-items: center;
+      color: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .traveler-pill.group-pill.everyone {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
     /* Destination Watermarks */
     .day-detail {
       position: relative;
