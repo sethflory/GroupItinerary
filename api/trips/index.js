@@ -497,17 +497,21 @@ async function getFullTrip(context, tripId, headers) {
 
   // Format days (sorted) WITH EVENTS
   const formattedDays = days
-    .map(e => ({
-      date: e.rowKey,
-      dayNum: e.dayNum,
-      label: e.label,
-      location: e.location,
-      theme: e.theme,
-      destination: e.destination,
-      destinationInfo: e.destinationInfo || null,
-      estimatedSteps: e.estimatedSteps || null,
-      events: eventsByDate[e.rowKey] || []
-    }))
+    .map(e => {
+      // Extract date from rowKey (day_2026-02-01 -> 2026-02-01) or use stored date
+      const dayDate = e.date || e.rowKey.replace('day_', '');
+      return {
+        date: dayDate,
+        dayNum: e.dayNum,
+        label: e.label,
+        location: e.location,
+        theme: e.theme,
+        destination: e.destination,
+        destinationInfo: e.destinationInfo || null,
+        estimatedSteps: e.estimatedSteps || null,
+        events: eventsByDate[dayDate] || []
+      };
+    })
     .sort((a, b) => a.date.localeCompare(b.date));
 
   // Format destinations as object
