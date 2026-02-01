@@ -652,6 +652,21 @@ async function saveExtractedEvents() {
       }
     }
 
+    // Sync days to fill in any gaps between event dates
+    if (savedCount > 0) {
+      try {
+        console.log('[ReceiptUpload] Syncing days...');
+        const syncUrl = `${API_BASE}/trips/${encodeURIComponent(currentTripId)}/days/sync?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`;
+        const syncResponse = await fetch(syncUrl, { method: 'POST' });
+        if (syncResponse.ok) {
+          const syncResult = await syncResponse.json();
+          console.log('[ReceiptUpload] Days synced:', syncResult.daysCreated, 'days created');
+        }
+      } catch (syncErr) {
+        console.warn('[ReceiptUpload] Days sync failed (non-critical):', syncErr);
+      }
+    }
+
     showSuccessStep(savedCount, joinedCount);
 
   } catch (err) {
