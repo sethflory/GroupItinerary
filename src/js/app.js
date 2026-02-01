@@ -586,8 +586,13 @@ async function refreshTripData() {
         window.TRAVELERS = TRAVELERS;
       }
 
-      // Load personalization from trip data if available
-      if (apiData.trip) {
+      // Load personalization from API response or trip data
+      if (apiData.personalization) {
+        window.tripPersonalization = apiData.personalization;
+        if (apiData.personalization.theme) {
+          themeManager.applyTheme(apiData.personalization.theme, { animate: false });
+        }
+      } else if (apiData.trip) {
         themeManager.loadPersonalizationFromTrip(apiData.trip);
       }
 

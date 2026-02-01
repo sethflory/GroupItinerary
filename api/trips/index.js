@@ -584,6 +584,11 @@ async function getFullTrip(context, tripId, headers) {
     ? (typeof tripEntity.carousels === "string" ? JSON.parse(tripEntity.carousels) : tripEntity.carousels)
     : {};
 
+  // Personalization (AI-generated themes, backgrounds, event cards)
+  const personalization = tripEntity.personalization
+    ? (typeof tripEntity.personalization === "string" ? JSON.parse(tripEntity.personalization) : tripEntity.personalization)
+    : null;
+
   sendSuccess(context, {
     trip,
     travelers: formattedTravelers,
@@ -591,7 +596,8 @@ async function getFullTrip(context, tripId, headers) {
     destinations: formattedDestinations,
     hotel,
     phases,
-    carousels
+    carousels,
+    personalization
   }, 200, headers);
 }
 
