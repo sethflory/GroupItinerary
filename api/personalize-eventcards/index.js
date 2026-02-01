@@ -75,12 +75,16 @@ module.exports = async function (context, req) {
     // Build trip data
     const tripData = {
       name: tripEntity.name,
-      days: days.map(d => ({
-        dayNum: d.dayNum,
-        date: d.rowKey,
-        location: d.location,
-        events: eventsByDate[d.rowKey] || []
-      })).sort((a, b) => a.date.localeCompare(b.date))
+      days: days.map(d => {
+        // Extract date from rowKey (day_2026-02-01 -> 2026-02-01) or use d.date
+        const date = d.date || d.rowKey.replace('day_', '');
+        return {
+          dayNum: d.dayNum,
+          date,
+          location: d.location,
+          events: eventsByDate[date] || []
+        };
+      }).sort((a, b) => a.date.localeCompare(b.date))
     };
 
     // Count total events

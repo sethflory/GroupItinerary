@@ -106,14 +106,18 @@ module.exports = async function (context, req) {
       startDate: tripEntity.startDate,
       endDate: tripEntity.endDate,
       travelers: travelers.map(t => ({ name: t.name, group: t.group })),
-      days: days.map(d => ({
-        dayNum: d.dayNum,
-        date: d.rowKey,
-        location: d.location,
-        theme: d.theme,
-        destination: d.destination,
-        events: eventsByDate[d.rowKey] || []
-      })).sort((a, b) => a.date.localeCompare(b.date)),
+      days: days.map(d => {
+        // Extract date from rowKey (day_2026-02-01 -> 2026-02-01) or use d.date
+        const date = d.date || d.rowKey.replace('day_', '');
+        return {
+          dayNum: d.dayNum,
+          date,
+          location: d.location,
+          theme: d.theme,
+          destination: d.destination,
+          events: eventsByDate[date] || []
+        };
+      }).sort((a, b) => a.date.localeCompare(b.date)),
       destinations: Object.fromEntries(
         destinations.map(d => [d.rowKey, { city: d.city, country: d.country }])
       )
