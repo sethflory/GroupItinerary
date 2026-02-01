@@ -5,11 +5,14 @@
 import { TRIPS } from './config.js';
 
 // Current trip state - persisted in localStorage
-export let currentTripId = localStorage.getItem('currentTripId') || 'athens-bangalore-2026';
+// Get first available trip as fallback
+const defaultTripId = Object.keys(TRIPS)[0] || 'greece-india-2026';
+export let currentTripId = localStorage.getItem('currentTripId') || defaultTripId;
 
-// Ensure valid trip
+// Ensure valid trip - use first available trip if current is invalid
 if (!TRIPS[currentTripId]) {
-  currentTripId = 'athens-bangalore-2026';
+  currentTripId = defaultTripId;
+  localStorage.setItem('currentTripId', currentTripId);
 }
 
 export function setCurrentTripId(tripId) {
