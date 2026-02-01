@@ -65,28 +65,32 @@ export function renderTravelerPills(travelers, compact = false) {
   }
 
   // Add individual travelers who aren't covered by any displayed group
-  for (const travelerId of travelers) {
+  const defaultColors = ['#4a90d9', '#d94a8c', '#2c7a7b', '#805ad5', '#dd6b20', '#38a169'];
+  for (let i = 0; i < travelers.length; i++) {
+    const travelerId = travelers[i];
     if (!coveredTravelerIds.has(travelerId)) {
       const traveler = TRAVELERS.find(t => t.id === travelerId);
-      if (traveler) {
-        displayItems.push({
-          type: 'individual',
-          id: traveler.id,
-          name: traveler.name,
-          initials: traveler.initials,
-          color: traveler.color
-        });
-      }
+      displayItems.push({
+        type: 'individual',
+        id: travelerId,
+        name: traveler?.name || travelerId,
+        initials: traveler?.initials || travelerId.substring(0, 2).toUpperCase(),
+        color: traveler?.color || defaultColors[i % defaultColors.length]
+      });
     }
   }
 
-  // If nothing to display (shouldn't happen), fall back to showing all active travelers
+  // If nothing to display, show raw traveler IDs as pills (handles case where TRAVELERS not yet loaded)
   if (displayItems.length === 0) {
+    // Default colors for when traveler data isn't loaded
+    const defaultColors = ['#4a90d9', '#d94a8c', '#2c7a7b', '#805ad5', '#dd6b20', '#38a169'];
     return `<span class="traveler-pills">
-      ${travelers.map(id => {
+      ${travelers.map((id, idx) => {
         const t = TRAVELERS.find(tr => tr.id === id);
-        if (!t) return '';
-        return `<span class="traveler-pill active" style="background-color: ${t.color}" title="${t.name}">${t.initials}</span>`;
+        const initials = t?.initials || id.substring(0, 2).toUpperCase();
+        const name = t?.name || id;
+        const color = t?.color || defaultColors[idx % defaultColors.length];
+        return `<span class="traveler-pill active" style="background-color: ${color}" title="${name}">${initials}</span>`;
       }).join('')}
     </span>`;
   }
