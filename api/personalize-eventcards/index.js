@@ -2,6 +2,8 @@
  * Personalize Event Cards API
  *
  * Generates card styles and images for each event.
+ * Now writes directly to event.linkedPhotos and event.cardStyle
+ * instead of trip.personalization.eventCards.
  */
 
 const {
@@ -53,30 +55,70 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // Get events
+    // Get events (full entities, not just summary)
     const events = await queryEntities(
       TABLES.EVENTS,
       `PartitionKey ge '${tripId}_' and PartitionKey lt '${tripId}~'`
     );
 
-    // Group events by date
-    const eventsByDate = {};
+    // Filter events that need images (skip those with existing linkedPhotos)
+    const eventsNeedingImages = [];
+    const eventsSkipped = [];
+
     for (const e of events) {
+      // Parse existing linkedPhotos
+      let linkedPhotos = [];
+      try {
+        if (e.linkedPhotos) {
+          linkedPhotos = typeof e.linkedPhotos === "string" ? JSON.parse(e.linkedPhotos) : e.linkedPhotos;
+        }
+      } catch (err) {}
+
+      // Skip events that already have images (protects user selections)
+      if (linkedPhotos.length > 0) {
+        eventsSkipped.push(e.id || e.rowKey);
+        continue;
+      }
+
       const date = e.date || e.partitionKey.split("_")[1];
-      if (!eventsByDate[date]) eventsByDate[date] = [];
-      eventsByDate[date].push({
+      eventsNeedingImages.push({
         id: e.id || e.rowKey,
+        type: e.type,
+        title: e.title,
+        where: e.where,
+        date,
+        partitionKey: e.partitionKey,
+        rowKey: e.rowKey
+      });
+    }
+
+    context.log(`[EventCards] ${eventsNeedingImages.length} events need images, ${eventsSkipped.length} already have images`);
+
+    if (eventsNeedingImages.length === 0) {
+      sendSuccess(context, {
+        message: `All ${eventsSkipped.length} events already have images`,
+        eventsUpdated: 0,
+        eventsSkipped: eventsSkipped.length
+      }, 200, headers);
+      return;
+    }
+
+    // Group events by date for AI processing
+    const eventsByDate = {};
+    for (const e of eventsNeedingImages) {
+      if (!eventsByDate[e.date]) eventsByDate[e.date] = [];
+      eventsByDate[e.date].push({
+        id: e.id,
         type: e.type,
         title: e.title,
         where: e.where
       });
     }
 
-    // Build trip data
+    // Build trip data for AI
     const tripData = {
       name: tripEntity.name,
       days: days.map(d => {
-        // Extract date from rowKey (day_2026-02-01 -> 2026-02-01) or use d.date
         const date = d.date || d.rowKey.replace('day_', '');
         return {
           dayNum: d.dayNum,
@@ -84,48 +126,52 @@ module.exports = async function (context, req) {
           location: d.location,
           events: eventsByDate[date] || []
         };
-      }).sort((a, b) => a.date.localeCompare(b.date))
+      }).filter(d => d.events.length > 0).sort((a, b) => a.date.localeCompare(b.date))
     };
 
-    // Count total events
-    const totalEvents = tripData.days.reduce((sum, d) => sum + (d.events?.length || 0), 0);
-    if (totalEvents === 0) {
-      sendError(context, "Trip has no events", 400, headers);
-      return;
-    }
-
-    // Generate event cards
+    // Generate event cards via AI
     const eventCards = await generateEventCards(tripData);
 
-    // Save to trip personalization
-    let personalization = {};
-    if (tripEntity.personalization) {
-      try {
-        personalization = JSON.parse(tripEntity.personalization);
-      } catch (e) {}
+    // Update each event directly with linkedPhotos and cardStyle
+    let eventsUpdated = 0;
+    for (const e of eventsNeedingImages) {
+      const cardData = eventCards[e.id];
+      if (!cardData || !cardData.images || cardData.images.length === 0) {
+        continue;
+      }
+
+      // Fetch the full event entity to update
+      const eventEntity = await getEntity(TABLES.EVENTS, e.partitionKey, e.rowKey);
+      if (!eventEntity) continue;
+
+      // Exclude Azure metadata fields
+      const { etag, timestamp, ...existingData } = eventEntity;
+
+      // Update with new image data
+      const updated = {
+        ...existingData,
+        partitionKey: e.partitionKey,
+        rowKey: e.rowKey,
+        linkedPhotos: JSON.stringify(cardData.images),
+        cardStyle: cardData.style || 'hero',
+        updatedAt: new Date().toISOString()
+      };
+
+      await upsertEntity(TABLES.EVENTS, updated);
+      eventsUpdated++;
     }
-
-    personalization.eventCards = eventCards;
-    personalization.lastUpdated = new Date().toISOString();
-
-    // Update trip
-    await upsertEntity(TABLES.TRIPS, {
-      ...tripEntity,
-      partitionKey: "trips",
-      rowKey: tripId,
-      personalization: JSON.stringify(personalization)
-    });
 
     // Count results
     const heroCount = Object.values(eventCards).filter(c => c.style === "hero").length;
     const carouselCount = Object.values(eventCards).filter(c => c.style === "carousel").length;
     const imageCount = Object.values(eventCards).reduce((sum, c) => sum + (c.images?.length || 0), 0);
 
-    context.log(`[EventCards] Generated: ${heroCount} hero, ${carouselCount} carousel, ${imageCount} total images`);
+    context.log(`[EventCards] Updated ${eventsUpdated} events: ${heroCount} hero, ${carouselCount} carousel, ${imageCount} total images`);
 
     sendSuccess(context, {
-      eventCards,
-      message: `Styled ${Object.keys(eventCards).length} events (${heroCount} hero, ${carouselCount} carousel, ${imageCount} images)`
+      message: `Updated ${eventsUpdated} events (${heroCount} hero, ${carouselCount} carousel, ${imageCount} images)`,
+      eventsUpdated,
+      eventsSkipped: eventsSkipped.length
     }, 200, headers);
 
   } catch (err) {

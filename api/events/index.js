@@ -198,7 +198,10 @@ async function createEvent(context, tripId, body, headers) {
     isUserGenerated: body.isUserGenerated !== false,
     createdAt: new Date().toISOString(),
     createdBy: body.createdBy || null,
-    linkedPhotoUrl: body.linkedPhotoUrl || null
+    linkedPhotoUrl: body.linkedPhotoUrl || null,
+    // Image fields
+    linkedPhotos: body.linkedPhotos ? JSON.stringify(body.linkedPhotos) : null,
+    cardStyle: body.cardStyle || null
   };
 
   await upsertEntity(TABLES.EVENTS, event);
@@ -257,6 +260,8 @@ async function updateEvent(context, tripId, eventId, body, headers) {
     travelNote: body.travelNote !== undefined ? body.travelNote : existing.travelNote,
     hoverImage: body.hoverImage !== undefined ? JSON.stringify(body.hoverImage) : existing.hoverImage,
     linkedPhotoUrl: body.linkedPhotoUrl !== undefined ? body.linkedPhotoUrl : existing.linkedPhotoUrl,
+    linkedPhotos: body.linkedPhotos !== undefined ? JSON.stringify(body.linkedPhotos) : existing.linkedPhotos,
+    cardStyle: body.cardStyle !== undefined ? body.cardStyle : existing.cardStyle,
     updatedAt: new Date().toISOString(),
     updatedBy: body.updatedBy || null
   };
@@ -365,6 +370,7 @@ function formatEvent(entity) {
   let travelers = ["all"];
   let badges = [];
   let hoverImage = null;
+  let linkedPhotos = [];
 
   try {
     if (entity.travelers) {
@@ -375,6 +381,9 @@ function formatEvent(entity) {
     }
     if (entity.hoverImage) {
       hoverImage = typeof entity.hoverImage === "string" ? JSON.parse(entity.hoverImage) : entity.hoverImage;
+    }
+    if (entity.linkedPhotos) {
+      linkedPhotos = typeof entity.linkedPhotos === "string" ? JSON.parse(entity.linkedPhotos) : entity.linkedPhotos;
     }
   } catch (e) {
     console.error("Error parsing event JSON fields:", e);
@@ -415,6 +424,8 @@ function formatEvent(entity) {
     // Metadata
     isUserGenerated: entity.isUserGenerated || false,
     createdAt: entity.createdAt || null,
-    linkedPhotoUrl: entity.linkedPhotoUrl || null
+    linkedPhotoUrl: entity.linkedPhotoUrl || null,
+    linkedPhotos,
+    cardStyle: entity.cardStyle || null
   };
 }

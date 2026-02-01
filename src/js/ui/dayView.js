@@ -117,7 +117,9 @@ export function renderDayDetail() {
   // Get personalization data if available
   const personalization = window.tripPersonalization;
   const dayNickname = personalization?.dayNicknames?.[day.dayNum] || day.theme;
-  let dayBg = personalization?.dayBackgrounds?.[day.dayNum];
+
+  // Day background: read from day record first, fallback to personalization (for migration)
+  let dayBg = day.backgroundImage || personalization?.dayBackgrounds?.[day.dayNum];
 
   // DEMO MODE: Show sample Unsplash image for API approval screenshot
   // TODO: Remove this after Unsplash approval
@@ -202,24 +204,25 @@ export function renderEventCard(e, notMine = false) {
   const isNotMine = notMine || (currentTravelerFilter !== 'all' && !isForTraveler(e.travelers, currentTravelerFilter));
   const iconName = getEventIcon(e.type);
 
-  // Get event card config from personalization (new format)
+  // Get event card config from personalization (legacy format, for migration)
   const personalization = window.tripPersonalization;
   const eventCard = personalization?.eventCards?.[e.id];
 
-  // Priority: user-selected images > AI personalization > legacy format
+  // Priority: event record fields > AI personalization (legacy) > linkedPhotoUrl (legacy)
   let cardImages = [];
   let cardStyle = 'minimal';
 
-  // Check for user-selected linked photos first
+  // Check for linkedPhotos on event record first (user edits or AI-generated)
   if (e.linkedPhotos && e.linkedPhotos.length > 0) {
     cardImages = e.linkedPhotos.map(p =>
       typeof p === 'string' ? { url: p, thumb: p } : p
     );
-    cardStyle = cardImages.length > 1 ? 'carousel' : 'hero';
+    // Use cardStyle from event if available, else infer from image count
+    cardStyle = e.cardStyle || (cardImages.length > 1 ? 'carousel' : 'hero');
   } else if (eventCard?.images?.length > 0) {
-    // AI personalization images
+    // Fallback to AI personalization (legacy migration path)
     cardImages = eventCard.images;
-    cardStyle = eventCard.cardStyle || 'minimal';
+    cardStyle = eventCard.style || 'minimal';
   } else if (e.linkedPhotoUrl) {
     // Legacy single image format
     cardImages = [{ url: e.linkedPhotoUrl, thumb: e.linkedPhotoUrl }];

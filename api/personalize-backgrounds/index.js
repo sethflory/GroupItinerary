@@ -2,6 +2,8 @@
  * Personalize Backgrounds API
  *
  * Generates day background images via AI queries + Unsplash.
+ * Now writes directly to day.backgroundImage instead of
+ * trip.personalization.dayBackgrounds.
  */
 
 const {
@@ -52,6 +54,39 @@ module.exports = async function (context, req) {
       return;
     }
 
+    // Filter days that need backgrounds (skip those with existing backgroundImage)
+    const daysNeedingBg = [];
+    const daysSkipped = [];
+
+    for (const d of days) {
+      // Parse existing backgroundImage
+      let backgroundImage = null;
+      try {
+        if (d.backgroundImage) {
+          backgroundImage = typeof d.backgroundImage === "string" ? JSON.parse(d.backgroundImage) : d.backgroundImage;
+        }
+      } catch (err) {}
+
+      // Skip days that already have a background (protects user selections)
+      if (backgroundImage && backgroundImage.url) {
+        daysSkipped.push(d.dayNum);
+        continue;
+      }
+
+      daysNeedingBg.push(d);
+    }
+
+    context.log(`[Backgrounds] ${daysNeedingBg.length} days need backgrounds, ${daysSkipped.length} already have backgrounds`);
+
+    if (daysNeedingBg.length === 0) {
+      sendSuccess(context, {
+        message: `All ${daysSkipped.length} days already have backgrounds`,
+        daysUpdated: 0,
+        daysSkipped: daysSkipped.length
+      }, 200, headers);
+      return;
+    }
+
     // Get events for context
     const { queryEntities } = require("../shared/tableStorage");
     const events = await queryEntities(
@@ -67,11 +102,10 @@ module.exports = async function (context, req) {
       eventsByDate[date].push({ title: e.title, type: e.type });
     }
 
-    // Build trip data
+    // Build trip data for AI (only days needing backgrounds)
     const tripData = {
       name: tripEntity.name,
-      days: days.map(d => {
-        // Extract date from rowKey (day_2026-02-01 -> 2026-02-01) or use d.date
+      days: daysNeedingBg.map(d => {
         const date = d.date || d.rowKey.replace('day_', '');
         return {
           dayNum: d.dayNum,
@@ -83,34 +117,40 @@ module.exports = async function (context, req) {
       }).sort((a, b) => a.date.localeCompare(b.date))
     };
 
-    // Generate backgrounds
+    // Generate backgrounds via AI
     const backgrounds = await generateBackgrounds(tripData);
 
-    // Save to trip personalization
-    let personalization = {};
-    if (tripEntity.personalization) {
-      try {
-        personalization = JSON.parse(tripEntity.personalization);
-      } catch (e) {}
+    // Update each day directly with backgroundImage
+    let daysUpdated = 0;
+    for (const d of daysNeedingBg) {
+      const bgData = backgrounds[d.dayNum];
+      if (!bgData || !bgData.url) {
+        continue;
+      }
+
+      // Exclude Azure metadata fields
+      const { etag, timestamp, ...existingData } = d;
+
+      // Update with new background
+      const updated = {
+        ...existingData,
+        partitionKey: tripId,
+        rowKey: d.rowKey,
+        backgroundImage: JSON.stringify(bgData),
+        updatedAt: new Date().toISOString()
+      };
+
+      await upsertEntity(TABLES.DAYS, updated);
+      daysUpdated++;
     }
 
-    personalization.dayBackgrounds = backgrounds;
-    personalization.lastUpdated = new Date().toISOString();
-
-    // Update trip
-    await upsertEntity(TABLES.TRIPS, {
-      ...tripEntity,
-      partitionKey: "trips",
-      rowKey: tripId,
-      personalization: JSON.stringify(personalization)
-    });
-
     const resolvedCount = Object.values(backgrounds).filter(b => b.url).length;
-    context.log(`[Backgrounds] Generated ${Object.keys(backgrounds).length} queries, resolved ${resolvedCount} images`);
+    context.log(`[Backgrounds] Updated ${daysUpdated} days with backgrounds (${resolvedCount} images resolved)`);
 
     sendSuccess(context, {
-      backgrounds,
-      message: `Generated backgrounds for ${Object.keys(backgrounds).length} days (${resolvedCount} images resolved)`
+      message: `Updated ${daysUpdated} days with backgrounds`,
+      daysUpdated,
+      daysSkipped: daysSkipped.length
     }, 200, headers);
 
   } catch (err) {

@@ -95,12 +95,16 @@ module.exports = async function (context, req) {
       }
     } else if (resource === "days") {
       // GET /api/trips/{tripId}/days - List all days
-      if (req.method === "GET") {
+      if (req.method === "GET" && !resourceId) {
         return await getDays(context, auth.tripId, headers);
       }
       // POST /api/trips/{tripId}/days/sync - Sync days from events (create missing days)
       if (req.method === "POST" && resourceId === "sync") {
         return await syncDaysFromEvents(context, auth.tripId, headers);
+      }
+      // PUT /api/trips/{tripId}/days/{dayId} - Update day (for backgroundImage, theme, etc.)
+      if (req.method === "PUT" && resourceId) {
+        return await updateDay(context, auth.tripId, resourceId, req.body, headers);
       }
     } else if (resource === "destinations") {
       // GET /api/trips/{tripId}/destinations - Get all destinations
@@ -235,16 +239,27 @@ async function getDays(context, tripId, headers) {
 
   // Sort by date
   const days = entities
-    .map(e => ({
-      date: e.rowKey,
-      dayNum: e.dayNum,
-      label: e.label,
-      location: e.location,
-      theme: e.theme,
-      destination: e.destination,
-      destinationInfo: e.destinationInfo || null,
-      estimatedSteps: e.estimatedSteps || null
-    }))
+    .map(e => {
+      // Parse backgroundImage if stored as JSON string
+      let backgroundImage = null;
+      try {
+        if (e.backgroundImage) {
+          backgroundImage = typeof e.backgroundImage === "string" ? JSON.parse(e.backgroundImage) : e.backgroundImage;
+        }
+      } catch (err) {}
+
+      return {
+        date: e.rowKey,
+        dayNum: e.dayNum,
+        label: e.label,
+        location: e.location,
+        theme: e.theme,
+        destination: e.destination,
+        destinationInfo: e.destinationInfo || null,
+        estimatedSteps: e.estimatedSteps || null,
+        backgroundImage
+      };
+    })
     .sort((a, b) => a.date.localeCompare(b.date));
 
   sendSuccess(context, { days }, 200, headers);
@@ -370,6 +385,70 @@ async function syncDaysFromEvents(context, tripId, headers) {
   }, 200, headers);
 }
 
+// Update a single day (for backgroundImage, theme, etc.)
+async function updateDay(context, tripId, dayId, body, headers) {
+  // dayId can be a date (2026-02-01) or rowKey (day_2026-02-01)
+  const rowKey = dayId.startsWith('day_') ? dayId : `day_${dayId}`;
+
+  const existing = await getEntity(TABLES.DAYS, tripId, rowKey);
+  if (!existing) {
+    sendError(context, "Day not found", 404, headers);
+    return;
+  }
+
+  // Exclude Azure metadata fields that can't be written
+  const { etag, timestamp, ...existingData } = existing;
+
+  // Build updated entity - only allow specific fields to be updated
+  const updated = {
+    ...existingData,
+    partitionKey: tripId,
+    rowKey: rowKey
+  };
+
+  // Update allowed fields
+  if (body.theme !== undefined) {
+    updated.theme = body.theme;
+  }
+  if (body.location !== undefined) {
+    updated.location = body.location;
+  }
+  if (body.destination !== undefined) {
+    updated.destination = body.destination;
+  }
+  if (body.destinationInfo !== undefined) {
+    updated.destinationInfo = body.destinationInfo;
+  }
+  if (body.backgroundImage !== undefined) {
+    // backgroundImage can be null to clear, or an object with url/thumb/credit/creditUrl
+    updated.backgroundImage = body.backgroundImage ? JSON.stringify(body.backgroundImage) : null;
+  }
+
+  updated.updatedAt = new Date().toISOString();
+
+  await upsertEntity(TABLES.DAYS, updated);
+
+  // Parse backgroundImage for response
+  let backgroundImage = null;
+  try {
+    if (updated.backgroundImage) {
+      backgroundImage = typeof updated.backgroundImage === "string" ? JSON.parse(updated.backgroundImage) : updated.backgroundImage;
+    }
+  } catch (err) {}
+
+  sendSuccess(context, {
+    date: updated.date || rowKey.replace('day_', ''),
+    dayNum: updated.dayNum,
+    label: updated.label,
+    location: updated.location,
+    theme: updated.theme,
+    destination: updated.destination,
+    destinationInfo: updated.destinationInfo || null,
+    estimatedSteps: updated.estimatedSteps || null,
+    backgroundImage
+  }, 200, headers);
+}
+
 // Get all destinations (global reference data)
 async function getDestinations(context, headers) {
   const entities = await queryByPartition(TABLES.DESTINATIONS, "destinations");
@@ -460,10 +539,12 @@ async function getFullTrip(context, tripId, headers) {
     let travelers = ["all"];
     let badges = [];
     let hoverImage = null;
+    let linkedPhotos = [];
     try {
       if (e.travelers) travelers = typeof e.travelers === "string" ? JSON.parse(e.travelers) : e.travelers;
       if (e.badges) badges = typeof e.badges === "string" ? JSON.parse(e.badges) : e.badges;
       if (e.hoverImage) hoverImage = typeof e.hoverImage === "string" ? JSON.parse(e.hoverImage) : e.hoverImage;
+      if (e.linkedPhotos) linkedPhotos = typeof e.linkedPhotos === "string" ? JSON.parse(e.linkedPhotos) : e.linkedPhotos;
     } catch (err) {}
 
     eventsByDate[date].push({
@@ -491,7 +572,9 @@ async function getFullTrip(context, tripId, headers) {
       travelTime: e.travelTime || null,
       travelNote: e.travelNote || null,
       hoverImage,
-      isUserGenerated: e.isUserGenerated || false
+      isUserGenerated: e.isUserGenerated || false,
+      linkedPhotos,
+      cardStyle: e.cardStyle || null
     });
   }
 
@@ -529,6 +612,15 @@ async function getFullTrip(context, tripId, headers) {
     .map(e => {
       // Extract date from rowKey (day_2026-02-01 -> 2026-02-01) or use stored date
       const dayDate = e.date || e.rowKey.replace('day_', '');
+
+      // Parse backgroundImage if stored as JSON string
+      let backgroundImage = null;
+      try {
+        if (e.backgroundImage) {
+          backgroundImage = typeof e.backgroundImage === "string" ? JSON.parse(e.backgroundImage) : e.backgroundImage;
+        }
+      } catch (err) {}
+
       return {
         date: dayDate,
         dayNum: e.dayNum,
@@ -538,6 +630,7 @@ async function getFullTrip(context, tripId, headers) {
         destination: e.destination,
         destinationInfo: e.destinationInfo || null,
         estimatedSteps: e.estimatedSteps || null,
+        backgroundImage,
         events: eventsByDate[dayDate] || []
       };
     })
