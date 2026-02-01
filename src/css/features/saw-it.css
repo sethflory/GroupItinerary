@@ -139,6 +139,16 @@
   background: rgba(79, 172, 254, 0.2);
 }
 
+/* Golden key icon */
+.golden-key {
+  color: #d4a547;
+  font-size: 18px;
+}
+
+.event-see-btn:hover .golden-key {
+  color: #f0b429;
+}
+
 /* Origin Selection */
 .saw-it-origin-options {
   display: flex;

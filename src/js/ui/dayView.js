@@ -266,7 +266,7 @@ export function renderEventCard(e, notMine = false) {
               <button class="event-see-btn ${window.hasEventSavedList && window.hasEventSavedList(e.id) ? 'has-list' : ''}"
                       onclick="openWhatsYouWillSee('${e.id}')"
                       title="${window.hasEventSavedList && window.hasEventSavedList(e.id) ? 'View saved list' : 'What will we see'}">
-                <span class="material-symbols-outlined">${window.hasEventSavedList && window.hasEventSavedList(e.id) ? 'format_list_bulleted' : 'visibility'}</span>
+                <span class="material-symbols-outlined ${window.hasEventSavedList && window.hasEventSavedList(e.id) ? '' : 'golden-key'}">${window.hasEventSavedList && window.hasEventSavedList(e.id) ? 'format_list_bulleted' : 'key'}</span>
               </button>
             ` : ''}
             <button class="event-share-btn" onclick="openShareModal('${e.id}')" title="Create post">
