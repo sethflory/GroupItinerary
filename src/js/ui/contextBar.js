@@ -95,47 +95,6 @@ export function getCurrentLocation() {
 
 
 // ========================================
-// LOCAL TIME
-// ========================================
-
-export function getLocalTime() {
-  const location = getCurrentLocation();
-
-  // Timezone mapping
-  const timezones = {
-    'Athens': 'Europe/Athens',
-    'Greece': 'Europe/Athens',
-    'Bangalore': 'Asia/Kolkata',
-    'India': 'Asia/Kolkata',
-    'Delhi': 'Asia/Kolkata',
-    'Mumbai': 'Asia/Kolkata'
-  };
-
-  let timezone = 'UTC';
-  for (const [key, tz] of Object.entries(timezones)) {
-    if (location.toLowerCase().includes(key.toLowerCase())) {
-      timezone = tz;
-      break;
-    }
-  }
-
-  try {
-    return new Date().toLocaleTimeString('en-US', {
-      timeZone: timezone,
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-  } catch (e) {
-    return new Date().toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-  }
-}
-
-// ========================================
 // NEXT ACTIVITY
 // ========================================
 
@@ -298,7 +257,6 @@ function renderDuringContext(container) {
   const dayNum = getCurrentDayNumber();
   const totalDays = getTotalDays();
   const location = getCurrentLocation();
-  const localTime = getLocalTime();
   const weather = getWeatherDisplay();
   const nextActivity = getNextActivity();
 
@@ -310,7 +268,7 @@ function renderDuringContext(container) {
     <div class="context-bar during">
       <span class="context-icon">📍</span>
       <div class="context-main">
-        <div class="context-title">Day ${dayNum} of ${totalDays} • ${location} • ${localTime}</div>
+        <div class="context-title">Day ${dayNum} of ${totalDays} • ${location}</div>
         <div class="context-sub">
           <span class="weather-inline">${weather.icon} ${weather.temp}</span>
           ${nextText}
