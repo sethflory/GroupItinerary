@@ -26,9 +26,9 @@ export function getGroupLabel(travelers) {
 }
 
 export function renderTravelerPills(travelers, compact = false) {
-  // If "all" or includes all travelers, show "Everyone" badge
-  if (!travelers || travelers.includes('all') || travelers.length === TRAVELERS.length) {
-    const allIncluded = !travelers || travelers.includes('all') ||
+  // If "all", empty, or includes all travelers, show "Everyone" badge
+  if (!travelers || travelers.length === 0 || travelers.includes('all') || travelers.length === TRAVELERS.length) {
+    const allIncluded = !travelers || travelers.length === 0 || travelers.includes('all') ||
       TRAVELERS.every(t => travelers.includes(t.id));
 
     if (allIncluded) {
