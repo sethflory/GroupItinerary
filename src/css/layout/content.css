@@ -101,16 +101,13 @@
       height: 80px;
       scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch;
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
     }
 
     /* Hide scrollbar but keep functionality */
     .photo-ribbon-track::-webkit-scrollbar {
       display: none;
-    }
-    
-    .photo-ribbon-track {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
     }
 
     .photo-ribbon-scroll {
