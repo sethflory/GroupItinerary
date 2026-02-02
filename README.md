@@ -82,9 +82,15 @@ az storage account show-connection-string \
 cd api
 npm install
 
-# Update api/local.settings.json with your connection string
-# Replace YOUR_STORAGE_CONNECTION_STRING_HERE with the connection string from step 1
+# Create local.settings.json from template
+cp local.settings.json.template local.settings.json
+
+# Edit local.settings.json and replace:
+# - YOUR_STORAGE_CONNECTION_STRING_HERE with the connection string from step 1
+# - YOUR_ANTHROPIC_API_KEY_HERE with your Anthropic API key from https://console.anthropic.com/
 ```
+
+**Note**: The `ANTHROPIC_API_KEY` is required for the trivia game feature. Get your API key from [Anthropic Console](https://console.anthropic.com/).
 
 ### 3. Deploy to Azure Static Web Apps
 
@@ -96,9 +102,9 @@ npm install
    - App location: `/src`
    - API location: `/api`
    - Output location: (leave empty)
-4. Add Application Settings:
+4. Add Application Settings (**Required**):
    - `AZURE_STORAGE_CONNECTION_STRING` = your connection string
-   - `ANTHROPIC_API_KEY` = your Anthropic API key (for AI features)
+   - `ANTHROPIC_API_KEY` = your Anthropic API key (required for trivia game feature)
 
 #### Option B: Via Azure CLI
 

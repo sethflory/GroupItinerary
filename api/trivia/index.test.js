@@ -270,3 +270,167 @@ describe('Trivia API - Error Handling', () => {
     );
   });
 });
+
+describe('Trivia API - LLM Integration', () => {
+  let context;
+  let req;
+  let originalEnv;
+  let originalFetch;
+
+  beforeEach(() => {
+    context = {
+      bindingData: {
+        tripId: 'test-trip',
+        action: 'rounds',
+      },
+      res: {},
+    };
+    req = {
+      method: 'POST',
+      query: {},
+      body: {
+        category: 'general',
+        eventContext: 'Athens, Greece'
+      },
+    };
+    
+    // Save original environment and fetch
+    originalEnv = process.env.ANTHROPIC_API_KEY;
+    originalFetch = global.fetch;
+    
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    // Restore original environment and fetch
+    if (originalEnv) {
+      process.env.ANTHROPIC_API_KEY = originalEnv;
+    } else {
+      delete process.env.ANTHROPIC_API_KEY;
+    }
+    global.fetch = originalFetch;
+  });
+
+  test('POST /rounds should fail when ANTHROPIC_API_KEY is not configured', async () => {
+    const { queryByPartition, generateRowKey } = require('../shared/tableStorage');
+    
+    // Remove API key
+    delete process.env.ANTHROPIC_API_KEY;
+    
+    // Mock no active rounds
+    queryByPartition.mockResolvedValueOnce([]);
+    
+    // Mock successful auth
+    requireTravelerAuth.mockResolvedValueOnce({ 
+      valid: true, 
+      tripId: 'test-trip',
+      travelerId: 'test-traveler' 
+    });
+
+    await triviaHandler(context, req);
+
+    // Should return error when API key is missing
+    expect(sendError).toHaveBeenCalledWith(
+      context,
+      'ANTHROPIC_API_KEY is required for trivia question generation. Please configure the API key in application settings.',
+      500,
+      expect.any(Object)
+    );
+  });
+
+  test('POST /rounds should successfully generate question with valid API key', async () => {
+    const { queryByPartition, generateRowKey, upsertEntity } = require('../shared/tableStorage');
+    
+    // Set API key
+    process.env.ANTHROPIC_API_KEY = 'test-api-key';
+    
+    // Mock fetch to simulate successful Anthropic API call
+    global.fetch = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        content: [{
+          text: '{"question": "What is the capital of Greece?", "answers": ["Athens", "Sparta", "Corinth", "Thebes"], "correctIndex": 0}'
+        }]
+      })
+    });
+    
+    // Mock no active rounds
+    queryByPartition.mockResolvedValueOnce([]);
+    
+    // Mock generateRowKey
+    generateRowKey.mockReturnValueOnce('round-123');
+    
+    // Mock successful upsert
+    upsertEntity.mockResolvedValueOnce({});
+    
+    // Mock successful auth
+    requireTravelerAuth.mockResolvedValueOnce({ 
+      valid: true, 
+      tripId: 'test-trip',
+      travelerId: 'test-traveler' 
+    });
+
+    await triviaHandler(context, req);
+
+    // Should successfully create round
+    expect(sendSuccess).toHaveBeenCalledWith(
+      context,
+      expect.objectContaining({
+        round: expect.objectContaining({
+          question: 'What is the capital of Greece?',
+          category: 'general',
+        }),
+        countdownMs: 3000,
+      }),
+      201,
+      expect.any(Object)
+    );
+    
+    // Verify fetch was called with correct parameters
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://api.anthropic.com/v1/messages',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          'x-api-key': 'test-api-key',
+          'anthropic-version': '2023-06-01',
+        }),
+      })
+    );
+  });
+
+  test('POST /rounds should fail gracefully when Anthropic API returns error', async () => {
+    const { queryByPartition } = require('../shared/tableStorage');
+    
+    // Set API key
+    process.env.ANTHROPIC_API_KEY = 'test-api-key';
+    
+    // Mock fetch to simulate API error
+    global.fetch = jest.fn().mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({
+        error: { message: 'Invalid API key' }
+      })
+    });
+    
+    // Mock no active rounds
+    queryByPartition.mockResolvedValueOnce([]);
+    
+    // Mock successful auth
+    requireTravelerAuth.mockResolvedValueOnce({ 
+      valid: true, 
+      tripId: 'test-trip',
+      travelerId: 'test-traveler' 
+    });
+
+    await triviaHandler(context, req);
+
+    // Should return error
+    expect(sendError).toHaveBeenCalledWith(
+      context,
+      'Anthropic API error: Invalid API key',
+      500,
+      expect.any(Object)
+    );
+  });
+});
