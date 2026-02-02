@@ -127,7 +127,10 @@ async function getActiveRound(context, tripId, headers) {
     try {
       const responses = JSON.parse(activeRound.responses || "[]");
       const correctCount = responses.filter(r => r.isCorrect).length;
-      await createNotificationInternal(tripId, 'trivia_ended', `✅ Trivia round ended! ${correctCount}/${responses.length} answered correctly`, {
+      const message = responses.length > 0 
+        ? `Trivia round ended! ${correctCount}/${responses.length} answered correctly`
+        : `Trivia round ended! No responses yet`;
+      await createNotificationInternal(tripId, 'trivia_ended', message, {
         relatedId: activeRound.rowKey || activeRound.id
       });
       console.log("[Trivia] Notification created for round completion");
@@ -222,7 +225,7 @@ async function startRound(context, tripId, body, auth, headers) {
     
     // Create notification for trivia round start
     try {
-      await createNotificationInternal(tripId, 'trivia_starting', `🧠 New trivia round: ${category}!`, {
+      await createNotificationInternal(tripId, 'trivia_starting', `New trivia round: ${category}!`, {
         relatedId: roundId,
         travelerId: auth.travelerId || auth.userId
       });

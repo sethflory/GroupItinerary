@@ -376,7 +376,7 @@ async function createPoll(context, tripId, body, auth, headers) {
   
   // Create notification for new poll
   try {
-    await createNotificationInternal(tripId, 'poll_created', `🗳️ New dinner poll for ${date}!`, {
+    await createNotificationInternal(tripId, 'poll_created', `New dinner poll for ${date}!`, {
       relatedId: pollId,
       travelerId: auth.travelerId
     });
@@ -415,7 +415,7 @@ async function updatePoll(context, tripId, pollId, body, auth, headers) {
     // Create notification for poll closure
     try {
       const votes = JSON.parse(poll.votes || "[]");
-      await createNotificationInternal(tripId, 'poll_closed', `🔒 Dinner poll closed with ${votes.length} votes`, {
+      await createNotificationInternal(tripId, 'poll_closed', `Dinner poll closed with ${votes.length} votes`, {
         relatedId: pollId,
         travelerId: auth.travelerId
       });
@@ -433,7 +433,7 @@ async function updatePoll(context, tripId, pollId, body, auth, headers) {
       const options = JSON.parse(poll.options || "[]");
       const selectedOption = options.find(o => o.id === selectedOptionId);
       const restaurantName = selectedOption ? selectedOption.name : "a restaurant";
-      await createNotificationInternal(tripId, 'poll_result', `🎉 Dinner decided: ${restaurantName}!`, {
+      await createNotificationInternal(tripId, 'poll_result', `Dinner decided: ${restaurantName}!`, {
         relatedId: pollId,
         travelerId: auth.travelerId
       });
