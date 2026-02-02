@@ -9,6 +9,7 @@ import { getStoredAccessCode } from '../auth.js';
 let currentRound = null;
 let triviaInterval = null;
 let countdownInterval = null;
+let pollInterval = null;
 let selectedAnswer = null;
 let hasAnswered = false;
 
@@ -56,6 +57,7 @@ export function openTriviaModal() {
   document.getElementById('triviaModal').classList.add('active');
   checkForActiveRound();
   loadLeaderboard();
+  startPolling(); // Start polling for new rounds
 }
 
 export function closeTriviaModal() {
@@ -589,6 +591,39 @@ function renderLeaderboard(entries) {
 // POLLING
 // ========================================
 
+function startPolling() {
+  // Poll for new rounds every 5 seconds
+  if (!pollInterval) {
+    pollInterval = setInterval(async () => {
+      // Only poll if we're in the lobby (no active round)
+      if (!currentRound) {
+        try {
+          const result = await fetchTrivia('rounds', 'GET');
+          if (result.active && result.round) {
+            // New round detected!
+            console.log('[Trivia] New round detected via polling');
+            currentRound = result.round;
+            hasAnswered = false;
+            selectedAnswer = null;
+            
+            const now = Date.now();
+            const countdownEnd = new Date(currentRound.countdownEndsAt).getTime();
+            const questionEnd = new Date(currentRound.questionEndsAt).getTime();
+            
+            if (now < countdownEnd) {
+              showCountdown();
+            } else if (now < questionEnd) {
+              showQuestion();
+            }
+          }
+        } catch (err) {
+          console.error('[Trivia] Polling error:', err);
+        }
+      }
+    }, 5000);
+  }
+}
+
 function stopPolling() {
   if (triviaInterval) {
     clearInterval(triviaInterval);
@@ -597,6 +632,10 @@ function stopPolling() {
   if (countdownInterval) {
     clearInterval(countdownInterval);
     countdownInterval = null;
+  }
+  if (pollInterval) {
+    clearInterval(pollInterval);
+    pollInterval = null;
   }
 }
 

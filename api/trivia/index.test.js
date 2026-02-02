@@ -21,8 +21,13 @@ jest.mock('../shared/validation', () => ({
   sendSuccess: jest.fn(),
 }));
 
+jest.mock('../notifications/index', () => ({
+  createNotificationInternal: jest.fn().mockResolvedValue({}),
+}));
+
 const { queryByPartition } = require('../shared/tableStorage');
 const { requireTravelerAuth, sendSuccess, sendError } = require('../shared/validation');
+const { createNotificationInternal } = require('../notifications/index');
 
 describe('Trivia API - Error Handling', () => {
   let context;
@@ -432,5 +437,190 @@ describe('Trivia API - LLM Integration', () => {
       500,
       expect.any(Object)
     );
+  });
+});
+
+describe('Trivia API - Notification Integration', () => {
+  let context;
+  let req;
+  let originalEnv;
+  let originalFetch;
+
+  beforeEach(() => {
+    context = {
+      bindingData: {
+        tripId: 'test-trip',
+        action: 'rounds',
+      },
+      res: {},
+    };
+    req = {
+      method: 'POST',
+      query: {},
+      body: {
+        category: 'general',
+      },
+    };
+    
+    // Save original environment and fetch
+    originalEnv = process.env.ANTHROPIC_API_KEY;
+    originalFetch = global.fetch;
+    
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    // Restore original environment and fetch
+    if (originalEnv) {
+      process.env.ANTHROPIC_API_KEY = originalEnv;
+    } else {
+      delete process.env.ANTHROPIC_API_KEY;
+    }
+    global.fetch = originalFetch;
+  });
+
+  test('POST /rounds should send notification when round starts', async () => {
+    const { queryByPartition, generateRowKey, upsertEntity } = require('../shared/tableStorage');
+    
+    // Set API key
+    process.env.ANTHROPIC_API_KEY = 'test-api-key';
+    
+    // Mock fetch to simulate successful Anthropic API call
+    global.fetch = jest.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        content: [{
+          text: '{"question": "Test question?", "answers": ["A", "B", "C", "D"], "correctIndex": 0}'
+        }]
+      })
+    });
+    
+    // Mock no active rounds
+    queryByPartition.mockResolvedValueOnce([]);
+    
+    // Mock generateRowKey
+    generateRowKey.mockReturnValueOnce('round-123');
+    
+    // Mock successful upsert
+    upsertEntity.mockResolvedValueOnce({});
+    
+    // Mock successful auth with traveler name
+    requireTravelerAuth.mockResolvedValueOnce({ 
+      valid: true, 
+      tripId: 'test-trip',
+      travelerId: 'test-traveler',
+      travelerName: 'Alice'
+    });
+
+    await triviaHandler(context, req);
+
+    // Should send notification
+    expect(createNotificationInternal).toHaveBeenCalledWith(
+      'test-trip',
+      'trivia_starting',
+      'Alice started a general trivia round!',
+      expect.objectContaining({
+        relatedId: 'round-123',
+        travelerId: 'test-traveler',
+        travelerName: 'Alice',
+      })
+    );
+  });
+
+  test('POST /answer should send notification for correct answers', async () => {
+    const { getEntity, upsertEntity } = require('../shared/tableStorage');
+    
+    context.bindingData.action = 'answer';
+    req.method = 'POST';
+    req.body = {
+      roundId: 'round-123',
+      answerIndex: 0,
+      answeredAt: new Date().toISOString()
+    };
+
+    // Mock active round
+    const now = new Date();
+    const questionEnd = new Date(now.getTime() + 10000);
+    getEntity.mockResolvedValueOnce({
+      rowKey: 'round-123',
+      id: 'round-123',
+      status: 'active',
+      question: 'Test question?',
+      answers: JSON.stringify(['A', 'B', 'C', 'D']),
+      correctIndex: 0,
+      countdownEndsAt: new Date(now.getTime() - 1000).toISOString(),
+      questionEndsAt: questionEnd.toISOString(),
+      responses: JSON.stringify([])
+    });
+
+    // Mock leaderboard update
+    getEntity.mockResolvedValueOnce(null); // No existing leaderboard entry
+    upsertEntity.mockResolvedValue({});
+    
+    // Mock successful auth
+    requireTravelerAuth.mockResolvedValueOnce({ 
+      valid: true, 
+      tripId: 'test-trip',
+      travelerId: 'test-traveler',
+      travelerName: 'Bob'
+    });
+
+    await triviaHandler(context, req);
+
+    // Should send notification for correct answer
+    expect(createNotificationInternal).toHaveBeenCalledWith(
+      'test-trip',
+      'trivia_answer',
+      expect.stringContaining('Bob answered correctly!'),
+      expect.objectContaining({
+        relatedId: 'round-123',
+        travelerId: 'test-traveler',
+        travelerName: 'Bob',
+      })
+    );
+  });
+
+  test('POST /answer should not send notification for incorrect answers', async () => {
+    const { getEntity, upsertEntity } = require('../shared/tableStorage');
+    
+    context.bindingData.action = 'answer';
+    req.method = 'POST';
+    req.body = {
+      roundId: 'round-123',
+      answerIndex: 1, // Wrong answer
+      answeredAt: new Date().toISOString()
+    };
+
+    // Mock active round
+    const now = new Date();
+    const questionEnd = new Date(now.getTime() + 10000);
+    getEntity.mockResolvedValueOnce({
+      rowKey: 'round-123',
+      id: 'round-123',
+      status: 'active',
+      question: 'Test question?',
+      answers: JSON.stringify(['A', 'B', 'C', 'D']),
+      correctIndex: 0, // Correct answer is index 0
+      countdownEndsAt: new Date(now.getTime() - 1000).toISOString(),
+      questionEndsAt: questionEnd.toISOString(),
+      responses: JSON.stringify([])
+    });
+
+    // Mock leaderboard update
+    getEntity.mockResolvedValueOnce(null);
+    upsertEntity.mockResolvedValue({});
+    
+    // Mock successful auth
+    requireTravelerAuth.mockResolvedValueOnce({ 
+      valid: true, 
+      tripId: 'test-trip',
+      travelerId: 'test-traveler',
+      travelerName: 'Charlie'
+    });
+
+    await triviaHandler(context, req);
+
+    // Should NOT send notification for incorrect answer
+    expect(createNotificationInternal).not.toHaveBeenCalled();
   });
 });
