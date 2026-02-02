@@ -255,3 +255,41 @@ export function getWeatherDescription(code) {
   };
   return descriptions[code] || '';
 }
+
+// ========================================
+// TRIP MEMORIES HELPERS
+// ========================================
+
+/**
+ * Count photos that are linked to trip memories (events)
+ * Trip memories are events (type='moment' or any type) that have a linkedPhotoUrl
+ * @param {Array} days - Array of day objects with events
+ * @returns {number} Count of unique photos linked to events
+ */
+export function countTripMemoryPhotos(days) {
+  if (!days || days.length === 0) return 0;
+  
+  const linkedPhotoUrls = new Set();
+  
+  days.forEach(day => {
+    if (!day.events) return;
+    
+    day.events.forEach(event => {
+      // Check if event has a linked photo URL
+      if (event.linkedPhotoUrl) {
+        linkedPhotoUrls.add(event.linkedPhotoUrl);
+      }
+      
+      // Also check linkedPhotos array if it exists
+      if (event.linkedPhotos && Array.isArray(event.linkedPhotos)) {
+        event.linkedPhotos.forEach(photoUrl => {
+          if (photoUrl) {
+            linkedPhotoUrls.add(photoUrl);
+          }
+        });
+      }
+    });
+  });
+  
+  return linkedPhotoUrls.size;
+}

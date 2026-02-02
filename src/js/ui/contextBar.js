@@ -3,6 +3,7 @@
 // ========================================
 
 import { getCurrentTrip } from '../state.js';
+import { countTripMemoryPhotos } from '../utils.js';
 
 let DAYS = [];
 let DESTINATIONS = [];
@@ -280,12 +281,25 @@ function renderDuringContext(container) {
 
 function renderPostTripContext(container) {
   const totalDays = getTotalDays();
+  const tripMemoryPhotos = countTripMemoryPhotos(DAYS);
+  
+  // Build the message based on what we have
+  let message = `Trip Complete! • ${totalDays} days of memories`;
+  
+  if (photoCount > 0) {
+    message = `Trip Complete! • ${photoCount} photo${photoCount !== 1 ? 's' : ''}`;
+    if (tripMemoryPhotos > 0) {
+      message += ` • ${tripMemoryPhotos} trip memor${tripMemoryPhotos !== 1 ? 'ies' : 'y'}`;
+    }
+  } else if (tripMemoryPhotos > 0) {
+    message += ` • ${tripMemoryPhotos} trip memor${tripMemoryPhotos !== 1 ? 'ies' : 'y'}`;
+  }
 
   container.innerHTML = `
     <div class="context-bar post-trip">
       <span class="context-icon">📸</span>
       <div class="context-main">
-        <div class="context-title">Trip Complete! • ${photoCount} photos • ${totalDays} days of memories</div>
+        <div class="context-title">${message}</div>
         <div class="context-sub">
           <button class="context-action-btn" onclick="window.openPhotoGallery?.()">View Trip Highlights</button>
           <button class="context-action-btn" onclick="window.openStatsShareModal?.()">Share Recap</button>
