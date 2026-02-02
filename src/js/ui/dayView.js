@@ -7,6 +7,18 @@ import { isFeatureEnabled } from '../config.js';
 import { isForTraveler, formatTime, renderTravelerPills, getEventIcon } from '../utils.js';
 import { getFlagHtml, getCountryCode, getFlagUrl } from '../utils/flags.js';
 
+// Helper function to escape HTML for attributes
+function escapeHtml(text) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  };
+  return String(text || '').replace(/[&<>"']/g, m => map[m]);
+}
+
 // These will be set by app.js
 let DAYS, TRAVELERS, DESTINATIONS, CAROUSELS, HOTEL, PHASES;
 let currentDayIndex = 0;
@@ -311,7 +323,7 @@ function renderEventMedia(eventId, cardStyle, images, fallbackImage, title) {
       creditUrl: img.creditUrl || ''
     })));
     return `
-      <div class="event-carousel" data-event-id="${eventId}" data-images='${imagesData.replace(/'/g, "&#39;")}'>
+      <div class="event-carousel" data-event-id="${eventId}" data-images='${escapeHtml(imagesData)}'>
         <div class="event-carousel-track">
           ${images.map((img, idx) => `
             <div class="event-carousel-slide ${idx === 0 ? 'active' : ''}">
@@ -386,7 +398,24 @@ window.slideEventCarousel = function(eventId, direction) {
       const currentImg = images[currentIndex];
       const attribution = carousel.querySelector('.event-image-attribution');
       if (attribution && currentImg?.credit) {
-        attribution.innerHTML = `Photo by <a href="${currentImg.creditUrl || '#'}?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">${currentImg.credit}</a> on <a href="https://unsplash.com?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`;
+        // Safely update attribution using DOM methods to prevent XSS
+        attribution.textContent = 'Photo by ';
+        
+        const creditLink = document.createElement('a');
+        creditLink.href = (currentImg.creditUrl || '#') + '?utm_source=GroupItinerary&utm_medium=referral';
+        creditLink.target = '_blank';
+        creditLink.rel = 'noopener';
+        creditLink.textContent = currentImg.credit;
+        attribution.appendChild(creditLink);
+        
+        attribution.appendChild(document.createTextNode(' on '));
+        
+        const unsplashLink = document.createElement('a');
+        unsplashLink.href = 'https://unsplash.com?utm_source=GroupItinerary&utm_medium=referral';
+        unsplashLink.target = '_blank';
+        unsplashLink.rel = 'noopener';
+        unsplashLink.textContent = 'Unsplash';
+        attribution.appendChild(unsplashLink);
       }
     } catch (e) {
       console.error('Failed to parse carousel images data:', e);
