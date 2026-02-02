@@ -7,18 +7,6 @@ import { isFeatureEnabled } from '../config.js';
 import { isForTraveler, formatTime, renderTravelerPills, getEventIcon } from '../utils.js';
 import { getFlagHtml, getCountryCode, getFlagUrl } from '../utils/flags.js';
 
-// Helper function to escape HTML for attributes
-function escapeHtml(text) {
-  const map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-  };
-  return String(text || '').replace(/[&<>"']/g, m => map[m]);
-}
-
 // These will be set by app.js
 let DAYS, TRAVELERS, DESTINATIONS, CAROUSELS, HOTEL, PHASES;
 let currentDayIndex = 0;
@@ -322,8 +310,10 @@ function renderEventMedia(eventId, cardStyle, images, fallbackImage, title) {
       credit: img.credit || '',
       creditUrl: img.creditUrl || ''
     })));
+    // Escape single quotes for the HTML attribute (using single-quoted attribute)
+    const escapedData = imagesData.replace(/'/g, "&#39;");
     return `
-      <div class="event-carousel" data-event-id="${eventId}" data-images='${escapeHtml(imagesData)}'>
+      <div class="event-carousel" data-event-id="${eventId}" data-images='${escapedData}'>
         <div class="event-carousel-track">
           ${images.map((img, idx) => `
             <div class="event-carousel-slide ${idx === 0 ? 'active' : ''}">
