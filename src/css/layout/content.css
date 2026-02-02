@@ -94,6 +94,38 @@
       font-size: 16px;
     }
 
+    .ribbon-pause-btn,
+    .ribbon-delete-all-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 10px;
+      background: white;
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ribbon-pause-btn:hover {
+      border-color: var(--color-sky);
+      color: var(--color-sky);
+      background: rgba(79, 172, 254, 0.05);
+    }
+
+    .ribbon-delete-all-btn:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.05);
+    }
+
+    .ribbon-pause-btn .material-symbols-outlined,
+    .ribbon-delete-all-btn .material-symbols-outlined {
+      font-size: 16px;
+    }
+
     .photo-ribbon-track {
       position: relative;
       overflow-x: auto;

@@ -201,6 +201,7 @@ window.closeLightbox = photos.closeLightbox;
 window.addMomentFromPhoto = photos.addMomentFromPhoto;
 window.togglePhotoRibbon = photos.togglePhotoRibbon;
 window.initRibbonVisibility = photos.initRibbonVisibility;
+window.deleteAllPhotosHandler = photos.deleteAllPhotosHandler;
 
 // ========================================
 // EVENTS EXPORTS

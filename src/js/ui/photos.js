@@ -5,7 +5,7 @@
 import { currentTripId, getCurrentPhotoPrefix } from '../state.js';
 import { isFeatureEnabled, MAX_RIBBON_PHOTOS, PLACEHOLDER_COUNT } from '../config.js';
 import { getStoredAccessCode } from '../auth.js';
-import { loadPhotos, uploadPhoto as apiUploadPhoto } from '../api.js';
+import { loadPhotos, uploadPhoto as apiUploadPhoto, deleteAllPhotos as apiDeleteAllPhotos } from '../api.js';
 
 let tripPhotosCache = [];
 let ribbonPaused = false;
@@ -338,6 +338,35 @@ export function addMomentFromPhoto() {
 export function closeLightbox() {
   document.getElementById('photoLightbox').classList.remove('visible');
   document.body.style.overflow = '';
+}
+
+export async function deleteAllPhotosHandler() {
+  if (tripPhotosCache.length === 0) {
+    alert('No photos to delete');
+    return;
+  }
+
+  const confirmMessage = `Are you sure you want to delete ALL ${tripPhotosCache.length} photo${tripPhotosCache.length !== 1 ? 's' : ''}? This action cannot be undone.`;
+  
+  if (!confirm(confirmMessage)) {
+    return;
+  }
+
+  try {
+    const result = await apiDeleteAllPhotos(currentTripId);
+    
+    // Clear local cache
+    tripPhotosCache = [];
+    
+    // Refresh the ribbon to show empty state
+    renderPhotoRibbon([]);
+    
+    // Show success message
+    alert(`Successfully deleted ${result.deletedCount} photo${result.deletedCount !== 1 ? 's' : ''}`);
+  } catch (error) {
+    alert('Failed to delete photos: ' + error.message);
+    console.error('Delete all photos error:', error);
+  }
 }
 
 // Export for global access

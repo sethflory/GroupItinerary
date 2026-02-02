@@ -187,6 +187,22 @@ export async function deletePhoto(tripId, blobName) {
   return true;
 }
 
+export async function deleteAllPhotos(tripId) {
+  const accessCode = getStoredAccessCode(tripId);
+
+  const response = await fetch(
+    `${API_BASE}/photos?tripId=${tripId}&deleteAll=true&accessCode=${encodeURIComponent(accessCode)}`,
+    { method: 'DELETE' }
+  );
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error || 'Delete all photos failed');
+  }
+
+  return await response.json();
+}
+
 // ========================================
 // AI API
 // ========================================
