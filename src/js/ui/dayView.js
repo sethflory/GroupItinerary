@@ -305,8 +305,16 @@ function renderEventMedia(eventId, cardStyle, images, fallbackImage, title) {
 
   // Carousel: multiple images to swipe through
   if (cardStyle === 'carousel' && images.length > 1) {
+    // Store images data for slideEventCarousel to access
+    const imagesData = JSON.stringify(images.map(img => ({
+      credit: img.credit || '',
+      creditUrl: img.creditUrl || ''
+    })));
+    // Escape only double quotes for use in double-quoted HTML attribute
+    // Browser will decode &quot; back to " when reading the attribute
+    const escapedData = imagesData.replace(/"/g, '&quot;');
     return `
-      <div class="event-carousel" data-event-id="${eventId}">
+      <div class="event-carousel" data-event-id="${eventId}" data-images="${escapedData}">
         <div class="event-carousel-track">
           ${images.map((img, idx) => `
             <div class="event-carousel-slide ${idx === 0 ? 'active' : ''}">
@@ -374,11 +382,40 @@ window.slideEventCarousel = function(eventId, direction) {
   dots.forEach((d, i) => d.classList.toggle('active', i === currentIndex));
 
   // Update attribution for current slide
-  const eventCard = window.tripPersonalization?.eventCards?.[eventId];
-  const currentImg = eventCard?.images?.[currentIndex];
-  const attribution = carousel.querySelector('.event-image-attribution');
-  if (attribution && currentImg?.credit) {
-    attribution.innerHTML = `Photo by <a href="${currentImg.creditUrl || '#'}?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">${currentImg.credit}</a> on <a href="https://unsplash.com?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`;
+  const imagesData = carousel.dataset.images;
+  if (imagesData) {
+    try {
+      const images = JSON.parse(imagesData);
+      const currentImg = images[currentIndex];
+      const attribution = carousel.querySelector('.event-image-attribution');
+      if (attribution) {
+        if (currentImg?.credit) {
+          // Safely update attribution using DOM methods to prevent XSS
+          attribution.textContent = 'Photo by ';
+          
+          const creditLink = document.createElement('a');
+          creditLink.href = (currentImg.creditUrl || '#') + '?utm_source=GroupItinerary&utm_medium=referral';
+          creditLink.target = '_blank';
+          creditLink.rel = 'noopener';
+          creditLink.textContent = currentImg.credit;
+          attribution.appendChild(creditLink);
+          
+          attribution.appendChild(document.createTextNode(' on '));
+          
+          const unsplashLink = document.createElement('a');
+          unsplashLink.href = 'https://unsplash.com?utm_source=GroupItinerary&utm_medium=referral';
+          unsplashLink.target = '_blank';
+          unsplashLink.rel = 'noopener';
+          unsplashLink.textContent = 'Unsplash';
+          attribution.appendChild(unsplashLink);
+        } else {
+          // Clear attribution if image has no credit
+          attribution.textContent = '';
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse carousel images data:', e);
+    }
   }
 };
 
