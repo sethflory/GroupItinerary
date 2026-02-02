@@ -3,7 +3,7 @@
 // ========================================
 
 import { getCurrentTrip } from '../state.js';
-import { calculateTotalMiles, calculateFlightCount, calculateTotalSteps, calculateGroundTravelTime } from '../utils.js';
+import { calculateTotalMiles, calculateFlightCount, calculateTotalSteps, calculateGroundTravelTime, countTripMemoryPhotos } from '../utils.js';
 
 let DAYS, TRAVELERS;
 let currentTravelerFilter = 'all';
@@ -34,6 +34,7 @@ export function renderStats() {
   const totalFlights = calculateFlightCount(currentTravelerFilter, DAYS);
   const totalSteps = calculateTotalSteps(currentTravelerFilter, DAYS);
   const groundTime = calculateGroundTravelTime(DAYS, currentTravelerFilter);
+  const tripMemoryPhotos = countTripMemoryPhotos(DAYS);
 
   // Count destinations
   const destinations = new Set(DAYS.map(d => d.destination).filter(d => d !== 'travel'));
@@ -88,6 +89,13 @@ export function renderStats() {
         <div class="stat-card-value">${totalEvents}</div>
         <div class="stat-card-sub">Activities, meals & more</div>
       </div>
+      ${tripMemoryPhotos > 0 ? `
+        <div class="stat-card">
+          <div class="stat-card-label">Trip Memories</div>
+          <div class="stat-card-value">${tripMemoryPhotos}</div>
+          <div class="stat-card-sub">Photos linked to events</div>
+        </div>
+      ` : ''}
       ${totalSteps > 0 ? `
         <div class="stat-card">
           <div class="stat-card-label">Est. Steps</div>
