@@ -310,8 +310,14 @@ function renderEventMedia(eventId, cardStyle, images, fallbackImage, title) {
       credit: img.credit || '',
       creditUrl: img.creditUrl || ''
     })));
-    // Escape single quotes for the HTML attribute (using single-quoted attribute)
-    const escapedData = imagesData.replace(/'/g, "&#39;");
+    // Escape for HTML attribute - JSON.stringify already handles most escaping,
+    // but we need to escape quotes and HTML entities for safe attribute usage
+    const escapedData = imagesData
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
     return `
       <div class="event-carousel" data-event-id="${eventId}" data-images='${escapedData}'>
         <div class="event-carousel-track">
