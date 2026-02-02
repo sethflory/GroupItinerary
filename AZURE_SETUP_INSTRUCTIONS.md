@@ -22,10 +22,10 @@ Group Itinerary app with:
 - **CRITICAL**: Must have managed functions enabled (happens automatically when you specify api_location during creation)
 
 ### 3. Environment Variables (set in Azure Static Web App)
-| Variable | Purpose |
-|----------|---------|
-| `AZURE_STORAGE_CONNECTION_STRING` | Connection string for storage account (for photos API) |
-| `ANTHROPIC_API_KEY` | Anthropic API key (for AI proxy) |
+| Variable | Purpose | Required |
+|----------|---------|----------|
+| `AZURE_STORAGE_CONNECTION_STRING` | Connection string for storage account (for photos API) | Yes |
+| `ANTHROPIC_API_KEY` | Anthropic API key for Claude (required for trivia game) | Yes |
 
 ## GitHub Repository Structure
 
@@ -110,10 +110,12 @@ az storage account show-connection-string \
 
 ### 3. Configure Environment Variables
 1. Go to Static Web App → Environment Variables
-2. Add:
+2. Add (both required):
    - `AZURE_STORAGE_CONNECTION_STRING` = (connection string from step 1)
-   - `ANTHROPIC_API_KEY` = (your Anthropic API key)
+   - `ANTHROPIC_API_KEY` = (your Anthropic API key from https://console.anthropic.com/)
 3. Save
+
+**Important**: The trivia game feature requires `ANTHROPIC_API_KEY` to be configured. Without it, the trivia functionality will not work.
 
 ### 4. Test
 1. Visit your Static Web App URL
