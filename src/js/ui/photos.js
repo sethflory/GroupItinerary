@@ -31,9 +31,11 @@ export function renderPhotoRibbon(photos) {
   if (!ribbonEl) return;
 
   const photoCount = photos.length;
-  countEl.textContent = photoCount > 0
-    ? `${photoCount} photo${photoCount !== 1 ? 's' : ''}`
-    : 'No photos yet - be the first!';
+  if (countEl) {
+    countEl.textContent = photoCount > 0
+      ? `${photoCount} photo${photoCount !== 1 ? 's' : ''}`
+      : 'No photos yet - be the first!';
+  }
 
   let ribbonHTML = '';
   const displayPhotos = photos.slice(0, MAX_RIBBON_PHOTOS);
@@ -76,7 +78,9 @@ export function renderPhotoRibbon(photos) {
       `;
     });
 
-    controlsEl.style.display = 'flex';
+    if (controlsEl) {
+      controlsEl.style.display = 'flex';
+    }
   } else {
     // All placeholders when no photos
     const prompts = ['Your photo here!', 'Add a memory', 'Share a moment', 'Capture the trip', 'Add yours', 'Upload photo'];
@@ -88,7 +92,9 @@ export function renderPhotoRibbon(photos) {
         </div>
       `;
     }
-    controlsEl.style.display = 'none';
+    if (controlsEl) {
+      controlsEl.style.display = 'none';
+    }
   }
 
   ribbonEl.innerHTML = ribbonHTML;
