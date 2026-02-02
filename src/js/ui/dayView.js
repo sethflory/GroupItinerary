@@ -310,8 +310,14 @@ function renderEventMedia(eventId, cardStyle, images, fallbackImage, title) {
       credit: img.credit || '',
       creditUrl: img.creditUrl || ''
     })));
+    // Escape for safe use in HTML attribute
+    const escapedData = imagesData
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
     return `
-      <div class="event-carousel" data-event-id="${eventId}" data-images="${imagesData.replace(/"/g, '&quot;')}">
+      <div class="event-carousel" data-event-id="${eventId}" data-images="${escapedData}">
         <div class="event-carousel-track">
           ${images.map((img, idx) => `
             <div class="event-carousel-slide ${idx === 0 ? 'active' : ''}">
@@ -385,25 +391,30 @@ window.slideEventCarousel = function(eventId, direction) {
       const images = JSON.parse(imagesData);
       const currentImg = images[currentIndex];
       const attribution = carousel.querySelector('.event-image-attribution');
-      if (attribution && currentImg?.credit) {
-        // Safely update attribution using DOM methods to prevent XSS
-        attribution.textContent = 'Photo by ';
-        
-        const creditLink = document.createElement('a');
-        creditLink.href = (currentImg.creditUrl || '#') + '?utm_source=GroupItinerary&utm_medium=referral';
-        creditLink.target = '_blank';
-        creditLink.rel = 'noopener';
-        creditLink.textContent = currentImg.credit;
-        attribution.appendChild(creditLink);
-        
-        attribution.appendChild(document.createTextNode(' on '));
-        
-        const unsplashLink = document.createElement('a');
-        unsplashLink.href = 'https://unsplash.com?utm_source=GroupItinerary&utm_medium=referral';
-        unsplashLink.target = '_blank';
-        unsplashLink.rel = 'noopener';
-        unsplashLink.textContent = 'Unsplash';
-        attribution.appendChild(unsplashLink);
+      if (attribution) {
+        if (currentImg?.credit) {
+          // Safely update attribution using DOM methods to prevent XSS
+          attribution.textContent = 'Photo by ';
+          
+          const creditLink = document.createElement('a');
+          creditLink.href = (currentImg.creditUrl || '#') + '?utm_source=GroupItinerary&utm_medium=referral';
+          creditLink.target = '_blank';
+          creditLink.rel = 'noopener';
+          creditLink.textContent = currentImg.credit;
+          attribution.appendChild(creditLink);
+          
+          attribution.appendChild(document.createTextNode(' on '));
+          
+          const unsplashLink = document.createElement('a');
+          unsplashLink.href = 'https://unsplash.com?utm_source=GroupItinerary&utm_medium=referral';
+          unsplashLink.target = '_blank';
+          unsplashLink.rel = 'noopener';
+          unsplashLink.textContent = 'Unsplash';
+          attribution.appendChild(unsplashLink);
+        } else {
+          // Clear attribution if image has no credit
+          attribution.textContent = '';
+        }
       }
     } catch (e) {
       console.error('Failed to parse carousel images data:', e);
