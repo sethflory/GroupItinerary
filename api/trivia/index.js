@@ -155,6 +155,10 @@ async function startRound(context, tripId, body, auth, headers) {
   const { category, eventContext } = body || {};
 
   console.log("[Trivia] Starting round for trip:", tripId, "category:", category);
+  
+  // Validate category - only allow predefined categories
+  const validCategories = ['general', 'funny', 'historical', 'food', 'expert'];
+  const sanitizedCategory = validCategories.includes(category) ? category : 'general';
 
   let rounds = [];
   try {
@@ -189,7 +193,7 @@ async function startRound(context, tripId, body, auth, headers) {
   }
 
   console.log("[Trivia] Generating question...");
-  const question = await generateTriviaQuestion(category, eventContext);
+  const question = await generateTriviaQuestion(sanitizedCategory, eventContext);
   console.log("[Trivia] Question generated:", question ? "success" : "failed");
 
   if (!question) {
@@ -207,7 +211,7 @@ async function startRound(context, tripId, body, auth, headers) {
     rowKey: roundId,
     id: roundId,
     status: "active",
-    category: category || "general",
+    category: sanitizedCategory,
     question: question.question,
     answers: JSON.stringify(question.answers),
     correctIndex: question.correctIndex,
@@ -225,7 +229,7 @@ async function startRound(context, tripId, body, auth, headers) {
     
     // Create notification for trivia round start
     try {
-      await createNotificationInternal(tripId, 'trivia_starting', `New trivia round: ${category}!`, {
+      await createNotificationInternal(tripId, 'trivia_starting', `New trivia round: ${sanitizedCategory}!`, {
         relatedId: roundId,
         travelerId: auth.travelerId || auth.userId
       });

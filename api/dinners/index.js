@@ -432,7 +432,9 @@ async function updatePoll(context, tripId, pollId, body, auth, headers) {
     try {
       const options = JSON.parse(poll.options || "[]");
       const selectedOption = options.find(o => o.id === selectedOptionId);
-      const restaurantName = selectedOption ? selectedOption.name : "a restaurant";
+      // Sanitize restaurant name to prevent XSS - limit length and remove special chars
+      let restaurantName = selectedOption && selectedOption.name ? selectedOption.name : "a restaurant";
+      restaurantName = String(restaurantName).substring(0, 100).replace(/[<>]/g, '');
       await createNotificationInternal(tripId, 'poll_result', `Dinner decided: ${restaurantName}!`, {
         relatedId: pollId,
         travelerId: auth.travelerId
