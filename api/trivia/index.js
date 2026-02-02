@@ -60,6 +60,23 @@ module.exports = async function (context, req) {
   }
 };
 
+// Helper function to fetch travelers for manual scoring UI
+async function getTravelersForTrivia(tripId) {
+  try {
+    const entities = await queryByPartition(TABLES.TRAVELERS, tripId);
+    return entities.map(e => ({
+      id: e.rowKey,
+      name: e.name,
+      initials: e.initials || undefined,
+      group: e.group || undefined,
+      color: e.color || undefined
+    }));
+  } catch (err) {
+    console.error("[Trivia] Error fetching travelers:", err);
+    return [];
+  }
+}
+
 async function getActiveRound(context, tripId, headers) {
   let rounds = [];
   try {
@@ -82,9 +99,12 @@ async function getActiveRound(context, tripId, headers) {
       const completedAt = new Date(recentRound.questionEndsAt);
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
       if (completedAt > fiveMinutesAgo) {
+        // Fetch travelers for manual scoring UI
+        const travelers = await getTravelersForTrivia(tripId);
         sendSuccess(context, {
           active: false,
-          recentRound: formatRound(recentRound, true)
+          recentRound: formatRound(recentRound, true),
+          travelers
         }, 200, headers);
         return;
       }
@@ -101,10 +121,12 @@ async function getActiveRound(context, tripId, headers) {
   if (now > questionEnd) {
     activeRound.status = "completed";
     await upsertEntity(TABLES.TRIVIA_ROUNDS, activeRound);
-    // Return the completed round for manual scoring
+    // Return the completed round for manual scoring with travelers list
+    const travelers = await getTravelersForTrivia(tripId);
     sendSuccess(context, {
       active: false,
-      recentRound: formatRound(activeRound, true)
+      recentRound: formatRound(activeRound, true),
+      travelers
     }, 200, headers);
     return;
   }
