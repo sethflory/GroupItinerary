@@ -67,9 +67,9 @@ async function getTravelersForTrivia(tripId) {
     return entities.map(e => ({
       id: e.rowKey,
       name: e.name,
-      initials: e.initials || '',
-      group: e.group || '',
-      color: e.color || ''
+      initials: e.initials || undefined,
+      group: e.group || undefined,
+      color: e.color || undefined
     }));
   } catch (err) {
     console.error("[Trivia] Error fetching travelers:", err);
