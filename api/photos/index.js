@@ -113,20 +113,26 @@ module.exports = async function (context, req) {
       
       if (deleteAll) {
         // Delete all photos for this trip
-        const deletedBlobs = [];
+        const blobsToDelete = [];
         const listOptions = { includeMetadata: true };
         if (prefix) listOptions.prefix = prefix;
         
+        // First, collect all blob names
         for await (const blob of containerClient.listBlobsFlat(listOptions)) {
-          const blobClient = containerClient.getBlobClient(blob.name);
-          await blobClient.deleteIfExists();
-          deletedBlobs.push(blob.name);
+          blobsToDelete.push(blob.name);
         }
+        
+        // Delete all blobs in parallel for better performance
+        await Promise.all(
+          blobsToDelete.map(blobName => 
+            containerClient.getBlobClient(blobName).deleteIfExists()
+          )
+        );
         
         context.res = { 
           status: 200, 
           headers, 
-          body: { success: true, deletedCount: deletedBlobs.length, deleted: deletedBlobs } 
+          body: { success: true, deletedCount: blobsToDelete.length, deleted: blobsToDelete } 
         };
       } else {
         // Delete a single photo
