@@ -61,7 +61,15 @@ module.exports = async function (context, req) {
 };
 
 async function getActiveRound(context, tripId, headers) {
-  const rounds = await queryByPartition(TABLES.TRIVIA_ROUNDS, tripId);
+  let rounds = [];
+  try {
+    rounds = await queryByPartition(TABLES.TRIVIA_ROUNDS, tripId);
+  } catch (err) {
+    console.error("[Trivia] Error querying rounds:", err);
+    // Table might not exist yet - return no active round
+    sendSuccess(context, { active: false }, 200, headers);
+    return;
+  }
   const activeRound = rounds.find(r => r.status === "active" || r.status === "countdown");
 
   if (!activeRound) {
@@ -318,7 +326,13 @@ async function manualScore(context, tripId, body, auth, headers) {
 }
 
 async function getLeaderboard(context, tripId, headers) {
-  const entries = await queryByPartition(TABLES.TRIVIA_LEADERBOARD, tripId);
+  let entries = [];
+  try {
+    entries = await queryByPartition(TABLES.TRIVIA_LEADERBOARD, tripId);
+  } catch (err) {
+    console.error("[Trivia] Error querying leaderboard:", err);
+    // Table might not exist yet - return empty leaderboard
+  }
   const sorted = entries
     .map(e => ({
       travelerId: e.rowKey,
