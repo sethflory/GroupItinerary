@@ -310,12 +310,9 @@ function renderEventMedia(eventId, cardStyle, images, fallbackImage, title) {
       credit: img.credit || '',
       creditUrl: img.creditUrl || ''
     })));
-    // Escape for safe use in HTML attribute
-    const escapedData = imagesData
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    // Escape only double quotes for use in double-quoted HTML attribute
+    // Browser will decode &quot; back to " when reading the attribute
+    const escapedData = imagesData.replace(/"/g, '&quot;');
     return `
       <div class="event-carousel" data-event-id="${eventId}" data-images="${escapedData}">
         <div class="event-carousel-track">
