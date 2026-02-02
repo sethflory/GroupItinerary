@@ -36,7 +36,7 @@ describe('Activity Pills - Trivia Integration', () => {
     });
     
     // Mock fetchActiveHunt to return null by default
-    fetchActiveHunt.mockResolvedValue({});
+    fetchActiveHunt.mockResolvedValue({ hunt: null });
   });
 
   afterEach(() => {

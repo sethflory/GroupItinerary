@@ -78,7 +78,7 @@ async function fetchActiveTriviaRound() {
   try {
     const accessCode = getStoredAccessCode(currentTripId);
     const response = await fetch(
-      `${API_BASE}/trips/${currentTripId}/trivia/rounds?tripId=${encodeURIComponent(currentTripId)}&accessCode=${encodeURIComponent(accessCode)}`,
+      `${API_BASE}/trips/${currentTripId}/trivia/rounds?accessCode=${encodeURIComponent(accessCode)}`,
       {
         headers: {
           'Content-Type': 'application/json'
