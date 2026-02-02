@@ -15,6 +15,7 @@ const {
   sendError,
   sendSuccess
 } = require("../shared/validation");
+const { createNotificationInternal } = require("../notifications/index");
 
 module.exports = async function (context, req) {
   const headers = getHeaders("GET, POST, PUT, OPTIONS");
@@ -372,6 +373,17 @@ async function createPoll(context, tripId, body, auth, headers) {
   };
 
   await upsertEntity(TABLES.DINNER_POLLS, poll);
+  
+  // Create notification for new poll
+  try {
+    await createNotificationInternal(tripId, 'poll_created', `🗳️ New dinner poll for ${date}!`, {
+      relatedId: pollId,
+      travelerId: auth.travelerId
+    });
+    console.log("[Dinners] Notification created for new poll");
+  } catch (notifErr) {
+    console.warn("[Dinners] Failed to create notification:", notifErr.message);
+  }
 
   sendSuccess(context, formatPoll(poll), 201, headers);
 }
@@ -399,10 +411,36 @@ async function updatePoll(context, tripId, pollId, body, auth, headers) {
   if (action === "close") {
     poll.status = "closed";
     poll.closedAt = new Date().toISOString();
+    
+    // Create notification for poll closure
+    try {
+      const votes = JSON.parse(poll.votes || "[]");
+      await createNotificationInternal(tripId, 'poll_closed', `🔒 Dinner poll closed with ${votes.length} votes`, {
+        relatedId: pollId,
+        travelerId: auth.travelerId
+      });
+      console.log("[Dinners] Notification created for poll closure");
+    } catch (notifErr) {
+      console.warn("[Dinners] Failed to create closure notification:", notifErr.message);
+    }
   }
 
   if (selectedOptionId) {
     poll.selectedOptionId = selectedOptionId;
+    
+    // Create notification for selected restaurant
+    try {
+      const options = JSON.parse(poll.options || "[]");
+      const selectedOption = options.find(o => o.id === selectedOptionId);
+      const restaurantName = selectedOption ? selectedOption.name : "a restaurant";
+      await createNotificationInternal(tripId, 'poll_result', `🎉 Dinner decided: ${restaurantName}!`, {
+        relatedId: pollId,
+        travelerId: auth.travelerId
+      });
+      console.log("[Dinners] Notification created for selected restaurant");
+    } catch (notifErr) {
+      console.warn("[Dinners] Failed to create selection notification:", notifErr.message);
+    }
   }
 
   if (eventId) {

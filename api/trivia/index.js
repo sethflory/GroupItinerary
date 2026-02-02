@@ -12,6 +12,7 @@ const {
   sendError,
   sendSuccess
 } = require("../shared/validation");
+const { createNotificationInternal } = require("../notifications/index");
 
 module.exports = async function (context, req) {
   const headers = getHeaders("GET, POST, PUT, OPTIONS");
@@ -121,6 +122,19 @@ async function getActiveRound(context, tripId, headers) {
   if (now > questionEnd) {
     activeRound.status = "completed";
     await upsertEntity(TABLES.TRIVIA_ROUNDS, activeRound);
+    
+    // Create notification for trivia round completion
+    try {
+      const responses = JSON.parse(activeRound.responses || "[]");
+      const correctCount = responses.filter(r => r.isCorrect).length;
+      await createNotificationInternal(tripId, 'trivia_ended', `✅ Trivia round ended! ${correctCount}/${responses.length} answered correctly`, {
+        relatedId: activeRound.rowKey || activeRound.id
+      });
+      console.log("[Trivia] Notification created for round completion");
+    } catch (notifErr) {
+      console.warn("[Trivia] Failed to create completion notification:", notifErr.message);
+    }
+    
     // Return the completed round for manual scoring with travelers list
     const travelers = await getTravelersForTrivia(tripId);
     sendSuccess(context, {
@@ -205,6 +219,18 @@ async function startRound(context, tripId, body, auth, headers) {
   try {
     await upsertEntity(TABLES.TRIVIA_ROUNDS, round);
     console.log("[Trivia] Round saved successfully");
+    
+    // Create notification for trivia round start
+    try {
+      await createNotificationInternal(tripId, 'trivia_starting', `🧠 New trivia round: ${category}!`, {
+        relatedId: roundId,
+        travelerId: auth.travelerId || auth.userId
+      });
+      console.log("[Trivia] Notification created for round start");
+    } catch (notifErr) {
+      console.warn("[Trivia] Failed to create notification:", notifErr.message);
+      // Don't fail the round creation if notification fails
+    }
   } catch (err) {
     console.error("[Trivia] Error saving round:", err);
     sendError(context, "Failed to save round: " + err.message, 500, headers);
