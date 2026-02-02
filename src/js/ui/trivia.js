@@ -170,9 +170,9 @@ async function checkForActiveRound() {
         showResults();
       }
     } else if (result.recentRound) {
-      // Show scoring UI for recently completed round
-      console.log('[Trivia] Showing scoring UI, travelers:', window.TRAVELERS);
-      showScoringUI(result.recentRound);
+      // Show scoring UI for recently completed round with travelers from API
+      console.log('[Trivia] Showing scoring UI, travelers from API:', result.travelers);
+      showScoringUI(result.recentRound, result.travelers);
     } else {
       // No active or recent round, show lobby
       showResults();
@@ -417,7 +417,7 @@ function showResults() {
 // MANUAL SCORING
 // ========================================
 
-function showScoringUI(round) {
+function showScoringUI(round, travelers = []) {
   clearInterval(triviaInterval);
   clearInterval(countdownInterval);
 
@@ -434,12 +434,12 @@ function showScoringUI(round) {
     const responses = round.responses || [];
     const respondedIds = responses.map(r => r.travelerId);
 
-    // Get all travelers from global state
-    const allTravelers = window.TRAVELERS || [];
+    // Use travelers from API parameter instead of window.TRAVELERS
+    const allTravelers = travelers || [];
     const notResponded = allTravelers.filter(t => !respondedIds.includes(t.id));
 
     console.log('[Trivia] respondedIds:', respondedIds);
-  console.log('[Trivia] allTravelers:', allTravelers);
+  console.log('[Trivia] allTravelers (from API):', allTravelers);
   console.log('[Trivia] notResponded:', notResponded);
 
   content.innerHTML = `

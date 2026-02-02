@@ -5,6 +5,7 @@ jest.mock('../shared/tableStorage', () => ({
   TABLES: {
     TRIVIA_ROUNDS: 'TriviaRounds',
     TRIVIA_LEADERBOARD: 'TriviaLeaderboard',
+    TRAVELERS: 'Travelers',
   },
   getEntity: jest.fn(),
   queryByPartition: jest.fn(),
@@ -184,6 +185,83 @@ describe('Trivia API - Error Handling', () => {
             travelerId: 'traveler-2',
             displayName: 'Bob',
             totalPoints: 50,
+          }),
+        ]),
+      }),
+      200,
+      expect.any(Object)
+    );
+  });
+
+  test('GET /rounds should return travelers with recent round for manual scoring', async () => {
+    const now = new Date();
+    const twoMinutesAgo = new Date(now.getTime() - 2 * 60 * 1000);
+    
+    // Mock a recently completed round
+    queryByPartition
+      .mockResolvedValueOnce([
+        {
+          rowKey: 'round-456',
+          id: 'round-456',
+          status: 'completed',
+          category: 'general',
+          question: 'Completed question?',
+          answers: JSON.stringify(['A', 'B', 'C', 'D']),
+          correctIndex: 2,
+          startedAt: new Date(twoMinutesAgo.getTime() - 33000).toISOString(),
+          countdownEndsAt: new Date(twoMinutesAgo.getTime() - 30000).toISOString(),
+          questionEndsAt: twoMinutesAgo.toISOString(),
+          startedBy: 'test-user',
+          responses: JSON.stringify([
+            { travelerId: 'traveler-1', isCorrect: true, points: 10 }
+          ]),
+        }
+      ])
+      // Mock travelers query
+      .mockResolvedValueOnce([
+        {
+          rowKey: 'traveler-1',
+          name: 'Alice',
+          initials: 'AL',
+          group: 'GroupA',
+          color: '#FF0000',
+        },
+        {
+          rowKey: 'traveler-2',
+          name: 'Bob',
+          initials: 'BB',
+          group: 'GroupB',
+          color: '#00FF00',
+        }
+      ]);
+    
+    // Mock successful auth
+    requireTravelerAuth.mockResolvedValueOnce({ 
+      valid: true, 
+      tripId: 'test-trip',
+      travelerId: 'test-traveler' 
+    });
+
+    await triviaHandler(context, req);
+
+    // Should return the recent round with travelers list
+    expect(sendSuccess).toHaveBeenCalledWith(
+      context,
+      expect.objectContaining({
+        active: false,
+        recentRound: expect.objectContaining({
+          id: 'round-456',
+          status: 'completed',
+          correctIndex: 2,
+        }),
+        travelers: expect.arrayContaining([
+          expect.objectContaining({
+            id: 'traveler-1',
+            name: 'Alice',
+          }),
+          expect.objectContaining({
+            id: 'traveler-2',
+            name: 'Bob',
           }),
         ]),
       }),
