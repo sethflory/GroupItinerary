@@ -136,9 +136,11 @@ function getDefaultIcon(type) {
     hunt_item_claimed: "✅",
     hunt_ended: "🏆",
     trivia_starting: "🧠",
+    trivia_ended: "🎉",
     trivia_answer: "💡",
     poll_result: "🗳️",
     poll_created: "📊",
+    poll_closed: "🔒",
     photo_uploaded: "📷",
     event_added: "📅",
     member_joined: "👋"

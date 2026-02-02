@@ -12,6 +12,7 @@ const {
   sendError,
   sendSuccess
 } = require("../shared/validation");
+const { createNotificationInternal } = require("../notifications/index");
 
 module.exports = async function (context, req) {
   const headers = getHeaders("GET, POST, PUT, OPTIONS");
@@ -121,6 +122,22 @@ async function getActiveRound(context, tripId, headers) {
   if (now > questionEnd) {
     activeRound.status = "completed";
     await upsertEntity(TABLES.TRIVIA_ROUNDS, activeRound);
+    
+    // Create notification for trivia round completion
+    try {
+      const responses = JSON.parse(activeRound.responses || "[]");
+      const correctCount = responses.filter(r => r.isCorrect).length;
+      const message = responses.length > 0 
+        ? `Trivia round ended! ${correctCount}/${responses.length} answered correctly`
+        : `Trivia round ended! No responses yet`;
+      await createNotificationInternal(tripId, 'trivia_ended', message, {
+        relatedId: activeRound.rowKey || activeRound.id
+      });
+      console.log("[Trivia] Notification created for round completion");
+    } catch (notifErr) {
+      console.warn("[Trivia] Failed to create completion notification:", notifErr.message);
+    }
+    
     // Return the completed round for manual scoring with travelers list
     const travelers = await getTravelersForTrivia(tripId);
     sendSuccess(context, {
@@ -138,6 +155,10 @@ async function startRound(context, tripId, body, auth, headers) {
   const { category, eventContext } = body || {};
 
   console.log("[Trivia] Starting round for trip:", tripId, "category:", category);
+  
+  // Validate category - only allow predefined categories
+  const validCategories = ['general', 'funny', 'historical', 'food', 'expert'];
+  const sanitizedCategory = validCategories.includes(category) ? category : 'general';
 
   let rounds = [];
   try {
@@ -172,7 +193,7 @@ async function startRound(context, tripId, body, auth, headers) {
   }
 
   console.log("[Trivia] Generating question...");
-  const question = await generateTriviaQuestion(category, eventContext);
+  const question = await generateTriviaQuestion(sanitizedCategory, eventContext);
   console.log("[Trivia] Question generated:", question ? "success" : "failed");
 
   if (!question) {
@@ -190,7 +211,7 @@ async function startRound(context, tripId, body, auth, headers) {
     rowKey: roundId,
     id: roundId,
     status: "active",
-    category: category || "general",
+    category: sanitizedCategory,
     question: question.question,
     answers: JSON.stringify(question.answers),
     correctIndex: question.correctIndex,
@@ -205,6 +226,18 @@ async function startRound(context, tripId, body, auth, headers) {
   try {
     await upsertEntity(TABLES.TRIVIA_ROUNDS, round);
     console.log("[Trivia] Round saved successfully");
+    
+    // Create notification for trivia round start
+    try {
+      await createNotificationInternal(tripId, 'trivia_starting', `New trivia round: ${sanitizedCategory}!`, {
+        relatedId: roundId,
+        travelerId: auth.travelerId || auth.userId
+      });
+      console.log("[Trivia] Notification created for round start");
+    } catch (notifErr) {
+      console.warn("[Trivia] Failed to create notification:", notifErr.message);
+      // Don't fail the round creation if notification fails
+    }
   } catch (err) {
     console.error("[Trivia] Error saving round:", err);
     sendError(context, "Failed to save round: " + err.message, 500, headers);

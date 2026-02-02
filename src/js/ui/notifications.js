@@ -161,6 +161,7 @@ function handleTickerClick(event) {
       break;
 
     case 'trivia_starting':
+    case 'trivia_ended':
     case 'trivia_answer':
       if (typeof window.openTrivia === 'function') {
         window.openTrivia();
@@ -169,6 +170,7 @@ function handleTickerClick(event) {
 
     case 'poll_result':
     case 'poll_created':
+    case 'poll_closed':
       if (typeof window.openDinnerPollModal === 'function') {
         window.openDinnerPollModal();
       }
