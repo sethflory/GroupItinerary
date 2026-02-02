@@ -160,6 +160,53 @@ describe('renderPhotoRibbon', () => {
   it('should not crash when ribbonScroll is missing', () => {
     document.body.innerHTML = '';
 
+    // Function should return early without throwing
     expect(() => renderPhotoRibbon([])).not.toThrow();
+    
+    // Verify no elements are created when ribbonScroll is missing
+    expect(document.body.innerHTML).toBe('');
+  });
+
+  it('should render complete photo ribbon with all elements present', () => {
+    document.body.innerHTML = `
+      <div id="ribbonScroll"></div>
+      <div id="ribbonCount"></div>
+      <div id="ribbonControls" style="display: none;"></div>
+    `;
+
+    const photos = [
+      {
+        url: 'https://example.com/photo1.jpg',
+        metadata: {
+          caption: 'First photo',
+          uploadedBy: 'John Doe',
+          photoDate: '2024-01-01'
+        }
+      },
+      {
+        url: 'https://example.com/photo2.jpg',
+        metadata: {
+          caption: 'Second photo',
+          uploadedBy: 'Jane Smith',
+          photoDate: '2024-01-02'
+        }
+      }
+    ];
+
+    renderPhotoRibbon(photos);
+
+    // Verify count is updated
+    const countEl = document.getElementById('ribbonCount');
+    expect(countEl.textContent).toBe('2 photos');
+
+    // Verify controls are shown
+    const controlsEl = document.getElementById('ribbonControls');
+    expect(controlsEl.style.display).toBe('flex');
+
+    // Verify photos are rendered
+    const ribbonEl = document.getElementById('ribbonScroll');
+    expect(ribbonEl.innerHTML).toContain('ribbon-thumbnail');
+    expect(ribbonEl.innerHTML).toContain('https://example.com/photo1.jpg');
+    expect(ribbonEl.innerHTML).toContain('https://example.com/photo2.jpg');
   });
 });
