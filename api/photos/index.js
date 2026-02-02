@@ -109,14 +109,42 @@ module.exports = async function (context, req) {
 
     } else if (req.method === "DELETE") {
       const blobName = req.query.name || req.body?.name;
-      if (!blobName) {
-        context.res = { status: 400, headers, body: { error: "Missing blob name" } };
-        return;
-      }
+      const deleteAll = req.query.deleteAll === 'true' || req.body?.deleteAll === true;
+      
+      if (deleteAll) {
+        // Delete all photos for this trip
+        const blobsToDelete = [];
+        const listOptions = { includeMetadata: true };
+        if (prefix) listOptions.prefix = prefix;
+        
+        // First, collect all blob names
+        for await (const blob of containerClient.listBlobsFlat(listOptions)) {
+          blobsToDelete.push(blob.name);
+        }
+        
+        // Delete all blobs in parallel for better performance
+        await Promise.all(
+          blobsToDelete.map(blobName => 
+            containerClient.getBlobClient(blobName).deleteIfExists()
+          )
+        );
+        
+        context.res = { 
+          status: 200, 
+          headers, 
+          body: { success: true, deletedCount: blobsToDelete.length, deleted: blobsToDelete } 
+        };
+      } else {
+        // Delete a single photo
+        if (!blobName) {
+          context.res = { status: 400, headers, body: { error: "Missing blob name" } };
+          return;
+        }
 
-      const blobClient = containerClient.getBlobClient(blobName);
-      await blobClient.deleteIfExists();
-      context.res = { status: 200, headers, body: { success: true, deleted: blobName } };
+        const blobClient = containerClient.getBlobClient(blobName);
+        await blobClient.deleteIfExists();
+        context.res = { status: 200, headers, body: { success: true, deleted: blobName } };
+      }
 
     } else {
       context.res = { status: 405, headers, body: { error: "Method not allowed" } };
