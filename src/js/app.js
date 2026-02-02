@@ -689,7 +689,7 @@ function init() {
     }
 
     // Load photos
-    photos.loadTripPhotos();
+    await photos.loadTripPhotos();
   });
 
   // Initial render

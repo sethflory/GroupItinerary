@@ -246,7 +246,7 @@ export async function uploadPhotoHandler() {
     });
 
     closeUploadModal();
-    loadTripPhotos(); // Refresh the ribbon
+    await loadTripPhotos(); // Refresh the ribbon
   } catch (error) {
     alert('Upload failed: ' + error.message);
     submitBtn.disabled = false;
