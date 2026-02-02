@@ -305,8 +305,13 @@ function renderEventMedia(eventId, cardStyle, images, fallbackImage, title) {
 
   // Carousel: multiple images to swipe through
   if (cardStyle === 'carousel' && images.length > 1) {
+    // Store images data for slideEventCarousel to access
+    const imagesData = JSON.stringify(images.map(img => ({
+      credit: img.credit || '',
+      creditUrl: img.creditUrl || ''
+    })));
     return `
-      <div class="event-carousel" data-event-id="${eventId}">
+      <div class="event-carousel" data-event-id="${eventId}" data-images='${imagesData.replace(/'/g, "&#39;")}'>
         <div class="event-carousel-track">
           ${images.map((img, idx) => `
             <div class="event-carousel-slide ${idx === 0 ? 'active' : ''}">
@@ -374,11 +379,18 @@ window.slideEventCarousel = function(eventId, direction) {
   dots.forEach((d, i) => d.classList.toggle('active', i === currentIndex));
 
   // Update attribution for current slide
-  const eventCard = window.tripPersonalization?.eventCards?.[eventId];
-  const currentImg = eventCard?.images?.[currentIndex];
-  const attribution = carousel.querySelector('.event-image-attribution');
-  if (attribution && currentImg?.credit) {
-    attribution.innerHTML = `Photo by <a href="${currentImg.creditUrl || '#'}?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">${currentImg.credit}</a> on <a href="https://unsplash.com?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`;
+  const imagesData = carousel.dataset.images;
+  if (imagesData) {
+    try {
+      const images = JSON.parse(imagesData);
+      const currentImg = images[currentIndex];
+      const attribution = carousel.querySelector('.event-image-attribution');
+      if (attribution && currentImg?.credit) {
+        attribution.innerHTML = `Photo by <a href="${currentImg.creditUrl || '#'}?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">${currentImg.credit}</a> on <a href="https://unsplash.com?utm_source=GroupItinerary&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`;
+      }
+    } catch (e) {
+      console.error('Failed to parse carousel images data:', e);
+    }
   }
 };
 
