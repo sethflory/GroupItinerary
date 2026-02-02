@@ -87,6 +87,16 @@
   color: white;
 }
 
+/* Trivia Pills (Purple/Blue) */
+.activity-pill.trivia {
+  background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+  color: #3f51b5;
+}
+
+.activity-pill.trivia:hover {
+  background: linear-gradient(135deg, #c5cae9, #9fa8da);
+}
+
 /* Hunt pill pulse when close to completion */
 .activity-pill.hunt.almost-done {
   animation: pillSlideIn 0.3s ease-out, huntPulse 2s ease-in-out infinite;

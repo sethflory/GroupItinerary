@@ -5,10 +5,11 @@
 import { currentTripId } from '../state.js';
 import { API_BASE } from '../config.js';
 import { fetchActiveHunt } from '../api.js';
+import { getStoredAccessCode } from '../auth.js';
 
 let TRAVELERS = [];
 let pollInterval = null;
-let lastActivityState = { games: [], polls: [], hunt: null };
+let lastActivityState = { games: [], polls: [], hunt: null, trivia: null };
 
 export function setActivityPillsDeps(deps) {
   TRAVELERS = deps.TRAVELERS || [];
@@ -73,20 +74,54 @@ async function fetchActiveScavengerHunt() {
   }
 }
 
+async function fetchActiveTriviaRound() {
+  try {
+    const accessCode = getStoredAccessCode(currentTripId);
+    const response = await fetch(
+      `${API_BASE}/trips/${currentTripId}/trivia/rounds?accessCode=${encodeURIComponent(accessCode)}`,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    
+    // Return active round with participant count
+    if (data.active && data.round) {
+      return {
+        id: data.round.id,
+        question: data.round.question,
+        category: data.round.category,
+        status: data.round.status,
+        responseCount: data.round.responseCount || 0
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching active trivia:', error);
+    return null;
+  }
+}
+
 // ========================================
 // RENDER PILLS
 // ========================================
 
-function renderActivityPills(games, polls, hunt = null) {
+function renderActivityPills(games, polls, hunt = null, trivia = null) {
   const container = document.getElementById('activityPills');
   if (!container) return;
 
   // Check if anything changed
-  const newState = JSON.stringify({ games, polls, hunt });
+  const newState = JSON.stringify({ games, polls, hunt, trivia });
   const oldState = JSON.stringify(lastActivityState);
 
   const hasChanges = newState !== oldState;
-  lastActivityState = { games, polls, hunt };
+  lastActivityState = { games, polls, hunt, trivia };
 
   // Clear and rebuild
   container.innerHTML = '';
@@ -115,6 +150,28 @@ function renderActivityPills(games, polls, hunt = null) {
     `;
 
     pill.onclick = () => openScavengerHunt(hunt.id);
+    container.appendChild(pill);
+  }
+
+  // Render trivia pill (if active)
+  if (trivia) {
+    const pill = document.createElement('button');
+    pill.className = 'activity-pill trivia';
+
+    if (hasChanges && !oldState.includes(trivia.id)) {
+      pill.classList.add('new');
+    }
+
+    const displayName = truncateName('Trip Trivia', 15);
+    const categoryEmoji = getCategoryEmoji(trivia.category);
+
+    pill.innerHTML = `
+      <span class="pill-icon">${categoryEmoji}</span>
+      <span class="pill-name">${displayName}</span>
+      <span class="pill-badge">${trivia.responseCount}</span>
+    `;
+
+    pill.onclick = () => openTrivia();
     container.appendChild(pill);
   }
 
@@ -166,6 +223,17 @@ function renderActivityPills(games, polls, hunt = null) {
   });
 }
 
+function getCategoryEmoji(category) {
+  const emojiMap = {
+    general: '🌍',
+    funny: '😄',
+    historical: '🏛️',
+    food: '🍽️',
+    expert: '🎓'
+  };
+  return emojiMap[category] || '🎯';
+}
+
 function truncateName(name, maxLength) {
   if (name.length <= maxLength) return name;
   return name.substring(0, maxLength - 1) + '…';
@@ -206,18 +274,28 @@ function openScavengerHunt(huntId) {
   }
 }
 
+function openTrivia() {
+  // Open the trivia modal
+  if (typeof window.openTrivia === 'function') {
+    window.openTrivia();
+  } else {
+    console.log('Open trivia');
+  }
+}
+
 // ========================================
 // POLLING
 // ========================================
 
 async function refreshActivities() {
-  const [games, polls, hunt] = await Promise.all([
+  const [games, polls, hunt, trivia] = await Promise.all([
     fetchActiveGames(),
     fetchOpenPolls(),
-    fetchActiveScavengerHunt()
+    fetchActiveScavengerHunt(),
+    fetchActiveTriviaRound()
   ]);
 
-  renderActivityPills(games, polls, hunt);
+  renderActivityPills(games, polls, hunt, trivia);
 }
 
 export function startActivityPolling(intervalMs = 30000) {
@@ -245,24 +323,24 @@ export function stopActivityPolling() {
 
 export function addGamePill(game) {
   lastActivityState.games.push(game);
-  renderActivityPills(lastActivityState.games, lastActivityState.polls);
+  renderActivityPills(lastActivityState.games, lastActivityState.polls, lastActivityState.hunt, lastActivityState.trivia);
 }
 
 export function addPollPill(poll) {
   lastActivityState.polls.push(poll);
-  renderActivityPills(lastActivityState.games, lastActivityState.polls);
+  renderActivityPills(lastActivityState.games, lastActivityState.polls, lastActivityState.hunt, lastActivityState.trivia);
 }
 
 export function removeGamePill(gameId) {
   lastActivityState.games = lastActivityState.games.filter(g =>
     (g.id || g.eventId) !== gameId
   );
-  renderActivityPills(lastActivityState.games, lastActivityState.polls);
+  renderActivityPills(lastActivityState.games, lastActivityState.polls, lastActivityState.hunt, lastActivityState.trivia);
 }
 
 export function removePollPill(pollId) {
   lastActivityState.polls = lastActivityState.polls.filter(p => p.id !== pollId);
-  renderActivityPills(lastActivityState.games, lastActivityState.polls);
+  renderActivityPills(lastActivityState.games, lastActivityState.polls, lastActivityState.hunt, lastActivityState.trivia);
 }
 
 // ========================================
@@ -286,7 +364,13 @@ export function showDemoPills() {
     totalCount: 12
   };
 
-  renderActivityPills(demoGames, demoPolls, demoHunt);
+  const demoTrivia = {
+    id: 'trivia1',
+    category: 'general',
+    responseCount: 2
+  };
+
+  renderActivityPills(demoGames, demoPolls, demoHunt, demoTrivia);
 }
 
 // ========================================
