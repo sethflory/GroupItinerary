@@ -244,6 +244,26 @@ async function startRound(context, tripId, body, auth, headers) {
     return;
   }
 
+  // Send notification to all travelers
+  try {
+    const starterName = auth.travelerName || auth.userName || "Someone";
+    await createNotificationInternal(
+      tripId,
+      "trivia_starting",
+      `${starterName} started a ${category || "general"} trivia round!`,
+      {
+        relatedId: roundId,
+        travelerId: auth.travelerId || auth.userId,
+        travelerName: starterName,
+        expiresAt: questionEnd.toISOString() // Expire when question ends
+      }
+    );
+    console.log("[Trivia] Notification sent for round start");
+  } catch (err) {
+    console.error("[Trivia] Failed to send notification:", err);
+    // Don't fail the round if notification fails
+  }
+
   sendSuccess(context, { round: formatRound(round), countdownMs: 3000 }, 201, headers);
 }
 
@@ -326,6 +346,28 @@ async function submitAnswer(context, tripId, body, auth, headers) {
   round.responses = JSON.stringify(responses);
   await upsertEntity(TABLES.TRIVIA_ROUNDS, round);
   await updateLeaderboard(tripId, travelerId, points, isCorrect, displayName);
+
+  // Send notification for correct answers
+  try {
+    if (isCorrect) {
+      const answererName = displayName || auth.travelerName || auth.userName || "Someone";
+      await createNotificationInternal(
+        tripId,
+        "trivia_answer",
+        `${answererName} answered correctly! +${points} points 🎯`,
+        {
+          relatedId: round.rowKey,
+          travelerId,
+          travelerName: answererName,
+          expiresAt: new Date(round.questionEndsAt).toISOString()
+        }
+      );
+      console.log("[Trivia] Notification sent for correct answer");
+    }
+  } catch (err) {
+    console.error("[Trivia] Failed to send answer notification:", err);
+    // Don't fail the submission if notification fails
+  }
 
   sendSuccess(context, { correct: isCorrect, points, correctIndex: correctIdx }, 200, headers);
 }
